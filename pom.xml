@@ -1,0 +1,75 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.hl7</groupId>
+    <artifactId>komet</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+            <comments>A business-friendly OSS license</comments>
+        </license>
+    </licenses>
+    <organization>
+        <name>Health Level Seven International</name>
+        <url>http://hl7.org</url>
+    </organization>
+    <properties>
+        <auto-service.version>1.0-rc7</auto-service.version>
+        <controlsfx.version>11.1.0</controlsfx.version>
+        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
+        <maven.compiler.source>16</maven.compiler.source>
+        <maven.compiler.target>16</maven.compiler.target>
+        <openjfx.version>16</openjfx.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <record-builder-core.version>1.19</record-builder-core.version>
+        <tinkar-core.version>1.0-SNAPSHOT</tinkar-core.version>
+        <tinkar-jpms-deps.version>1.0</tinkar-jpms-deps.version>
+        <ikonli.version>12.2.0</ikonli.version>
+    </properties>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                    <fork>true</fork>
+                    <annotationProcessorPaths>
+                        <annotationProcessorPath>
+                            <groupId>io.soabase.record-builder</groupId>
+                            <artifactId>record-builder-processor</artifactId>
+                            <version>${record-builder-core.version}</version>
+                        </annotationProcessorPath>
+                        <annotationProcessorPath>
+                            <groupId>com.google.auto.service</groupId>
+                            <artifactId>auto-service</artifactId>
+                            <version>${auto-service.version}</version>
+                        </annotationProcessorPath>
+                    </annotationProcessorPaths>
+                    <annotationProcessors>
+                        <annotationProcessor>io.soabase.recordbuilder.processor.RecordBuilderProcessor
+                        </annotationProcessor>
+                        <annotationProcessor>com.google.auto.service.processor.AutoServiceProcessor
+                        </annotationProcessor>
+                    </annotationProcessors>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    <modules>
+        <module>application</module>
+        <module>graphics</module>
+        <module>progress</module>
+        <module>preferences</module>
+        <module>framework</module>
+        <module>executor</module>
+        <module>tabs</module>
+    </modules>
+</project>
+

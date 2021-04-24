@@ -1,0 +1,26 @@
+import org.hl7.komet.framework.NodeFactory;
+import org.hl7.komet.framework.TaskLists;
+import org.hl7.tinkar.common.service.DataServiceController;
+
+module org.hl7.komet.application {
+    requires javafx.controls;
+    requires javafx.fxml;
+    requires org.controlsfx.controls;
+    requires org.hl7.komet.framework;
+    requires org.hl7.komet.graphics;
+    requires org.hl7.komet.tabs;
+    requires org.hl7.tinkar.common;
+    requires org.hl7.tinkar.entity;
+    requires org.hl7.tinkar.terms;
+    requires org.kordamp.ikonli.javafx;
+    requires org.hl7.komet.progress;
+
+    uses DataServiceController;
+    uses TaskLists;
+    uses NodeFactory;
+
+    opens sh.komet.app to javafx.fxml;
+
+    exports sh.komet.app to javafx.graphics;
+    exports sh.komet.app.propsheet.editor to org.controlsfx.controls;
+}

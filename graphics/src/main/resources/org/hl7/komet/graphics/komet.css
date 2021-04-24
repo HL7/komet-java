@@ -1,0 +1,211 @@
+/*
+Copyright 2017 Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the
+         US Veterans Health Administration, OSHERA, and the Health Services Platform Consortium..
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+.root {
+    -komet-blue-color: #406AD1;
+    -komet-tab-background-color: #52646d;
+    -komet-panel-background-color: #c3cdd3;
+    -komet-concept-box-background-color: #eef1f3;
+    -komet-concept-color: #5ec200;
+    -komet-description-color: #ff9100;
+    -komet-definition-color: #009bff;
+    -komet-inactive-color: #b3b3b3;
+    -komet-box-border: #d1d1d1;
+    -fx-font-family: "Open Sans";
+    -komet-uncommitted-fill: #f5f6cb;
+    -komet-uncommitted-border: #ffef00;
+    -komet-error-background: #ff5000;
+    -komet-warning-background: #ffef00;
+    -komet-confirm-background: #009414;
+    -komet-inactive-background: linear-gradient(
+            from 0em 0.75em to 0.75em 0px,
+            repeat,
+            derive(-komet-inactive-color, 70%) 0%,
+            derive(-komet-inactive-color, 70%) 49%,
+            derive(-komet-inactive-color, 95%) 50%,
+            derive(-komet-inactive-color, 95%) 99%
+    );
+    -komet-inactive-background-selected: linear-gradient(
+            from 0em 0.75em to 0.75em 0px,
+            repeat,
+            -komet-blue-color 0%,
+            -komet-blue-color 49%,
+            derive(-komet-blue-color, 30%) 50%,
+            derive(-komet-blue-color, 30%) 99%
+    );
+}
+
+.top-grid-pane {
+    -fx-background-color: white;
+}
+
+.vanityBox {
+    -fx-background-color: transparent;
+    -fx-padding:3 3 3 5;
+    -fx-border-width: 1 1 1 1;
+    -fx-border-color: white;
+    -fx-border-insets: 3 3 3 3;
+    -fx-graphic-text-gap:0;
+}
+
+#view-coordinates .ikonli-font-icon {
+    /*-fx-icon-code: "map-icon-viewing";*/
+    /* -fx-icon-code: "fi-target-two";*/
+    /* -fx-icon-code: "icm-target";*/
+    /* -fx-icon-code: "mdi2c-crosshairs-gps"; */
+     -fx-icon-code: "ri-viewpoint";
+    /* -fx-icon-code: "unil-crosshair-alt";*/
+    -fx-icon-color: grey;
+    -fx-icon-size: 24;
+}
+
+#view-coordinates .arrow-button {
+    -fx-padding:0 6 0 0;
+}
+
+#add-tab .ikonli-font-icon {
+    -fx-icon-code: "unil-plus";
+    -fx-icon-color: white;
+    -fx-icon-size: 14;
+}
+
+#activity-node .ikonli-font-icon {
+    -fx-icon-code: "icm-spinner";
+    -fx-icon-color: -komet-blue-color;
+    -fx-icon-size: 20;
+}
+
+.add-tab-menu {
+    -fx-background-color: #c3cdd3;
+    -fx-border-color: -komet-blue-color;
+    -fx-border-radius: 0;
+    -fx-border-width: 0 0 0 0;
+    -fx-background-radius: 0;
+    -fx-graphic-text-gap: -5;
+    -fx-label-padding: 0;
+    -fx-content-display: graphic-only;
+}
+
+.add-tab-menu * .arrow {
+    -fx-mark-color: white;
+}
+
+.add-tab-menu .label {
+    -fx-background-color: -komet-blue-color;
+    -fx-border-color: -komet-blue-color;
+    -fx-padding: 4 0 5 2;
+}
+
+.add-tab-menu .arrow-button {
+    -fx-background-color: -komet-blue-color;
+    -fx-border-color: -komet-blue-color;
+    -fx-padding: 4 4 5 1;
+}
+
+.add-tab-menu .menu-item:focused .glyph-icon {
+    -icons-color: white;
+}
+.add-tab-menu .menu-item .glyph-icon {
+    -icons-color: -komet-blue-color;
+}
+
+.add-tab-menu .menu-item .label {
+    -fx-background-color: white;
+    -fx-border-color: white;
+    -fx-text-fill: -komet-blue-color;
+    -fx-font-size:13;
+}
+
+.add-tab-menu .menu-item:focused .label {
+    -fx-background-color: -komet-blue-color;
+    -fx-border-color: -komet-blue-color;
+    -fx-text-fill: white;
+}
+.add-tab-menu .menu-item:focused {
+    -fx-background-color: -komet-blue-color;
+}
+
+.tab-pane .tab-header-area {
+    -fx-padding: 0 0 0 35;
+}
+
+/* top refers to tabs that are layed out on the top of the pane, as opposed to side or bottom...*/
+.tab:top {
+    -fx-background-color: -komet-tab-background-color;
+    -fx-border-color: -komet-blue-color;
+    -fx-border-width: 0 0 3 0;
+}
+
+/* only one tab in a tab group is selected at a time. */
+.tab-pane > .tab-header-area > .headers-region > .tab:selected {
+    -fx-background-color: -komet-blue-color;
+    -fx-border-color: -komet-blue-color;
+    -fx-border-radius: 5 5 0 0, 4 4 0 0;
+}
+/* since the selection is so different, the focus indicator is a distration, will make it same color */
+.tab-header-area * .tab:selected * .focus-indicator {
+    -fx-border-color: transparent;
+}
+
+
+.tab-pane > .tab-header-area > .headers-region > .tab:selected > labeled {
+    -fx-text-fill: white;
+    -icons-color: white;
+}
+.tab-label {
+    -fx-text-fill: white;
+}
+
+/* glphy-icon inside of tabs will be white... */
+.tab  * .glyph-icon  {
+    -icons-color: white;
+}
+
+.tab .concept-label {
+    -fx-text-fill: white;
+}
+.tab .label {
+    -fx-text-fill: white;
+}
+
+
+.tab:drop-possible {
+    -fx-border-color: white;
+    -fx-border-style: dashed;
+    -fx-border-radius: 5 5 0 0, 4 4 0 0;
+    -fx-border-width:2;
+}
+
+.tab:drop-ready {
+    -fx-border-color: white;
+    -fx-border-style: dashed;
+    -fx-border-radius: 5 5 0 0, 4 4 0 0;
+    -fx-border-width:2;
+}
+
+.tab {
+    -fx-text-fill: white;
+    -fx-border-width:0;
+}
+
+/* only one tab in a tab group is selected at a time. */
+.tab-pane > .tab-header-area > .headers-region > .tab:selected:drop-ready {
+    -fx-background-color: -komet-blue-color;
+    -fx-border-color: white;
+    -fx-border-radius: 5 5 0 0, 4 4 0 0;
+}
+
