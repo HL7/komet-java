@@ -124,7 +124,6 @@ public class KometExecutor implements ExecutorService {
                     new NamedThreadFactory("Tinkar-Scheduled-Thread", true));
             LOG.fine("WorkExecutors thread pools ready");
         }
-
     }
 
     /**

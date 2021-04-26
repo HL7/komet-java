@@ -50,7 +50,7 @@ class DetachableTabPathModel {
         this.startX = startX;
         this.startY = startY;
         if (regenerate) {
-            ControlUtils.generateTabPath(path, startX + 2, startY + 2, width - 4, height - 4);
+            PathUtil.generateTabPath(path, startX + 2, startY + 2, width - 4, height - 4);
         }
     }
 
@@ -64,7 +64,7 @@ class DetachableTabPathModel {
         startX = 0;
         startY = 0;
         if (regenerate) {
-            ControlUtils.generateTabPath(path, tabPos, width - 2, height - 2);
+            PathUtil.generateTabPath(path, tabPos, width - 2, height - 2);
         }
     }
 }

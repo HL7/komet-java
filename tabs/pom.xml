@@ -23,6 +23,12 @@
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.hl7.tinkar</groupId>
+            <artifactId>auto-service</artifactId>
+            <version>${tinkar-jpms-deps.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
             <version>${openjfx.version}</version>

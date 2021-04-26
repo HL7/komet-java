@@ -23,9 +23,11 @@ public class ProgressNodeFactory implements NodeFactory {
     @Override
     public Node getMenuGraphic() {
         FontIcon icon = new FontIcon();
-        Label iconLable = new Label("", icon);
-        iconLable.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-        iconLable.setId("activity-node");
-        return iconLable;
+        Label iconLabel = new Label("", icon);
+        iconLabel.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+        iconLabel.setId("activity-node");
+        return iconLabel;
     }
+
+
 }

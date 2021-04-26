@@ -28,7 +28,7 @@ import javafx.scene.shape.VLineTo;
  *
  * @author amrullah
  */
-class ControlUtils {
+class PathUtil {
 
     public static void generateTabPath(Path path, double startX, double startY, double width, double height) {
         path.getElements().clear();
@@ -43,7 +43,7 @@ class ControlUtils {
     }
 
     public static void generateTabPath(Path path, double tabPos, double width, double height) {
-        int tabHeight = 28;
+        int tabHeight = 32;
         int start = 2;
         tabPos = Math.max(start, tabPos);
         path.getElements().clear();

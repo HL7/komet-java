@@ -104,11 +104,6 @@ public class App extends Application {
             state.set(AppState.SELECT_DATA_SOURCE);
             state.addListener(this::appStateChangeListener);
 
-            ServiceLoader<NodeFactory> nodeFactoryLoader = ServiceLoader.load(NodeFactory.class);
-            nodeFactoryLoader.stream().forEach(nodeFactoryProvider -> {
-                System.out.println("Found: " + nodeFactoryProvider.get().getMenuText());
-            });
-
         } catch (IOException e) {
             kometLog.log(Level.SEVERE, e.getLocalizedMessage(), e);
             Platform.exit();

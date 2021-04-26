@@ -49,6 +49,7 @@ public class DetachableTab extends Tab {
     public void setDetachable(boolean detachable) {
         this.detachable.set(detachable);
     }
+
     public BooleanProperty detachableProperty() {
         return detachable;
     }

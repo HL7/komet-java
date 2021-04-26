@@ -4,6 +4,7 @@ module org.hl7.komet.graphics {
     requires transitive org.kordamp.ikonli.javafx;
 
     requires transitive org.kordamp.ikonli.foundation;
+    requires transitive org.kordamp.ikonli.fontawesome;
     requires transitive org.kordamp.ikonli.icomoon;
     requires transitive org.kordamp.ikonli.ionicons4;
     requires transitive org.kordamp.ikonli.mapicons;

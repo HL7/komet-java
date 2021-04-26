@@ -64,11 +64,18 @@
     </build>
     <modules>
         <module>application</module>
-        <module>graphics</module>
-        <module>progress</module>
-        <module>preferences</module>
-        <module>framework</module>
+        <module>artifact</module>
+        <module>builder</module>
+        <module>classification</module>
+        <module>details</module>
         <module>executor</module>
+        <module>framework</module>
+        <module>graphics</module>
+        <module>list</module>
+        <module>navigator</module>
+        <module>preferences</module>
+        <module>progress</module>
+        <module>search</module>
         <module>tabs</module>
     </modules>
 </project>

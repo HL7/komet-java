@@ -9,13 +9,21 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import org.controlsfx.control.TaskProgressView;
+import org.hl7.komet.details.DetailsNodeFactory;
+import org.hl7.komet.framework.ExplorationNode;
 import org.hl7.komet.framework.TaskLists;
+import org.hl7.komet.navigator.NavigatorNodeFactory;
+import org.hl7.komet.progress.CompletionNodeFactory;
+import org.hl7.komet.progress.ProgressNodeFactory;
+import org.hl7.komet.search.SearchNodeFactory;
 import org.hl7.komet.tabs.DetachableTab;
 import org.hl7.komet.tabs.TabStack;
 import org.kordamp.ikonli.javafx.FontIcon;
@@ -86,9 +94,9 @@ public class KometStageController {
 
     private final ImageView vanityImage = new ImageView();
 
-    private TabStack leftDetachableTabPane = TabStack.make();
-    private TabStack centerDetachableTabPane = TabStack.make();
-    private TabStack rightDetachableTabPane = TabStack.make();
+    private TabStack leftDetachableTabPane = TabStack.make(false);
+    private TabStack centerDetachableTabPane = TabStack.make(false);
+    private TabStack rightDetachableTabPane = TabStack.make(false);
 
     private Node getTabPaneFromIndex(int index) {
         switch (index) {
@@ -171,20 +179,73 @@ public class KometStageController {
         vanityImage.setCache(true);
         vanityBox.setGraphic(vanityImage);
 
-        TaskProgressView<Task<?>> progressView = new TaskProgressView<>();
-        progressView.setRetainTasks(false);
 
-        Optional<TaskLists> optionalTaskLists = ServiceLoader.load(TaskLists.class).findFirst();
-        optionalTaskLists.ifPresent(taskLists -> {
-            Bindings.bindContent(progressView.getTasks(), taskLists.executingTasks());
+        NavigatorNodeFactory navigatorNodeFactory = new NavigatorNodeFactory();
+        ExplorationNode navigatorNode1 = navigatorNodeFactory.create();
+        DetachableTab navigatorNode1Tab = new DetachableTab(navigatorNode1.getTitle().getValue(), navigatorNode1.getNode());
+        navigatorNode1Tab.setGraphic(navigatorNode1.getTitleNode());
+        this.leftDetachableTabPane.getTabPane().getTabs().add(navigatorNode1Tab);
+
+        DetailsNodeFactory detailsNodeFactory = new DetailsNodeFactory();
+        ExplorationNode detailsNode1 = detailsNodeFactory.create();
+        DetachableTab detailsNode1Tab = new DetachableTab(detailsNode1.getTitle().getValue(), detailsNode1.getNode());
+        detailsNode1Tab.setGraphic(detailsNode1.getTitleNode());
+        this.centerDetachableTabPane.getTabs().add(detailsNode1Tab);
+
+        ExplorationNode detailsNode2 = detailsNodeFactory.create();
+        DetachableTab detailsNode2Tab = new DetachableTab(detailsNode2.getTitle().getValue(), detailsNode2.getNode());
+        detailsNode2Tab.setGraphic(detailsNode2.getTitleNode());
+        this.centerDetachableTabPane.getTabs().add(detailsNode2Tab);
+
+        ExplorationNode detailsNode3 = detailsNodeFactory.create();
+        DetachableTab detailsNode3Tab = new DetachableTab(detailsNode3.getTitle().getValue(), detailsNode3.getNode());
+        detailsNode3Tab.setGraphic(detailsNode3.getTitleNode());
+        this.centerDetachableTabPane.getTabs().add(detailsNode3Tab);
+
+
+        SearchNodeFactory searchNodeFactory = new SearchNodeFactory();
+        ExplorationNode searchNode = searchNodeFactory.create();
+        DetachableTab newSearchTab = new DetachableTab(searchNode.getTitle().getValue(), searchNode.getNode());
+        newSearchTab.setGraphic(searchNode.getTitleNode());
+        this.rightDetachableTabPane.getTabs().add(newSearchTab);
+
+        ProgressNodeFactory progressNodeFactory = new ProgressNodeFactory();
+        ExplorationNode explorationNode = progressNodeFactory.create();
+        DetachableTab progressTab = new DetachableTab(explorationNode.getTitle().getValue(), explorationNode.getNode());
+        progressTab.setGraphic(explorationNode.getTitleNode());
+        this.rightDetachableTabPane.getTabs().add(progressTab);
+
+        CompletionNodeFactory completionNodeFactory = new CompletionNodeFactory();
+        ExplorationNode completionNode  = completionNodeFactory.create();
+        DetachableTab completionTab = new DetachableTab(completionNode.getTitle().getValue(), completionNode.getNode());
+        completionTab.setGraphic(completionNode.getTitleNode());
+        this.rightDetachableTabPane.getTabs().add(completionTab);
+        
+        this.rightDetachableTabPane.getSelectionModel().select(progressTab);
+
+
+        topGridPane.setStyle("-fx-border-color: transparent");
+        topGridPane.setOnDragDropped((DragEvent event) -> {
+            event.setDropCompleted(true);
         });
-        this.leftDetachableTabPane.getTabPane().getTabs().add(new DetachableTab("Label 3", new Label("3")));
-        this.leftDetachableTabPane.getTabPane().getTabs().add(new DetachableTab("Label 4", new Label("4")));
+        topGridPane.setOnDragOver((DragEvent event) -> {
+            event.acceptTransferModes(TransferMode.MOVE);
+            topGridPane.setStyle("-fx-border-color: -komet-blue-color");
+            event.consume();
+        });
 
-        this.centerDetachableTabPane.getTabs().add(new DetachableTab("Label 1", new Label("1")));
-        this.centerDetachableTabPane.getTabs().add(new DetachableTab("Label 2", new Label("2")));
+        topGridPane.setOnDragEntered((DragEvent event) -> {
+            event.acceptTransferModes(TransferMode.MOVE);
+            topGridPane.setStyle("-fx-border-color: -komet-blue-color");
+            event.consume();
+        });
 
-        this.rightDetachableTabPane.getTabs().add(new DetachableTab("Progress", progressView));
+        topGridPane.setOnDragExited((DragEvent event) -> {
+            event.acceptTransferModes(TransferMode.MOVE);
+            topGridPane.setStyle("-fx-border-color: transparent");
+            event.consume();
+        });
+
     }
     private List<MenuItem> getTaskMenuItems() {
         ArrayList<MenuItem> items = new ArrayList<>();

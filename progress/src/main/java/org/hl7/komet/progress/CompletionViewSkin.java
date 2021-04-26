@@ -1,0 +1,132 @@
+package org.hl7.komet.progress;
+
+
+import javafx.beans.binding.Bindings;
+import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.control.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
+import javafx.util.Callback;
+import org.controlsfx.control.TaskProgressView;
+import org.kordamp.ikonli.javafx.FontIcon;
+
+public class CompletionViewSkin<T extends Task<?>> extends
+        SkinBase<TaskProgressView<T>> {
+
+    final ListView<T> listView;
+    final ObservableList<Task<?>> tasks;
+    public CompletionViewSkin(TaskProgressView<T> monitor, ObservableList<Task<?>> tasks) {
+        super(monitor);
+        this.tasks = tasks;
+        BorderPane borderPane = new BorderPane();
+        borderPane.getStyleClass().add("box");
+
+        // list view
+        this.listView = new ListView<>();
+        listView.setPrefSize(500, 400);
+        listView.setPlaceholder(new Label("No completed tasks available"));
+        listView.setCellFactory(param -> new CompletionViewSkin.TaskCell());
+        listView.setFocusTraversable(false);
+
+        Bindings.bindContent(listView.getItems(), monitor.getTasks());
+        borderPane.setCenter(listView);
+
+        getChildren().add(listView);
+    }
+
+    class TaskCell extends ListCell<T> {
+        private Label titleText;
+        private Label messageText;
+        private Button removeButton;
+
+        private T task;
+        private BorderPane borderPane;
+
+        public TaskCell() {
+            titleText = new Label();
+            titleText.getStyleClass().add("task-title");
+
+            messageText = new Label();
+            messageText.getStyleClass().add("task-message");
+
+
+            FontIcon icon = new FontIcon();
+            icon.setIconLiteral("mdi2c-card-remove:16:#52646d");
+            icon.setId("remove-completion-node");
+
+            removeButton = new Button("", icon);
+            //
+            removeButton.getStyleClass().add("task-cancel-button");
+            removeButton.setTooltip(new Tooltip("Remove task from completion list"));
+            removeButton.setOnAction(evt -> {
+                CompletionViewSkin.this.tasks.remove(task);
+            });
+
+            VBox vbox = new VBox();
+            vbox.setSpacing(4);
+            vbox.getChildren().add(titleText);
+            vbox.getChildren().add(messageText);
+
+            BorderPane.setAlignment(removeButton, Pos.CENTER);
+            BorderPane.setMargin(removeButton, new Insets(0, 0, 0, 4));
+
+            borderPane = new BorderPane();
+            borderPane.setCenter(vbox);
+            borderPane.setRight(removeButton);
+            setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+        }
+
+        @Override
+        public void updateIndex(int index) {
+            super.updateIndex(index);
+
+            /*
+             * I have no idea why this is necessary but it won't work without
+             * it. Shouldn't the updateItem method be enough?
+             */
+            if (index == -1) {
+                setGraphic(null);
+                getStyleClass().setAll("task-list-cell-empty");
+            }
+        }
+
+        @Override
+        protected void updateItem(T task, boolean empty) {
+            super.updateItem(task, empty);
+
+            this.task = task;
+
+            if (empty || task == null) {
+                getStyleClass().setAll("task-list-cell-empty");
+                setGraphic(null);
+            } else if (task != null) {
+                getStyleClass().setAll("task-list-cell");
+                titleText.textProperty().bind(task.titleProperty());
+                messageText.textProperty().bind(task.messageProperty());
+
+                Callback<T, Node> factory = getSkinnable().getGraphicFactory();
+                if (factory != null) {
+                    Node graphic = factory.call(task);
+                    if (graphic != null) {
+                        BorderPane.setAlignment(graphic, Pos.CENTER);
+                        BorderPane.setMargin(graphic, new Insets(0, 4, 0, 0));
+                        borderPane.setLeft(graphic);
+                    }
+                } else {
+                    /*
+                     * Really needed. The application might have used a graphic
+                     * factory before and then disabled it. In this case the border
+                     * pane might still have an old graphic in the left position.
+                     */
+                    borderPane.setLeft(null);
+                }
+
+                setGraphic(borderPane);
+            }
+        }
+    }
+}

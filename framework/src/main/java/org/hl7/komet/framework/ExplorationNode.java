@@ -34,7 +34,7 @@ public interface ExplorationNode {
      *
      * @return a Node to represent the title of this DetailNode.
      */
-    Optional<Node> getTitleNode();
+    Node getTitleNode();
 
     /**
      * Tool tip text to explain this node in more detail than a title would.
@@ -62,9 +62,6 @@ public interface ExplorationNode {
         return getNode().getScene();
     }
 
-
-    ObjectProperty<Node> getMenuIconProperty();
-
     /**
      * When called, the node should release all resources, as it is closed.
      */
@@ -83,10 +80,4 @@ public interface ExplorationNode {
     void savePreferences();
 
     void revertPreferences();
-
-    Node getMenuIconGraphic();
-
-    default Node getTitleIconGraphic() {
-        return getMenuIconGraphic();
-    }
 }

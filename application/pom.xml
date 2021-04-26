@@ -11,6 +11,41 @@
     <dependencies>
         <dependency>
             <groupId>org.hl7.komet</groupId>
+            <artifactId>artifact</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hl7.komet</groupId>
+            <artifactId>builder</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hl7.komet</groupId>
+            <artifactId>classification</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hl7.komet</groupId>
+            <artifactId>details</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hl7.komet</groupId>
+            <artifactId>list</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hl7.komet</groupId>
+            <artifactId>navigator</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hl7.komet</groupId>
+            <artifactId>search</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hl7.komet</groupId>
             <artifactId>progress</artifactId>
             <version>${project.parent.version}</version>
         </dependency>

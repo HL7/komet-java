@@ -69,12 +69,15 @@ limitations under the License.
     /* -fx-icon-code: "mdi2c-crosshairs-gps"; */
      -fx-icon-code: "ri-viewpoint";
     /* -fx-icon-code: "unil-crosshair-alt";*/
-    -fx-icon-color: grey;
-    -fx-icon-size: 24;
+    -fx-icon-color: -komet-tab-background-color;
+    -fx-icon-size: 20;
 }
 
 #view-coordinates .arrow-button {
-    -fx-padding:0 6 0 0;
+    -fx-padding:1 21 0 0;
+}
+#view-coordinates  {
+    -fx-padding:2 0 0 -10;
 }
 
 #add-tab .ikonli-font-icon {
@@ -83,10 +86,172 @@ limitations under the License.
     -fx-icon-size: 14;
 }
 
-#activity-node .ikonli-font-icon {
-    -fx-icon-code: "icm-spinner";
+/* #search-node pair */
+#search-node .ikonli-font-icon {
+    -fx-icon-code: "icm-search";
+    -fx-icon-color: -komet-blue-color;
+    -fx-icon-size: 18;
+}
+.add-tab-menu-item:focused  #search-node .ikonli-font-icon {
+    -fx-icon-color: white;
+    -fx-icon-size: 18;
+}
+.tab  #search-node .ikonli-font-icon {
+    -fx-icon-color: white;
+    -fx-icon-size: 14;
+}
+
+
+/* #navigator-node pair */
+#navigator-node .ikonli-font-icon {
+    -fx-icon-code: "mdi2f-file-tree";
     -fx-icon-color: -komet-blue-color;
     -fx-icon-size: 20;
+}
+
+.add-tab-menu-item:focused  #navigator-node .ikonli-font-icon,
+.tab  #navigator-node .ikonli-font-icon {
+    -fx-icon-color: white;
+    -fx-icon-size: 20;
+}
+
+
+/* #list-node pair */
+#list-node .ikonli-font-icon {
+    -fx-icon-code: "mdi2v-view-headline";
+    -fx-icon-color: -komet-blue-color;
+    -fx-icon-size: 20;
+}
+
+.add-tab-menu-item:focused  #list-node .ikonli-font-icon,
+.tab  #list-node .ikonli-font-icon {
+    -fx-icon-color: white;
+    -fx-icon-size: 20;
+}
+
+
+/* #classification-results-node pair */
+#concept-details-node .ikonli-font-icon {
+    -fx-icon-code: "mdi2f-focus-field";
+    -fx-icon-color: -komet-blue-color;
+    -fx-icon-size: 20;
+}
+
+.add-tab-menu-item:focused  #concept-details-node .ikonli-font-icon,
+.tab  #concept-details-node .ikonli-font-icon {
+    -fx-icon-color: white;
+    -fx-icon-size: 20;
+}
+
+/* #classification-results-node pair */
+#classification-results-node .ikonli-font-icon {
+    -fx-icon-code: "fa-cogs";
+    -fx-icon-color: -komet-blue-color;
+    -fx-icon-size: 16;
+}
+
+.add-tab-menu-item:focused  #classification-results-node .ikonli-font-icon,
+.tab  #classification-results-node .ikonli-font-icon {
+    -fx-icon-color: white;
+    -fx-icon-size: 16;
+}
+
+    /* #create-concept-node pair */
+#concept-builder-node .ikonli-font-icon {
+    -fx-icon-code: "mdi2s-shape-circle-plus";
+    -fx-icon-color: -komet-blue-color;
+    -fx-icon-size: 20;
+}
+.add-tab-menu-item:focused  #concept-builder-node .ikonli-font-icon,
+.tab  #concept-builder-node .ikonli-font-icon {
+    -fx-icon-color: white;
+    -fx-icon-size: 20;
+}
+    /* #completion-node pair */
+#completion-node .ikonli-font-icon {
+    -fx-icon-code: "mdi2f-flag-checkered";
+    -fx-icon-color: -komet-blue-color;
+    -fx-icon-size: 20;
+}
+.add-tab-menu-item:focused  #completion-node .ikonli-font-icon,
+.tab  #completion-node .ikonli-font-icon {
+    -fx-icon-color: white;
+    -fx-icon-size: 20;
+}
+/* #activity-node */
+.tab  #activity-node .ikonli-font-icon {
+    -fx-icon-color: white;
+    -fx-icon-size: 16;
+}
+/* #export-node pair */
+#export-node .ikonli-font-icon {
+    -fx-icon-code: "mdi2d-database-export";
+    -fx-icon-color: -komet-blue-color;
+    -fx-icon-size: 20;
+}
+.add-tab-menu-item:focused  #export-node .ikonli-font-icon,
+.tab  #export-node .ikonli-font-icon {
+    -fx-icon-color: white;
+}
+/* #import-node pair */
+#import-node .ikonli-font-icon {
+    -fx-icon-code: "mdi2d-database-import";
+    -fx-icon-color: -komet-blue-color;
+    -fx-icon-size: 20;
+}
+.add-tab-menu-item:focused  #import-node .ikonli-font-icon,
+.tab  #import-node .ikonli-font-icon {
+    -fx-icon-color: white;
+}
+
+/* #activity-node pair */
+#activity-node .ikonli-font-icon {
+    /*-fx-icon-code: "icm-spinner";*/
+    -fx-icon-code: "icm-spinner9";
+    -fx-icon-color: -komet-blue-color;
+    -fx-icon-size: 16;
+}
+.add-tab-menu-item:focused  #activity-node .ikonli-font-icon,
+.tab  #activity-node .ikonli-font-icon {
+    -fx-icon-color: white;
+}
+/* #remove-tab-area pair */
+#remove-tab-area .ikonli-font-icon {
+    /*-fx-icon-code: "mdi2a-alert-remove-outline";*/
+    /*-fx-icon-code: "mdi2a-alert-remove-outline";*/
+    /*-fx-icon-code: "mdi2c-card-remove-outline";*/
+    -fx-icon-code: "mdi2t-tab-remove";
+    /*-fx-icon-code: "mdi2a-alert-remove-outline";*/
+    -fx-icon-color: -komet-blue-color;
+    -fx-icon-size: 20;
+}
+.add-tab-menu-item:focused  #remove-tab-area .ikonli-font-icon {
+    -fx-icon-color: white;
+}
+/* ---------------- */
+
+
+.add-tab-menu-item   {
+    -fx-background-color: white;
+    -fx-border-color: white;
+    -fx-text-fill: -komet-blue-color;
+}
+.add-tab-menu-item:focused   {
+     -fx-background-color: -komet-blue-color;
+     -fx-border-color: -komet-blue-color;
+     -fx-text-fill: white;
+ }
+.add-tab-menu .menu-item .label {
+    -fx-background-color: white;
+    -fx-border-color: white;
+    -fx-text-fill: -komet-blue-color;
+    -fx-font-size:16;
+}
+
+.add-tab-menu .menu-item:focused .label {
+    -fx-background-color: -komet-blue-color;
+    -fx-border-color: -komet-blue-color;
+    -fx-text-fill: white;
 }
 
 .add-tab-menu {
@@ -116,28 +281,12 @@ limitations under the License.
     -fx-padding: 4 4 5 1;
 }
 
-.add-tab-menu .menu-item:focused .glyph-icon {
-    -icons-color: white;
-}
-.add-tab-menu .menu-item .glyph-icon {
-    -icons-color: -komet-blue-color;
-}
-
-.add-tab-menu .menu-item .label {
-    -fx-background-color: white;
-    -fx-border-color: white;
-    -fx-text-fill: -komet-blue-color;
-    -fx-font-size:13;
-}
-
-.add-tab-menu .menu-item:focused .label {
-    -fx-background-color: -komet-blue-color;
-    -fx-border-color: -komet-blue-color;
-    -fx-text-fill: white;
-}
-.add-tab-menu .menu-item:focused {
-    -fx-background-color: -komet-blue-color;
-}
+/*.add-tab-menu .menu-item:focused .glyph-icon {*/
+/*    -icons-color: white;*/
+/*}*/
+/*.add-tab-menu .menu-item .glyph-icon {*/
+/*    -icons-color: -komet-blue-color;*/
+/*}*/
 
 .tab-pane .tab-header-area {
     -fx-padding: 0 0 0 35;
@@ -209,3 +358,46 @@ limitations under the License.
     -fx-border-radius: 5 5 0 0, 4 4 0 0;
 }
 
+
+.drop-right, .drop-left, .drop-top, .drop-bottom {
+    -fx-background-color: -fx-body-color;
+    -fx-background-insets: 0;
+    -fx-background-radius: 15;
+    -fx-padding:5;
+}
+
+.drop-path {
+    -fx-stroke : -komet-blue-color;
+    -fx-stroke-width: 2;
+    /*-fx-stroke-type:inside;*/
+    -fx-stroke-line-join: bevel;
+}
+
+#drop-top-button .ikonli-font-icon {
+    -fx-icon-code: "mdi2t-table-row-plus-before";
+    -fx-icon-color: -komet-blue-color;
+    -fx-icon-size: 32;
+}
+#drop-right-button .ikonli-font-icon {
+    -fx-icon-code: "mdi2t-table-column-plus-after";
+    -fx-icon-color: -komet-blue-color;
+    -fx-icon-size: 32;
+}
+#drop-bottom-button .ikonli-font-icon {
+    -fx-icon-code: "mdi2t-table-row-plus-after";
+    -fx-icon-color: -komet-blue-color;
+    -fx-icon-size: 32;
+}
+#drop-left-button .ikonli-font-icon {
+    -fx-icon-code: "mdi2t-table-column-plus-before";
+    -fx-icon-color: -komet-blue-color;
+    -fx-icon-size: 32;
+}
+
+#remove-completion-node {
+    -fx-icon-color: -komet-tab-background-color;
+}
+
+#cancel-task-icon {
+    -fx-icon-color: red;
+}

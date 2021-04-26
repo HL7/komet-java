@@ -36,7 +36,7 @@ public class KometThreadPoolExecutor extends ThreadPoolExecutorFixed {
     protected <T> RunnableFuture<T> newTaskFor(Callable<T> callable) {
         if (callable instanceof TrackingCallable trackingCallable) {
             TaskWrapper<T> taskWrapper = new TaskWrapper(trackingCallable);
-            Platform.runLater(() -> KometExecutor.executingTasks.add(taskWrapper));
+            Platform.runLater(() -> KometExecutor.pendingTasks.add(taskWrapper));
             return taskWrapper;
         }
         return super.newTaskFor(callable);

@@ -26,10 +26,12 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Path;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 import org.hl7.komet.framework.ScreenInfo;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -48,7 +50,11 @@ public class DetachableTabPane extends TabPane {
      * stage
      */
     private static DetachableTabPane DRAG_SOURCE;
+    private static int DRAG_SOURCE_INDEX = -1;
     private static Tab DRAGGED_TAB;
+    private static double DRAG_TAB_WIDTH = 400;
+    private static double DRAG_CONTENT_WIDTH = 400;
+    private static double DRAG_CONTENT_HEIGHT = 700;
     private StringProperty scope = new SimpleStringProperty("");
     private static final Path path = new Path();
     private static final DetachableTabPathModel pathModel = new DetachableTabPathModel(path);
@@ -58,11 +64,18 @@ public class DetachableTabPane extends TabPane {
     private List<Double> lstTabPoint = new ArrayList<>();
     private boolean closeIfEmpty = false;
 
+    private TabStack detachableStack;
+
     public DetachableTabPane() {
         super();
+        this.detachableStack = detachableStack;
         getStyleClass().add("detachable-tab-pane");
         setMaxWidth(Double.MAX_VALUE);
         attachListeners();
+    }
+
+    protected void setDetachableStack(TabStack detachableStack) {
+        this.detachableStack = detachableStack;
     }
 
     private Button btnTop;
@@ -73,13 +86,17 @@ public class DetachableTabPane extends TabPane {
     private GridPane posGrid;
 
     private void initDropButton() {
-        btnTop = new Button();
+        btnTop = new Button("", new FontIcon());
+        btnTop.setId("drop-top-button");
         btnTop.getStyleClass().add("drop-top");
-        btnRight = new Button();
+        btnRight = new Button("", new FontIcon());
+        btnRight.setId("drop-right-button");
         btnRight.getStyleClass().add("drop-right");
-        btnBottom = new Button();
+        btnBottom = new Button("", new FontIcon());
+        btnBottom.setId("drop-bottom-button");
         btnBottom.getStyleClass().add("drop-bottom");
-        btnLeft = new Button();
+        btnLeft = new Button("", new FontIcon());
+        btnLeft.setId("drop-left-button");
         btnLeft.getStyleClass().add("drop-left");
         posGrid = new GridPane();
         posGrid.add(btnTop, 1, 0);
@@ -155,7 +172,7 @@ public class DetachableTabPane extends TabPane {
                 }
                 if (event.getEventType() == DragEvent.DRAG_OVER) {
                     if (DetachableTabPane.this.scope.get().equals(DRAG_SOURCE.getScope())) {
-                        event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+                        event.acceptTransferModes(TransferMode.MOVE);
                         repaintPath(event, 1);
                     }
                     event.consume();
@@ -261,17 +278,20 @@ public class DetachableTabPane extends TabPane {
     private SplitPane findParentSplitPane(Node control) {
         if (control.getParent() == null) return null;
         Set<Node> lstSplitpane = control.getScene().getRoot().lookupAll(".split-pane");
-        SplitPane parentSplitpane = null;
+        SplitPane parentSplitPane = null;
         for (Node node : lstSplitpane) {
-            if (node instanceof SplitPane) {
-                SplitPane splitpane = (SplitPane) node;
-                if (splitpane.getItems().contains(control)) {
-                    parentSplitpane = splitpane;
-                    break;
+            if (node instanceof SplitPane splitPane) {
+                for (Node child: splitPane.getItems()) {
+                    if (child instanceof TabStack tabStack) {
+                        if (tabStack.getTabPane() == control) {
+                            parentSplitPane = splitPane;
+                            break;
+                        }
+                    }
                 }
             }
         }
-        return parentSplitpane;
+        return parentSplitPane;
     }
 
     private void adjacent() {
@@ -286,7 +306,7 @@ public class DetachableTabPane extends TabPane {
             scene.setRoot(wrapper);
         }
 
-        Parent parent = getParent();
+        Parent parent = this.detachableStack.getParent();
 
         Orientation requestedOrientation = Orientation.HORIZONTAL;
         if (pos == Pos.BOTTOM_CENTER || pos == Pos.TOP_CENTER) {
@@ -295,7 +315,7 @@ public class DetachableTabPane extends TabPane {
 
         int requestedIndex = 0;
         if (targetSplitPane != null && requestedOrientation == targetSplitPane.getOrientation()) {
-            requestedIndex = targetSplitPane.getItems().indexOf(DetachableTabPane.this);
+            requestedIndex = targetSplitPane.getItems().indexOf(DetachableTabPane.this.detachableStack);
         }
         if (pos == Pos.CENTER_RIGHT || pos == Pos.BOTTOM_CENTER) {
             requestedIndex++;
@@ -306,17 +326,17 @@ public class DetachableTabPane extends TabPane {
             targetSplitPane.setMaxWidth(Double.MAX_VALUE);
             targetSplitPane.setOrientation(requestedOrientation);
 
-            if (parent instanceof Pane pane) {
-                int index = pane.getChildren().indexOf(DetachableTabPane.this);
-                if (pane instanceof BorderPane borderPane &&
-                        borderPane.getCenter() == DetachableTabPane.this) {
-                    pane.getChildren().remove(DetachableTabPane.this);
+            if (parent instanceof Pane parentPane) {
+                int index = parentPane.getChildren().indexOf(DetachableTabPane.this.detachableStack);
+                if (parentPane instanceof BorderPane borderPane &&
+                        borderPane.getCenter() == DetachableTabPane.this.detachableStack) {
+                    parentPane.getChildren().remove(DetachableTabPane.this.detachableStack);
                     borderPane.setCenter(targetSplitPane);
                 } else {
-                    pane.getChildren().remove(DetachableTabPane.this);
-                    pane.getChildren().add(index, targetSplitPane);
+                    parentPane.getChildren().remove(DetachableTabPane.this.detachableStack);
+                    parentPane.getChildren().add(index, targetSplitPane);
                 }
-                targetSplitPane.getItems().add(DetachableTabPane.this);
+                targetSplitPane.getItems().add(DetachableTabPane.this.detachableStack);
                 TabStack tabStack = detachableTabPaneFactory.create(this);
                 tabStack.getTabs().add(selectedtab);
                 targetSplitPane.getItems().add(requestedIndex, tabStack);
@@ -338,13 +358,13 @@ public class DetachableTabPane extends TabPane {
                 }
                 targetSplitPane.setDividerPositions(dividerPos);
             } else {
-                int indexTabPane = targetSplitPane.getItems().indexOf(DetachableTabPane.this);
-                targetSplitPane.getItems().remove(DetachableTabPane.this);
+                int indexTabPane = targetSplitPane.getItems().indexOf(DetachableTabPane.this.detachableStack);
+                targetSplitPane.getItems().remove(DetachableTabPane.this.detachableStack);
                 SplitPane innerSplitpane = new SplitPane();
                 innerSplitpane.setMaxWidth(Double.MAX_VALUE);
                 targetSplitPane.getItems().add(indexTabPane, innerSplitpane);
                 innerSplitpane.setOrientation(requestedOrientation);
-                innerSplitpane.getItems().add(DetachableTabPane.this);
+                innerSplitpane.getItems().add(DetachableTabPane.this.detachableStack);
                 TabStack tabStack = detachableTabPaneFactory.create(this);
                 tabStack.getTabs().add(selectedtab);
                 innerSplitpane.getItems().add(requestedIndex, tabStack);
@@ -453,6 +473,10 @@ public class DetachableTabPane extends TabPane {
                     tabpos = lstTabPoint.get(index);
                 }
             }
+            // 35 to support arrow alignment because of a menubutton to add new tabs, which is 35 pixels wide.
+            if (tabpos < 35) {
+                tabpos = 35;
+            }
 //			logger.info("drop index: " + dropIndex);
             pathModel.refresh(tabpos, DetachableTabPane.this.getWidth(), DetachableTabPane.this.getHeight());
         }
@@ -475,35 +499,43 @@ public class DetachableTabPane extends TabPane {
             if (tab instanceof DetachableTab && !((DetachableTab) tab).isDetachable()) {
                 return;
             }
-            Dragboard db = node.startDragAndDrop(TransferMode.ANY);
+            Dragboard db = node.startDragAndDrop(TransferMode.MOVE);
             db.setDragView(node.snapshot(null, null));
+            DetachableTabPane.DRAG_TAB_WIDTH = db.getDragView().getWidth();
+            DetachableTabPane.DRAG_CONTENT_WIDTH = DetachableTabPane.this.getWidth();
+            DetachableTabPane.DRAG_CONTENT_HEIGHT = DetachableTabPane.this.getHeight();
             Map<DataFormat, Object> dragContent = new HashMap<>();
             dragContent.put(DATA_FORMAT, "test");
             DetachableTabPane.DRAG_SOURCE = DetachableTabPane.this;
+            DetachableTabPane.DRAG_SOURCE_INDEX = getTabs().indexOf(tab);
             DRAGGED_TAB = tab;
             getTabs().remove(DRAGGED_TAB);
             db.setContent(dragContent);
             e.consume();
         });
 
-        node.setOnDragDone((DragEvent event) -> {
-            if (DRAGGED_TAB != null && DRAGGED_TAB.getTabPane() == null) {
-                Tab tab = DRAGGED_TAB;
-                new TabStage(tab, new Point2D(ScreenInfo.getMouseX(), ScreenInfo.getMouseY()));
-            }
-            if (DRAG_SOURCE.getScene() != null && DRAG_SOURCE.getScene().getWindow() instanceof TabStage) {
-                TabStage stage = (TabStage) DRAG_SOURCE.getScene().getWindow();
-                closeStageIfNeeded(stage);
-            }
 
-            if (DRAG_SOURCE.getTabs().isEmpty()) {
-                removeFromParent(DRAG_SOURCE);
+        node.setOnDragDone((DragEvent event) -> {
+            if (event.isAccepted()) {
+                if (DRAGGED_TAB != null && DRAGGED_TAB.getTabPane() == null) {
+                    Tab tab = DRAGGED_TAB;
+                    new TabStage(tab, new Point2D(ScreenInfo.getMouseX() - 35, ScreenInfo.getMouseY() -50));
+                }
+                if (DRAG_SOURCE.getScene() != null && DRAG_SOURCE.getScene().getWindow() instanceof TabStage) {
+                    TabStage stage = (TabStage) DRAG_SOURCE.getScene().getWindow();
+                    closeStageIfNeeded(stage);
+                }
+                if (DRAG_SOURCE.getTabs().isEmpty()) {
+                    removeFromParent(DRAG_SOURCE);
+                }
+                DetachableTabPane.DRAG_SOURCE = null;
+                DRAGGED_TAB = null;
+            } else {
+                // put back...
+                DetachableTabPane.DRAG_SOURCE.getTabs().add(DRAG_SOURCE_INDEX, DRAGGED_TAB);
             }
-            DetachableTabPane.DRAG_SOURCE = null;
-            DRAGGED_TAB = null;
             event.consume();
         });
-
     }
 
     private void closeStageIfNeeded(TabStage stage) {
@@ -544,7 +576,11 @@ public class DetachableTabPane extends TabPane {
         }
     }
 
-    private void removeFromParent(DetachableTabPane tabPaneToRemove) {
+    protected void removeFromParent() {
+        removeFromParent(this);
+    }
+
+    protected void removeFromParent(DetachableTabPane tabPaneToRemove) {
         SplitPane sp = findParentSplitPane(tabPaneToRemove);
         if (sp == null) {
             return;
@@ -559,7 +595,12 @@ public class DetachableTabPane extends TabPane {
             tabPaneToRemove.getTabs().setAll(lstTab);
             tabPaneToRemove = sibling;
         }
-        sp.getItems().remove(tabPaneToRemove);
+
+        if (tabPaneToRemove.getParent() instanceof TabStack) {
+            sp.getItems().remove(tabPaneToRemove.getParent());
+        } else {
+            sp.getItems().remove(tabPaneToRemove);
+        }
         simplifySplitPane(sp);
     }
 
@@ -642,12 +683,12 @@ public class DetachableTabPane extends TabPane {
         this.closeIfEmpty = closeIfEmpty;
     }
 
-    private static final int STAGE_WIDTH = 400;
     private Callback<TabStack, Scene> sceneFactory = new Callback<TabStack, Scene>() {
 
         @Override
         public Scene call(TabStack p) {
-            return new Scene(p, STAGE_WIDTH, STAGE_WIDTH);
+
+            return new Scene(new SplitPane(p), DetachableTabPane.DRAG_CONTENT_WIDTH, DetachableTabPane.DRAG_CONTENT_HEIGHT);
         }
     };
 
@@ -694,8 +735,10 @@ public class DetachableTabPane extends TabPane {
 
         private final TabStack tabStack;
 
-        public TabStage(final Tab tab, Point2D eventLocation) {
+        public TabStage(final Tab oldTab, Point2D eventLocation) {
             super();
+            DetachableTab newTab = new DetachableTab(oldTab.getText(), oldTab.getContent());
+
             tabStack = detachableTabPaneFactory.create(DetachableTabPane.this);
             initOwner(stageOwnerFactory.call(this));
             Scene scene = sceneFactory.call(tabStack);
@@ -703,16 +746,17 @@ public class DetachableTabPane extends TabPane {
             scene.getStylesheets().addAll(DetachableTabPane.this.getScene().getStylesheets());
             setScene(scene);
 
-            setX(eventLocation.getX() - (STAGE_WIDTH / 2));
+            setX(eventLocation.getX() - (DRAG_TAB_WIDTH /2));
             setY(eventLocation.getY());
             if (getOwner() instanceof Stage owner) {
                 setTitle(owner.getTitle() + " sidecar");
             }
             show();
-            tabStack.getTabs().add(tab);
-            tabStack.getSelectionModel().select(tab);
-            if (tab.getContent() instanceof Parent) {
-                ((Parent) tab.getContent()).requestLayout();
+            tabStack.getTabs().add(newTab);
+
+            tabStack.getSelectionModel().select(newTab);
+            if (newTab.getContent() instanceof Parent) {
+                ((Parent) newTab.getContent()).requestLayout();
             }
 
         }
