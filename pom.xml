@@ -77,6 +77,8 @@
         <module>progress</module>
         <module>search</module>
         <module>tabs</module>
+        <module>view</module>
+        <module>komet-terms</module>
     </modules>
 </project>
 

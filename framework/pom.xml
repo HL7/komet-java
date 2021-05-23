@@ -50,5 +50,10 @@
             <artifactId>coordinate</artifactId>
             <version>${tinkar-core.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.hl7.komet</groupId>
+            <artifactId>komet-terms</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
     </dependencies>
 </project>
