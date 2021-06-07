@@ -45,16 +45,9 @@ package org.hl7.komet.view;
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.property.ListProperty;
-import javafx.beans.property.ObjectProperty;
 
 import javafx.beans.property.Property;
-import javafx.collections.ObservableList;
-import org.hl7.tinkar.coordinate.edit.Activity;
-import org.hl7.tinkar.coordinate.language.LanguageCoordinateRecord;
-import org.hl7.tinkar.coordinate.logic.LogicCoordinateRecord;
 import org.hl7.tinkar.coordinate.logic.PremiseType;
-import org.hl7.tinkar.coordinate.navigation.NavigationCoordinateRecord;
-import org.hl7.tinkar.coordinate.stamp.StampCoordinateRecord;
 import org.hl7.tinkar.coordinate.stamp.StateSet;
 import org.hl7.tinkar.coordinate.view.ViewCoordinateDelegate;
 import org.hl7.tinkar.coordinate.view.ViewCoordinateRecord;
@@ -75,7 +68,7 @@ public interface ObservableView
 
    default Property<?>[] getBaseProperties() {
       return new Property<?>[] {
-              stampCoordinate().allowedStatusProperty(),
+              stampCoordinate().allowedStatesProperty(),
       };
    }
 

@@ -11,7 +11,7 @@ interface StampFilterTemplateProperties {
 
     default Property<?>[] getBaseProperties() {
         return new Property<?>[] {
-                allowedStatusProperty(),
+                allowedStatesProperty(),
                 moduleSpecificationsProperty(),
                 excludedModuleSpecificationsProperty(),
                 modulePriorityOrderProperty()
@@ -28,7 +28,7 @@ interface StampFilterTemplateProperties {
      *
      * @return a set of allowed status values to filter computation results.
      */
-    ObjectProperty<StateSet> allowedStatusProperty();
+    ObjectProperty<StateSet> allowedStatesProperty();
 
     /**
      *

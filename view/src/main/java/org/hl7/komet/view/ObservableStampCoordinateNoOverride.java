@@ -29,8 +29,8 @@ public class ObservableStampCoordinateNoOverride extends ObservableStampCoordina
         this.timeProperty().set(newValue.stampPosition().time());
         this.modulePriorityOrderProperty().setAll(newValue.modulePriorityNidList().map(nid -> ConceptProxy.make(nid)).castToList());
 
-        if (newValue.allowedStates() != this.allowedStatusProperty().get()) {
-            this.allowedStatusProperty().setValue(newValue.allowedStates());
+        if (newValue.allowedStates() != this.allowedStatesProperty().get()) {
+            this.allowedStatesProperty().setValue(newValue.allowedStates());
         }
 
         Set<? extends ConceptFacade> excludedModuleSet = newValue.excludedModuleNids().map(nid -> ConceptProxy.make(nid)).castToSet();

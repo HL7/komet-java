@@ -16,7 +16,7 @@ public interface ObservableStampCoordinate
                 timeProperty(),
                 moduleSpecificationsProperty(),
                 excludedModuleSpecificationsProperty(),
-                allowedStatusProperty(),
+                allowedStatesProperty(),
                 modulePriorityOrderProperty()
         };
     }

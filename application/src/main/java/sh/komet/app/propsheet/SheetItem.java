@@ -21,6 +21,7 @@ public class SheetItem<T> implements PropertySheet.Item {
         return new SheetItem(String.class, null, property.getName(),
                 null, property, null, validationSupport, validator);
     }
+
     public static <T> SheetItem<T> make(StringProperty property) {
 
         return new SheetItem(String.class, null, property.getName(),

@@ -12,7 +12,7 @@ import org.kordamp.ikonli.javafx.FontIcon;
 
 public class DetailsNode implements ExplorationNode {
     protected static final String STYLE_ID = "concept-details-node";
-    protected static final String TITLE = "Concept Details";
+    protected static final String TITLE = "Details";
 
 
     SimpleStringProperty titleProperty = new SimpleStringProperty(TITLE);

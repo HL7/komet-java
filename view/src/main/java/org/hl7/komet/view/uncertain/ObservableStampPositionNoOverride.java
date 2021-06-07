@@ -37,13 +37,14 @@
 
 
 
-package org.hl7.komet.view;
+package org.hl7.komet.view.uncertain;
 
 //~--- JDK imports ------------------------------------------------------------
 
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
 import org.hl7.komet.terms.KometTerm;
+import org.hl7.komet.view.SimpleEqualityBasedObjectProperty;
 import org.hl7.tinkar.coordinate.stamp.StampPosition;
 import org.hl7.tinkar.coordinate.stamp.StampPositionRecord;
 import org.hl7.tinkar.terms.ConceptFacade;

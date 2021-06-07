@@ -21,22 +21,6 @@ public interface PropertyWithOverride<T> extends Property<T> {
     }
 
     default String getOverrideName(ViewCalculator viewCalculator) {
-        Optional<EntityFacade> entityFacadeOptional = ProxyFactory.fromXmlFragmentOptional(getName());
-        Optional<String> optionalDescription;
-        if (entityFacadeOptional.isPresent()) {
-            optionalDescription = viewCalculator.getRegularDescriptionText(entityFacadeOptional.get());
-        } else {
-            optionalDescription = Optional.empty();
-        }
-        String name;
-         if (optionalDescription.isPresent()) {
-            name = optionalDescription.get();
-        } else {
-            name = getName();
-        }
-        if (isOverridden()) {
-            return name + " with override";
-        }
-        return name;
+        return viewCalculator.toPreferredEntityStringOrInputString(getName());
     }
 }

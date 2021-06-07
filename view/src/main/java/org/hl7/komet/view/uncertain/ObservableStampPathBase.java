@@ -1,4 +1,4 @@
-package org.hl7.komet.view;
+package org.hl7.komet.view.uncertain;
 
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
@@ -9,6 +9,7 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.SetChangeListener;
 import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.set.ImmutableSet;
+import org.hl7.komet.view.ObservableCoordinateAbstract;
 import org.hl7.tinkar.coordinate.stamp.StampPath;
 import org.hl7.tinkar.coordinate.stamp.StampPathImmutable;
 import org.hl7.tinkar.coordinate.stamp.StampPositionRecord;

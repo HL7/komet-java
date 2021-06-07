@@ -7,6 +7,8 @@ module org.hl7.komet.view {
     requires org.hl7.tinkar.terms;
     requires org.hl7.tinkar.common;
     requires org.hl7.komet.terms;
+    requires javafx.controls;
+    requires org.hl7.tinkar.entity;
 
     exports org.hl7.komet.view;
     exports org.hl7.komet.view.uncertain;

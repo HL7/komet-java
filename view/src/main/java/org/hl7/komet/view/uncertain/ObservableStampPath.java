@@ -37,48 +37,60 @@
 
 
 
-package org.hl7.komet.view;
+package org.hl7.komet.view.uncertain;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import javafx.beans.property.LongProperty;
+import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
+import javafx.beans.property.SetProperty;
+import org.hl7.komet.view.ObservableCoordinate;
+import org.hl7.tinkar.coordinate.stamp.StampPathImmutable;
+import org.hl7.tinkar.coordinate.stamp.StampPathDelegate;
 import org.hl7.tinkar.coordinate.stamp.StampPositionRecord;
-import org.hl7.tinkar.coordinate.stamp.StampPositionDelegate;
 import org.hl7.tinkar.terms.ConceptFacade;
+
 //~--- interfaces -------------------------------------------------------------
 
 /**
- * The Interface ObservableStampPosition.
+ * The ObservableStampPath implementation.
  *
  * @author kec
  */
-public interface ObservableStampPosition
-        extends StampPositionDelegate, ObservableCoordinate<StampPositionRecord> {
+public interface ObservableStampPath extends ObservableCoordinate<StampPathImmutable>, StampPathDelegate {
 
-    default Property<?>[] getBaseProperties() {
-        return new Property<?>[] {
-                pathConceptProperty(),
-                timeProperty(),
-        };
-    }
-    default ObservableCoordinate<?>[] getCompositeCoordinates() {
-        return new ObservableCoordinate[0];
-    }
+   default Property<?>[] getBaseProperties() {
+      return new Property<?>[] {
+              pathConceptProperty(),
+              pathOriginsProperty(),
+      };
+   }
 
-   /**
-    * Filter path nid property.
-    *
-    * @return the concept specification property for the path of this position is on.
-    */
-    ObjectProperty<ConceptFacade> pathConceptProperty();
+   default ObservableCoordinate<?>[] getCompositeCoordinates() {
+      return new ObservableCoordinate<?>[]{
+
+      };
+   }
 
    /**
-    * Time property.
     *
-    * @return the long property
+    * @return the property that identifies the path concept for this path coordinate
     */
-   LongProperty timeProperty();
+   ObjectProperty<ConceptFacade> pathConceptProperty();
+
+   /**
+    *
+    * @return the origins of this path.
+    */
+   SetProperty<StampPositionRecord> pathOriginsProperty();
+
+   /**
+    *
+    * @return path origins as a list, as a convenience for interface elements based on
+    * lists rather than on sets. Backed by the underlying set representation.
+    */
+   ListProperty<StampPositionRecord> pathOriginsAsListProperty();
+
 }
 

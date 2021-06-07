@@ -144,7 +144,7 @@ public abstract class ObservableStampCoordinateBase
      * @return the set property
      */
     @Override
-    public ObjectProperty<StateSet> allowedStatusProperty() {
+    public ObjectProperty<StateSet> allowedStatesProperty() {
         return this.allowedStatusProperty;
     }
 

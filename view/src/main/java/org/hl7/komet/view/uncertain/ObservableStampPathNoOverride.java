@@ -37,7 +37,7 @@
 
 
 
-package org.hl7.komet.view;
+package org.hl7.komet.view.uncertain;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -48,6 +48,9 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.hl7.komet.terms.KometTerm;
+import org.hl7.komet.view.SimpleEqualityBasedListProperty;
+import org.hl7.komet.view.SimpleEqualityBasedObjectProperty;
+import org.hl7.komet.view.SimpleEqualityBasedSetProperty;
 import org.hl7.tinkar.coordinate.stamp.StampPath;
 import org.hl7.tinkar.coordinate.stamp.StampPathImmutable;
 import org.hl7.tinkar.coordinate.stamp.StampPositionRecord;

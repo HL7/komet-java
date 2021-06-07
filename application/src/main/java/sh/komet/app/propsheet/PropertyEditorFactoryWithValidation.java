@@ -21,5 +21,4 @@ public class PropertyEditorFactoryWithValidation implements Callback<PropertyShe
 
         return propertyEditor;
     }
-
 }

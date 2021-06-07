@@ -51,8 +51,8 @@ public class ObservableStampCoordinateWithOverride extends ObservableStampCoordi
     }
 
     @Override
-    public ObjectPropertyWithOverride<StateSet> allowedStatusProperty() {
-        return (ObjectPropertyWithOverride) super.allowedStatusProperty();
+    public ObjectPropertyWithOverride<StateSet> allowedStatesProperty() {
+        return (ObjectPropertyWithOverride) super.allowedStatesProperty();
     }
 
     @Override
@@ -79,7 +79,7 @@ public class ObservableStampCoordinateWithOverride extends ObservableStampCoordi
                 modulePriorityOrder = modulePriorityNidList();
             }
             StateSet StateSet = updatedCoordinate.allowedStates();
-            if (allowedStatusProperty().isOverridden()) {
+            if (this.allowedStatesProperty().isOverridden()) {
                 StateSet = allowedStates();
             }
             setValue(StampCoordinateRecord.make(StateSet,
@@ -102,7 +102,7 @@ public class ObservableStampCoordinateWithOverride extends ObservableStampCoordi
     @Override
     protected ObjectPropertyWithOverride makeAllowedStatusProperty(StampCoordinate stampCoordinate) {
         ObservableStampCoordinate observableStampFilter = (ObservableStampCoordinate) stampCoordinate;
-        return new ObjectPropertyWithOverride<>(observableStampFilter.allowedStatusProperty(), this);
+        return new ObjectPropertyWithOverride<>(observableStampFilter.allowedStatesProperty(), this);
     }
 
     @Override
@@ -131,7 +131,7 @@ public class ObservableStampCoordinateWithOverride extends ObservableStampCoordi
 
     @Override
     public StampCoordinateRecord getOriginalValue() {
-        return StampCoordinateRecord.make(allowedStatusProperty().getOriginalValue(),
+        return StampCoordinateRecord.make(this.allowedStatesProperty().getOriginalValue(),
                 StampPositionRecord.make(timeProperty().getOriginalValue().longValue(),
                         pathConceptProperty().getOriginalValue()),
                 IntIds.set.of(moduleSpecificationsProperty().getOriginalValue().stream().mapToInt(value -> value.nid()).toArray()),
@@ -156,9 +156,9 @@ public class ObservableStampCoordinateWithOverride extends ObservableStampCoordi
             this.modulePriorityOrderProperty().setAll(newValue.modulePriorityNidList().map(nid -> ConceptProxy.make(nid)).castToList());
         }
 
-        if (!this.allowedStatusProperty().isOverridden()) {
-            if (newValue.allowedStates() != this.allowedStatusProperty().get()) {
-                this.allowedStatusProperty().setValue(newValue.allowedStates());
+        if (!this.allowedStatesProperty().isOverridden()) {
+            if (newValue.allowedStates() != this.allowedStatesProperty().get()) {
+                this.allowedStatesProperty().setValue(newValue.allowedStates());
             }
         }
 
@@ -174,7 +174,7 @@ public class ObservableStampCoordinateWithOverride extends ObservableStampCoordi
                 this.moduleSpecificationsProperty().setAll(moduleSet.castToSet());
             }
         }
-        return StampCoordinateRecord.make(allowedStatusProperty().get(),
+        return StampCoordinateRecord.make(this.allowedStatesProperty().get(),
                 StampPositionRecord.make(timeProperty().get(),
                         pathConceptProperty().get().nid()),
                 IntIds.set.of(moduleSpecificationsProperty().stream().mapToInt(value -> value.nid()).toArray()),
