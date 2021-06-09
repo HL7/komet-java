@@ -250,8 +250,6 @@ public class KometStageController {
             event.consume();
         });
 
-        windowCoordinates.getStyleClass().addAll()
-
         if (App.state.get() == AppState.RUNNING) {
             loadComplete();
         }
