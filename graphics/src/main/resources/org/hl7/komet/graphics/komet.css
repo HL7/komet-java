@@ -401,3 +401,7 @@ limitations under the License.
 #cancel-task-icon {
     -fx-icon-color: red;
 }
+
+.menu-item:focused {
+    -fx-background-color: -komet-blue-color;
+}

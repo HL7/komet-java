@@ -116,6 +116,7 @@ public class App extends Application {
                 case SELECTED_DATA_SOURCE -> {
                     FXMLLoader kometStageLoader = new FXMLLoader(getClass().getResource("KometStageScene.fxml"));
                     BorderPane kometRoot = kometStageLoader.load();
+                    KometStageController controller = kometStageLoader.getController();
 
                     Scene kometScene = new Scene(kometRoot, 1800, 1024);
                     kometScene.getStylesheets()
@@ -144,7 +145,12 @@ public class App extends Application {
 
 
                         Platform.runLater(() -> state.set(RUNNING));
+                        controller.loadComplete();
+
                     });
+                }
+                case RUNNING -> {
+
                 }
                 case SHUTDOWN -> {
                     Platform.exit();

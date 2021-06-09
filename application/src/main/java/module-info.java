@@ -17,6 +17,7 @@ module org.hl7.komet.application {
     requires org.hl7.tinkar.entity;
     requires org.hl7.tinkar.terms;
     requires org.kordamp.ikonli.javafx;
+    requires org.hl7.komet.view;
 
     uses DataServiceController;
     uses TaskLists;

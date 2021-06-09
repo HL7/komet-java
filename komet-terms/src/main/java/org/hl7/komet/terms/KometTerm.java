@@ -1,6 +1,7 @@
 package org.hl7.komet.terms;
 
 import org.hl7.tinkar.terms.ConceptProxy;
+import org.hl7.tinkar.terms.PatternProxy;
 
 import java.util.UUID;
 
@@ -70,8 +71,8 @@ public class KometTerm {
      * identified by UUID: {@code
      * <a href="http://localhost:8080/terminology/rest/concept/16486419-5d1c-574f-bde6-21910ad66f44">
      * 16486419-5d1c-574f-bde6-21910ad66f44</a>}.*/
-    public static final ConceptProxy CONCEPT_ASSEMBLAGE_FOR_LOGIC_COORDINATE =
-            ConceptProxy.make("Concept assemblage for logic coordinate (SOLOR)", UUID.fromString("16486419-5d1c-574f-bde6-21910ad66f44"));
+    public static final PatternProxy CONCEPT_ASSEMBLAGE_FOR_LOGIC_COORDINATE =
+            PatternProxy.make("Concept assemblage for logic coordinate (SOLOR)", UUID.fromString("16486419-5d1c-574f-bde6-21910ad66f44"));
 
     /** Java binding for the concept described as <strong><em>Description logic profile for logic coordinate (SOLOR)</em></strong>;
      * identified by UUID: {@code

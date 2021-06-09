@@ -7,6 +7,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import org.eclipse.collections.api.factory.Lists;
+import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
 import org.hl7.tinkar.coordinate.language.LanguageCoordinate;
 import org.hl7.tinkar.coordinate.language.LanguageCoordinateRecord;
@@ -62,6 +63,11 @@ public abstract class ObservableViewBase
      */
     public ObservableViewBase(ViewCoordinate viewRecord) {
         this(viewRecord, "View");
+    }
+
+    @Override
+    public ImmutableList<LanguageCoordinateRecord> languageCoordinateList() {
+        return getValue().languageCoordinateList();
     }
 
     @Override

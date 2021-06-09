@@ -26,6 +26,11 @@ import org.hl7.komet.progress.ProgressNodeFactory;
 import org.hl7.komet.search.SearchNodeFactory;
 import org.hl7.komet.tabs.DetachableTab;
 import org.hl7.komet.tabs.TabStack;
+import org.hl7.komet.view.ObservableViewNoOverride;
+import org.hl7.komet.view.ViewMenuFactory;
+import org.hl7.tinkar.coordinate.Coordinates;
+import org.hl7.tinkar.coordinate.view.calculator.ViewCalculator;
+import org.hl7.tinkar.coordinate.view.calculator.ViewCalculatorWithCache;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.io.File;
@@ -179,7 +184,6 @@ public class KometStageController {
         vanityImage.setCache(true);
         vanityBox.setGraphic(vanityImage);
 
-
         NavigatorNodeFactory navigatorNodeFactory = new NavigatorNodeFactory();
         ExplorationNode navigatorNode1 = navigatorNodeFactory.create();
         DetachableTab navigatorNode1Tab = new DetachableTab(navigatorNode1.getTitle().getValue(), navigatorNode1.getNode());
@@ -246,6 +250,12 @@ public class KometStageController {
             event.consume();
         });
 
+        windowCoordinates.getStyleClass().addAll()
+
+        if (App.state.get() == AppState.RUNNING) {
+            loadComplete();
+        }
+
     }
     private List<MenuItem> getTaskMenuItems() {
         ArrayList<MenuItem> items = new ArrayList<>();
@@ -253,6 +263,16 @@ public class KometStageController {
         return items;
     }
 
+    protected void loadComplete() {
+
+        ObservableViewNoOverride windowView = new ObservableViewNoOverride(Coordinates.View.DefaultView());
+        ViewCalculatorWithCache viewCalculator = ViewCalculatorWithCache.getCalculator(windowView.stampCoordinate().toStampCoordinateRecord(),
+                windowView.languageCoordinateList(), windowView.navigationCoordinate().toNavigationCoordinateRecord(),
+                windowView.toViewCoordinateRecord());
+
+        ViewMenuFactory.makeCoordinateDisplayMenu(viewCalculator, windowCoordinates.getItems(),
+                windowView);
+    }
 
     void handleCloseRequest(WindowEvent event) {
         //stage.focusedProperty().removeListener(this.focusChangeListener);
