@@ -1,7 +1,5 @@
 package sh.komet.app;
 
-import javafx.beans.binding.Bindings;
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -16,10 +14,9 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import org.controlsfx.control.TaskProgressView;
 import org.hl7.komet.details.DetailsNodeFactory;
+import org.hl7.komet.executor.TaskWrapper;
 import org.hl7.komet.framework.ExplorationNode;
-import org.hl7.komet.framework.TaskLists;
 import org.hl7.komet.navigator.NavigatorNodeFactory;
 import org.hl7.komet.progress.CompletionNodeFactory;
 import org.hl7.komet.progress.ProgressNodeFactory;
@@ -27,16 +24,19 @@ import org.hl7.komet.search.SearchNodeFactory;
 import org.hl7.komet.tabs.DetachableTab;
 import org.hl7.komet.tabs.TabStack;
 import org.hl7.komet.view.ObservableViewNoOverride;
-import org.hl7.komet.view.ViewMenuFactory;
+import org.hl7.komet.view.ViewMenuTask;
+import org.hl7.tinkar.common.service.Executor;
 import org.hl7.tinkar.coordinate.Coordinates;
-import org.hl7.tinkar.coordinate.view.calculator.ViewCalculator;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculatorWithCache;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
+import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
 
@@ -268,8 +268,14 @@ public class KometStageController {
                 windowView.languageCoordinateList(), windowView.navigationCoordinate().toNavigationCoordinateRecord(),
                 windowView.toViewCoordinateRecord());
 
-        ViewMenuFactory.makeCoordinateDisplayMenu(viewCalculator, windowCoordinates.getItems(),
-                windowView);
+        Executor.threadPool().execute(TaskWrapper.make(new ViewMenuTask(viewCalculator, windowView),
+                (List<MenuItem> result) -> windowCoordinates.getItems().addAll(result)));
+
+        windowView.addListener((observable, oldValue, newValue) -> {
+            windowCoordinates.getItems().clear();
+            Executor.threadPool().execute(TaskWrapper.make(new ViewMenuTask(viewCalculator, windowView),
+                    (List<MenuItem> result) -> windowCoordinates.getItems().addAll(result)));
+        });
     }
 
     void handleCloseRequest(WindowEvent event) {

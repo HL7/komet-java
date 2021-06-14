@@ -15,8 +15,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+/*
+modena.css is the default css.
+ */
 .root {
     -komet-blue-color: #406AD1;
+    -komet-faint-blue-color: #406AD122;
     -komet-tab-background-color: #52646d;
     -komet-panel-background-color: #c3cdd3;
     -komet-concept-box-background-color: #eef1f3;
@@ -47,7 +51,23 @@ limitations under the License.
             derive(-komet-blue-color, 30%) 50%,
             derive(-komet-blue-color, 30%) 99%
     );
+
+/* For example: selected
+ * text; selected items in menus, lists, trees, and tables; progress bars */
+
+    -fx-accent: -komet-blue-color;
+
+/* Typically used as the
+ * first color in -fx-background-color for the "focused" pseudo-class. Also
+ * typically used with insets of -1.4 to provide a glowing effect.
+ */
+    -fx-focus-color: -komet-blue-color;
+    -fx-faint-focus-color: -komet-faint-blue-color;
+
+
 }
+
+
 
 .top-grid-pane {
     -fx-background-color: white;

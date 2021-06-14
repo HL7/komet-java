@@ -131,19 +131,19 @@ public class App extends Application {
                         Stopwatch reloadStopwatch = new Stopwatch();
                         PrimitiveData.start();
                         kometLog.info("Reloading in: " + reloadStopwatch.durationString() + "\n");
-                        reloadStopwatch.reset();
-                        Entity.provider().forEachSemanticForComponent(PrimitiveData.get().nidForUuids(UUID.fromString("ac2b08ea-457c-3847-b099-569c74d97ccd")),semanticEntity -> {
-                            kometLog.info(semanticEntity.toString() + "\n");
-                        });
-                        kometLog.info("Query 1: " + reloadStopwatch.durationString() + "\n");
-                        reloadStopwatch.reset();
+                        if (false) {
+                            reloadStopwatch.reset();
+                            Entity.provider().forEachSemanticForComponent(PrimitiveData.get().nidForUuids(UUID.fromString("ac2b08ea-457c-3847-b099-569c74d97ccd")),semanticEntity -> {
+                                kometLog.info(semanticEntity.toString() + "\n");
+                            });
+                            kometLog.info("Query 1: " + reloadStopwatch.durationString() + "\n");
+                            reloadStopwatch.reset();
 
-                        Entity.provider().forEachSemanticForComponent(PrimitiveData.get().nidForUuids(UUID.fromString("7a9c1860-c70d-36c4-b45d-184c05cd9421")),semanticEntity -> {
-                            kometLog.info(semanticEntity.toString() + "\n");
-                        });
-                        kometLog.info("Query 2: " + reloadStopwatch.durationString() + "\n");
-
-
+                            Entity.provider().forEachSemanticForComponent(PrimitiveData.get().nidForUuids(UUID.fromString("7a9c1860-c70d-36c4-b45d-184c05cd9421")),semanticEntity -> {
+                                kometLog.info(semanticEntity.toString() + "\n");
+                            });
+                            kometLog.info("Query 2: " + reloadStopwatch.durationString() + "\n");
+                        }
                         Platform.runLater(() -> state.set(RUNNING));
                         controller.loadComplete();
 

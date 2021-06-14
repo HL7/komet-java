@@ -202,6 +202,26 @@
                             </options>
                         </configuration>
                     </execution>
+                    <execution>
+                        <!-- Configuration for debugging -->
+                        <id>profile</id>
+                        <configuration>
+                            <mainClass>org.hl7.komet.application/sh.komet.app.App</mainClass>
+                            <stripDebug>false</stripDebug>
+                            <compress>2</compress>
+                            <noHeaderFiles>true</noHeaderFiles>
+                            <noManPages>true</noManPages>
+                            <launcher>launchKomet</launcher>
+                            <jlinkImageName>kometImage</jlinkImageName>
+                            <jlinkZipName>kometJlink</jlinkZipName>
+                            <ignoreSigningInformation>true</ignoreSigningInformation>
+                            <options>
+                                <option>--add-opens</option>
+                                <option>javafx.graphics/javafx.scene=org.controlsfx.controls</option>
+                                <option>-agentpath:/Applications/JProfiler.app/Contents/Resources/app/bin/macos/libjprofilerti.jnilib=port=8849</option>
+                            </options>
+                        </configuration>
+                    </execution>
                 </executions>
                 <configuration>
                     <mainClass>komet/sh.komet.app.App</mainClass>

@@ -9,6 +9,7 @@ module org.hl7.komet.view {
     requires org.hl7.komet.terms;
     requires javafx.controls;
     requires org.hl7.tinkar.entity;
+    requires org.hl7.komet.executor;
 
     exports org.hl7.komet.view;
     exports org.hl7.komet.view.uncertain;

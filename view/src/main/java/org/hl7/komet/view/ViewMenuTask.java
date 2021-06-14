@@ -14,9 +14,12 @@ import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.primitive.ImmutableLongList;
 import org.eclipse.collections.api.map.primitive.MutableIntObjectMap;
 import org.eclipse.collections.impl.factory.primitive.IntObjectMaps;
+import org.hl7.komet.executor.TaskWrapper;
 import org.hl7.komet.view.temp.FxGet;
 import org.hl7.komet.view.uncertain.ObservableEditCoordinate;
 import org.hl7.tinkar.common.id.IntIdList;
+import org.hl7.tinkar.common.service.Executor;
+import org.hl7.tinkar.common.service.TrackingCallable;
 import org.hl7.tinkar.common.util.text.NaturalOrder;
 import org.hl7.tinkar.common.util.time.DateTimeUtil;
 import org.hl7.tinkar.coordinate.PathService;
@@ -32,22 +35,40 @@ import org.hl7.tinkar.entity.StampService;
 import org.hl7.tinkar.terms.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Set;
+import java.util.*;
 import java.util.function.LongConsumer;
 
-public class ViewMenuFactory {
+public class ViewMenuTask extends TrackingCallable<List<MenuItem>> {
+    ViewCalculator viewCalculator;
+    ObservableCoordinate observableCoordinate;
+
+    public ViewMenuTask(ViewCalculator viewCalculator, ObservableCoordinate observableCoordinate) {
+        super(false, true);
+        this.viewCalculator = viewCalculator;
+        this.observableCoordinate = observableCoordinate;
+        updateTitle("Updating View Menu");
+        updateProgress(-1, -1);
+    }
+
+    @Override
+    protected List<MenuItem> compute() throws Exception {
+        List<MenuItem> menuItems = new ArrayList<>();
+        makeCoordinateDisplayMenu(viewCalculator,
+                menuItems,
+                observableCoordinate);
+        updateTitle("Updated View Menu");
+        updateMessage("Updated in " + durationString());
+        return menuItems;
+    }
 
     /**
      * The
      * @param viewCalculator Used to get preferred concept names
-     * @param menuItems Menu item list add the menu item to
      * @param observableCoordinate The coordinate to make an display menu for.
      */
-    public static void makeCoordinateDisplayMenu(ViewCalculator viewCalculator, ObservableList<MenuItem> menuItems,
-                                                 ObservableCoordinate observableCoordinate) {
+    private void makeCoordinateDisplayMenu(ViewCalculator viewCalculator,
+                                                  List<MenuItem> menuItems,
+                                                  ObservableCoordinate observableCoordinate) {
 
         makeRecursiveOverrideMenu(viewCalculator, menuItems,
                 observableCoordinate);
@@ -56,6 +77,7 @@ public class ViewMenuFactory {
             menuItems.add(new MenuItem(getNameAndValueString(viewCalculator, baseProperty)));
         }
 
+        updateMessage("Making composite coordinate menu");
         for (ObservableCoordinate<?> compositeCoordinate: observableCoordinate.getCompositeCoordinates()) {
             String propertyName = getPropertyNameWithOverride(viewCalculator, compositeCoordinate);
             Menu compositeMenu = new Menu(propertyName);
@@ -66,23 +88,27 @@ public class ViewMenuFactory {
         if (observableCoordinate instanceof ObservableView observableView) {
             addSeparator(menuItems);
             //addRemoveOverrides(menuItems, observableCoordinate);
-            addChangeItemsForManifold(viewCalculator, menuItems, observableView);
+            addChangeItemsForView(viewCalculator, menuItems, observableView);
         } else if (observableCoordinate instanceof ObservableLanguageCoordinate observableLanguageCoordinate) {
             addSeparator(menuItems);
+            updateMessage("Making change language menu");
             addChangeItemsForLanguage(viewCalculator, menuItems, observableLanguageCoordinate);
         } else if (observableCoordinate instanceof ObservableLogicCoordinate observableLogicCoordinate) {
             //menuItems.add(new SeparatorMenuItem());
+            updateMessage("Making change logic menu");
             addChangeItemsForLogic(viewCalculator, menuItems, observableLogicCoordinate);
         } else if (observableCoordinate instanceof ObservableNavigationCoordinate observableNavigationCoordinate) {
             addSeparator(menuItems);
+            updateMessage("Making change navigation menu");
             addChangeItemsForNavigation(viewCalculator, menuItems, observableNavigationCoordinate);
         } else if (observableCoordinate instanceof ObservableStampCoordinate observableStampCoordinate) {
             addSeparator(menuItems);
+            updateMessage("Making change stamp filter menu");
             addChangeItemsForFilter(viewCalculator, menuItems, observableStampCoordinate);
         }
     }
 
-    private static void addSeparator(ObservableList<MenuItem> menuItems) {
+    private static void addSeparator(List<MenuItem> menuItems) {
         if (menuItems.get(menuItems.size() -1) instanceof SeparatorMenuItem) {
             // already a separator, don't duplicate.
         } else {
@@ -90,7 +116,7 @@ public class ViewMenuFactory {
         }
     }
 
-    private static void addRemoveOverrides(ObservableList<MenuItem> menuItems, ObservableCoordinate observableCoordinate) {
+    private static void addRemoveOverrides(List<MenuItem> menuItems, ObservableCoordinate observableCoordinate) {
         if (observableCoordinate.hasOverrides()) {
             MenuItem removeOverrides = new MenuItem("Remove overrides");
             menuItems.add(removeOverrides);
@@ -103,7 +129,7 @@ public class ViewMenuFactory {
         }
     }
 
-    private static void addChangeItemsForFilter(ViewCalculator viewCalculator, ObservableList<MenuItem> menuItems, ObservableStampCoordinate observableCoordinate) {
+    private static void addChangeItemsForFilter(ViewCalculator viewCalculator, List<MenuItem> menuItems, ObservableStampCoordinate observableCoordinate) {
 
 
         Menu changePathMenu = new Menu("Change path");
@@ -130,7 +156,7 @@ public class ViewMenuFactory {
         addExcludedModulesMenu(menuItems, observableCoordinate, viewCalculator);
 
     }
-    private static void changeStates(ObservableList<MenuItem> menuItems, String menuText, ObservableView observableView) {
+    private static void changeStates(List<MenuItem> menuItems, String menuText, ObservableView observableView) {
         Menu changeAllowedStatusMenu = new Menu(menuText);
         menuItems.add(changeAllowedStatusMenu);
         for (StateSet stateSet: new StateSet[] { StateSet.ACTIVE, StateSet.ACTIVE_AND_INACTIVE, StateSet.ACTIVE_INACTIVE_AND_WITHDRAWN,
@@ -150,7 +176,7 @@ public class ViewMenuFactory {
 
     }
 
-    private static void changeStates(ObservableList<MenuItem> menuItems, String menuText, ObjectProperty<StateSet> statusProperty) {
+    private static void changeStates(List<MenuItem> menuItems, String menuText, ObjectProperty<StateSet> statusProperty) {
         Menu changeAllowedStatusMenu = new Menu(menuText);
         menuItems.add(changeAllowedStatusMenu);
 
@@ -168,7 +194,7 @@ public class ViewMenuFactory {
         }
     }
 
-    private static void addChangePositionForManifold(ObservableList<MenuItem> menuItems, ObservableView observableView) {
+    private static void addChangePositionForManifold(List<MenuItem> menuItems, ObservableView observableView) {
         addChangePositionMenu(menuItems, time -> {
             Platform.runLater(() -> {
                 observableView.stampCoordinate().timeProperty().setValue(time);
@@ -176,13 +202,13 @@ public class ViewMenuFactory {
         });
     }
 
-    private static void addChangePositionForFilter(ObservableList<MenuItem> menuItems, ObservableStampCoordinate observableCoordinate) {
+    private static void addChangePositionForFilter(List<MenuItem> menuItems, ObservableStampCoordinate observableCoordinate) {
         addChangePositionMenu(menuItems, time -> {
             Platform.runLater(() -> observableCoordinate.timeProperty().setValue(time));
         });
     }
 
-    private static void addChangePositionMenu(ObservableList<MenuItem> menuItems, LongConsumer setPosition) {
+    private static void addChangePositionMenu(List<MenuItem> menuItems, LongConsumer setPosition) {
         Menu changePositionMenu = new Menu("Change position");
 
         menuItems.add(changePositionMenu);
@@ -239,7 +265,7 @@ public class ViewMenuFactory {
         });
     }
 
-    private static void addIncludedModulesMenu(ObservableList<MenuItem> menuItems,
+    private static void addIncludedModulesMenu(List<MenuItem> menuItems,
                                                ObservableStampCoordinate observableCoordinate,
                                                ViewCalculator viewCalculator) {
         Menu addIncludedModulesMenu = new Menu("Change included modules");
@@ -291,7 +317,7 @@ public class ViewMenuFactory {
     }
 
 
-    private static void addExcludedModulesMenu(ObservableList<MenuItem> menuItems,
+    private static void addExcludedModulesMenu(List<MenuItem> menuItems,
                                                ObservableStampCoordinate observableCoordinate,
                                                ViewCalculator viewCalculator) {
         Menu excludedModulesMenu = new Menu("Change excluded modules");
@@ -350,7 +376,7 @@ public class ViewMenuFactory {
         });
     }
 
-    private static void addChangeItemsForEdit(ViewCalculator viewCalculator, ObservableList<MenuItem> menuItems, ObservableEditCoordinate observableCoordinate) {
+    private static void addChangeItemsForEdit(ViewCalculator viewCalculator, List<MenuItem> menuItems, ObservableEditCoordinate observableCoordinate) {
         Menu changeAuthorMenu = new Menu("Change author");
         menuItems.add(changeAuthorMenu);
 
@@ -411,7 +437,7 @@ public class ViewMenuFactory {
     }
 
     private static void addChangeItemsForNavigation(ViewCalculator viewCalculator,
-                                                    ObservableList<MenuItem> menuItems,
+                                                    List<MenuItem> menuItems,
                                                     ObservableNavigationCoordinate observableCoordinate) {
         Menu changeNavigationMenu = new Menu("Change navigation");
         menuItems.add(changeNavigationMenu);
@@ -446,11 +472,11 @@ public class ViewMenuFactory {
         }
     }
 
-    private static void addChangeItemsForLogic(ViewCalculator viewCalculator, ObservableList<MenuItem> menuItems,
+    private static void addChangeItemsForLogic(ViewCalculator viewCalculator, List<MenuItem> menuItems,
                                                ObservableLogicCoordinate observableCoordinate) {
     }
 
-    private static void addChangeItemsForLanguage(ViewCalculator viewCalculator, ObservableList<MenuItem> menuItems,
+    private static void addChangeItemsForLanguage(ViewCalculator viewCalculator, List<MenuItem> menuItems,
                                                   ObservableLanguageCoordinate observableCoordinate) {
 
         Menu changeTypeOrder = new Menu("Change description preference");
@@ -494,8 +520,8 @@ public class ViewMenuFactory {
         }
     }
 
-    private static void addChangeItemsForManifold(ViewCalculator viewCalculator, ObservableList<MenuItem> menuItems,
-                                                  ObservableView observableView) {
+    private static void addChangeItemsForView(ViewCalculator viewCalculator, List<MenuItem> menuItems,
+                                              ObservableView observableView) {
 
 //        Menu changeActivityMenu = new Menu("Change activity");
 //        menuItems.add(changeActivityMenu);
@@ -515,10 +541,10 @@ public class ViewMenuFactory {
 
         changeStates(menuItems, "Change allowed edge and language states", observableView.stampCoordinate().allowedStatesProperty());
 
-        changeStates(menuItems, "Change allowed vertex states", observableView.stampCoordinate().allowedStatesProperty());
+        changeStates(menuItems, "Change allowed vertex states", observableView.navigationCoordinate().vertexStatesProperty());
 
         for (int i = 0; i < observableView.languageCoordinates().size(); i++) {
-            ObservableLanguageCoordinate langugeCoordinate = observableView.languageCoordinates().get(i);
+            ObservableLanguageCoordinate languageCoordinate = observableView.languageCoordinates().get(i);
             Menu languageCoordinateMenu = new Menu("Change language coordinate " + i);
             menuItems.add(languageCoordinateMenu);
             Menu changeDescriptionPreferenceMenu = new Menu("Change description preference");
@@ -527,11 +553,11 @@ public class ViewMenuFactory {
             for (ImmutableList<? extends ConceptFacade> typePreferenceList: FxGet.allowedDescriptionTypeOrder()) {
                 CheckMenuItem typeOrderItem = new CheckMenuItem(viewCalculator.toEntityString(typePreferenceList.castToList(), viewCalculator::toEntityStringOrPublicIdAndNid));
                 changeDescriptionPreferenceMenu.getItems().add(typeOrderItem);
-                typeOrderItem.setSelected(langugeCoordinate.descriptionTypePreferenceListProperty().getValue().equals(typePreferenceList.castToList()));
+                typeOrderItem.setSelected(languageCoordinate.descriptionTypePreferenceListProperty().getValue().equals(typePreferenceList.castToList()));
                 typeOrderItem.setOnAction(event -> {
                     ObservableList<ConceptFacade> prefList = FXCollections.observableArrayList(typePreferenceList.toArray(new ConceptFacade[0]));
                     Platform.runLater(() ->
-                            langugeCoordinate.descriptionTypePreferenceListProperty().setValue(prefList)
+                            languageCoordinate.descriptionTypePreferenceListProperty().setValue(prefList)
                     );
                     event.consume();
                 });
@@ -577,17 +603,19 @@ public class ViewMenuFactory {
         MenuItem reloadManifoldMenu = new MenuItem("Reload view menu");
         menuItems.add(reloadManifoldMenu);
         reloadManifoldMenu.setOnAction(event -> {
-            Platform.runLater(() -> {
-                menuItems.clear();
-                ViewMenuFactory.makeCoordinateDisplayMenu(viewCalculator, menuItems,
-                        observableView);
-            });
             event.consume();
+            Platform.runLater(() -> {
+                MenuItem sourceMenu = (MenuItem) event.getSource();
+                Menu parentMenu = sourceMenu.getParentMenu();
+                parentMenu.getItems().clear();
+                Executor.threadPool().execute(TaskWrapper.make(new ViewMenuTask(viewCalculator, observableView),
+                        (List<MenuItem> result) -> parentMenu.getItems().addAll(result)));
+            });
         });
 
     }
 
-    private static boolean makeRecursiveOverrideMenu(ViewCalculator viewCalculator, ObservableList<MenuItem> menuItems,
+    private static boolean makeRecursiveOverrideMenu(ViewCalculator viewCalculator, List<MenuItem> menuItems,
                                                      ObservableCoordinate observableCoordinate) {
 
         if (observableCoordinate.hasOverrides()) {

@@ -3,6 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.hl7</groupId>
     <artifactId>komet</artifactId>
+    <name>KOMET: (mmp)</name>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <licenses>
@@ -27,7 +28,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <record-builder-core.version>1.19</record-builder-core.version>
         <tinkar-core.version>1.0-SNAPSHOT</tinkar-core.version>
-        <tinkar-jpms-deps.version>1.0</tinkar-jpms-deps.version>
+        <tinkar-jpms-deps.version>1.0.1</tinkar-jpms-deps.version>
         <ikonli.version>12.2.0</ikonli.version>
     </properties>
     <build>

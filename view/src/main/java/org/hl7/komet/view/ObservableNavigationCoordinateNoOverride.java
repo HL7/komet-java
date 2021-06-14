@@ -7,6 +7,7 @@ import javafx.collections.FXCollections;
 import org.hl7.komet.terms.KometTerm;
 import org.hl7.tinkar.coordinate.navigation.NavigationCoordinate;
 import org.hl7.tinkar.coordinate.navigation.NavigationCoordinateRecord;
+import org.hl7.tinkar.coordinate.stamp.StateSet;
 import org.hl7.tinkar.terms.*;
 
 public class ObservableNavigationCoordinateNoOverride extends ObservableNavigationCoordinateBase {
@@ -32,10 +33,8 @@ public class ObservableNavigationCoordinateNoOverride extends ObservableNavigati
     }
 
     @Override
-    protected SimpleEqualityBasedSetProperty<State> makeVertexStatesProperty(NavigationCoordinate navigationCoordinate) {
-        return new SimpleEqualityBasedSetProperty<>(this,
-                KometTerm.VERTEX_STATE_SET.toXmlFragment(),
-                FXCollections.observableSet(navigationCoordinate.vertexStates().toEnumSet()));
+    protected ObjectProperty<StateSet> makeVertexStatesProperty(NavigationCoordinate navigationCoordinate) {
+        return new SimpleEqualityBasedObjectProperty<>(this, KometTerm.VERTEX_STATE_SET.toXmlFragment(), navigationCoordinate.vertexStates());
     }
 
     @Override
@@ -46,7 +45,7 @@ public class ObservableNavigationCoordinateNoOverride extends ObservableNavigati
 
     @Override
     protected ListProperty<PatternFacade> makeVerticesSortPatternListProperty(NavigationCoordinate navigationCoordinate) {
-        return new SimpleEqualityBasedListProperty<PatternFacade>(this, "Vertex Sort Patterns",
+        return new SimpleEqualityBasedListProperty<>(this, "Vertex Sort Patterns",
                 FXCollections.observableArrayList(
                         navigationCoordinate.verticesSortPatternNidList().mapToList(PatternProxy::make)));
     }
@@ -55,7 +54,7 @@ public class ObservableNavigationCoordinateNoOverride extends ObservableNavigati
     protected NavigationCoordinateRecord baseCoordinateChangedListenersRemoved(ObservableValue<? extends NavigationCoordinateRecord> observable, NavigationCoordinateRecord oldValue, NavigationCoordinateRecord newValue) {
         this.navigationPatternsProperty().setAll(newValue.navigationPatternNids()
                 .map(nid -> (PatternFacade) PatternProxy.make(nid)).toSet());
-        this.vertexStatesProperty().setAll(newValue.vertexStates().toArray());
+        this.vertexStatesProperty().set(newValue.vertexStates());
         return newValue;
     }
 

@@ -1,15 +1,14 @@
 package org.hl7.komet.view;
 
 import javafx.beans.property.ListProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ObservableValue;
-import org.eclipse.collections.impl.factory.primitive.IntSets;
 import org.hl7.tinkar.common.id.IntIds;
 import org.hl7.tinkar.coordinate.navigation.NavigationCoordinate;
 import org.hl7.tinkar.coordinate.navigation.NavigationCoordinateRecord;
 import org.hl7.tinkar.coordinate.stamp.StateSet;
 import org.hl7.tinkar.terms.PatternFacade;
 import org.hl7.tinkar.terms.PatternProxy;
-import org.hl7.tinkar.terms.State;
 
 public class ObservableNavigationCoordinateWithOverride extends ObservableNavigationCoordinateBase {
 
@@ -46,14 +45,14 @@ public class ObservableNavigationCoordinateWithOverride extends ObservableNaviga
     }
 
     @Override
-    public SetPropertyWithOverride<State> vertexStatesProperty() {
-        return (SetPropertyWithOverride<State>) super.vertexStatesProperty();
+    public ObjectPropertyWithOverride<StateSet> vertexStatesProperty() {
+        return (ObjectPropertyWithOverride<StateSet>) super.vertexStatesProperty();
     }
 
     @Override
-    protected SimpleEqualityBasedSetProperty<State> makeVertexStatesProperty(NavigationCoordinate navigationCoordinate) {
+    protected ObjectPropertyWithOverride<StateSet> makeVertexStatesProperty(NavigationCoordinate navigationCoordinate) {
         ObservableNavigationCoordinate observableNavigationCoordinate = (ObservableNavigationCoordinate) navigationCoordinate;
-        return new SetPropertyWithOverride<>(observableNavigationCoordinate.vertexStatesProperty(), this);
+        return new ObjectPropertyWithOverride<>(observableNavigationCoordinate.vertexStatesProperty(), this);
     }
 
     @Override
@@ -87,7 +86,7 @@ public class ObservableNavigationCoordinateWithOverride extends ObservableNaviga
          IntIdList verticesSortPatternNidList
          */
         return NavigationCoordinateRecord.make(IntIds.set.of(navigationPatternsProperty().getOriginalValue().stream().mapToInt(value -> value.nid()).toArray()),
-                StateSet.make(vertexStatesProperty().getOriginalValue()),
+                vertexStatesProperty().getOriginalValue(),
                 sortVerticesProperty().getOriginalValue(),
                 IntIds.list.of(verticesSortPatternListProperty().stream()
                         .mapToInt(patternFacade -> patternFacade.nid()).toArray())
@@ -102,7 +101,7 @@ public class ObservableNavigationCoordinateWithOverride extends ObservableNaviga
             NavigationCoordinateRecord newValue) {
         this.navigationPatternsProperty().setAll(newValue.navigationPatternNids()
                 .map(nid -> (PatternFacade) PatternProxy.make(nid)).toSet());
-        this.vertexStatesProperty().setAll(newValue.vertexStates().toArray());
+        this.vertexStatesProperty().set(newValue.vertexStates());
         this.sortVerticesProperty().set(newValue.sortVertices());
         this.verticesSortPatternListProperty().setAll(newValue.verticesSortPatternNidList().map(nid -> PatternProxy.make(nid)).castToList());
         return newValue;

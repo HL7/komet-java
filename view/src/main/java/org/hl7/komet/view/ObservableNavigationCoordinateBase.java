@@ -19,7 +19,7 @@ public abstract class ObservableNavigationCoordinateBase
         implements NavigationCoordinateDelegate, ObservableNavigationCoordinate {
 
     private final SimpleEqualityBasedSetProperty<PatternFacade> navigatorIdentifierConceptsProperty;
-    private final SimpleEqualityBasedSetProperty<State> vertexStatesProperty;
+    private final ObjectProperty<StateSet> vertexStatesProperty;
     private final ObjectProperty<Boolean> sortVerticesProperty;
     private final ListProperty<PatternFacade> verticesSortPatternListProperty;
 
@@ -30,7 +30,7 @@ public abstract class ObservableNavigationCoordinateBase
      * https://stackoverflow.com/questions/42146360/how-do-i-remove-lambda-expressions-method-handles-that-are-used-as-listeners
      */
     private final SetChangeListener<PatternFacade> navigatorIdentifierConceptSetListener = this::navigationSetChanged;
-    private final SetChangeListener<State> vertexStatesSetListener = this::vertexStateSetChanged;
+    private final ChangeListener<StateSet> vertexStatesSetListener = this::vertexStateSetChanged;
     private final ChangeListener<Boolean> sortVerticesListener = this::sortVerticesListener;
     private final ListChangeListener<PatternFacade> verticesSortPatternListener = this::verticesSortPatternListener;
 
@@ -44,7 +44,7 @@ public abstract class ObservableNavigationCoordinateBase
     }
 
     protected abstract SimpleEqualityBasedSetProperty<PatternFacade> makeNavigationPatternsProperty(NavigationCoordinate navigationCoordinate);
-    protected abstract SimpleEqualityBasedSetProperty<State> makeVertexStatesProperty(NavigationCoordinate navigationCoordinate);
+    protected abstract ObjectProperty<StateSet> makeVertexStatesProperty(NavigationCoordinate navigationCoordinate);
     protected abstract ObjectProperty<Boolean> makeSortVerticesProperty(NavigationCoordinate navigationCoordinate);
     protected abstract ListProperty<PatternFacade> makeVerticesSortPatternListProperty(NavigationCoordinate navigationCoordinate);
 
@@ -70,8 +70,8 @@ public abstract class ObservableNavigationCoordinateBase
                 IntIds.set.of(c.getSet().stream().mapToInt(patternFacade -> patternFacade.nid()).toArray())));
     }
 
-    private void vertexStateSetChanged(SetChangeListener.Change<? extends State> c) {
-        this.setValue(getValue().withVertexStates(StateSet.of(c.getSet())));
+    private void vertexStateSetChanged(ObservableValue<? extends StateSet> observableValue, StateSet oldValue, StateSet newValue) {
+        this.setValue(getValue().withVertexStates(newValue));
     }
 
     private void sortVerticesListener(ObservableValue<? extends Boolean> observableValue, Boolean oldValue, Boolean newValue) {
@@ -95,7 +95,7 @@ public abstract class ObservableNavigationCoordinateBase
     }
 
     @Override
-    public SimpleEqualityBasedSetProperty<State> vertexStatesProperty() {
+    public ObjectProperty<StateSet> vertexStatesProperty() {
         return this.vertexStatesProperty;
     }
 

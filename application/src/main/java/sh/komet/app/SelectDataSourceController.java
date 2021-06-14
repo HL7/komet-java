@@ -168,6 +168,6 @@ public class SelectDataSourceController {
 
         propertySheet.setPropertyEditorFactory(new PropertyEditorFactoryWithValidation());
 
-        Platform.runLater(() -> dataSourceChoiceBox.getSelectionModel().select(controllerOptions.get(0)));
+        Platform.runLater(() -> dataSourceChoiceBox.getSelectionModel().select(controllerOptions.get(4)));
     }
 }

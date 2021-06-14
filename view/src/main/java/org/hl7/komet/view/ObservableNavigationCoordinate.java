@@ -8,8 +8,8 @@ import javafx.beans.property.SetProperty;
 import org.hl7.tinkar.coordinate.logic.PremiseType;
 import org.hl7.tinkar.coordinate.navigation.NavigationCoordinateRecord;
 import org.hl7.tinkar.coordinate.navigation.NavigationCoordinateDelegate;
+import org.hl7.tinkar.coordinate.stamp.StateSet;
 import org.hl7.tinkar.terms.PatternFacade;
-import org.hl7.tinkar.terms.State;
 import org.hl7.tinkar.terms.TinkarTerm;
 
 public interface ObservableNavigationCoordinate
@@ -21,7 +21,7 @@ public interface ObservableNavigationCoordinate
      *
      * @return a set of allowed status values to filter computation results.
      */
-    SetProperty<State> vertexStatesProperty();
+    ObjectProperty<StateSet> vertexStatesProperty();
 
     ObjectProperty<Boolean> sortVerticesProperty();
 
