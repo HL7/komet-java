@@ -3,7 +3,6 @@ package org.hl7.komet.executor;
 import com.google.auto.service.AutoService;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
-import org.hl7.komet.framework.TaskLists;
 import org.hl7.tinkar.common.service.CachingService;
 import org.hl7.tinkar.common.service.ExecutorController;
 

@@ -26,14 +26,16 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Path;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 import org.hl7.komet.framework.ScreenInfo;
+import org.hl7.komet.view.ObservableViewNoOverride;
+import org.hl7.komet.view.ViewProperties;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -63,15 +65,30 @@ public class DetachableTabPane extends TabPane {
     private static final Logger logger = Logger.getLogger(DetachableTabPane.class.getName());
     private List<Double> lstTabPoint = new ArrayList<>();
     private boolean closeIfEmpty = false;
+    private final AtomicReference<ObservableViewNoOverride> windowViewReference;
+    private final AtomicReference<ViewProperties> viewPropertiesReference = new AtomicReference<>();
 
-    private TabStack detachableStack;
+    private TabStack detachableStack = null;
 
-    public DetachableTabPane() {
+    public DetachableTabPane(AtomicReference<ObservableViewNoOverride> windowViewReference) {
         super();
-        this.detachableStack = detachableStack;
-        getStyleClass().add("detachable-tab-pane");
+        this.windowViewReference = windowViewReference;
+        getStyleClass().add("detachable-w-pane");
         setMaxWidth(Double.MAX_VALUE);
         attachListeners();
+    }
+
+    public AtomicReference<ObservableViewNoOverride> getWindowViewReference() {
+        return windowViewReference;
+    }
+
+    public ViewProperties viewProperties() {
+        return viewPropertiesReference.updateAndGet(viewProperties -> {
+            if (viewProperties != null) {
+                return viewProperties;
+            }
+            return windowViewReference.get().makeOverridableViewProperties();
+        });
     }
 
     protected void setDetachableStack(TabStack detachableStack) {

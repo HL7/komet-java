@@ -3,11 +3,12 @@ package org.hl7.komet.executor;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import org.hl7.tinkar.common.service.TrackingCallable;
+import org.hl7.tinkar.common.util.thread.PausableThreadPoolExecutor;
 import org.hl7.tinkar.common.util.thread.ThreadPoolExecutorFixed;
 
 import java.util.concurrent.*;
 
-public class KometThreadPoolExecutor extends ThreadPoolExecutorFixed {
+public class KometThreadPoolExecutor extends PausableThreadPoolExecutor {
     public KometThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue) {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue);
     }

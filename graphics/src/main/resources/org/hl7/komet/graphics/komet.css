@@ -82,6 +82,21 @@ modena.css is the default css.
     -fx-graphic-text-gap:0;
 }
 
+#detail-coordinates {
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+}
+
+#detail-coordinates .arrow-button {
+    -fx-padding:1 0 0 -7;
+}
+
+#detail-coordinates .ikonli-font-icon {
+    -fx-icon-code: "ri-viewpoint";
+    -fx-icon-color: -komet-tab-background-color;
+    -fx-icon-size: 20;
+}
+
 #view-coordinates .ikonli-font-icon {
     /*-fx-icon-code: "map-icon-viewing";*/
     /* -fx-icon-code: "fi-target-two";*/

@@ -8,6 +8,7 @@ module org.hl7.komet.tabs {
     requires transitive org.hl7.komet.graphics;
 
     requires java.logging;
+    requires org.hl7.komet.view;
 
     exports org.hl7.komet.tabs;
 

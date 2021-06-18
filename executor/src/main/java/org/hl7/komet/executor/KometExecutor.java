@@ -6,6 +6,7 @@ import javafx.concurrent.Task;
 import org.hl7.tinkar.common.service.Executor;
 import org.hl7.tinkar.common.service.ExecutorService;
 import org.hl7.tinkar.common.util.thread.NamedThreadFactory;
+import org.hl7.tinkar.common.util.thread.PausableThreadPoolExecutor;
 
 import java.util.UUID;
 import java.util.concurrent.*;
@@ -52,6 +53,8 @@ public class KometExecutor implements ExecutorService {
 
     /** The thread pool executor. */
     private KometThreadPoolExecutor threadPoolExecutor;
+
+    private KometThreadPoolExecutor afterDataStoreLoadThreadPool;
 
     /** The io thread pool executor. */
     private KometThreadPoolExecutor ioThreadPoolExecutor;
@@ -104,6 +107,18 @@ public class KometExecutor implements ExecutorService {
                     new LinkedBlockingQueue<>(),
                     new NamedThreadFactory("Tinkar-Q-work-thread", true));
             this.threadPoolExecutor.allowCoreThreadTimeOut(true);
+
+            // The non-blocking executor - set core threads equal to max - otherwise, it will never increase the thread count
+            // with an unbounded queue.
+            this.afterDataStoreLoadThreadPool = new KometThreadPoolExecutor(maximumPoolSize,
+                    maximumPoolSize,
+                    keepAliveTime,
+                    timeUnit,
+                    new LinkedBlockingQueue<>(),
+                    new NamedThreadFactory("Tinkar-ADL-work-thread", true));
+            this.afterDataStoreLoadThreadPool.allowCoreThreadTimeOut(true);
+            this.afterDataStoreLoadThreadPool.pause();
+
 
             // The IO non-blocking executor - set core threads equal to max - otherwise, it will never increase the thread count
             // with an unbounded queue.
@@ -172,6 +187,11 @@ public class KometExecutor implements ExecutorService {
     @Override
     public ThreadPoolExecutor threadPool() {
         return this.threadPoolExecutor;
+    }
+
+    @Override
+    public PausableThreadPoolExecutor afterDataLoadThreadPool() {
+        return this.afterDataStoreLoadThreadPool;
     }
 
     /**

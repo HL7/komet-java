@@ -5,9 +5,9 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import org.hl7.komet.framework.ActivityFeed;
+import org.hl7.komet.framework.ActivityStream;
 import org.hl7.komet.framework.ExplorationNode;
-import org.hl7.komet.framework.ViewProperties;
+import org.hl7.komet.view.ViewProperties;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 public class ArtifactExportNode  implements ExplorationNode {
@@ -49,12 +49,12 @@ public class ArtifactExportNode  implements ExplorationNode {
     }
 
     @Override
-    public ActivityFeed getActivityFeed() {
+    public ActivityStream getActivityFeed() {
         return null;
     }
 
     @Override
-    public SimpleObjectProperty<ActivityFeed> activityFeedProperty() {
+    public SimpleObjectProperty<ActivityStream> activityFeedProperty() {
         return null;
     }
 

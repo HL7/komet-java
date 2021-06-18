@@ -1,5 +1,6 @@
 package sh.komet.app;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -36,8 +37,11 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
+
+import static sh.komet.app.AppState.COMPUTE_GUI_PREREQUISITES;
+import static sh.komet.app.AppState.RUNNING;
 
 
 /**
@@ -92,16 +96,18 @@ public class KometStageController {
     @FXML
     private MenuButton viewPropertiesButton;
 
-
     //private ChangeListener<Boolean> focusChangeListener = this::handleFocusEvents;
     private Stage stage;
     private List<MenuButton> newTabMenuButtons = new ArrayList<>(5);
 
+    private final AtomicReference<ObservableViewNoOverride> windowViewReference = new AtomicReference<>();
+
+
     private final ImageView vanityImage = new ImageView();
 
-    private TabStack leftDetachableTabPane = TabStack.make(false);
-    private TabStack centerDetachableTabPane = TabStack.make(false);
-    private TabStack rightDetachableTabPane = TabStack.make(false);
+    private TabStack leftDetachableTabPane = TabStack.make(TabStack.REMOVAL.DISALLOW, windowViewReference);
+    private TabStack centerDetachableTabPane = TabStack.make(TabStack.REMOVAL.DISALLOW, windowViewReference);
+    private TabStack rightDetachableTabPane = TabStack.make(TabStack.REMOVAL.DISALLOW, windowViewReference);
 
     private Node getTabPaneFromIndex(int index) {
         switch (index) {
@@ -185,42 +191,42 @@ public class KometStageController {
         vanityBox.setGraphic(vanityImage);
 
         NavigatorNodeFactory navigatorNodeFactory = new NavigatorNodeFactory();
-        ExplorationNode navigatorNode1 = navigatorNodeFactory.create();
+        ExplorationNode navigatorNode1 = navigatorNodeFactory.create(windowViewReference);
         DetachableTab navigatorNode1Tab = new DetachableTab(navigatorNode1.getTitle().getValue(), navigatorNode1.getNode());
         navigatorNode1Tab.setGraphic(navigatorNode1.getTitleNode());
         this.leftDetachableTabPane.getTabPane().getTabs().add(navigatorNode1Tab);
 
         DetailsNodeFactory detailsNodeFactory = new DetailsNodeFactory();
-        ExplorationNode detailsNode1 = detailsNodeFactory.create();
+        ExplorationNode detailsNode1 = detailsNodeFactory.create(windowViewReference);
         DetachableTab detailsNode1Tab = new DetachableTab(detailsNode1.getTitle().getValue(), detailsNode1.getNode());
         detailsNode1Tab.setGraphic(detailsNode1.getTitleNode());
         this.centerDetachableTabPane.getTabs().add(detailsNode1Tab);
 
-        ExplorationNode detailsNode2 = detailsNodeFactory.create();
+        ExplorationNode detailsNode2 = detailsNodeFactory.create(windowViewReference);
         DetachableTab detailsNode2Tab = new DetachableTab(detailsNode2.getTitle().getValue(), detailsNode2.getNode());
         detailsNode2Tab.setGraphic(detailsNode2.getTitleNode());
         this.centerDetachableTabPane.getTabs().add(detailsNode2Tab);
 
-        ExplorationNode detailsNode3 = detailsNodeFactory.create();
+        ExplorationNode detailsNode3 = detailsNodeFactory.create(windowViewReference);
         DetachableTab detailsNode3Tab = new DetachableTab(detailsNode3.getTitle().getValue(), detailsNode3.getNode());
         detailsNode3Tab.setGraphic(detailsNode3.getTitleNode());
         this.centerDetachableTabPane.getTabs().add(detailsNode3Tab);
 
 
         SearchNodeFactory searchNodeFactory = new SearchNodeFactory();
-        ExplorationNode searchNode = searchNodeFactory.create();
+        ExplorationNode searchNode = searchNodeFactory.create(windowViewReference);
         DetachableTab newSearchTab = new DetachableTab(searchNode.getTitle().getValue(), searchNode.getNode());
         newSearchTab.setGraphic(searchNode.getTitleNode());
         this.rightDetachableTabPane.getTabs().add(newSearchTab);
 
         ProgressNodeFactory progressNodeFactory = new ProgressNodeFactory();
-        ExplorationNode explorationNode = progressNodeFactory.create();
+        ExplorationNode explorationNode = progressNodeFactory.create(windowViewReference);
         DetachableTab progressTab = new DetachableTab(explorationNode.getTitle().getValue(), explorationNode.getNode());
         progressTab.setGraphic(explorationNode.getTitleNode());
         this.rightDetachableTabPane.getTabs().add(progressTab);
 
         CompletionNodeFactory completionNodeFactory = new CompletionNodeFactory();
-        ExplorationNode completionNode  = completionNodeFactory.create();
+        ExplorationNode completionNode  = completionNodeFactory.create(windowViewReference);
         DetachableTab completionTab = new DetachableTab(completionNode.getTitle().getValue(), completionNode.getNode());
         completionTab.setGraphic(completionNode.getTitleNode());
         this.rightDetachableTabPane.getTabs().add(completionTab);
@@ -249,32 +255,41 @@ public class KometStageController {
             topGridPane.setStyle("-fx-border-color: transparent");
             event.consume();
         });
-
-        if (App.state.get() == AppState.RUNNING) {
-            loadComplete();
+        if (App.state.get().ordinal() >= COMPUTE_GUI_PREREQUISITES.ordinal()) {
+            computeGuiPrerequisites();
         }
-
+        App.state.addListener((observable, oldValue, newValue) -> {
+            if (newValue == COMPUTE_GUI_PREREQUISITES) {
+                computeGuiPrerequisites();
+            }
+        });
     }
+
     private List<MenuItem> getTaskMenuItems() {
         ArrayList<MenuItem> items = new ArrayList<>();
-
         return items;
     }
 
-    protected void loadComplete() {
-
-        ObservableViewNoOverride windowView = new ObservableViewNoOverride(Coordinates.View.DefaultView());
+    protected void computeGuiPrerequisites() {
+        windowViewReference.set(new ObservableViewNoOverride(Coordinates.View.DefaultView()));
+        ObservableViewNoOverride windowView = windowViewReference.get();
         ViewCalculatorWithCache viewCalculator = ViewCalculatorWithCache.getCalculator(windowView.stampCoordinate().toStampCoordinateRecord(),
                 windowView.languageCoordinateList(), windowView.navigationCoordinate().toNavigationCoordinateRecord(),
                 windowView.toViewCoordinateRecord());
 
         Executor.threadPool().execute(TaskWrapper.make(new ViewMenuTask(viewCalculator, windowView),
-                (List<MenuItem> result) -> windowCoordinates.getItems().addAll(result)));
+                (List<MenuItem> result) -> {
+            windowCoordinates.getItems().addAll(result);
+            if (App.state.get() == COMPUTE_GUI_PREREQUISITES) {
+                App.state.set(RUNNING);
+            }
+        }));
 
         windowView.addListener((observable, oldValue, newValue) -> {
             windowCoordinates.getItems().clear();
             Executor.threadPool().execute(TaskWrapper.make(new ViewMenuTask(viewCalculator, windowView),
-                    (List<MenuItem> result) -> windowCoordinates.getItems().addAll(result)));
+                    (List<MenuItem> result) ->
+                        windowCoordinates.getItems().addAll(result)));
         });
     }
 

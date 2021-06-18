@@ -6,6 +6,7 @@ module org.hl7.komet.artifact {
 
     requires static org.hl7.tinkar.autoservice;
     requires transitive org.hl7.komet.framework;
+    requires org.hl7.komet.view;
 
     opens org.hl7.komet.artifact;
     exports org.hl7.komet.artifact;

@@ -6,7 +6,11 @@ import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import org.hl7.komet.framework.ExplorationNode;
 import org.hl7.komet.framework.NodeFactory;
+import org.hl7.komet.view.ObservableViewNoOverride;
+import org.hl7.komet.view.ViewProperties;
 import org.kordamp.ikonli.javafx.FontIcon;
+
+import java.util.concurrent.atomic.AtomicReference;
 
 @AutoService(NodeFactory.class)
 public class ConceptBuilderNodeFactory implements NodeFactory {
@@ -14,7 +18,7 @@ public class ConceptBuilderNodeFactory implements NodeFactory {
     protected static final String TITLE = ConceptBuilderNode.TITLE;
 
     @Override
-    public ExplorationNode create() {
+    public ExplorationNode create(AtomicReference<ObservableViewNoOverride> windowViewReference) {
         return new ConceptBuilderNode();
     }
 

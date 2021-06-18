@@ -8,10 +8,10 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Task;
 import javafx.scene.Node;
 import org.controlsfx.control.TaskProgressView;
-import org.hl7.komet.framework.ActivityFeed;
+import org.hl7.komet.framework.ActivityStream;
 import org.hl7.komet.framework.ExplorationNode;
-import org.hl7.komet.framework.TaskLists;
-import org.hl7.komet.framework.ViewProperties;
+import org.hl7.komet.executor.TaskLists;
+import org.hl7.komet.view.ViewProperties;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.util.Optional;
@@ -65,12 +65,12 @@ public class CompletionNode implements ExplorationNode {
     }
 
     @Override
-    public ActivityFeed getActivityFeed() {
+    public ActivityStream getActivityFeed() {
         return null;
     }
 
     @Override
-    public SimpleObjectProperty<ActivityFeed> activityFeedProperty() {
+    public SimpleObjectProperty<ActivityStream> activityFeedProperty() {
         return null;
     }
 

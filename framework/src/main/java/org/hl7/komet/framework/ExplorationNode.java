@@ -1,12 +1,10 @@
 package org.hl7.komet.framework;
 
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-
-import java.util.Optional;
+import org.hl7.komet.view.ViewProperties;
 
 /**
  * ExplorationNode: A node that enables traversal (a taxonomy view) of content
@@ -49,9 +47,9 @@ public interface ExplorationNode {
      */
     ViewProperties getViewProperties();
 
-    ActivityFeed getActivityFeed();
+    ActivityStream getActivityFeed();
 
-    SimpleObjectProperty<ActivityFeed> activityFeedProperty();
+    SimpleObjectProperty<ActivityStream> activityFeedProperty();
 
     /**
      * @return The node to be displayed

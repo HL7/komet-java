@@ -1,14 +1,14 @@
 import org.hl7.komet.executor.KometExecutorController;
 import org.hl7.tinkar.common.service.CachingService;
 import org.hl7.tinkar.common.service.ExecutorController;
-import org.hl7.komet.framework.TaskLists;
+import org.hl7.komet.executor.TaskLists;
 
 module org.hl7.komet.executor {
     exports org.hl7.komet.executor;
     requires transitive org.hl7.tinkar.common;
 
-    requires javafx.graphics;
-    requires org.hl7.komet.framework;
+    requires transitive javafx.graphics;
+    requires transitive javafx.controls;
 
     provides TaskLists
             with KometExecutorController;

@@ -4,23 +4,16 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
-import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import org.hl7.komet.framework.NodeFactory;
 import org.hl7.komet.graphics.LoadFonts;
 import org.hl7.tinkar.common.service.Executor;
-import org.hl7.tinkar.common.service.PrimitiveData;
-import org.hl7.tinkar.common.util.time.Stopwatch;
-import org.hl7.tinkar.entity.Entity;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.ServiceLoader;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -116,7 +109,6 @@ public class App extends Application {
                 case SELECTED_DATA_SOURCE -> {
                     FXMLLoader kometStageLoader = new FXMLLoader(getClass().getResource("KometStageScene.fxml"));
                     BorderPane kometRoot = kometStageLoader.load();
-                    KometStageController controller = kometStageLoader.getController();
 
                     Scene kometScene = new Scene(kometRoot, 1800, 1024);
                     kometScene.getStylesheets()
@@ -127,30 +119,13 @@ public class App extends Application {
                     primaryStage.centerOnScreen();
 
                     Platform.runLater(() -> state.set(LOADING_DATA_SOURCE));
-                    Executor.threadPool().execute(() -> {
-                        Stopwatch reloadStopwatch = new Stopwatch();
-                        PrimitiveData.start();
-                        kometLog.info("Reloading in: " + reloadStopwatch.durationString() + "\n");
-                        if (false) {
-                            reloadStopwatch.reset();
-                            Entity.provider().forEachSemanticForComponent(PrimitiveData.get().nidForUuids(UUID.fromString("ac2b08ea-457c-3847-b099-569c74d97ccd")),semanticEntity -> {
-                                kometLog.info(semanticEntity.toString() + "\n");
-                            });
-                            kometLog.info("Query 1: " + reloadStopwatch.durationString() + "\n");
-                            reloadStopwatch.reset();
+                    Executor.threadPool().submit(new LoadDataSourceTask(state));
+                }
+                case COMPUTE_GUI_PREREQUISITES -> {
 
-                            Entity.provider().forEachSemanticForComponent(PrimitiveData.get().nidForUuids(UUID.fromString("7a9c1860-c70d-36c4-b45d-184c05cd9421")),semanticEntity -> {
-                                kometLog.info(semanticEntity.toString() + "\n");
-                            });
-                            kometLog.info("Query 2: " + reloadStopwatch.durationString() + "\n");
-                        }
-                        Platform.runLater(() -> state.set(RUNNING));
-                        controller.loadComplete();
-
-                    });
                 }
                 case RUNNING -> {
-
+                    Executor.afterDataLoadThreadPool().resume();
                 }
                 case SHUTDOWN -> {
                     Platform.exit();

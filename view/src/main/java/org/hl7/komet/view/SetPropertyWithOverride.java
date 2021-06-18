@@ -1,5 +1,6 @@
 package org.hl7.komet.view;
 
+import javafx.application.Platform;
 import javafx.beans.property.Property;
 import javafx.beans.property.SetProperty;
 import javafx.collections.FXCollections;

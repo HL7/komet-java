@@ -80,6 +80,9 @@ public class ObservableViewNoOverride extends ObservableViewBase {
         super(viewRecord);
     }
 
+    public ViewProperties makeOverridableViewProperties() {
+       return new ViewProperties(new ObservableViewWithOverride(this), this);
+    }
     @Override
     public void setExceptOverrides(ViewCoordinateRecord viewRecord) {
         setValue(viewRecord.toViewCoordinateRecord());

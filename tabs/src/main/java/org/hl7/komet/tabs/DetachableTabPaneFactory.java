@@ -27,7 +27,7 @@ package org.hl7.komet.tabs;
 public abstract class DetachableTabPaneFactory {
 
     TabStack create(DetachableTabPane source) {
-        DetachableTabPane tabPane = new DetachableTabPane();
+        DetachableTabPane tabPane = new DetachableTabPane(source.getWindowViewReference());
         tabPane.setSceneFactory(source.getSceneFactory());
         tabPane.setStageOwnerFactory(source.getStageOwnerFactory());
         tabPane.setScope(source.getScope());
@@ -35,7 +35,7 @@ public abstract class DetachableTabPaneFactory {
         tabPane.setCloseIfEmpty(true);
         tabPane.setDetachableTabPaneFactory(source.getDetachableTabPaneFactory());
         init(tabPane);
-        return TabStack.make(tabPane);
+        return TabStack.make(tabPane, source.getWindowViewReference());
     }
 
     /**

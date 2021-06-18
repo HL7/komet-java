@@ -3,28 +3,20 @@ package org.hl7.komet.progress;
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.RotateTransition;
-import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.scene.Node;
-import javafx.scene.control.ContentDisplay;
-import javafx.scene.control.Label;
-import javafx.scene.paint.Color;
 import javafx.scene.transform.Rotate;
 import javafx.util.Duration;
 import org.controlsfx.control.TaskProgressView;
-import org.hl7.komet.framework.ActivityFeed;
+import org.hl7.komet.executor.TaskLists;
+import org.hl7.komet.framework.ActivityStream;
 import org.hl7.komet.framework.ExplorationNode;
-import org.hl7.komet.framework.TaskLists;
-import org.hl7.komet.framework.ViewProperties;
-import org.kordamp.ikonli.Ikon;
+import org.hl7.komet.view.ViewProperties;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.util.Optional;
@@ -95,12 +87,12 @@ public class ProgressNode implements ExplorationNode {
     }
 
     @Override
-    public ActivityFeed getActivityFeed() {
+    public ActivityStream getActivityFeed() {
         return null;
     }
 
     @Override
-    public SimpleObjectProperty<ActivityFeed> activityFeedProperty() {
+    public SimpleObjectProperty<ActivityStream> activityFeedProperty() {
         return null;
     }
 

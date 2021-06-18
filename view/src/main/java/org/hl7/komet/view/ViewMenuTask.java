@@ -57,7 +57,7 @@ public class ViewMenuTask extends TrackingCallable<List<MenuItem>> {
                 menuItems,
                 observableCoordinate);
         updateTitle("Updated View Menu");
-        updateMessage("Updated in " + durationString());
+        updateMessage("In " + durationString());
         return menuItems;
     }
 

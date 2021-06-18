@@ -28,11 +28,6 @@
             <artifactId>controlsfx</artifactId>
             <version>${controlsfx.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-controls</artifactId>
-            <version>${openjfx.version}</version>
-        </dependency>
         <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-fxml -->
         <dependency>
             <groupId>org.openjfx</groupId>
@@ -54,6 +49,12 @@
             <groupId>org.hl7.komet</groupId>
             <artifactId>komet-terms</artifactId>
             <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hl7.komet</groupId>
+            <artifactId>view</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>
