@@ -5,26 +5,24 @@ import javafx.animation.Interpolator;
 import javafx.animation.RotateTransition;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.ReadOnlyProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Task;
 import javafx.scene.Node;
 import javafx.scene.transform.Rotate;
 import javafx.util.Duration;
 import org.controlsfx.control.TaskProgressView;
 import org.hl7.komet.executor.TaskLists;
-import org.hl7.komet.framework.ActivityStream;
-import org.hl7.komet.framework.ExplorationNode;
-import org.hl7.komet.view.ViewProperties;
+import org.hl7.komet.framework.ExplorationNodeAbstract;
+import org.hl7.komet.framework.view.ViewProperties;
+import org.hl7.komet.preferences.KometPreferences;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.util.Optional;
 import java.util.ServiceLoader;
 
-public class ProgressNode implements ExplorationNode {
+public class ProgressNode extends ExplorationNodeAbstract {
+    protected static final String STYLE_ID = "activity-node";
+    protected static final String TITLE = "Activity";
 
-    SimpleStringProperty title = new SimpleStringProperty("Activity");
     final Node activityGraphic = getTitleGraphic();
     final RotateTransition rotation = new RotateTransition(Duration.seconds(1.5), activityGraphic);
     {
@@ -66,34 +64,24 @@ public class ProgressNode implements ExplorationNode {
             rotation.play();
         }
     }
+
+    public ProgressNode(ViewProperties viewProperties, KometPreferences nodePreferences) {
+        super(viewProperties, nodePreferences);
+    }
+
     @Override
-    public ReadOnlyProperty<String> getTitle() {
-        return title;
+    public String getStyleId() {
+        return STYLE_ID;
+    }
+
+    @Override
+    public String getDefaultTitle() {
+        return TITLE;
     }
 
     @Override
     public Node getTitleNode() {
         return activityGraphic;
-    }
-
-    @Override
-    public ReadOnlyProperty<String> getToolTip() {
-        return null;
-    }
-
-    @Override
-    public ViewProperties getViewProperties() {
-        return null;
-    }
-
-    @Override
-    public ActivityStream getActivityFeed() {
-        return null;
-    }
-
-    @Override
-    public SimpleObjectProperty<ActivityStream> activityFeedProperty() {
-        return null;
     }
 
     @Override
@@ -111,10 +99,6 @@ public class ProgressNode implements ExplorationNode {
         return false;
     }
 
-    @Override
-    public void setNodeSelectionMethod(Runnable nodeSelectionMethod) {
-
-    }
 
     @Override
     public void savePreferences() {

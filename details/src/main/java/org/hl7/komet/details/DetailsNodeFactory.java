@@ -1,37 +1,38 @@
 package org.hl7.komet.details;
 
 import com.google.auto.service.AutoService;
-import javafx.scene.Node;
-import javafx.scene.control.ContentDisplay;
-import javafx.scene.control.Label;
-import org.hl7.komet.framework.ExplorationNode;
-import org.hl7.komet.framework.NodeFactory;
-import org.hl7.komet.view.ObservableViewNoOverride;
-import org.hl7.komet.view.ViewProperties;
-import org.kordamp.ikonli.javafx.FontIcon;
+import org.hl7.komet.framework.KometNode;
+import org.hl7.komet.framework.KometNodeFactory;
+import org.hl7.komet.preferences.KometPreferences;
+import org.hl7.komet.framework.view.ObservableViewNoOverride;
 
-import java.util.concurrent.atomic.AtomicReference;
-
-@AutoService(NodeFactory.class)
-public class DetailsNodeFactory  implements NodeFactory {
+@AutoService(KometNodeFactory.class)
+public class DetailsNodeFactory  implements KometNodeFactory {
     protected static final String STYLE_ID = DetailsNode.STYLE_ID;
     protected static final String TITLE = DetailsNode.TITLE;
 
-    public ExplorationNode create(AtomicReference<ObservableViewNoOverride> windowViewReference) {
-        return new DetailsNode(windowViewReference);
+    @Override
+    public void addDefaultNodePreferences(KometPreferences nodePreferences) {
+        DetailsNode.addDefaultNodePreferences(nodePreferences);
+    }
+
+    @Override
+    public KometNode create(ObservableViewNoOverride windowView, KometPreferences nodePreferences) {
+        return new DetailsNode(windowView.makeOverridableViewProperties(), nodePreferences);
+    }
+
+    @Override
+    public Class<? extends KometNode> kometNodeClass() {
+        return DetailsNode.class;
+    }
+
+    @Override
+    public String getStyleId() {
+        return STYLE_ID;
     }
 
     @Override
     public String getMenuText() {
         return TITLE;
-    }
-
-    @Override
-    public Node getMenuGraphic() {
-        FontIcon icon = new FontIcon();
-        Label iconLabel = new Label("", icon);
-        iconLabel.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-        iconLabel.setId(STYLE_ID);
-        return iconLabel;
     }
 }

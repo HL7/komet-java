@@ -1,31 +1,17 @@
 package org.hl7.komet.artifact;
 
-import javafx.beans.property.ReadOnlyProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import org.hl7.komet.framework.ActivityStream;
-import org.hl7.komet.framework.ExplorationNode;
-import org.hl7.komet.view.ViewProperties;
-import org.kordamp.ikonli.javafx.FontIcon;
+import org.hl7.komet.framework.ExplorationNodeAbstract;
+import org.hl7.komet.preferences.KometPreferences;
+import org.hl7.komet.framework.view.ViewProperties;
 
-public class ArtifactExportNode  implements ExplorationNode {
+public class ArtifactExportNode extends ExplorationNodeAbstract {
     protected static final String STYLE_ID = "export-node";
     protected static final String TITLE = "Export Artifact";
 
-    SimpleStringProperty titleProperty = new SimpleStringProperty(TITLE);
-    Label titleNode = new Label("", new FontIcon());
-    {
-        titleNode.setId(STYLE_ID);
-        titleProperty.addListener((observable, oldValue, newValue) -> {
-            titleNode.setText(newValue);
-        });
-    }
-
-    @Override
-    public ReadOnlyProperty<String> getTitle() {
-        return titleProperty;
+    public ArtifactExportNode(ViewProperties viewProperties, KometPreferences nodePreferences) {
+        super(viewProperties, nodePreferences);
     }
 
     @Override
@@ -34,28 +20,13 @@ public class ArtifactExportNode  implements ExplorationNode {
     }
 
     @Override
-    public Node getTitleNode() {
-        return titleNode;
+    public String getStyleId() {
+        return STYLE_ID;
     }
 
     @Override
-    public ReadOnlyProperty<String> getToolTip() {
-        return null;
-    }
-
-    @Override
-    public ViewProperties getViewProperties() {
-        return null;
-    }
-
-    @Override
-    public ActivityStream getActivityFeed() {
-        return null;
-    }
-
-    @Override
-    public SimpleObjectProperty<ActivityStream> activityFeedProperty() {
-        return null;
+    public String getDefaultTitle() {
+        return TITLE;
     }
 
     @Override
@@ -66,11 +37,6 @@ public class ArtifactExportNode  implements ExplorationNode {
     @Override
     public boolean canClose() {
         return false;
-    }
-
-    @Override
-    public void setNodeSelectionMethod(Runnable nodeSelectionMethod) {
-
     }
 
     @Override

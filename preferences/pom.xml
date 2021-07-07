@@ -11,10 +11,19 @@
 
     <groupId>org.hl7.komet</groupId>
     <artifactId>preferences</artifactId>
-
-    <properties>
-        <maven.compiler.source>16</maven.compiler.source>
-        <maven.compiler.target>16</maven.compiler.target>
-    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.hl7.tinkar</groupId>
+            <artifactId>entity</artifactId>
+            <version>${tinkar-core.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hl7.tinkar</groupId>
+            <artifactId>auto-service</artifactId>
+            <version>${tinkar-jpms-deps.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
 </project>

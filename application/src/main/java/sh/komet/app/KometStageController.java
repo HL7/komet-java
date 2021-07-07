@@ -1,6 +1,5 @@
 package sh.komet.app;
 
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -17,17 +16,23 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import org.hl7.komet.details.DetailsNodeFactory;
 import org.hl7.komet.executor.TaskWrapper;
-import org.hl7.komet.framework.ExplorationNode;
+import org.hl7.komet.framework.KometNode;
+import org.hl7.komet.framework.SetupNode;
+import org.hl7.komet.framework.activity.ActivityStream;
+import org.hl7.komet.framework.activity.ActivityStreams;
+import org.hl7.komet.framework.alerts.AlertStream;
+import org.hl7.komet.framework.alerts.AlertStreams;
 import org.hl7.komet.navigator.NavigatorNodeFactory;
+import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.komet.progress.CompletionNodeFactory;
 import org.hl7.komet.progress.ProgressNodeFactory;
 import org.hl7.komet.search.SearchNodeFactory;
 import org.hl7.komet.tabs.DetachableTab;
 import org.hl7.komet.tabs.TabStack;
-import org.hl7.komet.view.ObservableViewNoOverride;
-import org.hl7.komet.view.ViewMenuTask;
+import org.hl7.komet.framework.view.ObservableViewNoOverride;
+import org.hl7.komet.framework.view.ViewMenuTask;
+import org.hl7.tinkar.common.id.PublicIdStringKey;
 import org.hl7.tinkar.common.service.Executor;
-import org.hl7.tinkar.coordinate.Coordinates;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculatorWithCache;
 import org.kordamp.ikonli.javafx.FontIcon;
 
@@ -37,11 +42,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
-
-import static sh.komet.app.AppState.COMPUTE_GUI_PREREQUISITES;
-import static sh.komet.app.AppState.RUNNING;
 
 
 /**
@@ -49,7 +50,7 @@ import static sh.komet.app.AppState.RUNNING;
  *
  * @author kec
  */
-public class KometStageController {
+public class KometStageController implements SetupNode {
 
     private static final Logger LOG = Logger.getLogger(KometStageController.class.getName());
 
@@ -100,14 +101,14 @@ public class KometStageController {
     private Stage stage;
     private List<MenuButton> newTabMenuButtons = new ArrayList<>(5);
 
-    private final AtomicReference<ObservableViewNoOverride> windowViewReference = new AtomicReference<>();
-
+    private ObservableViewNoOverride windowView;
+    private KometPreferences nodePreferences;
 
     private final ImageView vanityImage = new ImageView();
 
-    private TabStack leftDetachableTabPane = TabStack.make(TabStack.REMOVAL.DISALLOW, windowViewReference);
-    private TabStack centerDetachableTabPane = TabStack.make(TabStack.REMOVAL.DISALLOW, windowViewReference);
-    private TabStack rightDetachableTabPane = TabStack.make(TabStack.REMOVAL.DISALLOW, windowViewReference);
+    private TabStack leftDetachableTabPane;
+    private TabStack centerDetachableTabPane;
+    private TabStack rightDetachableTabPane;
 
     private Node getTabPaneFromIndex(int index) {
         switch (index) {
@@ -131,7 +132,7 @@ public class KometStageController {
     public void handleRefreshUserCss(ActionEvent event) {
         try {
             // "Feature" to make css editing/testing easy in the dev environment.
-            File cssSourceFile = new File("../graphics/src/main/resources/org/hl7/komet/graphics/komet.css");
+            File cssSourceFile = new File("../framework/src/main/resources/org/hl7/komet/framework/graphics/komet.css");
             if (cssSourceFile.exists()) {
                 Scene scene = vanityBox.getScene();
                 scene.getStylesheets().clear();
@@ -170,15 +171,11 @@ public class KometStageController {
         assert classifierMenuButton != null :
                 "fx:id=\"classifierMenuButton\" was not injected: check your FXML file 'KometStageScene.fxml'.";
 
-        //windowCoordinates.setGraphic(Iconography.COORDINATES.getStyledIconographic());
+        //windowCoordinates.setGraphic(Icon.COORDINATES.getStyledIconographic());
 
         viewPropertiesButton.setGraphic(new FontIcon());
         viewPropertiesButton.setId("view-coordinates");
-
-        leftBorderPane.setCenter(this.leftDetachableTabPane);
-        centerBorderPane.setCenter(this.centerDetachableTabPane);
-        rightBorderPane.setCenter(this.rightDetachableTabPane);
-        //classifierMenuButton.setGraphic(Iconography.ICON_CLASSIFIER1.getIconographic());
+        //classifierMenuButton.setGraphic(Icon.ICON_CLASSIFIER1.getIconographic());
         classifierMenuButton.getItems().clear();
         classifierMenuButton.getItems().addAll(getTaskMenuItems());
 
@@ -189,49 +186,6 @@ public class KometStageController {
         vanityImage.setSmooth(true);
         vanityImage.setCache(true);
         vanityBox.setGraphic(vanityImage);
-
-        NavigatorNodeFactory navigatorNodeFactory = new NavigatorNodeFactory();
-        ExplorationNode navigatorNode1 = navigatorNodeFactory.create(windowViewReference);
-        DetachableTab navigatorNode1Tab = new DetachableTab(navigatorNode1.getTitle().getValue(), navigatorNode1.getNode());
-        navigatorNode1Tab.setGraphic(navigatorNode1.getTitleNode());
-        this.leftDetachableTabPane.getTabPane().getTabs().add(navigatorNode1Tab);
-
-        DetailsNodeFactory detailsNodeFactory = new DetailsNodeFactory();
-        ExplorationNode detailsNode1 = detailsNodeFactory.create(windowViewReference);
-        DetachableTab detailsNode1Tab = new DetachableTab(detailsNode1.getTitle().getValue(), detailsNode1.getNode());
-        detailsNode1Tab.setGraphic(detailsNode1.getTitleNode());
-        this.centerDetachableTabPane.getTabs().add(detailsNode1Tab);
-
-        ExplorationNode detailsNode2 = detailsNodeFactory.create(windowViewReference);
-        DetachableTab detailsNode2Tab = new DetachableTab(detailsNode2.getTitle().getValue(), detailsNode2.getNode());
-        detailsNode2Tab.setGraphic(detailsNode2.getTitleNode());
-        this.centerDetachableTabPane.getTabs().add(detailsNode2Tab);
-
-        ExplorationNode detailsNode3 = detailsNodeFactory.create(windowViewReference);
-        DetachableTab detailsNode3Tab = new DetachableTab(detailsNode3.getTitle().getValue(), detailsNode3.getNode());
-        detailsNode3Tab.setGraphic(detailsNode3.getTitleNode());
-        this.centerDetachableTabPane.getTabs().add(detailsNode3Tab);
-
-
-        SearchNodeFactory searchNodeFactory = new SearchNodeFactory();
-        ExplorationNode searchNode = searchNodeFactory.create(windowViewReference);
-        DetachableTab newSearchTab = new DetachableTab(searchNode.getTitle().getValue(), searchNode.getNode());
-        newSearchTab.setGraphic(searchNode.getTitleNode());
-        this.rightDetachableTabPane.getTabs().add(newSearchTab);
-
-        ProgressNodeFactory progressNodeFactory = new ProgressNodeFactory();
-        ExplorationNode explorationNode = progressNodeFactory.create(windowViewReference);
-        DetachableTab progressTab = new DetachableTab(explorationNode.getTitle().getValue(), explorationNode.getNode());
-        progressTab.setGraphic(explorationNode.getTitleNode());
-        this.rightDetachableTabPane.getTabs().add(progressTab);
-
-        CompletionNodeFactory completionNodeFactory = new CompletionNodeFactory();
-        ExplorationNode completionNode  = completionNodeFactory.create(windowViewReference);
-        DetachableTab completionTab = new DetachableTab(completionNode.getTitle().getValue(), completionNode.getNode());
-        completionTab.setGraphic(completionNode.getTitleNode());
-        this.rightDetachableTabPane.getTabs().add(completionTab);
-        
-        this.rightDetachableTabPane.getSelectionModel().select(progressTab);
 
 
         topGridPane.setStyle("-fx-border-color: transparent");
@@ -255,14 +209,6 @@ public class KometStageController {
             topGridPane.setStyle("-fx-border-color: transparent");
             event.consume();
         });
-        if (App.state.get().ordinal() >= COMPUTE_GUI_PREREQUISITES.ordinal()) {
-            computeGuiPrerequisites();
-        }
-        App.state.addListener((observable, oldValue, newValue) -> {
-            if (newValue == COMPUTE_GUI_PREREQUISITES) {
-                computeGuiPrerequisites();
-            }
-        });
     }
 
     private List<MenuItem> getTaskMenuItems() {
@@ -270,31 +216,94 @@ public class KometStageController {
         return items;
     }
 
-    protected void computeGuiPrerequisites() {
-        windowViewReference.set(new ObservableViewNoOverride(Coordinates.View.DefaultView()));
-        ObservableViewNoOverride windowView = windowViewReference.get();
-        ViewCalculatorWithCache viewCalculator = ViewCalculatorWithCache.getCalculator(windowView.stampCoordinate().toStampCoordinateRecord(),
-                windowView.languageCoordinateList(), windowView.navigationCoordinate().toNavigationCoordinateRecord(),
-                windowView.toViewCoordinateRecord());
+    void handleCloseRequest(WindowEvent event) {
+        //stage.focusedProperty().removeListener(this.focusChangeListener);
+        //MenuProvider.handleCloseRequest(event);
+    }
+
+    @Override
+    public void setup(ObservableViewNoOverride windowView,
+                      KometPreferences nodePreferences,
+                      PublicIdStringKey<ActivityStream> activityStreamKey,
+                      AlertStream alertStream) {
+        this.windowView = windowView;
+        this.nodePreferences = nodePreferences;
+        ViewCalculatorWithCache viewCalculator = ViewCalculatorWithCache.getCalculator(windowView.toViewCoordinateRecord());
 
         Executor.threadPool().execute(TaskWrapper.make(new ViewMenuTask(viewCalculator, windowView),
                 (List<MenuItem> result) -> {
-            windowCoordinates.getItems().addAll(result);
-            if (App.state.get() == COMPUTE_GUI_PREREQUISITES) {
-                App.state.set(RUNNING);
-            }
-        }));
+                    windowCoordinates.getItems().addAll(result);
+                    setupWindow();
+                }));
 
         windowView.addListener((observable, oldValue, newValue) -> {
             windowCoordinates.getItems().clear();
             Executor.threadPool().execute(TaskWrapper.make(new ViewMenuTask(viewCalculator, windowView),
-                    (List<MenuItem> result) ->
-                        windowCoordinates.getItems().addAll(result)));
+                    (List<MenuItem> result) -> windowCoordinates.getItems().addAll(result)));
         });
     }
 
-    void handleCloseRequest(WindowEvent event) {
-        //stage.focusedProperty().removeListener(this.focusChangeListener);
-        //MenuProvider.handleCloseRequest(event);
+    private void setupWindow() {
+        this.leftDetachableTabPane = TabStack.make(TabStack.REMOVAL.DISALLOW, windowView, nodePreferences);
+        this.centerDetachableTabPane = TabStack.make(TabStack.REMOVAL.DISALLOW, windowView, nodePreferences);
+        this.rightDetachableTabPane = TabStack.make(TabStack.REMOVAL.DISALLOW, windowView, nodePreferences);
+
+        leftBorderPane.setCenter(this.leftDetachableTabPane);
+        centerBorderPane.setCenter(this.centerDetachableTabPane);
+        rightBorderPane.setCenter(this.rightDetachableTabPane);
+
+
+        NavigatorNodeFactory navigatorNodeFactory = new NavigatorNodeFactory();
+
+        KometNode navigatorNode1 = navigatorNodeFactory.create(windowView, nodePreferences,
+                ActivityStreams.UNLINKED, AlertStreams.ROOT_ALERT_STREAM_KEY);
+
+        DetachableTab navigatorNode1Tab = new DetachableTab(navigatorNode1.getTitle().getValue(), navigatorNode1.getNode());
+        navigatorNode1Tab.setGraphic(navigatorNode1.getTitleNode());
+        this.leftDetachableTabPane.getTabPane().getTabs().add(navigatorNode1Tab);
+
+        DetailsNodeFactory detailsNodeFactory = new DetailsNodeFactory();
+        KometNode detailsNode1 = detailsNodeFactory.create(windowView, nodePreferences,
+                ActivityStreams.UNLINKED, AlertStreams.ROOT_ALERT_STREAM_KEY);
+
+        DetachableTab detailsNode1Tab = new DetachableTab(detailsNode1.getTitle().getValue(), detailsNode1.getNode());
+        detailsNode1Tab.setGraphic(detailsNode1.getTitleNode());
+        this.centerDetachableTabPane.getTabs().add(detailsNode1Tab);
+
+        KometNode detailsNode2 = detailsNodeFactory.create(windowView, nodePreferences,
+                ActivityStreams.UNLINKED, AlertStreams.ROOT_ALERT_STREAM_KEY);
+        DetachableTab detailsNode2Tab = new DetachableTab(detailsNode2.getTitle().getValue(), detailsNode2.getNode());
+        detailsNode2Tab.setGraphic(detailsNode2.getTitleNode());
+        this.centerDetachableTabPane.getTabs().add(detailsNode2Tab);
+
+        KometNode detailsNode3 = detailsNodeFactory.create(windowView, nodePreferences,
+                ActivityStreams.UNLINKED, AlertStreams.ROOT_ALERT_STREAM_KEY);
+        DetachableTab detailsNode3Tab = new DetachableTab(detailsNode3.getTitle().getValue(), detailsNode3.getNode());
+        detailsNode3Tab.setGraphic(detailsNode3.getTitleNode());
+        this.centerDetachableTabPane.getTabs().add(detailsNode3Tab);
+
+
+        SearchNodeFactory searchNodeFactory = new SearchNodeFactory();
+        KometNode searchNode = searchNodeFactory.create(windowView, nodePreferences,
+                ActivityStreams.UNLINKED, AlertStreams.ROOT_ALERT_STREAM_KEY);
+        DetachableTab newSearchTab = new DetachableTab(searchNode.getTitle().getValue(), searchNode.getNode());
+        newSearchTab.setGraphic(searchNode.getTitleNode());
+        this.rightDetachableTabPane.getTabs().add(newSearchTab);
+
+        ProgressNodeFactory progressNodeFactory = new ProgressNodeFactory();
+        KometNode kometNode = progressNodeFactory.create(windowView, nodePreferences,
+                ActivityStreams.UNLINKED, AlertStreams.ROOT_ALERT_STREAM_KEY);
+        DetachableTab progressTab = new DetachableTab(kometNode.getTitle().getValue(), kometNode.getNode());
+        progressTab.setGraphic(kometNode.getTitleNode());
+        this.rightDetachableTabPane.getTabs().add(progressTab);
+
+        CompletionNodeFactory completionNodeFactory = new CompletionNodeFactory();
+        KometNode completionNode  = completionNodeFactory.create(windowView, nodePreferences,
+                ActivityStreams.UNLINKED, AlertStreams.ROOT_ALERT_STREAM_KEY);
+        DetachableTab completionTab = new DetachableTab(completionNode.getTitle().getValue(), completionNode.getNode());
+        completionTab.setGraphic(completionNode.getTitleNode());
+        this.rightDetachableTabPane.getTabs().add(completionTab);
+
+        this.rightDetachableTabPane.getSelectionModel().select(progressTab);
     }
 }

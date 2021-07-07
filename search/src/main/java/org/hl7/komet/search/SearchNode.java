@@ -1,57 +1,33 @@
 package org.hl7.komet.search;
 
 import javafx.application.Platform;
-import javafx.beans.property.ReadOnlyProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
-import org.hl7.komet.framework.ActivityStream;
-import org.hl7.komet.framework.ExplorationNode;
+import org.hl7.komet.framework.ExplorationNodeAbstract;
 import org.hl7.komet.framework.TopPanelFactory;
-import org.hl7.komet.view.ObservableViewNoOverride;
-import org.hl7.komet.view.ViewProperties;
-import org.hl7.tinkar.common.service.Executor;
+import org.hl7.komet.framework.view.ViewProperties;
+import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculatorWithCache;
-import org.kordamp.ikonli.javafx.FontIcon;
 
-import java.util.concurrent.atomic.AtomicReference;
-
-public class SearchNode implements ExplorationNode {
+public class SearchNode extends ExplorationNodeAbstract {
     protected static final String STYLE_ID = "search-node";
     protected static final String TITLE = "Search";
 
-    SimpleStringProperty titleProperty = new SimpleStringProperty(TITLE);
-    Label titleNode = new Label("", new FontIcon());
-    {
-        titleNode.setId(STYLE_ID);
-        titleProperty.addListener((observable, oldValue, newValue) -> {
-            titleNode.setText(newValue);
-        });
-    }
-
     private final BorderPane searchPane = new BorderPane();
-    private final AtomicReference<ViewProperties> viewPropertiesReference = new AtomicReference<>();
 
-    public SearchNode(AtomicReference<ObservableViewNoOverride> windowViewReference) {
-        this.searchPane.setCenter(new Label(titleProperty.getValue()));
+    public SearchNode(ViewProperties viewProperties, KometPreferences nodePreferences) {
+        super(viewProperties, nodePreferences);
+             // TODO makeOverridableViewProperties should accept node preferences, and accept saved overrides
 
-        Executor.afterDataLoadThreadPool().execute(() -> {
             Platform.runLater(() -> {
-                viewPropertiesReference.set(windowViewReference.get().makeOverridableViewProperties());
+                this.searchPane.setCenter(new Label(titleProperty.getValue()));
                 ViewCalculatorWithCache viewCalculator =
-                        ViewCalculatorWithCache.getCalculator(viewPropertiesReference.get().overridableView().getValue());
+                        ViewCalculatorWithCache.getCalculator(viewProperties.nodeView().getValue());
                 Node topPanel = TopPanelFactory.make(viewCalculator,
-                        viewPropertiesReference.get().overridableView());
-                Platform.runLater(() -> this.searchPane.setTop(topPanel));
+                        viewProperties.nodeView());
+                this.searchPane.setTop(topPanel);
             });
-        });
-    }
-
-    @Override
-    public ReadOnlyProperty<String> getTitle() {
-        return titleProperty;
     }
 
     @Override
@@ -60,28 +36,13 @@ public class SearchNode implements ExplorationNode {
     }
 
     @Override
-    public Node getTitleNode() {
-        return titleNode;
+    public String getStyleId() {
+        return STYLE_ID;
     }
 
     @Override
-    public ReadOnlyProperty<String> getToolTip() {
-        return null;
-    }
-
-    @Override
-    public ViewProperties getViewProperties() {
-        return null;
-    }
-
-    @Override
-    public ActivityStream getActivityFeed() {
-        return null;
-    }
-
-    @Override
-    public SimpleObjectProperty<ActivityStream> activityFeedProperty() {
-        return null;
+    public String getDefaultTitle() {
+        return TITLE;
     }
 
     @Override
@@ -92,11 +53,6 @@ public class SearchNode implements ExplorationNode {
     @Override
     public boolean canClose() {
         return false;
-    }
-
-    @Override
-    public void setNodeSelectionMethod(Runnable nodeSelectionMethod) {
-
     }
 
     @Override

@@ -8,8 +8,19 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import org.hl7.komet.graphics.LoadFonts;
+import org.hl7.komet.framework.activity.ActivityStream;
+import org.hl7.komet.framework.activity.ActivityStreams;
+import org.hl7.komet.framework.alerts.AlertStream;
+import org.hl7.komet.framework.alerts.AlertStreams;
+import org.hl7.komet.framework.graphics.LoadFonts;
+import org.hl7.komet.framework.view.ObservableViewNoOverride;
+import org.hl7.komet.preferences.KometPreferences;
+import org.hl7.komet.preferences.KometPreferencesImpl;
+import org.hl7.komet.preferences.Preferences;
+import org.hl7.tinkar.common.id.PublicIdStringKey;
 import org.hl7.tinkar.common.service.Executor;
+import org.hl7.tinkar.common.service.PrimitiveData;
+import org.hl7.tinkar.coordinate.Coordinates;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -24,6 +35,7 @@ import static sh.komet.app.AppState.*;
  * JavaFX App
  */
 public class App extends Application {
+    public static final String CSS_LOCATION = "org/hl7/komet/framework/graphics/komet.css";
     public static Logger kometLog;
     private static Stage primaryStage;
     private static Module graphicsModule;
@@ -51,6 +63,7 @@ public class App extends Application {
 
         File logDirectory = new File(System.getProperty("user.home"), "Solor/komet/logs");
         logDirectory.mkdirs();
+        // TODO replace logger configuration
         String loggerConfiguraton =
                 "handlers= java.util.logging.FileHandler, java.util.logging.ConsoleHandler\n" +
                         ".level= ALL\n" +
@@ -89,7 +102,8 @@ public class App extends Application {
 
 
             sourceScene.getStylesheets()
-                       .add(graphicsModule.getClassLoader().getResource("org/hl7/komet/graphics/komet.css").toString());
+
+                       .add(graphicsModule.getClassLoader().getResource(CSS_LOCATION).toString());
             stage.setScene(sourceScene);
             stage.setTitle("KOMET Startup");
 
@@ -107,27 +121,39 @@ public class App extends Application {
         try {
             switch (newValue) {
                 case SELECTED_DATA_SOURCE -> {
-                    FXMLLoader kometStageLoader = new FXMLLoader(getClass().getResource("KometStageScene.fxml"));
-                    BorderPane kometRoot = kometStageLoader.load();
-
-                    Scene kometScene = new Scene(kometRoot, 1800, 1024);
-                    kometScene.getStylesheets()
-                            .add(graphicsModule.getClassLoader().getResource("org/hl7/komet/graphics/komet.css").toString());
-
-                    primaryStage.setScene(kometScene);
-                    primaryStage.setTitle("Komet");
-                    primaryStage.centerOnScreen();
 
                     Platform.runLater(() -> state.set(LOADING_DATA_SOURCE));
                     Executor.threadPool().submit(new LoadDataSourceTask(state));
                 }
-                case COMPUTE_GUI_PREREQUISITES -> {
+
+                case RUNNING -> {
+                    FXMLLoader kometStageLoader = new FXMLLoader(getClass().getResource("KometStageScene.fxml"));
+                    BorderPane kometRoot = kometStageLoader.load();
+                    KometStageController controller = kometStageLoader.getController();
+
+                    Scene kometScene = new Scene(kometRoot, 1800, 1024);
+                    kometScene.getStylesheets()
+                            .add(graphicsModule.getClassLoader().getResource(CSS_LOCATION).toString());
+
+                    primaryStage.setScene(kometScene);
+                    ObservableViewNoOverride windowView = new ObservableViewNoOverride(Coordinates.View.DefaultView());
+                    KometPreferences nodePreferences = KometPreferencesImpl.getConfigurationRootPreferences();
+                    KometPreferences windowPreferences = nodePreferences.node("main-komet-window");
+                    PublicIdStringKey<ActivityStream> activityStreamKey = ActivityStreams.UNLINKED;
+                    AlertStream alertStream = AlertStreams.get(AlertStreams.ROOT_ALERT_STREAM_KEY);
+
+                    controller.setup(windowView, windowPreferences, activityStreamKey, alertStream);
+                    primaryStage.setTitle("Komet");
+                    primaryStage.centerOnScreen();
+
 
                 }
-                case RUNNING -> {
-                    Executor.afterDataLoadThreadPool().resume();
-                }
                 case SHUTDOWN -> {
+                    // Fork join pool tasks?
+                    // Latch of some sort?
+                    // Need to put in background thread.
+                    PrimitiveData.stop();
+                    Preferences.stop();
                     Platform.exit();
                 }
             }
@@ -147,6 +173,9 @@ public class App extends Application {
     }
 
     public static void main(String[] args) {
+        // https://stackoverflow.com/questions/42598097/using-javafx-application-stop-method-over-shutdownhook
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> System.out.println("Shutdown hook")));
+
         launch();
     }
 

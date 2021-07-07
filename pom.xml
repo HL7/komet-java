@@ -21,16 +21,43 @@
     <properties>
         <auto-service.version>1.0-rc7</auto-service.version>
         <controlsfx.version>11.1.0</controlsfx.version>
+        <ikonli.version>12.2.0</ikonli.version>
+        <io.smallrye.reactive.version>0.17.0</io.smallrye.reactive.version>
+        <jetty-slf4j-impl.version>11.0.5</jetty-slf4j-impl.version>
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <maven.compiler.source>16</maven.compiler.source>
         <maven.compiler.target>16</maven.compiler.target>
-        <openjfx.version>16</openjfx.version>
+        <openjfx.version>17-ea+14</openjfx.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <record-builder-core.version>1.19</record-builder-core.version>
+        <slf4j.version>2.0.0-alpha1</slf4j.version>
         <tinkar-core.version>1.0-SNAPSHOT</tinkar-core.version>
         <tinkar-jpms-deps.version>1.0.1</tinkar-jpms-deps.version>
-        <ikonli.version>12.2.0</ikonli.version>
     </properties>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-slf4j-impl</artifactId>
+                <version>${jetty-slf4j-impl.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-slf4j-impl</artifactId>
+        </dependency>
+    </dependencies>
     <build>
         <plugins>
             <plugin>
@@ -71,14 +98,12 @@
         <module>details</module>
         <module>executor</module>
         <module>framework</module>
-        <module>graphics</module>
         <module>list</module>
         <module>navigator</module>
         <module>preferences</module>
         <module>progress</module>
         <module>search</module>
         <module>tabs</module>
-        <module>view</module>
         <module>komet-terms</module>
     </modules>
 </project>

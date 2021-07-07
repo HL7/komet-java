@@ -12,9 +12,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import org.hl7.komet.executor.TaskWrapper;
-import org.hl7.komet.view.ObservableCoordinate;
-import org.hl7.komet.view.ViewMenuTask;
-import org.hl7.tinkar.common.service.Executor;
+import org.hl7.komet.framework.view.ObservableCoordinate;
+import org.hl7.komet.framework.view.ViewMenuTask;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculator;
 import org.kordamp.ikonli.javafx.FontIcon;
 

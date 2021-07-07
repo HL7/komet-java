@@ -18,6 +18,8 @@
  */
 package org.hl7.komet.tabs;
 
+import org.hl7.komet.preferences.KometPreferences;
+
 /**
  * Factory responsible to Instantiate new DetachableTabPane when a Tab is
  * detached/docked. Extend this class then implement {@link #init(DetachableTabPane)} method.
@@ -27,7 +29,7 @@ package org.hl7.komet.tabs;
 public abstract class DetachableTabPaneFactory {
 
     TabStack create(DetachableTabPane source) {
-        DetachableTabPane tabPane = new DetachableTabPane(source.getWindowViewReference());
+        DetachableTabPane tabPane = new DetachableTabPane(source.getWindowView(), source.getParentNodePreferences());
         tabPane.setSceneFactory(source.getSceneFactory());
         tabPane.setStageOwnerFactory(source.getStageOwnerFactory());
         tabPane.setScope(source.getScope());
@@ -35,7 +37,7 @@ public abstract class DetachableTabPaneFactory {
         tabPane.setCloseIfEmpty(true);
         tabPane.setDetachableTabPaneFactory(source.getDetachableTabPaneFactory());
         init(tabPane);
-        return TabStack.make(tabPane, source.getWindowViewReference());
+        return TabStack.make(tabPane, source.getWindowView(), source.getParentNodePreferences());
     }
 
     /**

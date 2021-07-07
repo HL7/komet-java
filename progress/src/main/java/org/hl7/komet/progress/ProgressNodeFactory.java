@@ -4,19 +4,33 @@ import com.google.auto.service.AutoService;
 import javafx.scene.Node;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
-import org.hl7.komet.framework.ExplorationNode;
-import org.hl7.komet.framework.NodeFactory;
-import org.hl7.komet.view.ObservableViewNoOverride;
-import org.hl7.komet.view.ViewProperties;
+import org.hl7.komet.framework.KometNode;
+import org.hl7.komet.framework.KometNodeFactory;
+import org.hl7.komet.preferences.KometPreferences;
+import org.hl7.komet.framework.view.ObservableViewNoOverride;
 import org.kordamp.ikonli.javafx.FontIcon;
 
-import java.util.concurrent.atomic.AtomicReference;
+@AutoService(KometNodeFactory.class)
+public class ProgressNodeFactory implements KometNodeFactory {
 
-@AutoService(NodeFactory.class)
-public class ProgressNodeFactory implements NodeFactory {
     @Override
-    public ExplorationNode create(AtomicReference<ObservableViewNoOverride> windowViewReference) {
-        return new ProgressNode();
+    public void addDefaultNodePreferences(KometPreferences nodePreferences) {
+
+    }
+
+    @Override
+    public KometNode create(ObservableViewNoOverride windowView, KometPreferences nodePreferences) {
+        return new ProgressNode(windowView.makeOverridableViewProperties(), nodePreferences);
+    }
+
+    @Override
+    public String getStyleId() {
+        return null;
+    }
+
+    @Override
+    public Class<? extends KometNode> kometNodeClass() {
+        return ProgressNode.class;
     }
 
     @Override

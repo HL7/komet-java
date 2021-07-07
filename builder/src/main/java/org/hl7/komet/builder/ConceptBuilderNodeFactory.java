@@ -1,25 +1,24 @@
 package org.hl7.komet.builder;
 
 import com.google.auto.service.AutoService;
-import javafx.scene.Node;
-import javafx.scene.control.ContentDisplay;
-import javafx.scene.control.Label;
-import org.hl7.komet.framework.ExplorationNode;
-import org.hl7.komet.framework.NodeFactory;
-import org.hl7.komet.view.ObservableViewNoOverride;
-import org.hl7.komet.view.ViewProperties;
-import org.kordamp.ikonli.javafx.FontIcon;
+import org.hl7.komet.framework.KometNode;
+import org.hl7.komet.framework.KometNodeFactory;
+import org.hl7.komet.preferences.KometPreferences;
+import org.hl7.komet.framework.view.ObservableViewNoOverride;
 
-import java.util.concurrent.atomic.AtomicReference;
-
-@AutoService(NodeFactory.class)
-public class ConceptBuilderNodeFactory implements NodeFactory {
+@AutoService(KometNodeFactory.class)
+public class ConceptBuilderNodeFactory implements KometNodeFactory {
     protected static final String STYLE_ID = ConceptBuilderNode.STYLE_ID;
     protected static final String TITLE = ConceptBuilderNode.TITLE;
 
     @Override
-    public ExplorationNode create(AtomicReference<ObservableViewNoOverride> windowViewReference) {
-        return new ConceptBuilderNode();
+    public void addDefaultNodePreferences(KometPreferences nodePreferences) {
+
+    }
+
+    @Override
+    public KometNode create(ObservableViewNoOverride windowView, KometPreferences nodePreferences) {
+        return new ConceptBuilderNode(windowView.makeOverridableViewProperties(), nodePreferences);
     }
 
     @Override
@@ -28,11 +27,12 @@ public class ConceptBuilderNodeFactory implements NodeFactory {
     }
 
     @Override
-    public Node getMenuGraphic() {
-        FontIcon icon = new FontIcon();
-        Label iconLabel = new Label("", icon);
-        iconLabel.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-        iconLabel.setId(STYLE_ID);
-        return iconLabel;
+    public String getStyleId() {
+        return STYLE_ID;
+    }
+
+    @Override
+    public Class<? extends KometNode> kometNodeClass() {
+        return ConceptBuilderNode.class;
     }
 }

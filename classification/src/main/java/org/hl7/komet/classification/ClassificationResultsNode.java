@@ -1,62 +1,32 @@
 package org.hl7.komet.classification;
 
-import javafx.beans.property.ReadOnlyProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import org.hl7.komet.framework.ActivityStream;
-import org.hl7.komet.framework.ExplorationNode;
-import org.hl7.komet.view.ViewProperties;
-import org.kordamp.ikonli.javafx.FontIcon;
+import org.hl7.komet.framework.ExplorationNodeAbstract;
+import org.hl7.komet.preferences.KometPreferences;
+import org.hl7.komet.framework.view.ViewProperties;
 
-public class ClassificationResultsNode implements ExplorationNode {
+public class ClassificationResultsNode extends ExplorationNodeAbstract {
     protected static final String STYLE_ID = "classification-results-node";
     protected static final String TITLE = "Classification Results";
 
-
-    SimpleStringProperty titleProperty = new SimpleStringProperty(TITLE);
-    Label titleNode = new Label("", new FontIcon());
-    {
-        titleNode.setId(STYLE_ID);
-        titleProperty.addListener((observable, oldValue, newValue) -> {
-            titleNode.setText(newValue);
-        });
+    public ClassificationResultsNode(ViewProperties viewProperties, KometPreferences nodePreferences) {
+        super(viewProperties, nodePreferences);
     }
 
     @Override
-    public ReadOnlyProperty<String> getTitle() {
-        return titleProperty;
+    public String getStyleId() {
+        return STYLE_ID;
+    }
+
+    @Override
+    public String getDefaultTitle() {
+        return TITLE;
     }
 
     @Override
     public Node getNode() {
         return new Label(titleProperty.getValue());
-    }
-
-    @Override
-    public Node getTitleNode() {
-        return titleNode;
-    }
-
-    @Override
-    public ReadOnlyProperty<String> getToolTip() {
-        return null;
-    }
-
-    @Override
-    public ViewProperties getViewProperties() {
-        return null;
-    }
-
-    @Override
-    public ActivityStream getActivityFeed() {
-        return null;
-    }
-
-    @Override
-    public SimpleObjectProperty<ActivityStream> activityFeedProperty() {
-        return null;
     }
 
     @Override
@@ -67,11 +37,6 @@ public class ClassificationResultsNode implements ExplorationNode {
     @Override
     public boolean canClose() {
         return false;
-    }
-
-    @Override
-    public void setNodeSelectionMethod(Runnable nodeSelectionMethod) {
-
     }
 
     @Override

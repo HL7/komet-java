@@ -1,4 +1,4 @@
-import org.hl7.komet.framework.NodeFactory;
+import org.hl7.komet.framework.KometNodeFactory;
 
 module org.hl7.komet.tabs {
     requires transitive javafx.base;
@@ -8,10 +8,9 @@ module org.hl7.komet.tabs {
     requires transitive org.hl7.komet.graphics;
 
     requires java.logging;
-    requires org.hl7.komet.view;
 
     exports org.hl7.komet.tabs;
 
-    uses NodeFactory;
+    uses KometNodeFactory;
 
 }

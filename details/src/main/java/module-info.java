@@ -1,4 +1,4 @@
-import org.hl7.komet.framework.NodeFactory;
+import org.hl7.komet.framework.KometNodeFactory;
 import org.hl7.komet.details.DetailsNodeFactory;
 
 module org.hl7.komet.details {
@@ -10,7 +10,7 @@ module org.hl7.komet.details {
     opens org.hl7.komet.details;
     exports org.hl7.komet.details;
     
-    provides NodeFactory
+    provides KometNodeFactory
             with DetailsNodeFactory;
 
 }

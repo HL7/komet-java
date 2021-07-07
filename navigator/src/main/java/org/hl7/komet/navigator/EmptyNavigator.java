@@ -1,0 +1,98 @@
+package org.hl7.komet.navigator;
+
+import org.eclipse.collections.api.collection.ImmutableCollection;
+import org.eclipse.collections.api.factory.Lists;
+import org.hl7.komet.terms.KometTerm;
+import org.hl7.tinkar.coordinate.view.ViewCoordinate;
+import org.hl7.tinkar.coordinate.view.ViewCoordinateRecord;
+import org.hl7.tinkar.coordinate.view.calculator.ViewCalculator;
+import org.hl7.tinkar.coordinate.view.calculator.ViewCalculatorWithCache;
+import org.hl7.tinkar.terms.ConceptFacade;
+import org.hl7.tinkar.terms.TinkarTerm;
+
+import java.util.ArrayList;
+
+public class EmptyNavigator implements Navigator {
+    final ArrayList<Navigator> navigators = new ArrayList<>();
+    final ArrayList<Navigator> reverseNavigators = new ArrayList<>();
+    final ArrayList<ConceptFacade> roots = new ArrayList<>();
+    final ViewCoordinateRecord viewCoordinateRecord;
+
+    public EmptyNavigator(ViewCoordinate viewCoordinate) {
+        if (viewCoordinate == null) {
+            throw new NullPointerException("manifoldCoordinate cannot be null. ");
+        }
+        this.viewCoordinateRecord = viewCoordinate.toViewCoordinateRecord();
+    }
+
+    @Override
+    public ViewCalculator getViewCalculator() {
+        return ViewCalculatorWithCache.getCalculator(viewCoordinateRecord);
+    }
+
+    public ArrayList<ConceptFacade> getRoots() {
+        return roots;
+    }
+
+    public ArrayList<Navigator> getNavigators() {
+        return navigators;
+    }
+
+    public ArrayList<Navigator> getReverseNavigators() {
+        return reverseNavigators;
+    }
+
+    @Override
+    public int[] getChildNids(int parentNid) {
+        return new int[0];
+    }
+
+
+    @Override
+    public int[] getParentNids(int childNid) {
+        return new int[0];
+    }
+
+    @Override
+    public int[] getRootNids() {
+        if (roots.isEmpty()) {
+            return new int[] {TinkarTerm.UNINITIALIZED_COMPONENT.nid()};
+        }
+        return roots.stream().mapToInt(value -> value.nid()).toArray();
+    }
+
+    @Override
+    public boolean isChildOf(int childNid, int parentNid) {
+        return false;
+    }
+
+    @Override
+    public boolean isLeaf(int conceptNid) {
+        return true;
+    }
+
+    @Override
+    public boolean isDescendentOf(int descendantNid, int ancestorNid) {
+        throw new UnsupportedOperationException();
+    }
+
+    public ViewCoordinateRecord getViewCoordinateRecord() {
+        return this.viewCoordinateRecord;
+    }
+
+    @Override
+    public ImmutableCollection<Edge> getParentLinks(int parentConceptNid) {
+        return Lists.immutable.empty();
+    }
+
+    @Override
+    public ImmutableCollection<Edge> getChildLinks(int childConceptNid) {
+        return Lists.immutable.empty();
+    }
+
+    public void reset() {
+        this.navigators.clear();
+        this.reverseNavigators.clear();
+        this.roots.clear();
+    }
+}

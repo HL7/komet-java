@@ -2,25 +2,22 @@ package org.hl7.komet.progress;
 
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.ReadOnlyProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Task;
 import javafx.scene.Node;
 import org.controlsfx.control.TaskProgressView;
-import org.hl7.komet.framework.ActivityStream;
-import org.hl7.komet.framework.ExplorationNode;
 import org.hl7.komet.executor.TaskLists;
-import org.hl7.komet.view.ViewProperties;
+import org.hl7.komet.framework.ExplorationNodeAbstract;
+import org.hl7.komet.preferences.KometPreferences;
+import org.hl7.komet.framework.view.ViewProperties;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.util.Optional;
 import java.util.ServiceLoader;
 
-public class CompletionNode implements ExplorationNode {
+public class CompletionNode extends ExplorationNodeAbstract {
 
-    SimpleStringProperty title = new SimpleStringProperty("Completions");
-    final Node activityGraphic = getTitleGraphic();
+    protected static final String STYLE_ID = "completion-node";
+    protected static final String TITLE = "Completions";
 
     TaskProgressView<Task<?>> progressView = new TaskProgressView<>();
     Optional<TaskLists> optionalTaskLists = ServiceLoader.load(TaskLists.class).findFirst();
@@ -33,46 +30,31 @@ public class CompletionNode implements ExplorationNode {
         });
     }
 
-    private static Node getTitleGraphic() {
+    public CompletionNode(ViewProperties viewProperties, KometPreferences nodePreferences) {
+        super(viewProperties, nodePreferences);
+    }
+
+    @Override
+    public String getStyleId() {
+        return STYLE_ID;
+    }
+
+    @Override
+    public String getDefaultTitle() {
+        return TITLE;
+    }
+
+    private Node getTitleGraphic() {
         FontIcon icon = new FontIcon();
         icon.setIconLiteral("mdi2f-flag-checkered:16:white");
-        icon.setId("completion-node");
+        icon.setId(getStyleId());
         return icon;
-    }
-    @Override
-    public ReadOnlyProperty<String> getTitle() {
-        return title;
     }
 
     public void removeTask(Task<?> task) {
         Platform.runLater(() -> optionalTaskLists.get().completedTasks().remove(task));
     }
 
-
-    @Override
-    public Node getTitleNode() {
-        return activityGraphic;
-    }
-
-    @Override
-    public ReadOnlyProperty<String> getToolTip() {
-        return null;
-    }
-
-    @Override
-    public ViewProperties getViewProperties() {
-        return null;
-    }
-
-    @Override
-    public ActivityStream getActivityFeed() {
-        return null;
-    }
-
-    @Override
-    public SimpleObjectProperty<ActivityStream> activityFeedProperty() {
-        return null;
-    }
 
     @Override
     public Node getNode() {
@@ -87,11 +69,6 @@ public class CompletionNode implements ExplorationNode {
     @Override
     public boolean canClose() {
         return false;
-    }
-
-    @Override
-    public void setNodeSelectionMethod(Runnable nodeSelectionMethod) {
-
     }
 
     @Override

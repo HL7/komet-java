@@ -1,0 +1,131 @@
+package org.hl7.komet.framework.dnd;
+
+import java.util.function.IntSupplier;
+
+import javafx.scene.control.ListView;
+//~--- non-JDK imports --------------------------------------------------------
+import javafx.event.EventHandler;
+import javafx.scene.Node;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TreeCell;
+import javafx.scene.image.Image;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.TransferMode;
+import org.hl7.tinkar.entity.EntityService;
+import org.hl7.tinkar.terms.EntityFacade;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+//~--- classes ----------------------------------------------------------------
+/**
+ * {@link DragDetectedCellEventHandler}
+ *
+ * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
+ */
+public class DragDetectedCellEventHandler
+        implements EventHandler<MouseEvent> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DragDetectedCellEventHandler.class);
+
+    private IntSupplier nidSupplier;
+
+    public DragDetectedCellEventHandler() {
+    }
+
+    public DragDetectedCellEventHandler(IntSupplier nidSupplier) {
+        this.nidSupplier = nidSupplier;
+    }
+
+    //~--- methods -------------------------------------------------------------
+    /**
+     * @param event
+     * @see javafx.event.EventHandler#handle(javafx.event.Event)
+     */
+    @Override
+    public void handle(MouseEvent event) {
+        /* drag was detected, start a drag-and-drop gesture */
+        /* allow any transfer mode */
+        Node eventNode = null;
+        EntityFacade identifiedObject = null;
+
+        if (nidSupplier != null) {
+            identifiedObject = EntityService.get().getEntityFast(nidSupplier.getAsInt());
+            if (event.getSource() instanceof Node) {
+                eventNode = (Node) event.getSource();
+            } else {
+                LOG.warn("Non node source of drag? {}", event.getSource());
+            }
+        } else if (event.getSource() instanceof TreeCell) {
+            eventNode = (TreeCell<EntityFacade>) event.getSource();
+            identifiedObject = ((TreeCell<EntityFacade>) event.getSource()).getItem();
+        } else if (event.getSource() instanceof TableCell) {
+            eventNode = (TableCell) event.getSource();
+            Object item = ((TableCell) eventNode).getItem();
+            if (item instanceof String) {
+                identifiedObject = (EntityFacade) ((TableCell) eventNode).getTableRow().getItem();
+            }
+        } else if (event.getSource() instanceof TableView) {
+            TableView<EntityFacade> tableView = (TableView) event.getSource();
+
+            if (tableView.getSelectionModel()
+                    .getSelectedItem() instanceof EntityFacade) {
+                identifiedObject = tableView.getSelectionModel()
+                        .getSelectedItem();
+                eventNode = event.getPickResult()
+                        .getIntersectedNode();
+                eventNode = eventNode.getParent();
+            }
+        } else if (event.getSource() instanceof ListView) {
+
+            ListView listView = (ListView) event.getSource();
+            Object selectedObject = listView.getSelectionModel().getSelectedItem();
+            if (selectedObject instanceof EntityFacade entityFacade) {
+                identifiedObject = entityFacade;
+                eventNode = event.getPickResult()
+                        .getIntersectedNode().getParent().getParent();
+
+            } else {
+                LOG.warn("unhandled selected object type {}" + selectedObject);
+            }
+
+
+        } else {
+            LOG.warn("unhandled event source {}" + event.getSource());
+        }
+
+        if (eventNode != null) {
+
+            Dragboard db = eventNode.startDragAndDrop(TransferMode.COPY);
+
+            if (eventNode instanceof DraggableWithImage) {
+                DraggableWithImage draggableWithImageNode = (DraggableWithImage) eventNode;
+                Image dragImage = draggableWithImageNode.getDragImage();
+                double xOffset = ((dragImage.getWidth() / 2) + draggableWithImageNode.getDragViewOffsetX()) - event.getX();
+                double yOffset = event.getY() - (dragImage.getHeight() / 2);
+
+                db.setDragView(dragImage, xOffset, yOffset);
+            } else {
+                DragImageMaker dragImageMaker = new DragImageMaker(eventNode);
+                Image dragImage = dragImageMaker.getDragImage();
+                double xOffset = ((dragImage.getWidth() / 2) + dragImageMaker.getDragViewOffsetX()) - event.getX();
+                double yOffset = event.getY() - (dragImage.getHeight() / 2);
+
+                db.setDragView(dragImage, xOffset, yOffset);
+            }
+
+            /* Put a string on a dragboard */
+            if (identifiedObject != null) {
+                String drag = identifiedObject.publicId().toString();
+                if ((drag != null) && (drag.length() > 0)) {
+                    KometClipboard content = new KometClipboard(identifiedObject);
+
+                    db.setContent(content);
+                    DragRegistry.dragStart();
+                    event.consume();
+                }
+            }
+        }
+    }
+}

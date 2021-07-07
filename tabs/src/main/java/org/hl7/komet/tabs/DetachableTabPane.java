@@ -30,12 +30,11 @@ import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 import org.hl7.komet.framework.ScreenInfo;
-import org.hl7.komet.view.ObservableViewNoOverride;
-import org.hl7.komet.view.ViewProperties;
+import org.hl7.komet.preferences.KometPreferences;
+import org.hl7.komet.framework.view.ObservableViewNoOverride;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -65,30 +64,27 @@ public class DetachableTabPane extends TabPane {
     private static final Logger logger = Logger.getLogger(DetachableTabPane.class.getName());
     private List<Double> lstTabPoint = new ArrayList<>();
     private boolean closeIfEmpty = false;
-    private final AtomicReference<ObservableViewNoOverride> windowViewReference;
-    private final AtomicReference<ViewProperties> viewPropertiesReference = new AtomicReference<>();
+    private final ObservableViewNoOverride windowView;
+    private final KometPreferences parentNodePreferences;
 
     private TabStack detachableStack = null;
 
-    public DetachableTabPane(AtomicReference<ObservableViewNoOverride> windowViewReference) {
+    public DetachableTabPane(ObservableViewNoOverride windowView,
+                             KometPreferences parentNodePreferences) {
         super();
-        this.windowViewReference = windowViewReference;
+        this.windowView = windowView;
+        this.parentNodePreferences = parentNodePreferences;
         getStyleClass().add("detachable-w-pane");
         setMaxWidth(Double.MAX_VALUE);
         attachListeners();
     }
 
-    public AtomicReference<ObservableViewNoOverride> getWindowViewReference() {
-        return windowViewReference;
+    public ObservableViewNoOverride getWindowView() {
+        return windowView;
     }
 
-    public ViewProperties viewProperties() {
-        return viewPropertiesReference.updateAndGet(viewProperties -> {
-            if (viewProperties != null) {
-                return viewProperties;
-            }
-            return windowViewReference.get().makeOverridableViewProperties();
-        });
+    public KometPreferences getParentNodePreferences() {
+        return parentNodePreferences;
     }
 
     protected void setDetachableStack(TabStack detachableStack) {

@@ -2,10 +2,9 @@ package sh.komet.app;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
+import org.hl7.komet.preferences.Preferences;
 import org.hl7.tinkar.common.service.PrimitiveData;
 import org.hl7.tinkar.common.service.TrackingCallable;
-
-import static sh.komet.app.AppState.COMPUTE_GUI_PREREQUISITES;
 
 public class LoadDataSourceTask extends TrackingCallable<Void> {
     final SimpleObjectProperty<AppState> state;
@@ -14,7 +13,7 @@ public class LoadDataSourceTask extends TrackingCallable<Void> {
         super(false, true);
         this.state = state;
         updateTitle("Loading Data Source");
-        updateMessage("Starting " + PrimitiveData.getController().controllerName());
+        updateMessage("Executing " + PrimitiveData.getController().controllerName());
         updateProgress(-1, -1);
     }
 
@@ -22,10 +21,11 @@ public class LoadDataSourceTask extends TrackingCallable<Void> {
     protected Void compute() throws Exception {
         try {
             PrimitiveData.start();
-            Platform.runLater(() -> state.set(COMPUTE_GUI_PREREQUISITES));
+            Preferences.start();
+            Platform.runLater(() -> state.set(AppState.RUNNING));
             return null;
         } finally {
-            updateTitle("Finished " + PrimitiveData.getController().controllerName());
+            updateTitle(PrimitiveData.getController().controllerName() + " completed");
             updateMessage("In " + durationString());
         }
     }

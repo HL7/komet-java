@@ -17,6 +17,8 @@ import java.util.function.Consumer;
 public class TaskWrapper<V> extends Task<V> implements TrackingListener<V> {
     private static int maxCompletedTaskListSize = 200;
 
+
+
     public static <V> TaskWrapper<V> make(TrackingCallable<V> trackingCallable) {
         return new TaskWrapper<>(trackingCallable);
     }
@@ -64,6 +66,7 @@ public class TaskWrapper<V> extends Task<V> implements TrackingListener<V> {
         handleRetention();
         Platform.runLater(() -> showExceptionDialog());
     }
+    // TODO: align/reuse exception dialog in framework...
     public void showExceptionDialog() {
         getException().printStackTrace();/*w ww. j a  va2s.  c  o m*/
 
