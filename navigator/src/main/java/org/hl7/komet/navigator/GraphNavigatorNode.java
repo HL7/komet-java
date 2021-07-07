@@ -15,7 +15,7 @@ import java.io.IOException;
 public class GraphNavigatorNode extends ExplorationNodeAbstract {
     private static final Logger LOG = LoggerFactory.getLogger(GraphNavigatorNode.class);
     protected static final String STYLE_ID = "navigator-node";
-    protected static final String TITLE = "Navigator";
+    protected static final String TITLE = "Navigator 2";
 
     final AnchorPane root;
     final MultiParentGraphViewController controller;
@@ -24,7 +24,7 @@ public class GraphNavigatorNode extends ExplorationNodeAbstract {
         super(viewProperties, nodePreferences);
         try {
 
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/isaac/komet/gui/graphview/GraphView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/hl7/komet/navigator/GraphView.fxml"));
             this.root = loader.load();
             this.controller = loader.getController();
             this.controller.setProperties(this, viewProperties, nodePreferences);

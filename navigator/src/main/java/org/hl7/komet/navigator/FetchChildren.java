@@ -89,11 +89,11 @@ public class FetchChildren extends TrackingCallable<Void> {
                     taskCountManager.acquire();
                     Executor.threadPool().execute(() -> {
                         try {
-                            ConceptEntity childChronology = Entity.getFast(childLink.getDestinationNid());
-                            MultiParentVertexImpl childItem = new MultiParentVertexImpl(childChronology, parentGraphItem.getGraphController(), childLink.getTypeNid(), null);
+                            ConceptEntity childChronology = Entity.getFast(childLink.destinationNid());
+                            MultiParentVertexImpl childItem = new MultiParentVertexImpl(childChronology, parentGraphItem.getGraphController(), childLink.typeNid(), null);
                             childItem.setDefined(this.viewCalculator.hasSufficientSet(childChronology));
                             childItem.toString();
-                            childItem.setMultiParent(navigator.getParentNids(childLink.getDestinationNid()).length > 1);
+                            childItem.setMultiParent(navigator.getParentNids(childLink.destinationNid()).length > 1);
                             childItem.isLeaf();
 
                             if (childItem.shouldDisplay()) {

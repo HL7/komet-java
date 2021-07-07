@@ -1,4 +1,5 @@
 import org.hl7.komet.framework.KometNodeFactory;
+import org.hl7.komet.navigator.GraphNavigatorNodeFactory;
 import org.hl7.komet.navigator.NavigatorNodeFactory;
 
 module org.hl7.komet.navigator {
@@ -9,8 +10,9 @@ module org.hl7.komet.navigator {
 
     opens org.hl7.komet.navigator;
     exports org.hl7.komet.navigator;
-    
+
     provides KometNodeFactory
-            with NavigatorNodeFactory;
+            with NavigatorNodeFactory,
+                 GraphNavigatorNodeFactory;
 
 }

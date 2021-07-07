@@ -16,6 +16,7 @@
  */
 package org.hl7.komet.navigator;
 
+import com.google.auto.service.AutoService;
 import org.hl7.komet.framework.KometNode;
 import org.hl7.komet.framework.KometNodeFactory;
 import org.hl7.komet.preferences.KometPreferences;
@@ -28,6 +29,7 @@ import org.slf4j.LoggerFactory;
  * @author kec
  */
 
+@AutoService(NavigatorNode.class)
 public class GraphNavigatorNodeFactory
         implements KometNodeFactory {
    private static final Logger LOG = LoggerFactory.getLogger(GraphNavigatorNodeFactory.class);

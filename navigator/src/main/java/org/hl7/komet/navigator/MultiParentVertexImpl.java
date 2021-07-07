@@ -244,13 +244,13 @@ public class MultiParentVertexImpl
                     }
 
                     for (Edge childLink : childLinks) {
-                        ConceptEntity childChronology = Entity.getFast(childLink.getDestinationNid());
-                        MultiParentVertexImpl childItem = new MultiParentVertexImpl(childChronology, graphController, childLink.getTypeNid(), null);
+                        ConceptEntity childChronology = Entity.getFast(childLink.destinationNid());
+                        MultiParentVertexImpl childItem = new MultiParentVertexImpl(childChronology, graphController, childLink.typeNid(), null);
                         ObservableView observableView = graphController.getObservableView();
 
                         childItem.setDefined(observableView.calculator().hasSufficientSet(childChronology.nid()));
                         childItem.toString();
-                        childItem.setMultiParent(navigator.getParentNids(childLink.getDestinationNid()).length > 1);
+                        childItem.setMultiParent(navigator.getParentNids(childLink.destinationNid()).length > 1);
 
                         if (childItem.shouldDisplay()) {
                             childrenToAdd.add(childItem);

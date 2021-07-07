@@ -155,7 +155,7 @@
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
-                <version>0.0.5</version>
+                <version>0.0.6</version>
                 <executions>
                     <execution>
                         <!-- Default configuration for running -->
@@ -173,6 +173,8 @@
                             <options>
                                 <option>--add-opens</option>
                                 <option>javafx.graphics/javafx.scene=org.controlsfx.controls</option>
+                                <option>--add-exports</option>
+                                <option>javafx.controls/com.sun.javafx.scene.control.behavior=org.hl7.komet.navigator</option>
                             </options>
                         </configuration>
                     </execution>
@@ -192,12 +194,14 @@
                               <options>
                                 <option>--add-opens</option>
                                 <option>javafx.graphics/javafx.scene=org.controlsfx.controls</option>
+                                  <option>--add-exports</option>
+                                  <option>javafx.controls/com.sun.javafx.scene.control.behavior=org.hl7.komet.navigator</option>
                                 <option>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:8000</option>
                             </options>
                         </configuration>
                     </execution>
                     <execution>
-                        <!-- Configuration for debugging -->
+                        <!-- Configuration for profiling -->
                         <id>profile</id>
                         <configuration>
                             <mainClass>org.hl7.komet.application/sh.komet.app.App</mainClass>
@@ -212,6 +216,8 @@
                             <options>
                                 <option>--add-opens</option>
                                 <option>javafx.graphics/javafx.scene=org.controlsfx.controls</option>
+                                <option>--add-exports</option>
+                                <option>javafx.controls/com.sun.javafx.scene.control.behavior=org.hl7.komet.navigator</option>
                                 <option>-agentpath:/Applications/JProfiler.app/Contents/Resources/app/bin/macos/libjprofilerti.jnilib=port=8849</option>
                             </options>
                         </configuration>
@@ -230,6 +236,8 @@
                     <options>
                         <option>--add-opens</option>
                         <option>javafx.graphics/javafx.scene=org.controlsfx.controls</option>
+                        <option>--add-exports</option>
+                        <option>javafx.controls/com.sun.javafx.scene.control.behavior=org.hl7.komet.navigator</option>
                     </options>
                 </configuration>
             </plugin>

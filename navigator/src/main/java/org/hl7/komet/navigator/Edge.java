@@ -9,11 +9,11 @@ public interface Edge {
      *
      * @return the concept nid for the type of the linkage to the destination
      */
-    int getTypeNid();
+    int typeNid();
 
     /**
      *
      * @return the destination concept nid.
      */
-    int getDestinationNid();
+    int destinationNid();
 }

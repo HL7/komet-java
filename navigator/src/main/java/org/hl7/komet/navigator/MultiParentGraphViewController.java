@@ -590,7 +590,7 @@ public class MultiParentGraphViewController implements RefreshListener {
         for (Map.Entry<Integer, ArrayList<Edge>> entry: taxonomyLinks.entrySet()) {
             for (Edge link: entry.getValue()) {
                 buff.append("   g.insertEdge(\"").append(this.viewProperties.calculator().getPreferredDescriptionTextWithFallbackOrNid(entry.getKey())).append("\", \"")
-                        .append(this.viewProperties.calculator().getPreferredDescriptionTextWithFallbackOrNid(link.getDestinationNid())).append("\", \"").append(edgeCount++).append("\");\n");
+                        .append(this.viewProperties.calculator().getPreferredDescriptionTextWithFallbackOrNid(link.destinationNid())).append("\", \"").append(edgeCount++).append("\");\n");
             }
         }
         buff.append("   return g;\n}\n");
@@ -620,7 +620,7 @@ public class MultiParentGraphViewController implements RefreshListener {
         for (Map.Entry<Integer, ArrayList<Edge>> entry: taxonomyLinks.entrySet()) {
             for (Edge link: entry.getValue()) {
                 buff.append("   g.addEdge(\"\\\"").append(this.viewProperties.calculator().getPreferredDescriptionTextWithFallbackOrNid(entry.getKey())).append("\\\"\", \"\\\"")
-                        .append(this.viewProperties.calculator().getPreferredDescriptionTextWithFallbackOrNid(link.getDestinationNid())).append("\\\"\");\n");
+                        .append(this.viewProperties.calculator().getPreferredDescriptionTextWithFallbackOrNid(link.destinationNid())).append("\\\"\");\n");
             }
         }
         buff.append("   return g;\n}\n");
@@ -634,10 +634,10 @@ public class MultiParentGraphViewController implements RefreshListener {
             ArrayList<Edge> linkList = new ArrayList<>();
             taxonomyLinks.put(conceptNid, linkList);
             for (Edge link: navigator.getParentLinks(conceptNid)) {
-                if (link.getTypeNid() == TinkarTerm.IS_A.nid()) {
+                if (link.typeNid() == TinkarTerm.IS_A.nid()) {
                     linkList.add(link);
                 }
-                handleConcept(link.getDestinationNid(), navigator, conceptNids, taxonomyLinks);
+                handleConcept(link.destinationNid(), navigator, conceptNids, taxonomyLinks);
             }
         }
     }

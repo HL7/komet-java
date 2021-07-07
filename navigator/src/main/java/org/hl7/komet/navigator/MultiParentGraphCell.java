@@ -197,9 +197,9 @@ final public class MultiParentGraphCell
             ArrayList<MultiParentVertexImpl> secondaryParentItems = new ArrayList<>();
 
             for (Edge parentLink: allParents) {
-               if ((allParents.size() == 1) || (parentLink.getDestinationNid() != parentItem.getValue().nid())) {
-                  ConceptEntity parentChronology = Entity.getFast(parentLink.getDestinationNid());
-                  MultiParentVertexImpl extraParentItem = new MultiParentVertexImpl(parentChronology, treeItem.getGraphController(), parentLink.getTypeNid(), null);
+               if ((allParents.size() == 1) || (parentLink.destinationNid() != parentItem.getValue().nid())) {
+                  ConceptEntity parentChronology = Entity.getFast(parentLink.destinationNid());
+                  MultiParentVertexImpl extraParentItem = new MultiParentVertexImpl(parentChronology, treeItem.getGraphController(), parentLink.typeNid(), null);
                   ObservableView observableView = treeItem.getGraphController().getObservableView();
                   extraParentItem.setDefined(observableView.calculator().hasSufficientSet(parentChronology));
                   extraParentItem.setMultiParentDepth(treeItem.getMultiParentDepth() + 1);
@@ -291,7 +291,11 @@ final public class MultiParentGraphCell
    public String toString() {
       if (conceptDescriptionText == null) {
          MultiParentVertexImpl treeItem = (MultiParentVertexImpl) getTreeItem();
-         conceptDescriptionText = treeItem.toString();
+         if (treeItem != null) {
+            conceptDescriptionText = treeItem.toString();
+         } else {
+            conceptDescriptionText = "null tree item";
+         }
       }
       return conceptDescriptionText;
    }

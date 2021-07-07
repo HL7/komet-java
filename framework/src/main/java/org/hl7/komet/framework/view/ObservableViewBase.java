@@ -70,7 +70,7 @@ public abstract class ObservableViewBase
 
     @Override
     public ViewCalculator calculator() {
-        return calculator();
+        return ViewCalculatorWithCache.getCalculator(getValue());
     }
 
     protected abstract ObservableStampCoordinateBase makeStampCoordinateObservable(ViewCoordinate viewRecord);

@@ -80,7 +80,7 @@ public class TabStack extends StackPane {
             });
             menuButton.getItems().add(newTabMenuItem);
         });
-        menuButton.getItems().sort(new NaturalOrder());
+        menuButton.getItems().sort((o1, o2) -> NaturalOrder.compareStrings(o1.getText(), o2.getText()));
 
         FontIcon icon = new FontIcon();
         Label iconLabel = new Label("", icon);
