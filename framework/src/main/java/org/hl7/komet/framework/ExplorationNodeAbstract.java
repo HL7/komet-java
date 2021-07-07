@@ -40,6 +40,11 @@ public abstract class ExplorationNodeAbstract implements KometNode {
         //this.titleLabel = new EntityLabelWithDragAndDrop();
     }
 
+    public ExplorationNodeAbstract() {
+        this.viewProperties = null;
+        this.nodePreferences = null;
+    }
+
     public abstract String getStyleId();
     public abstract String getDefaultTitle();
 

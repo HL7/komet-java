@@ -12,14 +12,16 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Control;
-import javafx.scene.control.ListView;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import org.controlsfx.control.PropertySheet;
 import org.controlsfx.validation.*;
+import org.hl7.komet.framework.KometNode;
+import org.hl7.komet.framework.activity.ActivityStreams;
+import org.hl7.komet.framework.alerts.AlertStreams;
+import org.hl7.komet.progress.ProgressNodeFactory;
+import org.hl7.komet.tabs.DetachableTab;
 import org.hl7.tinkar.common.service.DataServiceController;
 import org.hl7.tinkar.common.service.DataServiceProperty;
 import org.hl7.tinkar.common.service.DataUriOption;
@@ -79,6 +81,16 @@ public class SelectDataSourceController {
         saveDataServiceProperties(dataSourceChoiceBox.getValue());
         dataSourceChoiceBox.getValue().setDataUriOption(fileListView.getSelectionModel().getSelectedItem());
         PrimitiveData.setController(dataSourceChoiceBox.getValue());
+        TabPane progressTabPane = new TabPane();
+        rootBorderPane.setCenter(progressTabPane);
+        rootBorderPane.setTop(null);
+        rootBorderPane.setBottom(null);
+        ProgressNodeFactory progressNodeFactory = new ProgressNodeFactory();
+        KometNode kometNode = progressNodeFactory.create();
+        Tab progressTab = new Tab(kometNode.getTitle().getValue(), kometNode.getNode());
+        progressTab.setGraphic(kometNode.getTitleNode());
+        progressTabPane.getTabs().add(progressTab);
+
         Platform.runLater(() -> App.state.set(AppState.SELECTED_DATA_SOURCE));
     }
 

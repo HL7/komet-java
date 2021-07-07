@@ -23,6 +23,11 @@ public class ProgressNodeFactory implements KometNodeFactory {
         return new ProgressNode(windowView.makeOverridableViewProperties(), nodePreferences);
     }
 
+    public KometNode create() {
+        return new ProgressNode();
+    }
+
+
     @Override
     public String getStyleId() {
         return null;

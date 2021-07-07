@@ -69,6 +69,10 @@ public class ProgressNode extends ExplorationNodeAbstract {
         super(viewProperties, nodePreferences);
     }
 
+    public ProgressNode() {
+        super();
+    }
+
     @Override
     public String getStyleId() {
         return STYLE_ID;
