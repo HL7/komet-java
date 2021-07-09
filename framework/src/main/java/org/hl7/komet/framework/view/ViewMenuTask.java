@@ -15,6 +15,7 @@ import org.eclipse.collections.api.list.primitive.ImmutableLongList;
 import org.eclipse.collections.api.map.primitive.MutableIntObjectMap;
 import org.eclipse.collections.impl.factory.primitive.IntObjectMaps;
 import org.hl7.komet.executor.TaskWrapper;
+import org.hl7.tinkar.common.id.IntIdSet;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
 import org.hl7.komet.framework.temp.FxGet;
 import org.hl7.komet.framework.uncertain.ObservableEditCoordinate;
@@ -381,7 +382,7 @@ public class ViewMenuTask extends TrackingCallable<List<MenuItem>> {
         Menu changeAuthorMenu = new Menu("Change author");
         menuItems.add(changeAuthorMenu);
 
-        IntIdList authors = viewCalculator.kindOf(TinkarTerm.USER.nid());
+        IntIdSet authors = viewCalculator.kindOf(TinkarTerm.USER.nid());
 
         // Create author assemblage
         for (int author: authors.toArray()) {
@@ -393,6 +394,7 @@ public class ViewMenuTask extends TrackingCallable<List<MenuItem>> {
                 event.consume();
             });
         }
+        changeAuthorMenu.getItems().sort((o1, o2) -> NaturalOrder.compareStrings(o1.getText(), o2.getText()));
 
         Menu changeDefaultModuleMenu = new Menu("Change default module");
         menuItems.add(changeDefaultModuleMenu);

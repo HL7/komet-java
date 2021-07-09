@@ -67,8 +67,6 @@ modena.css is the default css.
 
 }
 
-
-
 .top-grid-pane {
     -fx-background-color: white;
 }
@@ -317,10 +315,10 @@ modena.css is the default css.
 }
 
 /*.add-tab-menu .menu-item:focused .glyph-icon {*/
-/*    -icons-color: white;*/
+/*    -fx-icon-color: white;*/
 /*}*/
 /*.add-tab-menu .menu-item .glyph-icon {*/
-/*    -icons-color: -komet-blue-color;*/
+/*    -fx-icon-color: -komet-blue-color;*/
 /*}*/
 
 .tab-pane .tab-header-area {
@@ -348,7 +346,7 @@ modena.css is the default css.
 
 .tab-pane > .tab-header-area > .headers-region > .tab:selected > labeled {
     -fx-text-fill: white;
-    -icons-color: white;
+    -fx-icon-color: white;
 }
 .tab-label {
     -fx-text-fill: white;
@@ -356,7 +354,7 @@ modena.css is the default css.
 
 /* glphy-icon inside of tabs will be white... */
 .tab  * .glyph-icon  {
-    -icons-color: white;
+    -fx-icon-color: white;
 }
 
 .tab .concept-label {
@@ -433,10 +431,127 @@ modena.css is the default css.
     -fx-icon-color: -komet-tab-background-color;
 }
 
-#cancel-task-icon {
+.multi-parent-tree-cell {
+    -fx-font-size: 16;
+     -fx-font-family: "OpenSans";
+    /*-fx-font-family: "serif";*/
+    /*-fx-font-family: "sans-serif";*/
+    /*-fx-font-family: "monospace";*/
+}
+#cancel-task-icon .ikonli-font-icon {
     -fx-icon-color: red;
 }
 
 .menu-item:focused {
     -fx-background-color: -komet-blue-color;
 }
+
+#taxonomy-closed-icon .ikonli-font-icon {
+    -fx-icon-code: "fas-caret-down";
+    -fx-icon-size: 14pt;
+    -fx-icon-color: grey;
+    -fx-padding: 4 4 4 4;
+    -fx-background-color: transparent;
+}
+
+#taxonomy-closed-icon:hover{
+    -fx-effect:  dropshadow(three-pass-box, rgba(0,0,0,1.0), 10, 0, 0, 0);
+}
+
+#taxonomy-open-icon .ikonli-font-icon {
+    -fx-icon-code: "fas-caret-right";
+    -fx-icon-size: 14pt;
+    -fx-icon-color: grey;
+    -fx-padding: 4 4 4 4;
+    -fx-background-color: transparent;
+}
+
+#taxonomy-open-icon:hover{
+    -fx-effect:  dropshadow(three-pass-box, rgba(0,0,0,1.0), 10, 0, 0, 0);
+}
+#stated-form .ikonli-font-icon {
+    -fx-icon-code: "ri-chat";
+}
+
+#inferred-form .ikonli-font-icon {
+    -fx-icon-code: "fa-gears";
+}
+
+#link-external .ikonli-font-icon {
+    -fx-icon-code: "oct-link-external-16";
+}
+
+#taxonomy-root-icon .ikonli-font-icon {
+    -fx-icon-code: "mdi2h-hexagon-outline";
+    -fx-icon-size: 14pt;
+    -fx-icon-color: #FF4E08;
+}
+
+#alert-confirm {
+    -fx-graphic: url("/org/controlsfx/dialog/dialog-confirm.png");
+    -my-height: 20;
+    -my-width: 20;
+}
+
+#taxonomy-defined-multiparent-open-icon .ikonli-font-icon {
+    -fx-icon-code: "mdi2a-arrow-up-bold-circle-outline";
+    -fx-rotate: 45;
+    -fx-icon-size: 14pt;
+    -fx-icon-color: #5ec200;
+}
+
+#taxonomy-defined-multiparent-closed-icon .ikonli-font-icon {
+    -fx-icon-code: "mdi2a-arrow-up-bold-circle-outline";
+    -fx-icon-size: 14pt;
+    -fx-icon-color: #5ec200;
+}
+
+#taxonomy-primitive-multiparent-open-icon .ikonli-font-icon {
+    -fx-icon-code: "mdi2a-arrow-up-bold-hexagon-outline";
+    -fx-rotate: 45;
+    -fx-icon-size: 14pt;
+    -fx-icon-color: #FF4E08;
+}
+
+#taxonomy-primitive-multiparent-closed-icon .ikonli-font-icon {
+    -fx-icon-code: "mdi2a-arrow-up-bold-hexagon-outline";
+    -fx-icon-size: 14pt;
+    -fx-icon-color: #FF4E08;
+}
+
+#taxonomy-defined-singleparent-icon .ikonli-font-icon {
+    -fx-icon-code: "mdi2c-checkbox-blank-circle-outline";
+    -fx-icon-size: 14pt;
+    -fx-icon-color: #5ec200;
+}
+
+#taxonomy-primitive-singleparent-icon .ikonli-font-icon {
+    -fx-icon-code: "mdi2h-hexagon";
+    -fx-icon-size: 14pt;
+    -fx-icon-color: #FF4E08;
+}
+
+#alert-confirm-2 .ikonli-font-icon {
+    -fx-icon-code: "far-question-circle";
+}
+
+#alert-info-2 .ikonli-font-icon {
+    -fx-icon-code: "mdi2i-information-outline";
+}
+
+#alert-error-2 .ikonli-font-icon {
+    -fx-icon-code: "mdi2a-alert-octagon";
+}
+
+#alert-warn-2 .ikonli-font-icon {
+    -fx-icon-code: "mdi2a-alert-circle-outline";
+}
+
+#check .ikonli-font-icon {
+    -fx-icon-code: "far-check-circle";
+}
+
+#temporary-fix .ikonli-font-icon {
+    -fx-icon-code: "mdi2b-bandage";
+}
+

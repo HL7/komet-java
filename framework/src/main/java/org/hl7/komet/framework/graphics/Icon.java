@@ -18,7 +18,7 @@ public enum Icon {
     SOURCE_BRANCH_1("branch-1", "", null),
     LINK_EXTERNAL("link-external", "oct-link-external-16", OctIcons),
     TAXONOMY_ROOT_ICON("taxonomy-root-icon", "mdi2h-hexagon-outline", MaterialDesign2),
-    ALERT_CONFIRM(".alert-confirm", "url(\"/org/controlsfx/dialog/dialog-confirm.png\"", ControlsFx),
+    ALERT_CONFIRM("alert-confirm", "url(\"/org/controlsfx/dialog/dialog-confirm.png\"", ControlsFx),
     TAXONOMY_DEFINED_MULTIPARENT_OPEN("taxonomy-defined-multiparent-open-icon", "mdi2a-arrow-up-bold-circle-outline", MaterialDesign2),
     TAXONOMY_DEFINED_MULTIPARENT_CLOSED("taxonomy-defined-multiparent-closed-icon", "mdi2a-arrow-up-bold-circle-outline", MaterialDesign2),
     TAXONOMY_PRIMITIVE_MULTIPARENT_OPEN("taxonomy-primitive-multiparent-open-icon", "mdi2a-arrow-up-bold-hexagon-outline", MaterialDesign2),
@@ -48,6 +48,7 @@ public enum Icon {
 
     public Label makeIcon() {
         FontIcon icon = new FontIcon();
+        //icon.setId(this.styleId);
         Label iconLabel = new Label("", icon);
         iconLabel.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
         iconLabel.setId(this.styleId);
@@ -56,6 +57,7 @@ public enum Icon {
 
     public static Label makeIcon(String styleId) {
         FontIcon icon = new FontIcon();
+        //icon.setId(styleId);
         Label iconLabel = new Label("", icon);
         iconLabel.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
         iconLabel.setId(styleId);

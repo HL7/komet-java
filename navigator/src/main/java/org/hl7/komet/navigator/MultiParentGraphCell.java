@@ -59,6 +59,7 @@ import org.hl7.komet.framework.dnd.DragDoneEventHandler;
 import org.hl7.komet.framework.dnd.DraggableWithImage;
 import org.hl7.komet.framework.graphics.Icon;
 import org.hl7.komet.framework.view.ObservableView;
+import org.hl7.tinkar.coordinate.navigation.calculator.Edge;
 import org.hl7.tinkar.entity.ConceptEntity;
 import org.hl7.tinkar.entity.ConceptEntityVersion;
 import org.hl7.tinkar.entity.Entity;
@@ -193,13 +194,13 @@ final public class MultiParentGraphCell
          } else {
             ImmutableCollection<Edge> allParents = treeItem.getGraphController()
                                        .getNavigator()
-                                       .getParentLinks(value.nid());
+                                       .getParentEdges(value.nid());
             ArrayList<MultiParentVertexImpl> secondaryParentItems = new ArrayList<>();
 
             for (Edge parentLink: allParents) {
                if ((allParents.size() == 1) || (parentLink.destinationNid() != parentItem.getValue().nid())) {
                   ConceptEntity parentChronology = Entity.getFast(parentLink.destinationNid());
-                  MultiParentVertexImpl extraParentItem = new MultiParentVertexImpl(parentChronology, treeItem.getGraphController(), parentLink.typeNid(), null);
+                  MultiParentVertexImpl extraParentItem = new MultiParentVertexImpl(parentChronology, treeItem.getGraphController(), parentLink.typeNids(), null);
                   ObservableView observableView = treeItem.getGraphController().getObservableView();
                   extraParentItem.setDefined(observableView.calculator().hasSufficientSet(parentChronology));
                   extraParentItem.setMultiParentDepth(treeItem.getMultiParentDepth() + 1);

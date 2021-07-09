@@ -24,7 +24,6 @@ import javafx.scene.layout.HBox;
 import org.hl7.komet.framework.StyleClasses;
 import org.hl7.komet.framework.graphics.Icon;
 import org.hl7.tinkar.common.id.IntIdSet;
-import org.hl7.tinkar.coordinate.logic.PremiseType;
 import org.hl7.tinkar.coordinate.stamp.calculator.Latest;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculator;
 import org.hl7.tinkar.entity.EntityVersion;
@@ -45,11 +44,11 @@ public class DefaultMultiParentGraphItemDisplayPolicies implements MultiParentGr
 
     @Override
     public Node computeGraphic(MultiParentVertex item, ViewCalculator viewCalculator) {
-
+        //TODO consider cases where an edge has more than one type...
         IntIdSet navigationConceptNids = viewCalculator.navigationCalculator().navigationCoordinate().navigationPatternNids();
 
         Node navigationGraphic = getNavigationGraphic(item);
-        if (navigationConceptNids.size() > 1 && item.getTypeNid() == TinkarTerm.IS_A.nid() && item.getOptionalParentNid().isPresent()) {
+        if (navigationConceptNids.size() > 1 && item.getTypeNids().contains(TinkarTerm.IS_A.nid()) && item.getOptionalParentNid().isPresent()) {
             // could be stated and inferred...
             if (navigationConceptNids.contains(viewCalculator.logicCoordinateRecord().inferredNavigationPatternNid()) &&
                     navigationConceptNids.contains(viewCalculator.logicCoordinateRecord().statedNavigationPatternNid())) {
@@ -95,11 +94,12 @@ public class DefaultMultiParentGraphItemDisplayPolicies implements MultiParentGr
             return Icon.TAXONOMY_ROOT_ICON.makeIcon();
         }
 
-        if (item.getTypeNid() != TinkarTerm.IS_A.nid()) {
+        //TODO consider cases with more than one type nid...
+        if (!item.getTypeNids().contains(TinkarTerm.IS_A.nid())) {
             // TODO get dynamic icons from Assemblages.
-            if (item.getTypeNid() == TinkarTerm.PATH_ORIGINS_PATTERN.nid()) {
+            if (item.getTypeNids().contains(TinkarTerm.PATH_ORIGINS_PATTERN.nid())) {
                 return Icon.SOURCE_BRANCH_1.makeIcon();
-            } else if (item.getTypeNid() == TinkarTerm.DEPENDENCY_MANAGEMENT_ASSEMBLAGE.nid()) {
+            } else if (item.getTypeNids().contains(TinkarTerm.DEPENDENCY_MANAGEMENT_ASSEMBLAGE.nid())) {
                 return Icon.LINK_EXTERNAL.makeIcon();
             }
             return Icon.ALERT_CONFIRM.makeIcon();

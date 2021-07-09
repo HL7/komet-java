@@ -48,10 +48,16 @@ import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
 import org.eclipse.collections.api.collection.ImmutableCollection;
+import org.eclipse.collections.api.list.primitive.ImmutableIntList;
+import org.eclipse.collections.api.list.primitive.IntList;
+import org.eclipse.collections.impl.factory.primitive.IntLists;
 import org.hl7.komet.framework.view.ObservableView;
+import org.hl7.tinkar.common.id.IntIdSet;
+import org.hl7.tinkar.common.id.IntIds;
 import org.hl7.tinkar.common.id.PublicId;
 import org.hl7.tinkar.common.service.Executor;
 import org.hl7.tinkar.common.util.text.NaturalOrder;
+import org.hl7.tinkar.coordinate.navigation.calculator.Edge;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculator;
 import org.hl7.tinkar.entity.ConceptEntity;
 import org.hl7.tinkar.entity.Entity;
@@ -95,7 +101,7 @@ public class MultiParentVertexImpl
     private MultiParentGraphViewController graphController;
     private String conceptDescriptionText;  // Cached to speed up comparisons with toString method.
     private final int nid;
-    private final int typeNid;
+    private final IntIdSet typeNids;
     private ImmutableCollection<Edge> childLinks;
     private LeafStatus leafStatus = LeafStatus.UNKNOWN;
 
@@ -104,11 +110,11 @@ public class MultiParentVertexImpl
         super();
         this.graphController = graphController;
         this.nid = Integer.MAX_VALUE;
-        this.typeNid = TinkarTerm.UNINITIALIZED_COMPONENT.nid();
+        this.typeNids = IntIds.set.of(TinkarTerm.UNINITIALIZED_COMPONENT.nid());
     }
 
-    MultiParentVertexImpl(int conceptNid, MultiParentGraphViewController graphController, int typeNid) {
-        this(Entity.getFast(conceptNid), graphController, typeNid, null);
+    MultiParentVertexImpl(int conceptNid, MultiParentGraphViewController graphController, IntIdSet typeNids) {
+        this(Entity.getFast(conceptNid), graphController, typeNids, null);
     }
 
     @Override
@@ -120,11 +126,11 @@ public class MultiParentVertexImpl
     }
 
     MultiParentVertexImpl(ConceptEntity conceptEntity
-            , MultiParentGraphViewController graphController, int typeNid, Node graphic) {
+            , MultiParentGraphViewController graphController, IntIdSet typeNids, Node graphic) {
         super(conceptEntity, graphic);
         this.graphController = graphController;
         this.nid = conceptEntity.nid();
-        this.typeNid = typeNid;
+        this.typeNids = typeNids;
     }
 
     //~--- methods -------------------------------------------------------------
@@ -133,8 +139,8 @@ public class MultiParentVertexImpl
         childrenLoadedLatch.await();
     }
 
-    public int getTypeNid() {
-        return typeNid;
+    public IntIdSet getTypeNids() {
+        return typeNids;
     }
 
     /**
@@ -240,12 +246,12 @@ public class MultiParentVertexImpl
                     Navigator navigator = graphController.getNavigator();
 
                     if (childLinks == null) {
-                        childLinks = navigator.getChildLinks(conceptFacade.nid());
+                        childLinks = navigator.getChildEdges(conceptFacade.nid());
                     }
 
                     for (Edge childLink : childLinks) {
                         ConceptEntity childChronology = Entity.getFast(childLink.destinationNid());
-                        MultiParentVertexImpl childItem = new MultiParentVertexImpl(childChronology, graphController, childLink.typeNid(), null);
+                        MultiParentVertexImpl childItem = new MultiParentVertexImpl(childChronology, graphController, childLink.typeNids(), null);
                         ObservableView observableView = graphController.getObservableView();
 
                         childItem.setDefined(observableView.calculator().hasSufficientSet(childChronology.nid()));

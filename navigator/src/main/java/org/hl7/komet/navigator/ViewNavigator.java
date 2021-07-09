@@ -1,9 +1,8 @@
 package org.hl7.komet.navigator;
 
-import org.eclipse.collections.api.collection.ImmutableCollection;
-import org.eclipse.collections.api.collection.MutableCollection;
 import org.eclipse.collections.api.factory.Lists;
-import org.eclipse.collections.api.list.MutableList;
+import org.eclipse.collections.api.list.ImmutableList;
+import org.hl7.tinkar.coordinate.navigation.calculator.Edge;
 import org.hl7.tinkar.coordinate.view.ViewCoordinate;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculator;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculatorWithCache;
@@ -27,19 +26,13 @@ public class ViewNavigator implements Navigator {
     }
 
     @Override
-    public ImmutableCollection<Edge> getParentLinks(int childNid) {
-        //TODO: Create edges with type nid coming from navigation pattern...
-        return Lists.immutable.empty();
+    public ImmutableList<Edge> getParentEdges(int childNid) {
+        return viewCalculator.parentEdges(childNid);
     }
 
     @Override
-    public ImmutableCollection<Edge> getChildLinks(int parentNid) {
-        //TODO: Create edges with type nid coming from navigation pattern...
-        MutableList<Edge> childEdges = Lists.mutable.empty();
-        for (int childNid: getChildNids(parentNid)) {
-            childEdges.add(new EdgeRecord(TinkarTerm.IS_A.nid(), childNid));
-        }
-        return childEdges.toImmutable();
+    public ImmutableList<Edge> getChildEdges(int parentNid) {
+         return viewCalculator.childEdges(parentNid);
     }
 
     @Override
@@ -54,7 +47,7 @@ public class ViewNavigator implements Navigator {
 
     @Override
     public boolean isDescendentOf(int descendantNid, int ancestorNid) {
-        return viewCalculator.unsortedDescendentsOf(ancestorNid).contains(descendantNid);
+        return viewCalculator.descendentsOf(ancestorNid).contains(descendantNid);
     }
 
     @Override

@@ -26,6 +26,7 @@ import org.hl7.komet.framework.view.ObservableView;
 import org.hl7.tinkar.common.service.Executor;
 import org.hl7.tinkar.common.service.TrackingCallable;
 import org.hl7.tinkar.common.util.thread.TaskCountManager;
+import org.hl7.tinkar.coordinate.navigation.calculator.Edge;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculator;
 import org.hl7.tinkar.entity.ConceptEntity;
 import org.hl7.tinkar.entity.Entity;
@@ -80,7 +81,7 @@ public class FetchChildren extends TrackingCallable<Void> {
                 ConcurrentSkipListSet<MultiParentVertexImpl> childrenToAdd = new ConcurrentSkipListSet<>();
                 Navigator navigator = parentGraphItem.getGraphController().getNavigator();
                 ObservableView observableView = parentGraphItem.getGraphController().getObservableView();
-                ImmutableCollection<Edge> children = navigator.getChildLinks(conceptFacade.nid());
+                ImmutableCollection<Edge> children = navigator.getChildEdges(conceptFacade.nid());
 
                 addToTotalWork(children.size() + 1);
 
@@ -90,7 +91,7 @@ public class FetchChildren extends TrackingCallable<Void> {
                     Executor.threadPool().execute(() -> {
                         try {
                             ConceptEntity childChronology = Entity.getFast(childLink.destinationNid());
-                            MultiParentVertexImpl childItem = new MultiParentVertexImpl(childChronology, parentGraphItem.getGraphController(), childLink.typeNid(), null);
+                            MultiParentVertexImpl childItem = new MultiParentVertexImpl(childChronology, parentGraphItem.getGraphController(), childLink.typeNids(), null);
                             childItem.setDefined(this.viewCalculator.hasSufficientSet(childChronology));
                             childItem.toString();
                             childItem.setMultiParent(navigator.getParentNids(childLink.destinationNid()).length > 1);

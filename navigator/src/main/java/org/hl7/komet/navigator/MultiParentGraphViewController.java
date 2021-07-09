@@ -44,6 +44,7 @@ import org.hl7.komet.framework.temp.FxGet;
 import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.komet.framework.view.ViewMenuModel;
 import org.hl7.komet.framework.view.ObservableView;
+import org.hl7.tinkar.common.id.IntIds;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.tinkar.common.service.Executor;
@@ -53,6 +54,7 @@ import org.hl7.tinkar.component.ConceptChronology;
 import org.hl7.tinkar.component.ConceptVersion;
 import org.hl7.tinkar.component.SemanticChronology;
 import org.hl7.tinkar.component.SemanticVersion;
+import org.hl7.tinkar.coordinate.navigation.calculator.Edge;
 import org.hl7.tinkar.coordinate.stamp.StampPathImmutable;
 import org.hl7.tinkar.coordinate.view.ViewCoordinate;
 import org.hl7.tinkar.coordinate.view.ViewCoordinateRecord;
@@ -633,8 +635,8 @@ public class MultiParentGraphViewController implements RefreshListener {
             conceptNids.add(conceptNid);
             ArrayList<Edge> linkList = new ArrayList<>();
             taxonomyLinks.put(conceptNid, linkList);
-            for (Edge link: navigator.getParentLinks(conceptNid)) {
-                if (link.typeNid() == TinkarTerm.IS_A.nid()) {
+            for (Edge link: navigator.getParentEdges(conceptNid)) {
+                if (link.typeNids().contains(TinkarTerm.IS_A.nid())) {
                     linkList.add(link);
                 }
                 handleConcept(link.destinationNid(), navigator, conceptNids, taxonomyLinks);
@@ -665,7 +667,7 @@ public class MultiParentGraphViewController implements RefreshListener {
             MultiParentVertexImpl graphRoot = new MultiParentVertexImpl(
                     Entity.getFast(rootNid),
                     MultiParentGraphViewController.this,
-                    TinkarTerm.UNINITIALIZED_COMPONENT.nid(),
+                    IntIds.set.empty(),
                     Icon.TAXONOMY_ROOT_ICON.makeIcon());
             this.rootTreeItem.getChildren().add(graphRoot);
         }

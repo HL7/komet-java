@@ -1,8 +1,8 @@
 package org.hl7.komet.navigator;
 
-import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.factory.Lists;
-import org.hl7.komet.terms.KometTerm;
+import org.eclipse.collections.api.list.ImmutableList;
+import org.hl7.tinkar.coordinate.navigation.calculator.Edge;
 import org.hl7.tinkar.coordinate.view.ViewCoordinate;
 import org.hl7.tinkar.coordinate.view.ViewCoordinateRecord;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculator;
@@ -81,12 +81,12 @@ public class EmptyNavigator implements Navigator {
     }
 
     @Override
-    public ImmutableCollection<Edge> getParentLinks(int parentConceptNid) {
+    public ImmutableList<Edge> getParentEdges(int parentConceptNid) {
         return Lists.immutable.empty();
     }
 
     @Override
-    public ImmutableCollection<Edge> getChildLinks(int childConceptNid) {
+    public ImmutableList<Edge> getChildEdges(int childConceptNid) {
         return Lists.immutable.empty();
     }
 

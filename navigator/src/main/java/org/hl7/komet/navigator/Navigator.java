@@ -1,6 +1,7 @@
 package org.hl7.komet.navigator;
 
-import org.eclipse.collections.api.collection.ImmutableCollection;
+import org.eclipse.collections.api.list.ImmutableList;
+import org.hl7.tinkar.coordinate.navigation.calculator.Edge;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculator;
 
 public interface Navigator {
@@ -26,14 +27,14 @@ public interface Navigator {
      * @param childNid
      * @return an ImmutableCollection of all the parent Edges.
      */
-    ImmutableCollection<Edge> getParentLinks(int childNid);
+    ImmutableList<Edge> getParentEdges(int childNid);
 
     /**
      * For circumstances where there is more than one type of navigable relationship.
      * @param parentNid
      * @return an ImmutableCollection of all the child Edges.
      */
-    ImmutableCollection<Edge> getChildLinks(int parentNid);
+    ImmutableList<Edge> getChildEdges(int parentNid);
 
     /**
      *
