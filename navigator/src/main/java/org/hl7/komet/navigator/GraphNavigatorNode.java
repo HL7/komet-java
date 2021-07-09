@@ -15,7 +15,7 @@ import java.io.IOException;
 public class GraphNavigatorNode extends ExplorationNodeAbstract {
     private static final Logger LOG = LoggerFactory.getLogger(GraphNavigatorNode.class);
     protected static final String STYLE_ID = "navigator-node";
-    protected static final String TITLE = "Navigator 2";
+    protected static final String TITLE = "Navigator";
 
     final AnchorPane root;
     final MultiParentGraphViewController controller;

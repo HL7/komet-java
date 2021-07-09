@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * @author kec
  */
 
-@AutoService(NavigatorNode.class)
+@AutoService(KometNodeFactory.class)
 public class GraphNavigatorNodeFactory
         implements KometNodeFactory {
    private static final Logger LOG = LoggerFactory.getLogger(GraphNavigatorNodeFactory.class);

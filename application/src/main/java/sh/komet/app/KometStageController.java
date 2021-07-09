@@ -22,7 +22,7 @@ import org.hl7.komet.framework.activity.ActivityStream;
 import org.hl7.komet.framework.activity.ActivityStreams;
 import org.hl7.komet.framework.alerts.AlertStream;
 import org.hl7.komet.framework.alerts.AlertStreams;
-import org.hl7.komet.navigator.NavigatorNodeFactory;
+import org.hl7.komet.navigator.GraphNavigatorNodeFactory;
 import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.komet.progress.CompletionNodeFactory;
 import org.hl7.komet.progress.ProgressNodeFactory;
@@ -253,7 +253,7 @@ public class KometStageController implements SetupNode {
         rightBorderPane.setCenter(this.rightDetachableTabPane);
 
 
-        NavigatorNodeFactory navigatorNodeFactory = new NavigatorNodeFactory();
+        GraphNavigatorNodeFactory navigatorNodeFactory = new GraphNavigatorNodeFactory();
 
         KometNode navigatorNode1 = navigatorNodeFactory.create(windowView, nodePreferences,
                 ActivityStreams.UNLINKED, AlertStreams.ROOT_ALERT_STREAM_KEY);
