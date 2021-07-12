@@ -9,4 +9,9 @@ buildNumber.properties
 .mvn/timing.properties
 .mvn/wrapper/maven-wrapper.jar
 .idea
+*.prefs
+*.project
+*.classpath
+*factorypath
 *.iml
+*.vscode
