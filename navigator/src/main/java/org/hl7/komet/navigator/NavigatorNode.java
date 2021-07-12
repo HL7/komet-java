@@ -24,7 +24,7 @@ public class NavigatorNode extends ExplorationNodeAbstract {
         ViewCalculatorWithCache viewCalculator =
                 ViewCalculatorWithCache.getCalculator(getViewProperties().nodeView().getValue());
         Node topPanel = TopPanelFactory.make(viewCalculator,
-                getViewProperties().nodeView());
+                getViewProperties().nodeView(), activityStreamKeyProperty(), optionForActivityStreamKeyProperty);
         Platform.runLater(() -> this.navigatorPane.setTop(topPanel));
 
     }

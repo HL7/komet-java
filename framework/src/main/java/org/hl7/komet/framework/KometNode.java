@@ -6,6 +6,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import org.hl7.komet.framework.activity.ActivityStream;
+import org.hl7.komet.framework.activity.ActivityStreamOption;
 import org.hl7.komet.framework.alerts.AlertObject;
 import org.hl7.komet.framework.alerts.AlertStream;
 import org.hl7.komet.framework.alerts.AlertStreams;
@@ -25,6 +26,7 @@ import org.hl7.tinkar.common.id.PublicIdStringKey;
 public interface KometNode {
     enum PreferenceKey {
         ACTIVITY_STREAM_KEY,
+        ACTIVITY_STREAM_OPTION_KEY,
         PARENT_ALERT_STREAM_KEY
     }
     /**
@@ -62,6 +64,7 @@ public interface KometNode {
 
     SimpleObjectProperty<PublicIdStringKey<ActivityStream>> activityStreamKeyProperty();
 
+    SimpleObjectProperty<PublicIdStringKey<ActivityStreamOption>> optionForActivityStreamKeyProperty();
     /**
      * @return The node to be displayed
      */

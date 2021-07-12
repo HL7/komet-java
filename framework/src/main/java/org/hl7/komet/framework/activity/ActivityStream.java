@@ -7,6 +7,8 @@ import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.ImmutableList;
+import org.hl7.komet.framework.graphics.Icon;
+import org.hl7.tinkar.common.id.PublicIdStringKey;
 import org.hl7.tinkar.terms.EntityFacade;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.reactivestreams.FlowAdapters;
@@ -18,9 +20,11 @@ public class ActivityStream implements Flow.Publisher<ImmutableList<EntityFacade
     final String streamIconCssId;
     final Multi<ImmutableList<EntityFacade>> entityListStream;
     final BroadcastProcessor<ImmutableList<EntityFacade>> processor;
+    final PublicIdStringKey<ActivityStream> activityStreamKey;
 
-    public ActivityStream(String streamIconCssId) {
+    public ActivityStream(String streamIconCssId, PublicIdStringKey<ActivityStream> activityStreamKey) {
         this.streamIconCssId = streamIconCssId;
+        this.activityStreamKey = activityStreamKey;
         this.processor = BroadcastProcessor.create();
         this.entityListStream = processor.toHotStream();
     }
@@ -35,10 +39,6 @@ public class ActivityStream implements Flow.Publisher<ImmutableList<EntityFacade
     }
 
     public Node getStreamIcon() {
-        FontIcon icon = new FontIcon();
-        Label iconLabel = new Label("", icon);
-        iconLabel.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-        iconLabel.setId(streamIconCssId);
-        return iconLabel;
+        return Icon.makeIcon(streamIconCssId);
     }
 }

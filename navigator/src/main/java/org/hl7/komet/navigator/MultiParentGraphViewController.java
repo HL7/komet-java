@@ -192,7 +192,7 @@ public class MultiParentGraphViewController implements RefreshListener {
         this.topBorderPane.setCenter(this.treeView);
         toolBar.getItems().add(this.navigationLabel);
 
-        this.navigationMenuButton.setGraphic(Icon.COORDINATES.makeIcon());
+        this.navigationMenuButton.setGraphic(Icon.VIEW.makeIcon());
 
     }
 
@@ -221,7 +221,7 @@ public class MultiParentGraphViewController implements RefreshListener {
         this.nodePreferences = nodePreferences;
         this.viewProperties = viewProperties;
         this.observableView = this.viewProperties.nodeView();
-        this.navigationCoordinateMenu.setGraphic(Icon.COORDINATES.makeIcon());
+        this.navigationCoordinateMenu.setGraphic(Icon.VIEW.makeIcon());
         this.viewMenuModel = new ViewMenuModel(viewProperties, navigationMenuButton, navigationCoordinateMenu);
         this.menuUpdate();
         FxGet.pathCoordinates(viewProperties.nodeView().calculator()).addListener((MapChangeListener<PublicIdStringKey, StampPathImmutable>) change -> menuUpdate());

@@ -5,6 +5,7 @@ import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import org.hl7.komet.framework.activity.ActivityStream;
 import org.hl7.komet.framework.alerts.AlertStream;
+import org.hl7.komet.framework.graphics.Icon;
 import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.komet.framework.view.ObservableViewNoOverride;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
@@ -41,11 +42,7 @@ public interface KometNodeFactory {
     String getStyleId();
 
     default Node getMenuGraphic() {
-        FontIcon icon = new FontIcon();
-        Label iconLabel = new Label("", icon);
-        iconLabel.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-        iconLabel.setId(getStyleId());
-        return iconLabel;
+        return Icon.makeIcon(getStyleId());
     }
 
 }

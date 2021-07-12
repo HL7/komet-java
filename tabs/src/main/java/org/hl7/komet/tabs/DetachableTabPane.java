@@ -390,9 +390,12 @@ public class DetachableTabPane extends TabPane {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                calculateTabPoints();
-                timer.cancel();
-                timer.purge();
+                // calculateTabPoints() was encountering updates to list on multiple threads.
+                Platform.runLater(() -> {
+                    calculateTabPoints();
+                    timer.cancel();
+                    timer.purge();
+                });
             }
         }, 1000);
     }

@@ -25,7 +25,7 @@ public class SearchNode extends ExplorationNodeAbstract {
                 ViewCalculatorWithCache viewCalculator =
                         ViewCalculatorWithCache.getCalculator(viewProperties.nodeView().getValue());
                 Node topPanel = TopPanelFactory.make(viewCalculator,
-                        viewProperties.nodeView());
+                        viewProperties.nodeView(), activityStreamKeyProperty(), optionForActivityStreamKeyProperty());
                 this.searchPane.setTop(topPanel);
             });
     }

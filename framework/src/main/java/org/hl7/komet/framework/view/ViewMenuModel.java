@@ -34,7 +34,7 @@ public class ViewMenuModel {
 
 
     public ViewMenuModel(ViewProperties viewProperties, Control baseControlToShowOverride) {
-        this(viewProperties, baseControlToShowOverride, new Menu("Coordinates", Icon.COORDINATES.makeIcon()));
+        this(viewProperties, baseControlToShowOverride, new Menu("Coordinates", Icon.VIEW.makeIcon()));
     }
 
     public ViewMenuModel(ViewProperties viewProperties, Control baseControlToShowOverride, Menu coordinateMenu) {

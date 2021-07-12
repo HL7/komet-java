@@ -35,6 +35,8 @@ modena.css is the default css.
     -komet-error-background: #ff5000;
     -komet-warning-background: #ffef00;
     -komet-confirm-background: #009414;
+    -komet-navigator-primitive-color: #FF4E08;
+    -komet-navigator-defined-color: #5ec200;
     -komet-inactive-background: linear-gradient(
             from 0em 0.75em to 0.75em 0px,
             repeat,
@@ -80,22 +82,18 @@ modena.css is the default css.
     -fx-graphic-text-gap:0;
 }
 
-#detail-coordinates {
+#view {
     -fx-border-color: transparent;
     -fx-background-color: transparent;
 }
 
-#detail-coordinates .arrow-button {
-    -fx-padding:1 0 0 -7;
-}
-
-#detail-coordinates .ikonli-font-icon {
+#view .ikonli-font-icon {
     -fx-icon-code: "ri-viewpoint";
     -fx-icon-color: -komet-tab-background-color;
     -fx-icon-size: 20;
 }
 
-#view-coordinates .ikonli-font-icon {
+#view .ikonli-font-icon {
     /*-fx-icon-code: "map-icon-viewing";*/
     /* -fx-icon-code: "fi-target-two";*/
     /* -fx-icon-code: "icm-target";*/
@@ -106,13 +104,12 @@ modena.css is the default css.
     -fx-icon-size: 20;
 }
 
-#view-coordinates .arrow-button {
-    -fx-padding:1 21 0 0;
+#view .arrow-button {
+    -fx-padding:1 0 0 0;
 }
-#view-coordinates  {
-    -fx-padding:2 0 0 -10;
+#view  {
+    -fx-padding:2 0 0 0;
 }
-
 #add-tab .ikonli-font-icon {
     -fx-icon-code: "unil-plus";
     -fx-icon-color: white;
@@ -484,7 +481,7 @@ modena.css is the default css.
 #taxonomy-root-icon .ikonli-font-icon {
     -fx-icon-code: "mdi2h-hexagon-outline";
     -fx-icon-size: 14pt;
-    -fx-icon-color: #FF4E08;
+    -fx-icon-color: -komet-navigator-primitive-color;
 }
 
 #alert-confirm {
@@ -497,38 +494,38 @@ modena.css is the default css.
     -fx-icon-code: "mdi2a-arrow-up-bold-circle-outline";
     -fx-rotate: 45;
     -fx-icon-size: 14pt;
-    -fx-icon-color: #5ec200;
+    -fx-icon-color: -komet-navigator-defined-color;
 }
 
 #taxonomy-defined-multiparent-closed-icon .ikonli-font-icon {
     -fx-icon-code: "mdi2a-arrow-up-bold-circle-outline";
     -fx-icon-size: 14pt;
-    -fx-icon-color: #5ec200;
+    -fx-icon-color: -komet-navigator-defined-color;
 }
 
 #taxonomy-primitive-multiparent-open-icon .ikonli-font-icon {
     -fx-icon-code: "mdi2a-arrow-up-bold-hexagon-outline";
     -fx-rotate: 45;
     -fx-icon-size: 14pt;
-    -fx-icon-color: #FF4E08;
+    -fx-icon-color: -komet-navigator-primitive-color;
 }
 
 #taxonomy-primitive-multiparent-closed-icon .ikonli-font-icon {
     -fx-icon-code: "mdi2a-arrow-up-bold-hexagon-outline";
     -fx-icon-size: 14pt;
-    -fx-icon-color: #FF4E08;
+    -fx-icon-color: -komet-navigator-primitive-color;
 }
 
 #taxonomy-defined-singleparent-icon .ikonli-font-icon {
     -fx-icon-code: "mdi2c-checkbox-blank-circle-outline";
     -fx-icon-size: 14pt;
-    -fx-icon-color: #5ec200;
+    -fx-icon-color: -komet-navigator-defined-color;
 }
 
 #taxonomy-primitive-singleparent-icon .ikonli-font-icon {
     -fx-icon-code: "mdi2h-hexagon";
     -fx-icon-size: 14pt;
-    -fx-icon-color: #FF4E08;
+    -fx-icon-color: -komet-navigator-primitive-color;
 }
 
 #alert-confirm-2 .ikonli-font-icon {
@@ -554,4 +551,96 @@ modena.css is the default css.
 #temporary-fix .ikonli-font-icon {
     -fx-icon-code: "mdi2b-bandage";
 }
+
+#any-activityStream .ikonli-font-icon {
+    -fx-icon-code: "mdi2l-link-variant";
+    -fx-icon-size: 20;
+}
+#unlinked-activityStream .ikonli-font-icon {
+    -fx-icon-code: "mdi2l-link-variant-off";
+    -fx-icon-size: 20;
+}
+
+.menu-item:focused .ikonli-font-icon {
+    -fx-icon-color: white;
+}
+
+.menu-item .ikonli-font-icon {
+    -fx-icon-color: -komet-tab-background-color;
+}
+
+.tab .ikonli-font-icon {
+    -fx-icon-color: white;
+}
+
+#search-activityStream .ikonli-font-icon {
+    -fx-icon-code: "mdi2m-magnify";
+    -fx-icon-size: 20;
+}
+#navigation-activityStream .ikonli-font-icon {
+    -fx-icon-code: "mdi2f-file-tree";
+    -fx-icon-size: 20;
+}
+#classification-activityStream .ikonli-font-icon {
+    -fx-icon-code: "fa-gears";
+    -fx-icon-size: 18;
+}
+
+#correlation-activityStream .ikonli-font-icon {
+    -fx-icon-code: "mdi2c-compare-horizontal";
+    -fx-icon-size: 20;
+}
+#list-activityStream .ikonli-font-icon {
+    -fx-icon-code: "mdi2s-script-text-outline";
+    -fx-icon-size: 20;
+}
+#builder-activityStream .ikonli-font-icon {
+    -fx-icon-code: "mdi2s-shape-circle-plus";
+    -fx-icon-size: 20;
+}
+#flwor-activityStream .ikonli-font-icon {
+    -fx-icon-code: "mdi2f-flower";
+    -fx-icon-size: 20;
+}
+
+#preferences-activityStream .ikonli-font-icon {
+    -fx-icon-code: "unil-sliders-v-alt";
+    -fx-rotate: 90;
+    -fx-icon-size: 16;
+}
+
+.menu-item #preferences-activityStream {
+    -fx-padding: 0 0 0 3;
+}
+
+.tab #preferences-activityStream .ikonli-font-icon {
+    -fx-icon-color: white;
+
+}
+
+#activityStream .ikonli-font-icon {
+    -fx-icon-code: "oct-pulse-16";
+    -fx-icon-size: 20;
+}
+
+#coordinate-crosshairs .ikonli-font-icon {
+    -fx-icon-code: "mdi2c-crosshairs-gps";
+    -fx-icon-size: 20;
+}
+
+#publish-to-activityStream .ikonli-font-icon {
+    -fx-icon-code: "mdi2l-location-exit";
+    -fx-icon-size: 20;
+}
+
+#subscribe-to-activityStream .ikonli-font-icon {
+    -fx-icon-code: "mdi2l-location-enter";
+    -fx-icon-size: 20;
+}
+
+#synchronize-activityStream .ikonli-font-icon {
+    -fx-icon-code: "mdi2c-cached";
+    -fx-icon-size: 20;
+}
+
 

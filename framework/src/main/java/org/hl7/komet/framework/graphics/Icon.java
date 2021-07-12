@@ -1,6 +1,5 @@
 package org.hl7.komet.framework.graphics;
 
-import javafx.scene.Node;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import org.kordamp.ikonli.javafx.FontIcon;
@@ -10,7 +9,7 @@ import static org.hl7.komet.framework.graphics.IconCheetSheet.*;
 public enum Icon {
 
 
-    COORDINATES("detail-coordinates", "ri-viewpoint", RunestroIcons),
+    VIEW("view", "ri-viewpoint", RunestroIcons),
     TAXONOMY_CLICK_TO_CLOSE("taxonomy-closed-icon", "fas-caret-down", Fontawesome5),
     TAXONOMY_CLICK_TO_OPEN("taxonomy-open-icon", "fas-caret-right", Fontawesome5),
     STATED("stated-form", "ri-chat", IconCheetSheet.RunestroIcons),
@@ -32,18 +31,45 @@ public enum Icon {
     CHECK("check", "far-check-circle", Fontawesome5),
     TEMPORARY_FIX("temporary-fix", "mdi2b-bandage", MaterialDesign2),
 
+    NAVIGATION("navigator-node", "mdi2f-file-tree", MaterialDesign2),
 
+    COORDINATES("coordinate-crosshairs", "mdi2c-crosshairs-gps", MaterialDesign2),
+
+    // Activity streams
+    ACTIVITY("activityStream", "oct-pulse-16", OctIcons),
+    ANY_ACTIVITY_STREAM("any-activityStream","mdi2l-link-variant", MaterialDesign2),
+    UNLINKED_ACTIVITY_STREAM("unlinked-activityStream","mdi2l-link-variant-off", MaterialDesign2),
+    SEARCH_ACTIVITY_STREAM("search-activityStream","mdi2m-magnify", MaterialDesign2),
+    NAVIGATION_ACTIVITY_STREAM("navigation-activityStream", "mdi2f-file-tree", MaterialDesign2),
+    CLASSIFICATION_ACTIVITY_STREAM("classification-activityStream","fa-gears", Fontawesome),
+    CORRELATION_ACTIVITY_STREAM("correlation-activityStream", "mdi2c-compare-horizontal", MaterialDesign2),
+    LIST_ACTIVITY_STREAM("list-activityStream", "mdi2s-script-text-outline", MaterialDesign2),
+    BUILDER_ACTIVITY_STREAM("builder-activityStream","mdi2s-shape-circle-plus",MaterialDesign2),
+    FLWOR_ACTIVITY_STREAM("flwor-activityStream","mdi2f-flower", MaterialDesign2),
+    PREFERENCES_ACTIVITY_STREAM("preferences-activityStream","fas-sliders-h",Fontawesome),
+
+    PUBLISH_TO_STREAM("publish-to-activityStream", "mdi2l-location-exit", MaterialDesign2),
+    SUBSCRIBE_TO_STREAM("subscribe-to-activityStream", "mdi2l-location-enter", MaterialDesign2),
+    SYNCHRONIZE_WITH_STREAM("synchronize-activityStream", "mdi2c-cached", MaterialDesign2),
     ;
 
     String styleId;
-    String fxIconCode;
+    String iconCode;
     IconCheetSheet cheatSheet;
 
 
-    Icon(String styleId, String fxIconCode, IconCheetSheet cheatSheet) {
+    Icon(String styleId, String iconCode, IconCheetSheet cheatSheet) {
         this.styleId = styleId;
-        this.fxIconCode = fxIconCode;
+        this.iconCode = iconCode;
         this.cheatSheet = cheatSheet;
+    }
+
+    public String styleId() {
+        return styleId;
+    }
+
+    public String iconCode() {
+        return iconCode;
     }
 
     public Label makeIcon() {

@@ -34,11 +34,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.hl7.komet</groupId>
-            <artifactId>graphics</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.controlsfx</groupId>
             <artifactId>controlsfx</artifactId>
             <version>${controlsfx.version}</version>

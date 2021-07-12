@@ -10,12 +10,11 @@ module org.hl7.komet.framework {
     exports org.hl7.komet.framework;
 
     requires io.smallrye.mutiny;
-    requires org.kordamp.ikonli.fontawesome;
     requires org.kordamp.ikonli.fontawesome5;
+    requires org.kordamp.ikonli.fontawesome;
     requires org.kordamp.ikonli.foundation;
     requires org.kordamp.ikonli.icomoon;
     requires org.kordamp.ikonli.ionicons4;
-    requires org.kordamp.ikonli.javafx;
     requires org.kordamp.ikonli.mapicons;
     requires org.kordamp.ikonli.material2;
     requires org.kordamp.ikonli.materialdesign2;
@@ -39,6 +38,7 @@ module org.hl7.komet.framework {
     requires transitive org.hl7.tinkar.eclipse.collections;
     requires transitive org.hl7.tinkar.entity;
     requires transitive org.hl7.tinkar.terms;
+    requires transitive org.kordamp.ikonli.javafx;
     requires transitive org.slf4j;
 
     opens org.hl7.komet.framework.graphics;

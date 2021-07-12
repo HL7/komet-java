@@ -8,10 +8,10 @@ module org.hl7.komet.progress {
     requires static org.hl7.tinkar.autoservice;
     requires org.hl7.komet.framework;
     requires org.controlsfx.controls;
-    requires org.hl7.komet.graphics;
     requires org.kordamp.ikonli.core;
     requires org.hl7.komet.executor;
     requires org.hl7.komet.preferences;
+    requires org.kordamp.ikonli.javafx;
 
     provides KometNodeFactory
             with ProgressNodeFactory, CompletionNodeFactory;
