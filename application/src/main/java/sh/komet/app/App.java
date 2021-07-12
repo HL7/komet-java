@@ -81,7 +81,7 @@ public class App extends Application {
         kometLog.info("Starting Komet");
         LoadFonts.load();
         graphicsModule = ModuleLayer.boot()
-                .findModule("org.hl7.komet.graphics")
+                .findModule("org.hl7.komet.framework")
                 // Optional<Module> at this point
                 .orElseThrow();
     }
