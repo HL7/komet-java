@@ -20,11 +20,6 @@
             <artifactId>framework</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.hl7.komet</groupId>
-            <artifactId>view</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
     </dependencies>
 </project>
 

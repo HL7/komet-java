@@ -16,7 +16,6 @@ module org.hl7.komet.application {
     requires org.hl7.tinkar.entity;
     requires org.hl7.tinkar.terms;
     requires org.kordamp.ikonli.javafx;
-    requires org.hl7.komet.view;
     requires org.hl7.komet.executor;
     requires org.hl7.komet.preferences;
 

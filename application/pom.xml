@@ -117,12 +117,6 @@
             <artifactId>data-ephemeral-provider</artifactId>
             <version>${tinkar-core.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.hl7.komet</groupId>
-            <artifactId>view</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>compile</scope>
-        </dependency>
     </dependencies>
     <build>
         <plugins>
