@@ -1,13 +1,14 @@
 package org.hl7.komet.framework.activity;
 
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.hl7.komet.framework.graphics.Icon;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
 import org.hl7.tinkar.common.id.PublicIds;
 
-public enum ActivityStreamOption {
+public enum ActivityStreamOption  {
     PUBLISH(new PublicIdStringKey(PublicIds.of("3ea7167e-78b4-45fa-8864-004a87f32518"),
             "publish"), "publish-to-activityStream"),
     SUBSCRIBE(new PublicIdStringKey(PublicIds.of("3baebd44-bf78-4dfb-ad67-3d53fae3a0c6"),
@@ -27,7 +28,7 @@ public enum ActivityStreamOption {
         return this.keyForOption;
     }
 
-    public Node iconForOption() {
+    public Label iconForOption() {
         return Icon.makeIcon(this.styleId);
     }
 

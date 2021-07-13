@@ -1,7 +1,9 @@
 package org.hl7.komet.framework.graphics;
 
+import javafx.scene.Node;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import static org.hl7.komet.framework.graphics.IconCheetSheet.*;
@@ -88,6 +90,22 @@ public enum Icon {
         iconLabel.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
         iconLabel.setId(styleId);
         return iconLabel;
+    }
+
+    public static HBox makeIconGroup(String... styleIds) {
+        HBox titleNode = new HBox(2);
+        for (String styleId: styleIds) {
+            titleNode.getChildren().add(makeIcon(styleId));
+        }
+        return titleNode;
+    }
+
+    public static HBox makeIconGroup(Node... icons) {
+        HBox titleNode = new HBox(2);
+        for (Node icon: icons) {
+            titleNode.getChildren().add(icon);
+        }
+        return titleNode;
     }
 
     public Label makeIconWithStyles(String... styleClasses) {

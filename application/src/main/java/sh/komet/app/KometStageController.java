@@ -19,6 +19,7 @@ import org.hl7.komet.executor.TaskWrapper;
 import org.hl7.komet.framework.KometNode;
 import org.hl7.komet.framework.SetupNode;
 import org.hl7.komet.framework.activity.ActivityStream;
+import org.hl7.komet.framework.activity.ActivityStreamOption;
 import org.hl7.komet.framework.activity.ActivityStreams;
 import org.hl7.komet.framework.alerts.AlertStream;
 import org.hl7.komet.framework.alerts.AlertStreams;
@@ -256,7 +257,7 @@ public class KometStageController implements SetupNode {
         GraphNavigatorNodeFactory navigatorNodeFactory = new GraphNavigatorNodeFactory();
 
         KometNode navigatorNode1 = navigatorNodeFactory.create(windowView, nodePreferences,
-                ActivityStreams.UNLINKED, AlertStreams.ROOT_ALERT_STREAM_KEY);
+                ActivityStreams.NAVIGATION, ActivityStreamOption.PUBLISH.keyForOption(), AlertStreams.ROOT_ALERT_STREAM_KEY);
 
         DetachableTab navigatorNode1Tab = new DetachableTab(navigatorNode1.getTitle().getValue(), navigatorNode1.getNode());
         navigatorNode1Tab.setGraphic(navigatorNode1.getTitleNode());
@@ -264,20 +265,20 @@ public class KometStageController implements SetupNode {
 
         DetailsNodeFactory detailsNodeFactory = new DetailsNodeFactory();
         KometNode detailsNode1 = detailsNodeFactory.create(windowView, nodePreferences,
-                ActivityStreams.UNLINKED, AlertStreams.ROOT_ALERT_STREAM_KEY);
+                ActivityStreams.NAVIGATION, ActivityStreamOption.SUBSCRIBE.keyForOption(), AlertStreams.ROOT_ALERT_STREAM_KEY);
 
         DetachableTab detailsNode1Tab = new DetachableTab(detailsNode1.getTitle().getValue(), detailsNode1.getNode());
         detailsNode1Tab.setGraphic(detailsNode1.getTitleNode());
         this.centerDetachableTabPane.getTabs().add(detailsNode1Tab);
 
         KometNode detailsNode2 = detailsNodeFactory.create(windowView, nodePreferences,
-                ActivityStreams.UNLINKED, AlertStreams.ROOT_ALERT_STREAM_KEY);
+                ActivityStreams.SEARCH, ActivityStreamOption.SUBSCRIBE.keyForOption(), AlertStreams.ROOT_ALERT_STREAM_KEY);
         DetachableTab detailsNode2Tab = new DetachableTab(detailsNode2.getTitle().getValue(), detailsNode2.getNode());
         detailsNode2Tab.setGraphic(detailsNode2.getTitleNode());
         this.centerDetachableTabPane.getTabs().add(detailsNode2Tab);
 
         KometNode detailsNode3 = detailsNodeFactory.create(windowView, nodePreferences,
-                ActivityStreams.UNLINKED, AlertStreams.ROOT_ALERT_STREAM_KEY);
+                ActivityStreams.UNLINKED, ActivityStreamOption.PUBLISH.keyForOption(), AlertStreams.ROOT_ALERT_STREAM_KEY);
         DetachableTab detailsNode3Tab = new DetachableTab(detailsNode3.getTitle().getValue(), detailsNode3.getNode());
         detailsNode3Tab.setGraphic(detailsNode3.getTitleNode());
         this.centerDetachableTabPane.getTabs().add(detailsNode3Tab);
@@ -285,21 +286,21 @@ public class KometStageController implements SetupNode {
 
         SearchNodeFactory searchNodeFactory = new SearchNodeFactory();
         KometNode searchNode = searchNodeFactory.create(windowView, nodePreferences,
-                ActivityStreams.UNLINKED, AlertStreams.ROOT_ALERT_STREAM_KEY);
+                ActivityStreams.SEARCH, ActivityStreamOption.PUBLISH.keyForOption(), AlertStreams.ROOT_ALERT_STREAM_KEY);
         DetachableTab newSearchTab = new DetachableTab(searchNode.getTitle().getValue(), searchNode.getNode());
         newSearchTab.setGraphic(searchNode.getTitleNode());
         this.rightDetachableTabPane.getTabs().add(newSearchTab);
 
         ProgressNodeFactory progressNodeFactory = new ProgressNodeFactory();
         KometNode kometNode = progressNodeFactory.create(windowView, nodePreferences,
-                ActivityStreams.UNLINKED, AlertStreams.ROOT_ALERT_STREAM_KEY);
+                null, null, AlertStreams.ROOT_ALERT_STREAM_KEY);
         DetachableTab progressTab = new DetachableTab(kometNode.getTitle().getValue(), kometNode.getNode());
         progressTab.setGraphic(kometNode.getTitleNode());
         this.rightDetachableTabPane.getTabs().add(progressTab);
 
         CompletionNodeFactory completionNodeFactory = new CompletionNodeFactory();
         KometNode completionNode  = completionNodeFactory.create(windowView, nodePreferences,
-                ActivityStreams.UNLINKED, AlertStreams.ROOT_ALERT_STREAM_KEY);
+                null, null, AlertStreams.ROOT_ALERT_STREAM_KEY);
         DetachableTab completionTab = new DetachableTab(completionNode.getTitle().getValue(), completionNode.getNode());
         completionTab.setGraphic(completionNode.getTitleNode());
         this.rightDetachableTabPane.getTabs().add(completionTab);

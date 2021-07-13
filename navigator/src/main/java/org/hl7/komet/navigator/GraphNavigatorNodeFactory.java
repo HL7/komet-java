@@ -17,10 +17,16 @@
 package org.hl7.komet.navigator;
 
 import com.google.auto.service.AutoService;
+import org.eclipse.collections.api.factory.Lists;
+import org.eclipse.collections.api.list.ImmutableList;
 import org.hl7.komet.framework.KometNode;
 import org.hl7.komet.framework.KometNodeFactory;
+import org.hl7.komet.framework.activity.ActivityStream;
+import org.hl7.komet.framework.activity.ActivityStreamOption;
+import org.hl7.komet.framework.activity.ActivityStreams;
 import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.komet.framework.view.ObservableViewNoOverride;
+import org.hl7.tinkar.common.id.PublicIdStringKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +45,19 @@ public class GraphNavigatorNodeFactory
    @Override
    public KometNode create(ObservableViewNoOverride windowViewReference, KometPreferences nodePreferences) {
       return new GraphNavigatorNode(windowViewReference.makeOverridableViewProperties(), nodePreferences);
+   }
+
+   @Override
+   public ImmutableList<PublicIdStringKey<ActivityStream>> defaultActivityStreamChoices() {
+      return Lists.immutable.of(ActivityStreams.NAVIGATION);
+   }
+
+   @Override
+   public ImmutableList<PublicIdStringKey<ActivityStreamOption>> defaultOptionsForActivityStream(PublicIdStringKey<ActivityStream> streamKey) {
+      if (defaultActivityStreamChoices().contains(streamKey)) {
+         return Lists.immutable.of(ActivityStreamOption.PUBLISH.keyForOption());
+      }
+      return Lists.immutable.empty();
    }
 
    @Override
