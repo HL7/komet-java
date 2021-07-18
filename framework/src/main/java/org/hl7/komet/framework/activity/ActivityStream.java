@@ -38,6 +38,10 @@ public class ActivityStream implements Flow.Publisher<ImmutableList<EntityFacade
         processor.onNext(Lists.immutable.of(entities));
     }
 
+    public void dispatch(ImmutableList<EntityFacade> entities) {
+        processor.onNext(entities);
+    }
+
     public Node getStreamIcon() {
         return Icon.makeIcon(streamIconCssId);
     }

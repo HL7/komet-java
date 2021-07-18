@@ -1,4 +1,4 @@
-package org.hl7.komet.framework;
+package org.hl7.komet.framework.context;
 
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;

@@ -1,6 +1,7 @@
 package org.hl7.komet.framework;
 
 import javafx.application.Platform;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
@@ -16,19 +17,28 @@ import org.hl7.komet.executor.TaskWrapper;
 import org.hl7.komet.framework.activity.ActivityStream;
 import org.hl7.komet.framework.activity.ActivityStreamOption;
 import org.hl7.komet.framework.activity.ActivityStreams;
+import org.hl7.komet.framework.context.AddToContextMenu;
+import org.hl7.komet.framework.context.AddToContextMenuSimple;
 import org.hl7.komet.framework.graphics.Icon;
-import org.hl7.komet.framework.view.ObservableCoordinate;
 import org.hl7.komet.framework.view.ViewMenuTask;
+import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
-import org.hl7.tinkar.coordinate.view.calculator.ViewCalculator;
-import org.kordamp.ikonli.javafx.FontIcon;
+import org.hl7.tinkar.common.util.time.DateTimeUtil;
+import org.hl7.tinkar.coordinate.view.calculator.ViewCalculatorWithCache;
+import org.hl7.tinkar.terms.EntityFacade;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class TopPanelFactory {
-    public static Node make(ViewCalculator viewCalculator, ObservableCoordinate observableCoordinate,
+    public static Node make(ViewProperties viewProperties,
+                            SimpleObjectProperty<EntityFacade> entityFocusProperty,
                             SimpleObjectProperty<PublicIdStringKey<ActivityStream>> activityStreamKeyProperty,
                             SimpleObjectProperty<PublicIdStringKey<ActivityStreamOption>> optionForActivityStreamKeyProperty) {
+
+        ViewCalculatorWithCache viewCalculator =
+                ViewCalculatorWithCache.getCalculator(viewProperties.nodeView().getValue());
+
         GridPane gridPane = new GridPane();
         ColumnConstraints column0 = new ColumnConstraints();
         column0.setHgrow(Priority.NEVER);
@@ -46,16 +56,25 @@ public class TopPanelFactory {
         viewPropertiesButton.getItems().add(coordinatesMenu);
         viewPropertiesButton.setGraphic(Icon.VIEW.makeIcon());
 
-        updateGridPane(activityStreamKeyProperty, optionForActivityStreamKeyProperty, gridPane, viewPropertiesButton);
+        SimpleIntegerProperty selectionIndexProperty = new SimpleIntegerProperty();
+        Runnable unlink = () -> { };
+        AddToContextMenu[] contextMenuProviders = new AddToContextMenu[] { new AddToContextMenuSimple() };
+
+        EntityLabelWithDragAndDrop entityLabel = EntityLabelWithDragAndDrop.make(viewProperties,
+                entityFocusProperty, null, selectionIndexProperty, unlink,
+                contextMenuProviders);
+
+        updateGridPane(activityStreamKeyProperty, optionForActivityStreamKeyProperty, gridPane, viewPropertiesButton, entityLabel);
         activityStreamKeyProperty.addListener((observable, oldValue, newValue) -> {
-            Platform.runLater(() -> updateGridPane(activityStreamKeyProperty, optionForActivityStreamKeyProperty, gridPane, viewPropertiesButton));
+            Platform.runLater(() -> updateGridPane(activityStreamKeyProperty, optionForActivityStreamKeyProperty, gridPane,
+                    viewPropertiesButton, entityLabel));
         });
         optionForActivityStreamKeyProperty.addListener((observable, oldValue, newValue) -> {
-            Platform.runLater(() -> updateGridPane(activityStreamKeyProperty, optionForActivityStreamKeyProperty, gridPane, viewPropertiesButton));
+            Platform.runLater(() -> updateGridPane(activityStreamKeyProperty, optionForActivityStreamKeyProperty, gridPane,
+                    viewPropertiesButton, entityLabel));
         });
 
-
-        Platform.runLater(TaskWrapper.make(new ViewMenuTask(viewCalculator, observableCoordinate),
+        Platform.runLater(TaskWrapper.make(new ViewMenuTask(viewCalculator, viewProperties.nodeView()),
                 (List<MenuItem> result) -> coordinatesMenu.getItems().addAll(result)));
 
         Menu activityStreamMenu = new Menu("Activity stream", Icon.ACTIVITY.makeIcon());
@@ -76,9 +95,18 @@ public class TopPanelFactory {
         return gridPane;
     }
 
-    private static void updateGridPane(SimpleObjectProperty<PublicIdStringKey<ActivityStream>> activityStreamKeyProperty, SimpleObjectProperty<PublicIdStringKey<ActivityStreamOption>> optionForActivityStreamKeyProperty, GridPane gridPane, MenuButton viewPropertiesButton) {
+    private static void updateGridPane(SimpleObjectProperty<PublicIdStringKey<ActivityStream>> activityStreamKeyProperty,
+                                       SimpleObjectProperty<PublicIdStringKey<ActivityStreamOption>> optionForActivityStreamKeyProperty,
+                                       GridPane gridPane,
+                                       MenuButton viewPropertiesButton,
+                                       EntityLabelWithDragAndDrop entityLabel) {
         gridPane.getChildren().clear();
         gridPane.add(viewPropertiesButton, 0, 0, 2, 1);
+
+        GridPane.setHgrow(entityLabel, Priority.ALWAYS);
+        gridPane.add(entityLabel, 2, 1, 2, 2);
+
+
 
         int activityStreamColumn = 0;
         int optionForActivityStreamColumn = 1;

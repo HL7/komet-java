@@ -10,10 +10,12 @@ import javafx.scene.Node;
 import javafx.scene.transform.Rotate;
 import javafx.util.Duration;
 import org.controlsfx.control.TaskProgressView;
+import org.eclipse.collections.api.list.ImmutableList;
 import org.hl7.komet.executor.TaskLists;
 import org.hl7.komet.framework.ExplorationNodeAbstract;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.komet.preferences.KometPreferences;
+import org.hl7.tinkar.terms.EntityFacade;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.util.Optional;
@@ -31,6 +33,11 @@ public class ProgressNode extends ExplorationNodeAbstract {
         rotation.setInterpolator(Interpolator.LINEAR);
         activityGraphic.setTranslateZ(activityGraphic.getBoundsInLocal().getWidth() / 2.0);
         activityGraphic.setRotationAxis(Rotate.Z_AXIS);
+    }
+
+    @Override
+    public void handleActivity(ImmutableList<EntityFacade> entities) {
+        throw new UnsupportedOperationException();
     }
 
     TaskProgressView<Task<?>> progressView = new TaskProgressView<>();

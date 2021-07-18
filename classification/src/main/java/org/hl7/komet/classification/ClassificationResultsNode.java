@@ -2,9 +2,11 @@ package org.hl7.komet.classification;
 
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import org.eclipse.collections.api.list.ImmutableList;
 import org.hl7.komet.framework.ExplorationNodeAbstract;
 import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.komet.framework.view.ViewProperties;
+import org.hl7.tinkar.terms.EntityFacade;
 
 public class ClassificationResultsNode extends ExplorationNodeAbstract {
     protected static final String STYLE_ID = "classification-results-node";
@@ -12,6 +14,11 @@ public class ClassificationResultsNode extends ExplorationNodeAbstract {
 
     public ClassificationResultsNode(ViewProperties viewProperties, KometPreferences nodePreferences) {
         super(viewProperties, nodePreferences);
+    }
+
+    @Override
+    public void handleActivity(ImmutableList<EntityFacade> entities) {
+        // Nothing to do...
     }
 
     @Override

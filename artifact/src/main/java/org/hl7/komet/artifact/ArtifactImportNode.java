@@ -3,10 +3,12 @@ package org.hl7.komet.artifact;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import org.eclipse.collections.api.list.ImmutableList;
 import org.hl7.komet.framework.ExplorationNodeAbstract;
 import org.hl7.komet.framework.graphics.Icon;
 import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.komet.framework.view.ViewProperties;
+import org.hl7.tinkar.terms.EntityFacade;
 
 public class ArtifactImportNode extends ExplorationNodeAbstract {
     protected static final String STYLE_ID = "import-node";
@@ -33,6 +35,11 @@ public class ArtifactImportNode extends ExplorationNodeAbstract {
     @Override
     public void close() {
 
+    }
+
+    @Override
+    public void handleActivity(ImmutableList<EntityFacade> entities) {
+        // Nothing to do...
     }
 
     @Override

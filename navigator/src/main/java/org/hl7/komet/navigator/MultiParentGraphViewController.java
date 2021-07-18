@@ -29,6 +29,7 @@ import org.eclipse.collections.impl.factory.primitive.IntLists;
 import org.eclipse.collections.impl.factory.primitive.IntSets;
 import org.hl7.komet.executor.TaskWrapper;
 import org.hl7.komet.framework.Dialogs;
+import org.hl7.komet.framework.KometNode;
 import org.hl7.komet.framework.activity.ActivityStream;
 import org.hl7.komet.framework.LayoutAnimator;
 import org.hl7.komet.framework.RefreshListener;
@@ -74,14 +75,9 @@ import java.util.concurrent.CountDownLatch;
 import static org.hl7.komet.framework.StyleClasses.MULTI_PARENT_TREE_NODE;
 
 public class MultiParentGraphViewController implements RefreshListener {
-
+    private static final Logger LOG = LoggerFactory.getLogger(MultiParentGraphViewController.class);
     private ObservableView observableView;
 
-    public enum Keys {
-        ACTIVITY_FEED
-    }
-
-    private static final Logger LOG = LoggerFactory.getLogger(MultiParentGraphViewController.class);
     private static volatile boolean shutdownRequested = false;
 
     @FXML
@@ -207,7 +203,7 @@ public class MultiParentGraphViewController implements RefreshListener {
 
     private void savePreferences() {
         // TODO selected graphConfigurationKey should be saved in preferences.
-        this.nodePreferences.putObject(Keys.ACTIVITY_FEED, this.activityStreamKeyProperty.get());
+        this.nodePreferences.putObject(KometNode.PreferenceKey.ACTIVITY_STREAM_KEY, this.activityStreamKeyProperty.get());
 
     }
     private void menuUpdate() {
@@ -227,7 +223,7 @@ public class MultiParentGraphViewController implements RefreshListener {
         FxGet.pathCoordinates(viewProperties.nodeView().calculator()).addListener((MapChangeListener<PublicIdStringKey, StampPathImmutable>) change -> menuUpdate());
         this.observableView.addListener(this.viewChangedListener);
 
-        nodePreferences.getObject(Keys.ACTIVITY_FEED).ifPresent(activityStreamKey -> 
+        nodePreferences.getObject(KometNode.PreferenceKey.ACTIVITY_STREAM_KEY).ifPresent(activityStreamKey ->
                 this.activityStreamKeyProperty.set((PublicIdStringKey<ActivityStream>) activityStreamKey));
 
         this.treeView.getSelectionModel().getSelectedItems().addListener(this::onSelectionChanged);
@@ -254,7 +250,13 @@ public class MultiParentGraphViewController implements RefreshListener {
     private void onSelectionChanged(ListChangeListener.Change<? extends TreeItem<ConceptFacade>> c) {
         ActivityStream activityStream = this.activityStreamProperty.get();
         if (activityStream != null) {
-            activityStream.dispatch(c.getList().toArray(new EntityFacade[c.getList().size()]));
+            EntityFacade[] selectionArray = new EntityFacade[c.getList().size()];
+            int i = 0;
+            for (TreeItem<ConceptFacade> treeItem: c.getList()) {
+                selectionArray[i++] = treeItem.getValue();
+            }
+            activityStream.dispatch(selectionArray);
+            LOG.atInfo().log("Selected: " + c.getList());
         }
     }
 

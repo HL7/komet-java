@@ -27,4 +27,8 @@ public class AlertStreams {
     public static AlertStream get(PublicIdStringKey<AlertStream> alertStreamKey) {
         return AlertStreams.alertStreamMap.get(alertStreamKey);
     }
+
+    public static AlertStream getRoot() {
+        return AlertStreams.alertStreamMap.get(ROOT_ALERT_STREAM_KEY);
+    }
 }

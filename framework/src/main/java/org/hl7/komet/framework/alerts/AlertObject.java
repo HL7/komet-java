@@ -4,6 +4,22 @@ import java.util.*;
 import java.util.concurrent.Callable;
 
 public class AlertObject implements Comparable<AlertObject> {
+
+    public static AlertObject makeWarning(String alertTitle, String alertDescription) {
+        return new AlertObject(alertTitle, alertDescription, AlertType.WARNING, AlertCategory.UNSPECIFIED);
+    }
+
+    public static AlertObject makeError(String alertTitle, String alertDescription, Throwable throwable) {
+        return new AlertObject(alertTitle, alertDescription, AlertType.ERROR,
+                throwable, AlertCategory.UNSPECIFIED, null);
+    }
+    public static AlertObject makeError(Throwable throwable) {
+        return new AlertObject(throwable.getClass().getSimpleName(), throwable.getLocalizedMessage(), AlertType.ERROR,
+                throwable, AlertCategory.UNSPECIFIED, null);
+    }
+
+
+
     final UUID alertId = UUID.randomUUID();
     final int[] affectedComponents;
     final String alertTitle;
@@ -30,9 +46,6 @@ public class AlertObject implements Comparable<AlertObject> {
         this.resolutionTester = resolutionTester;
     }
 
-    public static AlertObject makeWarning(String alertTitle, String alertDescription) {
-        return new AlertObject(alertTitle, alertDescription, AlertType.WARNING, AlertCategory.UNSPECIFIED);
-    }
 
 
     public AlertObject(String alertTitle, String alertDescription, AlertType alertType, AlertCategory alertCategory, int... affectedComponents) {

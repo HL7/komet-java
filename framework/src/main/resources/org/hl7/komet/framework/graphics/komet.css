@@ -722,4 +722,70 @@ modena.css is the default css.
     -fx-icon-color: white;
 }
 
+.concept-label {
+    -fx-background-color: -komet-blue-color;
+    -fx-text-fill: white;
+    -fx-font-size:18;
+    -fx-font-weight: bold;
+    -fx-border-color: red;
+
+}
+
+.concept-label-toolbar  .concept-label {
+    -fx-text-fill: orange;
+}
+
+.concept-label-toolbar .label {
+    /*  -fx-text-fill: #eef1f3; */
+    -fx-text-fill: white;
+    -fx-font-size:18;
+    -fx-font-weight: bold;
+}
+
+
+.concept-label-toolbar {
+    -fx-background-color: -komet-blue-color;
+    -fx-border-color: -komet-blue-color;
+    -fx-border-color: -komet-panel-background-color;
+    -fx-border-width: 1 0 0 1;
+    -fx-padding: 1 0 5 4;
+}
+
+.concept-label-toolbar .menu-button {
+    -fx-background-color: -komet-blue-color;
+    -fx-border-color: -komet-blue-color;
+    -fx-border-insets: 0;
+    -fx-border-width: 0;
+    -fx-padding:3 0 -5 -8;
+}
+.concept-label-toolbar .arrow-button {
+    -fx-padding:-5 10 0 0;
+}
+
+.concept-label-toolbar .arrow {
+    -fx-mark-color: white;
+    /*    -fx-padding:25 -5 -5 45; */
+}
+
+.concept-label-toolbar .menu-button .glyph-icon {
+    -icons-color: white;
+    -fx-background-color: red;
+}
+.concept-label-toolbar .menu-button .menu-item .glyph-icon {
+    -icons-color: -komet-blue-color;
+}
+.concept-label-toolbar .menu-button .menu-item .label {
+    -fx-text-fill: -komet-blue-color;
+    -fx-font-size:15;
+}
+.concept-label-toolbar .menu-button .menu-item:focused .glyph-icon {
+    -icons-color: white;
+}
+.concept-label-toolbar .menu-button .menu-item:focused .label {
+    -fx-text-fill: white;
+}
+.concept-label-toolbar .menu-button .menu-item:focused {
+    -fx-background-color: -komet-blue-color;
+}
+
 

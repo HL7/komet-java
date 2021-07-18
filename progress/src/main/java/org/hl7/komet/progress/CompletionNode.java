@@ -5,10 +5,12 @@ import javafx.beans.binding.Bindings;
 import javafx.concurrent.Task;
 import javafx.scene.Node;
 import org.controlsfx.control.TaskProgressView;
+import org.eclipse.collections.api.list.ImmutableList;
 import org.hl7.komet.executor.TaskLists;
 import org.hl7.komet.framework.ExplorationNodeAbstract;
 import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.komet.framework.view.ViewProperties;
+import org.hl7.tinkar.terms.EntityFacade;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.util.Optional;
@@ -32,6 +34,11 @@ public class CompletionNode extends ExplorationNodeAbstract {
 
     public CompletionNode(ViewProperties viewProperties, KometPreferences nodePreferences) {
         super(viewProperties, nodePreferences);
+    }
+
+    @Override
+    public void handleActivity(ImmutableList<EntityFacade> entities) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
