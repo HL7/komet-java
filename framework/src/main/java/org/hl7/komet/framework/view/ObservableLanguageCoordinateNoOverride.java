@@ -42,10 +42,7 @@ import org.eclipse.collections.api.list.ImmutableList;
 import org.hl7.komet.terms.KometTerm;
 import org.hl7.tinkar.coordinate.language.LanguageCoordinate;
 import org.hl7.tinkar.coordinate.language.LanguageCoordinateRecord;
-import org.hl7.tinkar.terms.ConceptFacade;
-import org.hl7.tinkar.terms.ConceptProxy;
-import org.hl7.tinkar.terms.PatternFacade;
-import org.hl7.tinkar.terms.PatternProxy;
+import org.hl7.tinkar.terms.*;
 
 /**
  * The Class ObservableLanguageCoordinateImpl.
@@ -84,14 +81,14 @@ public final class ObservableLanguageCoordinateNoOverride
     protected SimpleEqualityBasedListProperty<PatternFacade> makeDialectPatternPreferenceListProperty(LanguageCoordinate languageCoordinate) {
         return new SimpleEqualityBasedListProperty<>(this,
                 KometTerm.DIALECT_ASSEMBLAGE_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE.toXmlFragment(),
-                FXCollections.observableArrayList(languageCoordinate.dialectPatternPreferenceNidList().mapToList(PatternProxy::make)));
+                FXCollections.observableArrayList(languageCoordinate.dialectPatternPreferenceNidList().mapToList(EntityProxy.Pattern::make)));
     }
 
     @Override
     protected SimpleEqualityBasedListProperty<ConceptFacade> makeDescriptionTypePreferenceListProperty(LanguageCoordinate languageCoordinate) {
         return new SimpleEqualityBasedListProperty<>(this,
                 KometTerm.DESCRIPTION_TYPE_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE.toXmlFragment(),
-                FXCollections.observableArrayList(languageCoordinate.descriptionTypePreferenceNidList().mapToList(ConceptProxy::make)));
+                FXCollections.observableArrayList(languageCoordinate.descriptionTypePreferenceNidList().mapToList(EntityProxy.Concept::make)));
     }
 
     @Override
@@ -99,14 +96,14 @@ public final class ObservableLanguageCoordinateNoOverride
         ImmutableList<ConceptFacade> modulePreferenceList = languageCoordinate.modulePreferenceListForLanguage();
         return new SimpleEqualityBasedListProperty<>(this,
                 KometTerm.MODULE_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE.toXmlFragment(),
-                FXCollections.observableArrayList(modulePreferenceNidListForLanguage().mapToList(ConceptProxy::make)));
+                FXCollections.observableArrayList(modulePreferenceNidListForLanguage().mapToList(EntityProxy.Concept::make)));
     }
 
     @Override
     protected SimpleEqualityBasedListProperty<PatternFacade> makeDescriptionPatternPreferenceListProperty(LanguageCoordinate languageCoordinate) {
         return new SimpleEqualityBasedListProperty<>(this,
                 "Description pattern list (fix)",
-                FXCollections.observableArrayList(descriptionPatternPreferenceNidList().mapToList(PatternProxy::make)));
+                FXCollections.observableArrayList(descriptionPatternPreferenceNidList().mapToList(EntityProxy.Pattern::make)));
     }
 
     @Override

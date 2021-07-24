@@ -48,9 +48,6 @@ import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
 import org.eclipse.collections.api.collection.ImmutableCollection;
-import org.eclipse.collections.api.list.primitive.ImmutableIntList;
-import org.eclipse.collections.api.list.primitive.IntList;
-import org.eclipse.collections.impl.factory.primitive.IntLists;
 import org.hl7.komet.framework.view.ObservableView;
 import org.hl7.tinkar.common.id.IntIdSet;
 import org.hl7.tinkar.common.id.IntIds;
@@ -347,7 +344,7 @@ public class MultiParentVertexImpl
     }
 
     //~--- get methods ---------------------------------------------------------
-    MultiParentGraphItemDisplayPolicies getDisplayPolicies() {
+    NavigatorDisplayPolicies getDisplayPolicies() {
         return this.graphController.getDisplayPolicies();
     }
 

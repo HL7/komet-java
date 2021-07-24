@@ -40,15 +40,16 @@ public class TopPanelFactory {
                 ViewCalculatorWithCache.getCalculator(viewProperties.nodeView().getValue());
 
         GridPane gridPane = new GridPane();
-        ColumnConstraints column0 = new ColumnConstraints();
-        column0.setHgrow(Priority.NEVER);
-        column0.setHalignment(HPos.LEFT);
-        gridPane.getColumnConstraints().add(column0);
+        gridPane.getStyleClass().add("top-panel");
+//        ColumnConstraints column0 = new ColumnConstraints();
+//        column0.setHgrow(Priority.NEVER);
+//        column0.setHalignment(HPos.LEFT);
+//        gridPane.getColumnConstraints().add(column0);
 
-        RowConstraints row0 = new RowConstraints();
-        row0.setVgrow(Priority.NEVER);
-        row0.setValignment(VPos.CENTER);
-        gridPane.getRowConstraints().add(row0);
+//        RowConstraints row0 = new RowConstraints();
+//        row0.setVgrow(Priority.NEVER);
+//        row0.setValignment(VPos.CENTER);
+//        gridPane.getRowConstraints().add(row0);
 
         MenuButton viewPropertiesButton = new MenuButton();
         Menu coordinatesMenu = new Menu("Coordinates", Icon.COORDINATES.makeIcon());
@@ -104,7 +105,14 @@ public class TopPanelFactory {
         gridPane.add(viewPropertiesButton, 0, 0, 2, 1);
 
         GridPane.setHgrow(entityLabel, Priority.ALWAYS);
-        gridPane.add(entityLabel, 2, 1, 2, 2);
+        GridPane.setVgrow(entityLabel, Priority.ALWAYS);
+        GridPane.setFillHeight(entityLabel, true);
+        GridPane.setFillWidth(entityLabel, true);
+        entityLabel.setMaxWidth(Double.MAX_VALUE);
+        entityLabel.setPrefWidth(Double.MAX_VALUE);
+        GridPane.setValignment(entityLabel, VPos.TOP);
+
+        gridPane.add(entityLabel, 2, 0, 4, 2);
 
 
 

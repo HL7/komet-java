@@ -32,14 +32,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * DefaultMultiParentGraphItemDisplayPolicies
+ * DefaultNavigatorDisplayPolicies
  *
  * @author kec
  * @author <a href="mailto:joel.kniaz@gmail.com">Joel Kniaz</a>
  *
  */
-public class DefaultMultiParentGraphItemDisplayPolicies implements MultiParentGraphItemDisplayPolicies {
-    private static final Logger LOG = LoggerFactory.getLogger(DefaultMultiParentGraphItemDisplayPolicies.class);
+public class DefaultNavigatorDisplayPolicies implements NavigatorDisplayPolicies {
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultNavigatorDisplayPolicies.class);
 
 
     @Override

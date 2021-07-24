@@ -1114,40 +1114,40 @@ public interface KometPreferences {
         return list;
     }
 
-    default List<ConceptProxy> getConceptList(Enum key) {
+    default List<EntityProxy.Concept> getConceptList(Enum key) {
         return getConceptList(enumToGeneralKey(key));
     }
 
-    default List<ConceptProxy> getConceptList(String key) {
+    default List<EntityProxy.Concept> getConceptList(String key) {
         List<String> list = getList(key);
-        List<ConceptProxy> proxyList = new ArrayList<>(list.size());
+        List<EntityProxy.Concept> proxyList = new ArrayList<>(list.size());
         for (String proxyString: list) {
-            ProxyFactory.fromXmlFragmentOptional(proxyString).ifPresent(entityFacade -> proxyList.add((ConceptProxy) entityFacade));
+            ProxyFactory.fromXmlFragmentOptional(proxyString).ifPresent(entityFacade -> proxyList.add((EntityProxy.Concept) entityFacade));
         }
         return proxyList;
     }
 
-    default Optional<List<ConceptProxy>> getOptionalConceptList(String key) {
+    default Optional<List<EntityProxy.Concept>> getOptionalConceptList(String key) {
         Optional<List<String>> optionalList = getOptionalList(key);
         if (optionalList.isPresent()) {
             List<String> list = optionalList.get();
-            List<ConceptProxy> proxyList = new ArrayList<>(list.size());
+            List<EntityProxy.Concept> proxyList = new ArrayList<>(list.size());
             for (String proxyString: list) {
-                ProxyFactory.fromXmlFragmentOptional(proxyString).ifPresent(entityFacade -> proxyList.add((ConceptProxy) entityFacade));
+                ProxyFactory.fromXmlFragmentOptional(proxyString).ifPresent(entityFacade -> proxyList.add((EntityProxy.Concept) entityFacade));
             }
             return Optional.of(proxyList);
         }
         return Optional.empty();
     }
-    default List<ConceptProxy> getConceptList(Enum key, ConceptProxy[] defaultList) {
+    default List<EntityProxy.Concept> getConceptList(Enum key, EntityProxy.Concept[] defaultList) {
         return getConceptList(key, Arrays.asList(defaultList));
     }
 
-    default List<ConceptProxy> getConceptList(Enum key, List<? extends ConceptProxy> defaultList) {
-        Optional<List<ConceptProxy>> optionalList = getOptionalConceptList(enumToGeneralKey(key));
+    default List<EntityProxy.Concept> getConceptList(Enum key, List<? extends EntityProxy.Concept> defaultList) {
+        Optional<List<EntityProxy.Concept>> optionalList = getOptionalConceptList(enumToGeneralKey(key));
         if (optionalList.isEmpty()) {
-            List<ConceptProxy> proxyList = new ArrayList<>(defaultList.size());
-            for (ConceptProxy conceptProxy: defaultList) {
+            List<EntityProxy.Concept> proxyList = new ArrayList<>(defaultList.size());
+            for (EntityProxy.Concept conceptProxy: defaultList) {
                 proxyList.add(conceptProxy);
             }
             return proxyList;
@@ -1227,11 +1227,11 @@ public interface KometPreferences {
         return defaultPassword;
     }
 
-    default Optional<ConceptProxy> getConceptProxy(Enum key) {
+    default Optional<EntityProxy.Concept> getConceptProxy(Enum key) {
         return getConceptProxy(enumToGeneralKey(key));
     }
 
-    default Optional<ConceptProxy> getConceptProxy(String key) {
+    default Optional<EntityProxy.Concept> getConceptProxy(String key) {
         Optional<String> spec = get(key);
 
         if (spec.isPresent()) {
@@ -1240,11 +1240,11 @@ public interface KometPreferences {
         return Optional.empty();
     }
 
-    default ConceptProxy getConceptProxy(Enum key, ConceptProxy defaultValue) {
+    default EntityProxy.Concept getConceptProxy(Enum key, EntityProxy.Concept defaultValue) {
         return getConceptProxy(enumToGeneralKey(key), defaultValue);
     }
 
-    default ConceptProxy getConceptProxy(String key, ConceptProxy defaultValue) {
+    default EntityProxy.Concept getConceptProxy(String key, EntityProxy.Concept defaultValue) {
         Optional<String> spec = get(key);
         if (spec.isPresent()) {
             return ProxyFactory.fromXmlFragment(spec.get());
@@ -1252,11 +1252,11 @@ public interface KometPreferences {
         return defaultValue;
     }
 
-    default void putConceptProxy(String key, ConceptProxy conceptProxy) {
+    default void putConceptProxy(String key, EntityProxy.Concept conceptProxy) {
         put(key, conceptProxy.toXmlFragment());
     }
 
-    default void putConceptProxy(Enum key, ConceptProxy conceptProxy) {
+    default void putConceptProxy(Enum key, EntityProxy.Concept conceptProxy) {
         put(enumToGeneralKey(key), conceptProxy.toXmlFragment());
     }
 

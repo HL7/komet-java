@@ -25,7 +25,7 @@ import org.hl7.tinkar.coordinate.view.calculator.ViewCalculator;
  * @author <a href="mailto:joel.kniaz@gmail.com">Joel Kniaz</a>
  *
  */
-public interface MultiParentGraphItemDisplayPolicies {
+public interface NavigatorDisplayPolicies {
 	/**
 	 * @param item the {@link MultiParentVertex} to be evaluated
 	 * @param viewCalculator

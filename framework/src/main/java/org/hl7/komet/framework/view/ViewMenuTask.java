@@ -19,7 +19,6 @@ import org.hl7.tinkar.common.id.IntIdSet;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
 import org.hl7.komet.framework.temp.FxGet;
 import org.hl7.komet.framework.uncertain.ObservableEditCoordinate;
-import org.hl7.tinkar.common.id.IntIdList;
 import org.hl7.tinkar.common.service.Executor;
 import org.hl7.tinkar.common.service.TrackingCallable;
 import org.hl7.tinkar.common.util.text.NaturalOrder;
@@ -390,7 +389,7 @@ public class ViewMenuTask extends TrackingCallable<List<MenuItem>> {
             item.setSelected(observableCoordinate.getAuthorNidForChanges() == author);
             changeAuthorMenu.getItems().add(item);
             item.setOnAction(event -> {
-                observableCoordinate.authorForChangesProperty().setValue(ConceptProxy.make(author));
+                observableCoordinate.authorForChangesProperty().setValue(EntityProxy.Concept.make(author));
                 event.consume();
             });
         }
@@ -433,7 +432,7 @@ public class ViewMenuTask extends TrackingCallable<List<MenuItem>> {
             item.setSelected(observableCoordinate.getPromotionPathNid() == path.pathConceptNid());
             changePromotionPathMenu.getItems().add(item);
             item.setOnAction(event -> {
-                Platform.runLater(() -> observableCoordinate.promotionPathProperty().setValue(ConceptProxy.make(path.pathConceptNid())));
+                Platform.runLater(() -> observableCoordinate.promotionPathProperty().setValue(EntityProxy.Concept.make(path.pathConceptNid())));
                 event.consume();
             });
         }

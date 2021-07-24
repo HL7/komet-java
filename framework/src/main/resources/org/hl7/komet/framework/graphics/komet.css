@@ -722,6 +722,11 @@ modena.css is the default css.
     -fx-icon-color: white;
 }
 
+.top-panel {
+    -fx-background-color: green;
+    -fx-border-color: pink;
+
+}
 .concept-label {
     -fx-background-color: -komet-blue-color;
     -fx-text-fill: white;

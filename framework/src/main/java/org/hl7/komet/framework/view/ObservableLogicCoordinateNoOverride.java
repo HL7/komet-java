@@ -6,8 +6,8 @@ import org.hl7.komet.terms.KometTerm;
 import org.hl7.tinkar.coordinate.logic.LogicCoordinate;
 import org.hl7.tinkar.coordinate.logic.LogicCoordinateRecord;
 import org.hl7.tinkar.terms.ConceptFacade;
+import org.hl7.tinkar.terms.EntityProxy;
 import org.hl7.tinkar.terms.PatternFacade;
-import org.hl7.tinkar.terms.PatternProxy;
 
 public class ObservableLogicCoordinateNoOverride extends ObservableLogicCoordinateBase  {
 
@@ -35,7 +35,7 @@ public class ObservableLogicCoordinateNoOverride extends ObservableLogicCoordina
     protected ObjectProperty<PatternFacade> makeConceptMemberPattern(LogicCoordinate logicCoordinate) {
         return new SimpleEqualityBasedObjectProperty(this,
                 KometTerm.CONCEPT_ASSEMBLAGE_FOR_LOGIC_COORDINATE.toXmlFragment(),
-                PatternProxy.make(logicCoordinate.conceptMemberPatternNid()));
+                EntityProxy.Pattern.make(logicCoordinate.conceptMemberPatternNid()));
     }
 
     @Override

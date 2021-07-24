@@ -16,6 +16,7 @@ import org.hl7.komet.framework.dnd.KometClipboard;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
 import org.hl7.tinkar.terms.EntityFacade;
+import org.hl7.tinkar.terms.ProxyFactory;
 
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -67,6 +68,7 @@ public class EntityLabelWithDragAndDrop
                                       Runnable unlink,
                                       AddToContextMenu[] contextMenuProviders) {
         super(EMPTY_TEXT);
+        setWrapText(true);
         if (descriptionTextUpdater == null) {
             this.descriptionTextUpdater = this;
         } else {
@@ -95,6 +97,7 @@ public class EntityLabelWithDragAndDrop
 
 
         this.setMinWidth(100);
+        this.setMaxWidth(Double.MAX_VALUE);
 
         ContextMenu contextMenu = new ContextMenu();
 
@@ -124,11 +127,11 @@ public class EntityLabelWithDragAndDrop
     void droppedValue(Dragboard dragboard) {
         this.unlink.run();
         if (dragboard.hasContent(KometClipboard.KOMET_CONCEPT_PROXY)) {
-            setValue((EntityFacade) dragboard.getContent(KometClipboard.KOMET_CONCEPT_PROXY));
+            setValue(ProxyFactory.fromXmlFragment((String) dragboard.getContent(KometClipboard.KOMET_CONCEPT_PROXY)));
         } else if (dragboard.hasContent(KometClipboard.KOMET_SEMANTIC_PROXY)) {
-            setValue((EntityFacade) dragboard.getContent(KometClipboard.KOMET_SEMANTIC_PROXY));
+            setValue(ProxyFactory.fromXmlFragment((String) dragboard.getContent(KometClipboard.KOMET_SEMANTIC_PROXY)));
         } else if (dragboard.hasContent(KometClipboard.KOMET_PATTERN_PROXY)) {
-            setValue((EntityFacade) dragboard.getContent(KometClipboard.KOMET_PATTERN_PROXY));
+            setValue(ProxyFactory.fromXmlFragment((String) dragboard.getContent(KometClipboard.KOMET_PATTERN_PROXY)));
         } else {
             setValue(null);
         }

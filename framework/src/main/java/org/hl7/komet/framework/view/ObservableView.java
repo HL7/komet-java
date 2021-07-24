@@ -53,7 +53,7 @@ import org.hl7.tinkar.coordinate.view.ViewCoordinateDelegate;
 import org.hl7.tinkar.coordinate.view.ViewCoordinateRecord;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculator;
 import org.hl7.tinkar.terms.ConceptFacade;
-import org.hl7.tinkar.terms.ConceptProxy;
+import org.hl7.tinkar.terms.EntityProxy;
 
 import java.util.ArrayList;
 
@@ -98,7 +98,7 @@ public interface ObservableView
     * Will change all contained paths (vertex, edge, and language), to the provided path.
     */
    default void setViewPath(int pathConceptNid) {
-      setViewPath(ConceptProxy.make(pathConceptNid));
+      setViewPath(EntityProxy.Concept.make(pathConceptNid));
    }
 
    void setViewPath(ConceptFacade pathConcept);

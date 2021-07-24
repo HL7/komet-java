@@ -60,11 +60,11 @@ import org.hl7.tinkar.coordinate.stamp.StampPathImmutable;
 import org.hl7.tinkar.coordinate.view.ViewCoordinate;
 import org.hl7.tinkar.coordinate.view.ViewCoordinateRecord;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculator;
+import org.hl7.tinkar.entity.ConceptEntity;
 import org.hl7.tinkar.entity.Entity;
-import org.hl7.tinkar.terms.ConceptFacade;
-import org.hl7.tinkar.terms.EntityFacade;
-import org.hl7.tinkar.terms.EntityProxy;
-import org.hl7.tinkar.terms.TinkarTerm;
+import org.hl7.tinkar.entity.VersionProxy;
+import org.hl7.tinkar.entity.VersionProxyFactory;
+import org.hl7.tinkar.terms.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,7 +100,7 @@ public class MultiParentGraphViewController implements RefreshListener {
 
 
     //~--- fields --------------------------------------------------------------
-    private MultiParentGraphItemDisplayPolicies displayPolicies;
+    private NavigatorDisplayPolicies displayPolicies;
     private OptionalInt selectedItemNidOptional = OptionalInt.empty();
     private final MutableIntList expandedNids = IntLists.mutable.empty();
     private final ObservableList<AlertObject> alertList = FXCollections.observableArrayList();
@@ -228,7 +228,7 @@ public class MultiParentGraphViewController implements RefreshListener {
 
         this.treeView.getSelectionModel().getSelectedItems().addListener(this::onSelectionChanged);
 
-        this.displayPolicies = new DefaultMultiParentGraphItemDisplayPolicies();
+        this.displayPolicies = new DefaultNavigatorDisplayPolicies();
 
         this.topPaneAnimator.observe(topGridPane);
         this.topBorderPane.setTop(topGridPane);
@@ -267,22 +267,29 @@ public class MultiParentGraphViewController implements RefreshListener {
     private void dragDropped(DragEvent event) {
         Dragboard db = event.getDragboard();
         boolean success = false;
-        if (db.hasContent(KometClipboard.KOMET_CONCEPT_DTO)) {
-            ConceptChronology conceptChronology = (ConceptChronology) db.getContent(KometClipboard.KOMET_CONCEPT_DTO);
-            showConcept(PrimitiveData.nid(conceptChronology.publicId()));
+        if (db.hasContent(KometClipboard.KOMET_CONCEPT_PROXY)) {
+            EntityProxy.Concept conceptProxy = ProxyFactory.fromXmlFragment((String) db.getContent(KometClipboard.KOMET_CONCEPT_PROXY));
+            showConcept(conceptProxy.nid());
             success = true;
-        } else if (db.hasContent(KometClipboard.KOMET_CONCEPT_VERSION_DTO)) {
-            ConceptVersion conceptVersion = (ConceptVersion) db.getContent(KometClipboard.KOMET_CONCEPT_VERSION_DTO);
-            showConcept(PrimitiveData.nid(conceptVersion.publicId()));
-            success = true;
-        } else if (db.hasContent(KometClipboard.KOMET_SEMANTIC_DTO)) {
-            SemanticChronology semanticChronology = (SemanticChronology) db.getContent(KometClipboard.KOMET_SEMANTIC_DTO);
-            showConcept(PrimitiveData.nid(semanticChronology.referencedComponent().publicId()));
-            success = true;
-        } else if (db.hasContent(KometClipboard.KOMET_SEMANTIC_VERSION_DTO)) {
-            SemanticVersion semanticVersion = (SemanticVersion) db.getContent(KometClipboard.KOMET_SEMANTIC_VERSION_DTO);
-            showConcept(PrimitiveData.nid(semanticVersion.publicId()));
-            success = true;
+        } else if (db.hasContent(KometClipboard.KOMET_SEMANTIC_PROXY)) {
+           EntityProxy.Semantic semanticProxy = ProxyFactory.fromXmlFragment((String) db.getContent(KometClipboard.KOMET_SEMANTIC_PROXY));
+           Optional<ConceptEntity> optionalConcept = Entity.getConceptForSemantic(semanticProxy);
+           optionalConcept.ifPresent(conceptEntity -> showConcept(conceptEntity.nid()));
+           success = optionalConcept.isPresent();
+        } else if (db.hasContent(KometClipboard.KOMET_PATTERN_PROXY)) {
+            EntityProxy.Pattern patternProxy = ProxyFactory.fromXmlFragment((String) db.getContent(KometClipboard.KOMET_PATTERN_PROXY));
+            // don't know what to do with pattern and navigation...
+        } else if (db.hasContent(KometClipboard.KOMET_CONCEPT_VERSION_PROXY)) {
+            VersionProxy.Concept conceptProxy = VersionProxyFactory.fromXmlFragment((String) db.getContent(KometClipboard.KOMET_CONCEPT_VERSION_PROXY));
+            showConcept(conceptProxy.nid());
+        } else if (db.hasContent(KometClipboard.KOMET_SEMANTIC_VERSION_PROXY)) {
+            VersionProxy.Semantic semanticProxy = VersionProxyFactory.fromXmlFragment((String) db.getContent(KometClipboard.KOMET_SEMANTIC_VERSION_PROXY));
+            Optional<ConceptEntity> optionalConcept = Entity.getConceptForSemantic(semanticProxy);
+            optionalConcept.ifPresent(conceptEntity -> showConcept(conceptEntity.nid()));
+            success = optionalConcept.isPresent();
+        } else if (db.hasContent(KometClipboard.KOMET_PATTERN_VERSION_PROXY)) {
+            VersionProxy.Pattern patternProxy = VersionProxyFactory.fromXmlFragment((String) db.getContent(KometClipboard.KOMET_PATTERN_VERSION_PROXY));
+            // don't know what to do with pattern and navigation...
         }
         /* let the source know if the dropped item was successfully
          * transferred and used */
@@ -684,12 +691,12 @@ public class MultiParentGraphViewController implements RefreshListener {
     }
 
     //~--- get methods ---------------------------------------------------------
-    public MultiParentGraphItemDisplayPolicies getDisplayPolicies() {
+    public NavigatorDisplayPolicies getDisplayPolicies() {
         return displayPolicies;
     }
 
     //~--- set methods ---------------------------------------------------------
-    public void setDisplayPolicies(MultiParentGraphItemDisplayPolicies policies) {
+    public void setDisplayPolicies(NavigatorDisplayPolicies policies) {
         this.displayPolicies = policies;
     }
 

@@ -47,13 +47,13 @@ public class ObservableNavigationCoordinateNoOverride extends ObservableNavigati
     protected ListProperty<PatternFacade> makeVerticesSortPatternListProperty(NavigationCoordinate navigationCoordinate) {
         return new SimpleEqualityBasedListProperty<>(this, "Vertex Sort Patterns",
                 FXCollections.observableArrayList(
-                        navigationCoordinate.verticesSortPatternNidList().mapToList(PatternProxy::make)));
+                        navigationCoordinate.verticesSortPatternNidList().mapToList(EntityProxy.Pattern::make)));
     }
 
     @Override
     protected NavigationCoordinateRecord baseCoordinateChangedListenersRemoved(ObservableValue<? extends NavigationCoordinateRecord> observable, NavigationCoordinateRecord oldValue, NavigationCoordinateRecord newValue) {
         this.navigationPatternsProperty().setAll(newValue.navigationPatternNids()
-                .map(nid -> (PatternFacade) PatternProxy.make(nid)).toSet());
+                .map(nid -> (PatternFacade) EntityProxy.Pattern.make(nid)).toSet());
         this.vertexStatesProperty().set(newValue.vertexStates());
         return newValue;
     }

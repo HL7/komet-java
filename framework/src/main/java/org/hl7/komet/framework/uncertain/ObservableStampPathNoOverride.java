@@ -55,7 +55,7 @@ import org.hl7.tinkar.coordinate.stamp.StampPath;
 import org.hl7.tinkar.coordinate.stamp.StampPathImmutable;
 import org.hl7.tinkar.coordinate.stamp.StampPositionRecord;
 import org.hl7.tinkar.terms.ConceptFacade;
-import org.hl7.tinkar.terms.ConceptProxy;
+import org.hl7.tinkar.terms.EntityProxy;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -127,7 +127,7 @@ public class ObservableStampPathNoOverride
 
     @Override
     protected final StampPathImmutable baseCoordinateChangedListenersRemoved(ObservableValue<? extends StampPathImmutable> observable, StampPathImmutable oldValue, StampPathImmutable newValue) {
-        this.pathConceptProperty().setValue(ConceptProxy.make(newValue.pathConceptNid()));
+        this.pathConceptProperty().setValue(EntityProxy.Concept.make(newValue.pathConceptNid()));
         this.pathOriginsProperty().setValue(FXCollections.observableSet(newValue.getPathOrigins().toSet()));
         this.pathOriginsAsListProperty().setValue(FXCollections.observableList(newValue.getPathOrigins().toList()));
         return newValue;

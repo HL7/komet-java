@@ -10,7 +10,7 @@ import org.hl7.tinkar.coordinate.stamp.StampCoordinate;
 import org.hl7.tinkar.coordinate.stamp.StampPositionRecord;
 import org.hl7.tinkar.coordinate.stamp.StateSet;
 import org.hl7.tinkar.terms.ConceptFacade;
-import org.hl7.tinkar.terms.ConceptProxy;
+import org.hl7.tinkar.terms.EntityProxy;
 
 public class ObservableStampCoordinateWithOverride extends ObservableStampCoordinateBase {
 
@@ -153,7 +153,7 @@ public class ObservableStampCoordinateWithOverride extends ObservableStampCoordi
         }
 
         if (!this.modulePriorityOrderProperty().isOverridden()) {
-            this.modulePriorityOrderProperty().setAll(newValue.modulePriorityNidList().map(nid -> ConceptProxy.make(nid)).castToList());
+            this.modulePriorityOrderProperty().setAll(newValue.modulePriorityNidList().map(nid -> EntityProxy.Concept.make(nid)).castToList());
         }
 
         if (!this.allowedStatesProperty().isOverridden()) {
@@ -163,13 +163,13 @@ public class ObservableStampCoordinateWithOverride extends ObservableStampCoordi
         }
 
         if (!this.excludedModuleSpecificationsProperty().isOverridden()) {
-            ImmutableSet<ConceptFacade> excludedModuleSet = newValue.moduleNids().map(nid -> ConceptProxy.make(nid));
+            ImmutableSet<ConceptFacade> excludedModuleSet = newValue.moduleNids().map(nid -> EntityProxy.Concept.make(nid));
             if (!excludedModuleSet.equals(this.excludedModuleSpecificationsProperty().get())) {
                 this.excludedModuleSpecificationsProperty().setAll(excludedModuleSet.castToSet());
             }
         }
         if (!this.moduleSpecificationsProperty().isOverridden()) {
-            ImmutableSet<ConceptFacade> moduleSet = newValue.moduleNids().map(nid -> ConceptProxy.make(nid));
+            ImmutableSet<ConceptFacade> moduleSet = newValue.moduleNids().map(nid -> EntityProxy.Concept.make(nid));
             if (!moduleSet.equals(this.moduleSpecificationsProperty().get())) {
                 this.moduleSpecificationsProperty().setAll(moduleSet.castToSet());
             }

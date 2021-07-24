@@ -6,8 +6,8 @@ import org.hl7.tinkar.common.id.IntIds;
 import org.hl7.tinkar.coordinate.navigation.NavigationCoordinate;
 import org.hl7.tinkar.coordinate.navigation.NavigationCoordinateRecord;
 import org.hl7.tinkar.coordinate.stamp.StateSet;
+import org.hl7.tinkar.terms.EntityProxy;
 import org.hl7.tinkar.terms.PatternFacade;
-import org.hl7.tinkar.terms.PatternProxy;
 
 public class ObservableNavigationCoordinateWithOverride extends ObservableNavigationCoordinateBase {
 
@@ -99,10 +99,10 @@ public class ObservableNavigationCoordinateWithOverride extends ObservableNaviga
             NavigationCoordinateRecord oldValue,
             NavigationCoordinateRecord newValue) {
         this.navigationPatternsProperty().setAll(newValue.navigationPatternNids()
-                .map(nid -> (PatternFacade) PatternProxy.make(nid)).toSet());
+                .map(nid -> (PatternFacade) EntityProxy.Pattern.make(nid)).toSet());
         this.vertexStatesProperty().set(newValue.vertexStates());
         this.sortVerticesProperty().set(newValue.sortVertices());
-        this.verticesSortPatternListProperty().setAll(newValue.verticesSortPatternNidList().map(nid -> PatternProxy.make(nid)).castToList());
+        this.verticesSortPatternListProperty().setAll(newValue.verticesSortPatternNidList().map(nid -> EntityProxy.Pattern.make(nid)).castToList());
         return newValue;
     }
 }

@@ -8,7 +8,7 @@ import org.hl7.tinkar.coordinate.stamp.StampCoordinateRecord;
 import org.hl7.tinkar.coordinate.stamp.StampCoordinate;
 import org.hl7.tinkar.coordinate.stamp.StateSet;
 import org.hl7.tinkar.terms.ConceptFacade;
-import org.hl7.tinkar.terms.ConceptProxy;
+import org.hl7.tinkar.terms.EntityProxy;
 
 import java.util.Set;
 
@@ -27,19 +27,19 @@ public class ObservableStampCoordinateNoOverride extends ObservableStampCoordina
     protected StampCoordinateRecord baseCoordinateChangedListenersRemoved(ObservableValue<? extends StampCoordinateRecord> observable, StampCoordinateRecord oldValue, StampCoordinateRecord newValue) {
         this.pathConceptProperty().setValue(newValue.pathForFilter());
         this.timeProperty().set(newValue.stampPosition().time());
-        this.modulePriorityOrderProperty().setAll(newValue.modulePriorityNidList().map(nid -> ConceptProxy.make(nid)).castToList());
+        this.modulePriorityOrderProperty().setAll(newValue.modulePriorityNidList().map(nid -> EntityProxy.Concept.make(nid)).castToList());
 
         if (newValue.allowedStates() != this.allowedStatesProperty().get()) {
             this.allowedStatesProperty().setValue(newValue.allowedStates());
         }
 
-        Set<? extends ConceptFacade> excludedModuleSet = newValue.excludedModuleNids().map(nid -> ConceptProxy.make(nid)).castToSet();
+        Set<? extends ConceptFacade> excludedModuleSet = newValue.excludedModuleNids().map(nid -> EntityProxy.Concept.make(nid)).castToSet();
         if (!excludedModuleSet.equals(this.excludedModuleSpecificationsProperty().get())) {
             this.excludedModuleSpecificationsProperty().retainAll(excludedModuleSet);
             this.excludedModuleSpecificationsProperty().addAll(excludedModuleSet);
         }
 
-        Set<? extends ConceptFacade> moduleSet = newValue.moduleNids().map(nid -> ConceptProxy.make(nid)).castToSet();
+        Set<? extends ConceptFacade> moduleSet = newValue.moduleNids().map(nid -> EntityProxy.Concept.make(nid)).castToSet();
         if (!moduleSet.equals(this.moduleSpecificationsProperty().get())) {
             this.moduleSpecificationsProperty().retainAll(moduleSet);
             this.moduleSpecificationsProperty().addAll(moduleSet);
@@ -56,7 +56,7 @@ public class ObservableStampCoordinateNoOverride extends ObservableStampCoordina
     protected ListProperty<ConceptFacade> makeModulePriorityOrderProperty(StampCoordinate stampCoordinate) {
         return new SimpleEqualityBasedListProperty<>(this,
                 KometTerm.MODULE_PREFERENCE_ORDER_FOR_STAMP_COORDINATE.toXmlFragment(),
-                FXCollections.observableArrayList(stampCoordinate.modulePriorityNidList().mapToList(ConceptProxy::make)));
+                FXCollections.observableArrayList(stampCoordinate.modulePriorityNidList().mapToList(EntityProxy.Concept::make)));
     }
 
     @Override
