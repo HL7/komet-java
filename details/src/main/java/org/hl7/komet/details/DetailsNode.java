@@ -9,6 +9,7 @@ import org.eclipse.collections.api.list.ImmutableList;
 import org.hl7.komet.framework.ExplorationNodeAbstract;
 import org.hl7.komet.framework.KometNode;
 import org.hl7.komet.framework.TopPanelFactory;
+import org.hl7.komet.framework.panel.ComponentPanel;
 import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculatorWithCache;
@@ -31,12 +32,14 @@ public class DetailsNode extends ExplorationNodeAbstract {
     }
 
     private final BorderPane detailsPane = new BorderPane();
+    private final ComponentPanel componentPanel;
 
     public DetailsNode(ViewProperties viewProperties, KometPreferences nodePreferences) {
         super(viewProperties, nodePreferences);
+        this.componentPanel = new ComponentPanel(entityFocusProperty);
 
         Platform.runLater(() -> {
-            this.detailsPane.setCenter(new Label(titleProperty.getValue()));
+            this.detailsPane.setCenter(this.componentPanel.getDetailPane());
              Node topPanel = TopPanelFactory.make(viewProperties, entityFocusProperty,
                      activityStreamKeyProperty, optionForActivityStreamKeyProperty);
             this.detailsPane.setTop(topPanel);

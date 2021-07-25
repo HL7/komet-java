@@ -44,5 +44,6 @@ module org.hl7.komet.framework {
     opens org.hl7.komet.framework.graphics;
     exports org.hl7.komet.framework.temp;
     exports org.hl7.komet.framework.context;
+    exports org.hl7.komet.framework.panel;
 
 }

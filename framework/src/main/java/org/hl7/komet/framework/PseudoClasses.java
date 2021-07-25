@@ -18,10 +18,11 @@ public class PseudoClasses {
     public static final PseudoClass UNCOMMITTED_PSEUDO_CLASS = PseudoClass.getPseudoClass("uncommitted");
     public static final PseudoClass UNCOMMITTED_WITH_ERROR_PSEUDO_CLASS = PseudoClass.getPseudoClass("uncommitted-with-error");
 
-    public static final PseudoClass LOGICAL_DEFINITION_PSEUDO_CLASS = PseudoClass.getPseudoClass("logical-definition-version");
-    public static final PseudoClass DESCRIPTION_PSEUDO_CLASS = PseudoClass.getPseudoClass("description-version");
-    public static final PseudoClass CONCEPT_PSEUDO_CLASS = PseudoClass.getPseudoClass("concept-version");
-    public static final PseudoClass OTHER_VERSION_PSEUDO_CLASS = PseudoClass.getPseudoClass("other-version");
+    public static final PseudoClass LOGICAL_DEFINITION_PSEUDO_CLASS = PseudoClass.getPseudoClass("logical-definition");
+    public static final PseudoClass DESCRIPTION_PSEUDO_CLASS = PseudoClass.getPseudoClass("description");
+    public static final PseudoClass CONCEPT_PSEUDO_CLASS = PseudoClass.getPseudoClass("concept");
+    public static final PseudoClass SEMANTIC_PSEUDO_CLASS = PseudoClass.getPseudoClass("semantic");
+    public static final PseudoClass PATTERN_PSEUDO_CLASS = PseudoClass.getPseudoClass("pattern");
 
     public static final PseudoClass ALERT_INFO_PSEUDO_CLASS = PseudoClass.getPseudoClass("alert-info");
     public static final PseudoClass ALERT_CONFIRM_PSEUDO_CLASS = PseudoClass.getPseudoClass("alert-confirm");

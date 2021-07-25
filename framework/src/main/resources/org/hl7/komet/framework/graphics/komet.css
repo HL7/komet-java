@@ -790,5 +790,77 @@ modena.css is the default css.
 .concept-label-toolbar .menu-button .menu-item:focused {
     -fx-background-color: -komet-blue-color;
 }
+.component-panel:inactive .text-area,
+.component-panel:inactive .viewport,
+.component-panel:inactive .scroll-pane,
+.component-panel:inactive .text-area .content {
+    /*-fx-border-color: white;*/
+    /*-fx-border-width: 1 0 1 0; */
+    -fx-background-color: transparent;
+    -fx-highlight-text-fill: white;
+    -fx-text-fill: black;
+    -fx-border-color: transparent;
+}
+.component-panel:inactive  {
+    /*-fx-border-color: white;*/
+    /*-fx-border-width: 1 0 1 0; */
+    -fx-border-width: 1 0 1 0;
+    -fx-background-color: -komet-inactive-background;
+}
+
+.version-panel:inactive .text-area,
+.version-panel:inactive .viewport,
+.version-panel:inactive .scroll-pane,
+.version-panel:inactive .text-area .content
+{
+    /*-fx-border-color: white;*/
+    /*-fx-border-width: 1 0 1 0; */
+    -fx-background-color: transparent;
+    -fx-highlight-text-fill: white;
+    -fx-text-fill: black;
+    -fx-border-color: transparent;
+}
+
+.component-panel:inactive .component-text,
+.component-panel:inactive .component-text .text-area {
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+}
+.version-panel:inactive .component-text,
+.version-panel:inactive .component-text .text-area {
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+}
+
+.component-panel {
+    -fx-border-color: -komet-box-border -komet-box-border -komet-box-border transparent ;
+    -fx-text-fill: black;
+    -fx-border-width: 1 0 1 5;
+    -fx-border-insets: 0 0 0 0;
+}
+
+.component-panel:concept {
+    -fx-border-color: -komet-box-border -komet-box-border -komet-box-border -komet-concept-color ;
+    -fx-text-fill: -komet-concept-color;
+}
+.component-panel:description {
+    -fx-border-color: -komet-box-border -komet-box-border -komet-box-border -komet-description-color ;
+    -fx-text-fill: -komet-description-color;
+}
+.component-panel:logical-definition {
+    -fx-border-color: -komet-box-border -komet-box-border -komet-box-border -komet-definition-color ;
+    -fx-text-fill: -komet-definition-color;
+}
+.component-panel:semantic {
+    -fx-border-color: -komet-box-border -komet-box-border -komet-box-border purple ;
+    -fx-text-fill: purple;
+}
+.component-panel:pattern {
+    -fx-border-color: -komet-box-border -komet-box-border -komet-box-border royalblue ;
+    -fx-text-fill: royalblue;
+}
 
 
+.component-panel:inactive {
+    -fx-text-fill: -komet-inactive-color;
+}
