@@ -256,7 +256,7 @@ public class MultiParentGraphViewController implements RefreshListener {
                 selectionArray[i++] = treeItem.getValue();
             }
             activityStream.dispatch(selectionArray);
-            LOG.atInfo().log("Selected: " + c.getList());
+            LOG.atTrace().log("Selected: " + c.getList());
         }
     }
 
@@ -469,7 +469,7 @@ public class MultiParentGraphViewController implements RefreshListener {
         boolean foundRoot = false;
         for (TreeItem<ConceptFacade> rootConcept: rootTreeItem.getChildren()) {
             MultiParentVertexImpl viewRoot = (MultiParentVertexImpl) rootConcept;
-            if (viewRoot.getConceptPublicId().equals(expansionPath.get(0))) {
+            if (viewRoot.getConceptNid() == expansionPath.get(0)) {
                 foundRoot = true;
                 viewRoot.addChildrenNow();
                 viewRoot.setExpanded(true);

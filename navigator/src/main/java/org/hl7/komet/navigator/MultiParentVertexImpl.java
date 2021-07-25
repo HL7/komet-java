@@ -39,8 +39,6 @@ package org.hl7.komet.navigator;
 //~--- JDK imports ------------------------------------------------------------
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
 import javafx.application.Platform;
@@ -60,6 +58,8 @@ import org.hl7.tinkar.entity.ConceptEntity;
 import org.hl7.tinkar.entity.Entity;
 import org.hl7.tinkar.terms.ConceptFacade;
 import org.hl7.tinkar.terms.TinkarTerm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -84,7 +84,7 @@ public class MultiParentVertexImpl
     /**
      * The Constant LOG.
      */
-    private static Logger LOG = Logger.getLogger(MultiParentVertexImpl.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(MultiParentVertexImpl.class);
 
     //~--- fields --------------------------------------------------------------
     private final List<MultiParentVertexImpl> extraParents = new ArrayList<>();
@@ -213,7 +213,7 @@ public class MultiParentVertexImpl
 
             return "root";
         } catch (RuntimeException | Error re) {
-            LOG.log(Level.SEVERE, re.getLocalizedMessage(), re);
+            LOG.error(re.getLocalizedMessage(), re);
             throw re;
         }
     }
@@ -233,9 +233,9 @@ public class MultiParentVertexImpl
 
                 if (!shouldDisplay()) {
                     // Don't add children to something that shouldn't be displayed
-                    LOG.fine("this.shouldDisplay() == false: not adding children to " + this.getConceptPublicId());
+                    LOG.atTrace().log("this.shouldDisplay() == false: not adding children to " + this.getConceptPublicId());
                 } else if (conceptFacade == null) {
-                    LOG.fine("addChildren(): conceptEntity=" + conceptFacade);
+                    LOG.atTrace().log("addChildren(): conceptEntity=" + conceptFacade);
                 } else {  // if (conceptEntity != null)
                     // Gather the children
                     LOG.info("addChildrenNOW(): conceptEntity=" + conceptFacade);
@@ -258,7 +258,7 @@ public class MultiParentVertexImpl
                         if (childItem.shouldDisplay()) {
                             childrenToAdd.add(childItem);
                         } else {
-                            LOG.fine(
+                            LOG.atTrace().log(
                                     "item.shouldDisplay() == false: not adding " + childItem.getConceptPublicId() + " as child of "
                                     + this.getConceptPublicId());
                         }
@@ -272,7 +272,7 @@ public class MultiParentVertexImpl
                     getChildren().addAll(childrenToAdd);
                 }
             } catch (Exception e) {
-                LOG.log(Level.SEVERE,"Unexpected error computing children and/or grandchildren for " + this.conceptDescriptionText, e);
+                LOG.error("Unexpected error computing children and/or grandchildren for " + this.conceptDescriptionText, e);
             } finally {
                 childrenLoadedLatch.countDown();
             }
@@ -280,7 +280,7 @@ public class MultiParentVertexImpl
     }
 
     void addChildren() {
-        LOG.finer("addChildren: ConceptEntity=" + this.getValue());
+        LOG.atTrace().log("addChildren: ConceptEntity=" + this.getValue());
         if (getChildren().isEmpty()) {
             if (shouldDisplay()) {
                 FetchChildren fetchTask = new FetchChildren(childrenLoadedLatch, this);
@@ -307,7 +307,7 @@ public class MultiParentVertexImpl
         try {
             cdl.await();
         } catch (InterruptedException e) {
-            LOG.log(Level.SEVERE, "unexpected interrupt", e);
+            LOG.error("unexpected interrupt", e);
         }
     }
 

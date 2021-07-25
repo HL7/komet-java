@@ -584,6 +584,15 @@ modena.css is the default css.
     -fx-icon-color: white;
 }
 
+#focus .ikonli-font-icon {
+    -fx-icon-code: "far-eye";
+    -fx-icon-size: 20;
+}
+#focus-no .ikonli-font-icon {
+    -fx-icon-code: "far-eye-slash";
+    -fx-icon-size: 20;
+}
+
 #search-activityStream .ikonli-font-icon {
     -fx-icon-code: "mdi2m-magnify";
     -fx-icon-size: 20;
@@ -723,8 +732,8 @@ modena.css is the default css.
 }
 
 .top-panel {
-    -fx-background-color: green;
-    -fx-border-color: pink;
+    -fx-background-color: -komet-blue-color;
+    -fx-border-color: -komet-blue-color;
 
 }
 .concept-label {
@@ -732,19 +741,8 @@ modena.css is the default css.
     -fx-text-fill: white;
     -fx-font-size:18;
     -fx-font-weight: bold;
-    -fx-border-color: red;
-
-}
-
-.concept-label-toolbar  .concept-label {
-    -fx-text-fill: orange;
-}
-
-.concept-label-toolbar .label {
-    /*  -fx-text-fill: #eef1f3; */
-    -fx-text-fill: white;
-    -fx-font-size:18;
-    -fx-font-weight: bold;
+    -fx-border-color: -komet-blue-color;
+    -fx-padding:2;
 }
 
 

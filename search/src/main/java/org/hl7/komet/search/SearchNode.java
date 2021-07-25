@@ -32,6 +32,10 @@ public class SearchNode extends ExplorationNodeAbstract {
                 this.searchPane.setTop(topPanel);
             });
     }
+    @Override
+    protected boolean showActivityStreamIcon() {
+        return false;
+    }
 
     @Override
     public void handleActivity(ImmutableList<EntityFacade> entities) {

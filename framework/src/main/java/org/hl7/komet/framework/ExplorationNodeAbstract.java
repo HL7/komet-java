@@ -49,14 +49,23 @@ public abstract class ExplorationNodeAbstract implements KometNode, Flow.Subscri
             titleNode.getChildren().clear();
             titleNode.getChildren().add(Icon.makeIcon(getStyleId()));
             if (newActivityStreamKey != null) {
-                if (!ActivityStreams.UNLINKED.equals(newActivityStreamKey)) {
-                    ActivityStream activityStream = ActivityStreams.get(newActivityStreamKey);
-                    titleNode.getChildren().add(activityStream.getStreamIcon());
+                if (showActivityStreamIcon()) {
+                    if (!ActivityStreams.UNLINKED.equals(newActivityStreamKey)) {
+                        ActivityStream activityStream = ActivityStreams.get(newActivityStreamKey);
+                        titleNode.getChildren().add(activityStream.getStreamIcon());
+                    }
                 }
             }
         });
     }
 
+    /**
+     * Subclasses can override if it does not want activity stream icon shown in title node.
+     * @return
+     */
+    protected boolean showActivityStreamIcon() {
+        return true;
+    }
 
     public ExplorationNodeAbstract(ViewProperties viewProperties, KometPreferences nodePreferences) {
         this.viewProperties = viewProperties;

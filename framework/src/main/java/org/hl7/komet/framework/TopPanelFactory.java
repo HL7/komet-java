@@ -1,14 +1,16 @@
 package org.hl7.komet.framework;
 
 import javafx.application.Platform;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.ObservableList;
 import javafx.geometry.HPos;
+import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuButton;
-import javafx.scene.control.MenuItem;
+import javafx.scene.Parent;
+import javafx.scene.control.*;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
@@ -39,17 +41,9 @@ public class TopPanelFactory {
         ViewCalculatorWithCache viewCalculator =
                 ViewCalculatorWithCache.getCalculator(viewProperties.nodeView().getValue());
 
+        SimpleBooleanProperty focusOnActivity = new SimpleBooleanProperty(Boolean.FALSE);
         GridPane gridPane = new GridPane();
         gridPane.getStyleClass().add("top-panel");
-//        ColumnConstraints column0 = new ColumnConstraints();
-//        column0.setHgrow(Priority.NEVER);
-//        column0.setHalignment(HPos.LEFT);
-//        gridPane.getColumnConstraints().add(column0);
-
-//        RowConstraints row0 = new RowConstraints();
-//        row0.setVgrow(Priority.NEVER);
-//        row0.setValignment(VPos.CENTER);
-//        gridPane.getRowConstraints().add(row0);
 
         MenuButton viewPropertiesButton = new MenuButton();
         Menu coordinatesMenu = new Menu("Coordinates", Icon.COORDINATES.makeIcon());
@@ -64,22 +58,115 @@ public class TopPanelFactory {
         EntityLabelWithDragAndDrop entityLabel = EntityLabelWithDragAndDrop.make(viewProperties,
                 entityFocusProperty, null, selectionIndexProperty, unlink,
                 contextMenuProviders);
+        Menu activityStreamMenu = new Menu("Activity stream", Icon.ACTIVITY.makeIcon());
 
-        updateGridPane(activityStreamKeyProperty, optionForActivityStreamKeyProperty, gridPane, viewPropertiesButton, entityLabel);
+        updateGridPane(activityStreamKeyProperty, optionForActivityStreamKeyProperty, gridPane, viewPropertiesButton, activityStreamMenu, focusOnActivity, entityLabel);
         activityStreamKeyProperty.addListener((observable, oldValue, newValue) -> {
             Platform.runLater(() -> updateGridPane(activityStreamKeyProperty, optionForActivityStreamKeyProperty, gridPane,
-                    viewPropertiesButton, entityLabel));
+                    viewPropertiesButton, activityStreamMenu, focusOnActivity, entityLabel));
         });
         optionForActivityStreamKeyProperty.addListener((observable, oldValue, newValue) -> {
             Platform.runLater(() -> updateGridPane(activityStreamKeyProperty, optionForActivityStreamKeyProperty, gridPane,
-                    viewPropertiesButton, entityLabel));
+                    viewPropertiesButton, activityStreamMenu, focusOnActivity, entityLabel));
         });
 
         Platform.runLater(TaskWrapper.make(new ViewMenuTask(viewCalculator, viewProperties.nodeView()),
                 (List<MenuItem> result) -> coordinatesMenu.getItems().addAll(result)));
 
-        Menu activityStreamMenu = new Menu("Activity stream", Icon.ACTIVITY.makeIcon());
         viewPropertiesButton.getItems().add(activityStreamMenu);
+        entityFocusProperty.addListener((observable, oldValue, newValue) -> {
+            if (focusOnActivity.get()) {
+                Parent parentNode = gridPane.getParent();
+                Node tabContentRegion = null;
+
+                while (parentNode != null && !(parentNode instanceof TabPane)) {
+                    parentNode = parentNode.getParent();
+                    if (parentNode.getStyleClass().contains("tab-content-area")) {
+                        tabContentRegion = parentNode;
+                    }
+                }
+                if (parentNode != null && parentNode instanceof TabPane tabPane) {
+                    ObservableList<Tab> tabList = tabPane.getTabs();
+
+                    for (Tab t : tabList) {
+                        if (t.getContent().getParent().equals(tabContentRegion)) {
+                            tabPane.getSelectionModel().select(t);
+                            break;
+                        }
+                    }
+                }
+
+
+            }
+        });
+        // show the current activity stream at the top
+        return gridPane;
+    }
+
+    private static void updateGridPane(SimpleObjectProperty<PublicIdStringKey<ActivityStream>> activityStreamKeyProperty,
+                                       SimpleObjectProperty<PublicIdStringKey<ActivityStreamOption>> optionForActivityStreamKeyProperty,
+                                       GridPane gridPane,
+                                       MenuButton viewPropertiesButton,
+                                       Menu activityStreamMenu,
+                                       SimpleBooleanProperty focusOnActivity,
+                                       EntityLabelWithDragAndDrop entityLabel) {
+        gridPane.getChildren().clear();
+        gridPane.add(viewPropertiesButton, 0, 0, 2, 1);
+
+        GridPane.setHgrow(entityLabel, Priority.ALWAYS);
+        GridPane.setVgrow(entityLabel, Priority.ALWAYS);
+        GridPane.setFillHeight(entityLabel, true);
+        GridPane.setFillWidth(entityLabel, true);
+        entityLabel.setMaxWidth(Double.MAX_VALUE);
+        entityLabel.setPrefWidth(Double.MAX_VALUE);
+        entityLabel.setMaxHeight(Double.MAX_VALUE);
+        entityLabel.setAlignment(Pos.TOP_LEFT);
+        GridPane.setValignment(entityLabel, VPos.TOP);
+
+        gridPane.add(entityLabel, 2, 0, 4, 2);
+
+        activityStreamMenu.getItems().clear();
+        MenuItem currentActivityMenuItem = new MenuItem();
+        activityStreamMenu.getItems().add(currentActivityMenuItem);
+
+        if (activityStreamKeyProperty.get().equals(ActivityStreams.UNLINKED)) {
+            currentActivityMenuItem.setGraphic(Icon.makeIconGroup(
+                    ActivityStreamOption.get(optionForActivityStreamKeyProperty.get()).iconForOption(),
+                    ActivityStreams.getActivityIcon(activityStreamKeyProperty.get())));
+            currentActivityMenuItem.setText("Unlinked");
+        } else if (optionForActivityStreamKeyProperty.get().equals(ActivityStreamOption.PUBLISH.keyForOption())) {
+            currentActivityMenuItem.setGraphic(Icon.makeIconGroup(ActivityStreams.getActivityIcon(activityStreamKeyProperty.get()),
+                    ActivityStreamOption.get(optionForActivityStreamKeyProperty.get()).iconForOption()));
+            currentActivityMenuItem.setText("Publishing to " + activityStreamKeyProperty.get().getString());
+        } else if (optionForActivityStreamKeyProperty.get().equals(ActivityStreamOption.SYNCHRONIZE.keyForOption())) {
+            currentActivityMenuItem.setGraphic(Icon.makeIconGroup(ActivityStreams.getActivityIcon(activityStreamKeyProperty.get()),
+                    ActivityStreamOption.get(optionForActivityStreamKeyProperty.get()).iconForOption()));
+            currentActivityMenuItem.setText("Synchronizing with " + activityStreamKeyProperty.get().getString());
+        } else if (optionForActivityStreamKeyProperty.get().equals(ActivityStreamOption.SUBSCRIBE.keyForOption())) {
+            currentActivityMenuItem.setGraphic(Icon.makeIconGroup(ActivityStreams.getActivityIcon(activityStreamKeyProperty.get()),
+                    ActivityStreamOption.get(optionForActivityStreamKeyProperty.get()).iconForOption()));
+            currentActivityMenuItem.setText("Subscribed to " + activityStreamKeyProperty.get().getString());
+        } else {
+            throw new IllegalStateException(optionForActivityStreamKeyProperty.get().toString());
+        }
+        activityStreamMenu.getItems().add(new SeparatorMenuItem());
+        MenuItem focusOnActivityMenuItem = new MenuItem("Focus on activity");
+        focusOnActivityMenuItem.setOnAction(event -> {
+            focusOnActivity.set(!focusOnActivity.get());
+            Platform.runLater(() -> updateGridPane(activityStreamKeyProperty, optionForActivityStreamKeyProperty, gridPane,
+                    viewPropertiesButton, activityStreamMenu, focusOnActivity, entityLabel));
+        });
+        if (focusOnActivity.get()) {
+            focusOnActivityMenuItem.setText("Focus tab on activity");
+            focusOnActivityMenuItem.setGraphic(Icon.EYE.makeIcon());
+        } else {
+            focusOnActivityMenuItem.setText("Don't focus tab on activity");
+            focusOnActivityMenuItem.setGraphic(Icon.EYE_SLASH.makeIcon());
+        }
+
+        activityStreamMenu.getItems().add(focusOnActivityMenuItem);
+        activityStreamMenu.getItems().add(new SeparatorMenuItem());
+
         for (PublicIdStringKey<ActivityStream> key: ActivityStreams.KEYS) {
             Menu optionsForStreamMenu = new Menu(key.getString(), ActivityStreams.getActivityIcon(key));
             activityStreamMenu.getItems().add(optionsForStreamMenu);
@@ -93,40 +180,6 @@ public class TopPanelFactory {
                 });
             }
         }
-        return gridPane;
-    }
 
-    private static void updateGridPane(SimpleObjectProperty<PublicIdStringKey<ActivityStream>> activityStreamKeyProperty,
-                                       SimpleObjectProperty<PublicIdStringKey<ActivityStreamOption>> optionForActivityStreamKeyProperty,
-                                       GridPane gridPane,
-                                       MenuButton viewPropertiesButton,
-                                       EntityLabelWithDragAndDrop entityLabel) {
-        gridPane.getChildren().clear();
-        gridPane.add(viewPropertiesButton, 0, 0, 2, 1);
-
-        GridPane.setHgrow(entityLabel, Priority.ALWAYS);
-        GridPane.setVgrow(entityLabel, Priority.ALWAYS);
-        GridPane.setFillHeight(entityLabel, true);
-        GridPane.setFillWidth(entityLabel, true);
-        entityLabel.setMaxWidth(Double.MAX_VALUE);
-        entityLabel.setPrefWidth(Double.MAX_VALUE);
-        GridPane.setValignment(entityLabel, VPos.TOP);
-
-        gridPane.add(entityLabel, 2, 0, 4, 2);
-
-
-
-        int activityStreamColumn = 0;
-        int optionForActivityStreamColumn = 1;
-
-        if (optionForActivityStreamKeyProperty.get().equals(ActivityStreamOption.PUBLISH.keyForOption())) {
-            optionForActivityStreamColumn = 0;
-            activityStreamColumn = 1;
-        }
-
-        if (activityStreamKeyProperty.get() != null) {
-            gridPane.add(ActivityStreams.getActivityIcon(activityStreamKeyProperty.get()), activityStreamColumn, 1, 1, 1);
-            gridPane.add(ActivityStreamOption.get(optionForActivityStreamKeyProperty.get()).iconForOption(), optionForActivityStreamColumn, 1, 1, 1);
-        }
     }
 }

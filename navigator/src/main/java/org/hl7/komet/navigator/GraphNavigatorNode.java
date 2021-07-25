@@ -50,6 +50,10 @@ public class GraphNavigatorNode extends ExplorationNodeAbstract {
         }
     }
 
+    @Override
+    protected boolean showActivityStreamIcon() {
+        return false;
+    }
 
     @Override
     public void handleActivity(ImmutableList<EntityFacade> entities) {

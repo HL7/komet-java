@@ -53,6 +53,9 @@ public enum Icon {
     PUBLISH_TO_STREAM("publish-to-activityStream", "mdi2l-location-exit", MaterialDesign2),
     SUBSCRIBE_TO_STREAM("subscribe-to-activityStream", "mdi2l-location-enter", MaterialDesign2),
     SYNCHRONIZE_WITH_STREAM("synchronize-activityStream", "mdi2c-cached", MaterialDesign2),
+
+    EYE("focus","far-eye",Fontawesome5),
+    EYE_SLASH("focus-no", "far-eye-slash",Fontawesome5),
     ;
 
     String styleId;
