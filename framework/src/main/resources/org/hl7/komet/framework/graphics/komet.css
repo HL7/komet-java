@@ -25,7 +25,6 @@ modena.css is the default css.
     -komet-panel-background-color: #c3cdd3;
     -komet-concept-box-background-color: #eef1f3;
     -komet-concept-color: #5ec200;
-    -komet-description-color: #ff9100;
     -komet-definition-color: #009bff;
     -komet-inactive-color: #b3b3b3;
     -komet-box-border: #d1d1d1;
@@ -54,19 +53,23 @@ modena.css is the default css.
             derive(-komet-blue-color, 30%) 99%
     );
 
-/* For example: selected
- * text; selected items in menus, lists, trees, and tables; progress bars */
+    /* For example: selected
+     * text; selected items in menus, lists, trees, and tables; progress bars */
 
     -fx-accent: -komet-blue-color;
 
-/* Typically used as the
- * first color in -fx-background-color for the "focused" pseudo-class. Also
- * typically used with insets of -1.4 to provide a glowing effect.
- */
+    /* Typically used as the
+     * first color in -fx-background-color for the "focused" pseudo-class. Also
+     * typically used with insets of -1.4 to provide a glowing effect.
+     */
     -fx-focus-color: -komet-blue-color;
     -fx-faint-focus-color: -komet-faint-blue-color;
 
 
+}
+
+.root {
+    -komet-description-color: #ff9100;
 }
 
 .top-grid-pane {
@@ -75,11 +78,11 @@ modena.css is the default css.
 
 .vanityBox {
     -fx-background-color: transparent;
-    -fx-padding:3 3 3 5;
+    -fx-padding: 3 3 3 5;
     -fx-border-width: 1 1 1 1;
     -fx-border-color: white;
     -fx-border-insets: 3 3 3 3;
-    -fx-graphic-text-gap:0;
+    -fx-graphic-text-gap: 0;
 }
 
 #view {
@@ -98,18 +101,20 @@ modena.css is the default css.
     /* -fx-icon-code: "fi-target-two";*/
     /* -fx-icon-code: "icm-target";*/
     /* -fx-icon-code: "mdi2c-crosshairs-gps"; */
-     -fx-icon-code: "ri-viewpoint";
+    -fx-icon-code: "ri-viewpoint";
     /* -fx-icon-code: "unil-crosshair-alt";*/
     -fx-icon-color: -komet-tab-background-color;
     -fx-icon-size: 20;
 }
 
 #view .arrow-button {
-    -fx-padding:1 0 0 0;
+    -fx-padding: 1 0 0 0;
 }
-#view  {
-    -fx-padding:2 0 0 0;
+
+#view {
+    -fx-padding: 2 0 0 0;
 }
+
 #add-tab .ikonli-font-icon {
     -fx-icon-code: "unil-plus";
     -fx-icon-color: white;
@@ -122,11 +127,13 @@ modena.css is the default css.
     -fx-icon-color: -komet-blue-color;
     -fx-icon-size: 18;
 }
-.add-tab-menu-item:focused  #search-node .ikonli-font-icon {
+
+.add-tab-menu-item:focused #search-node .ikonli-font-icon {
     -fx-icon-color: white;
     -fx-icon-size: 18;
 }
-.tab  #search-node .ikonli-font-icon {
+
+.tab #search-node .ikonli-font-icon {
     -fx-icon-color: white;
     -fx-icon-size: 14;
 }
@@ -139,8 +146,8 @@ modena.css is the default css.
     -fx-icon-size: 20;
 }
 
-.add-tab-menu-item:focused  #navigator-node .ikonli-font-icon,
-.tab  #navigator-node .ikonli-font-icon {
+.add-tab-menu-item:focused #navigator-node .ikonli-font-icon,
+.tab #navigator-node .ikonli-font-icon {
     -fx-icon-color: white;
     -fx-icon-size: 20;
 }
@@ -153,8 +160,8 @@ modena.css is the default css.
     -fx-icon-size: 20;
 }
 
-.add-tab-menu-item:focused  #list-node .ikonli-font-icon,
-.tab  #list-node .ikonli-font-icon {
+.add-tab-menu-item:focused #list-node .ikonli-font-icon,
+.tab #list-node .ikonli-font-icon {
     -fx-icon-color: white;
     -fx-icon-size: 20;
 }
@@ -167,8 +174,8 @@ modena.css is the default css.
     -fx-icon-size: 20;
 }
 
-.add-tab-menu-item:focused  #concept-details-node .ikonli-font-icon,
-.tab  #concept-details-node .ikonli-font-icon {
+.add-tab-menu-item:focused #concept-details-node .ikonli-font-icon,
+.tab #concept-details-node .ikonli-font-icon {
     -fx-icon-color: white;
     -fx-icon-size: 20;
 }
@@ -180,57 +187,65 @@ modena.css is the default css.
     -fx-icon-size: 16;
 }
 
-.add-tab-menu-item:focused  #classification-results-node .ikonli-font-icon,
-.tab  #classification-results-node .ikonli-font-icon {
+.add-tab-menu-item:focused #classification-results-node .ikonli-font-icon,
+.tab #classification-results-node .ikonli-font-icon {
     -fx-icon-color: white;
     -fx-icon-size: 16;
 }
 
-    /* #create-concept-node pair */
+/* #create-concept-node pair */
 #concept-builder-node .ikonli-font-icon {
     -fx-icon-code: "mdi2s-shape-circle-plus";
     -fx-icon-color: -komet-blue-color;
     -fx-icon-size: 20;
 }
-.add-tab-menu-item:focused  #concept-builder-node .ikonli-font-icon,
-.tab  #concept-builder-node .ikonli-font-icon {
+
+.add-tab-menu-item:focused #concept-builder-node .ikonli-font-icon,
+.tab #concept-builder-node .ikonli-font-icon {
     -fx-icon-color: white;
     -fx-icon-size: 20;
 }
-    /* #completion-node pair */
+
+/* #completion-node pair */
 #completion-node .ikonli-font-icon {
     -fx-icon-code: "mdi2f-flag-checkered";
     -fx-icon-color: -komet-blue-color;
     -fx-icon-size: 20;
 }
-.add-tab-menu-item:focused  #completion-node .ikonli-font-icon,
-.tab  #completion-node .ikonli-font-icon {
+
+.add-tab-menu-item:focused #completion-node .ikonli-font-icon,
+.tab #completion-node .ikonli-font-icon {
     -fx-icon-color: white;
     -fx-icon-size: 20;
 }
+
 /* #activity-node */
-.tab  #activity-node .ikonli-font-icon {
+.tab #activity-node .ikonli-font-icon {
     -fx-icon-color: white;
     -fx-icon-size: 16;
 }
+
 /* #export-node pair */
 #export-node .ikonli-font-icon {
     -fx-icon-code: "mdi2d-database-export";
     -fx-icon-color: -komet-blue-color;
     -fx-icon-size: 20;
 }
-.add-tab-menu-item:focused  #export-node .ikonli-font-icon,
-.tab  #export-node .ikonli-font-icon {
+
+.add-tab-menu-item:focused #export-node .ikonli-font-icon,
+.tab #export-node .ikonli-font-icon {
     -fx-icon-color: white;
 }
+
 /* #import-node pair */
 #import-node .ikonli-font-icon {
     -fx-icon-code: "mdi2d-database-import";
     -fx-icon-color: -komet-blue-color;
     -fx-icon-size: 20;
 }
-.add-tab-menu-item:focused  #import-node .ikonli-font-icon,
-.tab  #import-node .ikonli-font-icon {
+
+.add-tab-menu-item:focused #import-node .ikonli-font-icon,
+.tab #import-node .ikonli-font-icon {
     -fx-icon-color: white;
 }
 
@@ -241,10 +256,12 @@ modena.css is the default css.
     -fx-icon-color: -komet-blue-color;
     -fx-icon-size: 16;
 }
-.add-tab-menu-item:focused  #activity-node .ikonli-font-icon,
-.tab  #activity-node .ikonli-font-icon {
+
+.add-tab-menu-item:focused #activity-node .ikonli-font-icon,
+.tab #activity-node .ikonli-font-icon {
     -fx-icon-color: white;
 }
+
 /* #remove-tab-area pair */
 #remove-tab-area .ikonli-font-icon {
     /*-fx-icon-code: "mdi2a-alert-remove-outline";*/
@@ -255,27 +272,31 @@ modena.css is the default css.
     -fx-icon-color: -komet-blue-color;
     -fx-icon-size: 20;
 }
-.add-tab-menu-item:focused  #remove-tab-area .ikonli-font-icon {
+
+.add-tab-menu-item:focused #remove-tab-area .ikonli-font-icon {
     -fx-icon-color: white;
 }
+
 /* ---------------- */
 
 
-.add-tab-menu-item   {
+.add-tab-menu-item {
     -fx-background-color: white;
     -fx-border-color: white;
     -fx-text-fill: -komet-blue-color;
 }
-.add-tab-menu-item:focused   {
-     -fx-background-color: -komet-blue-color;
-     -fx-border-color: -komet-blue-color;
-     -fx-text-fill: white;
- }
+
+.add-tab-menu-item:focused {
+    -fx-background-color: -komet-blue-color;
+    -fx-border-color: -komet-blue-color;
+    -fx-text-fill: white;
+}
+
 .add-tab-menu .menu-item .label {
     -fx-background-color: white;
     -fx-border-color: white;
     -fx-text-fill: -komet-blue-color;
-    -fx-font-size:16;
+    -fx-font-size: 16;
 }
 
 .add-tab-menu .menu-item:focused .label {
@@ -346,6 +367,7 @@ modena.css is the default css.
     -fx-border-color: -komet-blue-color;
     -fx-border-radius: 5 5 0 0, 4 4 0 0;
 }
+
 /* since the selection is so different, the focus indicator is a distration, will make it same color */
 .tab-header-area * .tab:selected * .focus-indicator {
     -fx-border-color: transparent;
@@ -356,18 +378,20 @@ modena.css is the default css.
     -fx-text-fill: white;
     -fx-icon-color: white;
 }
+
 .tab-label {
     -fx-text-fill: white;
 }
 
 /* glphy-icon inside of tabs will be white... */
-.tab  * .glyph-icon  {
+.tab * .glyph-icon {
     -fx-icon-color: white;
 }
 
 .tab .concept-label {
     -fx-text-fill: white;
 }
+
 .tab .label {
     -fx-text-fill: white;
 }
@@ -377,19 +401,19 @@ modena.css is the default css.
     -fx-border-color: white;
     -fx-border-style: dashed;
     -fx-border-radius: 5 5 0 0, 4 4 0 0;
-    -fx-border-width:2;
+    -fx-border-width: 2;
 }
 
 .tab:drop-ready {
     -fx-border-color: white;
     -fx-border-style: dashed;
     -fx-border-radius: 5 5 0 0, 4 4 0 0;
-    -fx-border-width:2;
+    -fx-border-width: 2;
 }
 
 .tab {
     -fx-text-fill: white;
-    -fx-border-width:0;
+    -fx-border-width: 0;
 }
 
 /* only one tab in a tab group is selected at a time. */
@@ -404,11 +428,11 @@ modena.css is the default css.
     -fx-background-color: -fx-body-color;
     -fx-background-insets: 0;
     -fx-background-radius: 15;
-    -fx-padding:5;
+    -fx-padding: 5;
 }
 
 .drop-path {
-    -fx-stroke : -komet-blue-color;
+    -fx-stroke: -komet-blue-color;
     -fx-stroke-width: 2;
     /*-fx-stroke-type:inside;*/
     -fx-stroke-line-join: bevel;
@@ -419,16 +443,19 @@ modena.css is the default css.
     -fx-icon-color: -komet-blue-color;
     -fx-icon-size: 32;
 }
+
 #drop-right-button .ikonli-font-icon {
     -fx-icon-code: "mdi2t-table-column-plus-after";
     -fx-icon-color: -komet-blue-color;
     -fx-icon-size: 32;
 }
+
 #drop-bottom-button .ikonli-font-icon {
     -fx-icon-code: "mdi2t-table-row-plus-after";
     -fx-icon-color: -komet-blue-color;
     -fx-icon-size: 32;
 }
+
 #drop-left-button .ikonli-font-icon {
     -fx-icon-code: "mdi2t-table-column-plus-before";
     -fx-icon-color: -komet-blue-color;
@@ -441,11 +468,12 @@ modena.css is the default css.
 
 .multi-parent-tree-cell {
     -fx-font-size: 16;
-     -fx-font-family: "OpenSans";
+    -fx-font-family: "OpenSans";
     /*-fx-font-family: "serif";*/
     /*-fx-font-family: "sans-serif";*/
     /*-fx-font-family: "monospace";*/
 }
+
 #cancel-task-icon .ikonli-font-icon {
     -fx-icon-color: red;
 }
@@ -462,8 +490,8 @@ modena.css is the default css.
     -fx-background-color: transparent;
 }
 
-#taxonomy-closed-icon:hover{
-    -fx-effect:  dropshadow(three-pass-box, rgba(0,0,0,1.0), 10, 0, 0, 0);
+#taxonomy-closed-icon:hover {
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 1.0), 10, 0, 0, 0);
 }
 
 #taxonomy-open-icon .ikonli-font-icon {
@@ -474,9 +502,10 @@ modena.css is the default css.
     -fx-background-color: transparent;
 }
 
-#taxonomy-open-icon:hover{
-    -fx-effect:  dropshadow(three-pass-box, rgba(0,0,0,1.0), 10, 0, 0, 0);
+#taxonomy-open-icon:hover {
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 1.0), 10, 0, 0, 0);
 }
+
 #stated-form .ikonli-font-icon {
     -fx-icon-code: "ri-chat";
 }
@@ -567,6 +596,7 @@ modena.css is the default css.
     -fx-icon-code: "mdi2l-link-variant";
     -fx-icon-size: 20;
 }
+
 #unlinked-activityStream .ikonli-font-icon {
     -fx-icon-code: "mdi2l-link-variant-off";
     -fx-icon-size: 20;
@@ -588,6 +618,7 @@ modena.css is the default css.
     -fx-icon-code: "far-eye";
     -fx-icon-size: 20;
 }
+
 #focus-no .ikonli-font-icon {
     -fx-icon-code: "far-eye-slash";
     -fx-icon-size: 20;
@@ -597,9 +628,11 @@ modena.css is the default css.
     -fx-icon-code: "mdi2m-magnify";
     -fx-icon-size: 20;
 }
+
 .add-tab-menu-item #search-activityStream .ikonli-font-icon {
     -fx-icon-color: -komet-blue-color;
 }
+
 .add-tab-menu-item:focused #search-activityStream .ikonli-font-icon {
     -fx-icon-color: white;
 }
@@ -608,19 +641,24 @@ modena.css is the default css.
     -fx-icon-code: "mdi2f-file-tree";
     -fx-icon-size: 20;
 }
+
 .add-tab-menu-item #navigation-activityStream .ikonli-font-icon {
     -fx-icon-color: -komet-blue-color;
 }
+
 .add-tab-menu-item:focused #navigation-activityStream .ikonli-font-icon {
     -fx-icon-color: white;
 }
+
 #classification-activityStream .ikonli-font-icon {
     -fx-icon-code: "fa-gears";
     -fx-icon-size: 18;
 }
+
 .add-tab-menu-item #classification-activityStream .ikonli-font-icon {
     -fx-icon-color: -komet-blue-color;
 }
+
 .add-tab-menu-item:focused #classification-activityStream .ikonli-font-icon {
     -fx-icon-color: white;
 }
@@ -629,29 +667,37 @@ modena.css is the default css.
     -fx-icon-code: "mdi2c-compare-horizontal";
     -fx-icon-size: 20;
 }
+
 .add-tab-menu-item #correlation-activityStream .ikonli-font-icon {
     -fx-icon-color: -komet-blue-color;
 }
+
 .add-tab-menu-item:focused #correlation-activityStream .ikonli-font-icon {
     -fx-icon-color: white;
 }
+
 #list-activityStream .ikonli-font-icon {
     -fx-icon-code: "mdi2s-script-text-outline";
     -fx-icon-size: 20;
 }
+
 .add-tab-menu-item #list-activityStream .ikonli-font-icon {
     -fx-icon-color: -komet-blue-color;
 }
+
 .add-tab-menu-item:focused #list-activityStream .ikonli-font-icon {
     -fx-icon-color: white;
 }
+
 #builder-activityStream .ikonli-font-icon {
     -fx-icon-code: "mdi2s-shape-circle-plus";
     -fx-icon-size: 20;
 }
+
 .add-tab-menu-item #builder-activityStream .ikonli-font-icon {
     -fx-icon-color: -komet-blue-color;
 }
+
 .add-tab-menu-item:focused #builder-activityStream .ikonli-font-icon {
     -fx-icon-color: white;
 }
@@ -660,9 +706,11 @@ modena.css is the default css.
     -fx-icon-code: "mdi2f-flower";
     -fx-icon-size: 20;
 }
+
 .add-tab-menu-item #flwor-activityStream .ikonli-font-icon {
     -fx-icon-color: -komet-blue-color;
 }
+
 .add-tab-menu-item:focused #flwor-activityStream .ikonli-font-icon {
     -fx-icon-color: white;
 }
@@ -672,9 +720,11 @@ modena.css is the default css.
     -fx-rotate: 90;
     -fx-icon-size: 16;
 }
+
 .add-tab-menu-item #preferences-activityStream .ikonli-font-icon {
     -fx-icon-color: -komet-blue-color;
 }
+
 .add-tab-menu-item:focused #preferences-activityStream .ikonli-font-icon {
     -fx-icon-color: white;
 }
@@ -702,9 +752,11 @@ modena.css is the default css.
     -fx-icon-code: "mdi2l-location-exit";
     -fx-icon-size: 20;
 }
+
 .add-tab-menu-item #publish-to-activityStream .ikonli-font-icon {
     -fx-icon-color: -komet-blue-color;
 }
+
 .add-tab-menu-item:focused #publish-to-activityStream .ikonli-font-icon {
     -fx-icon-color: white;
 }
@@ -713,9 +765,11 @@ modena.css is the default css.
     -fx-icon-code: "mdi2l-location-enter";
     -fx-icon-size: 20;
 }
+
 .add-tab-menu-item #subscribe-to-activityStream .ikonli-font-icon {
     -fx-icon-color: -komet-blue-color;
 }
+
 .add-tab-menu-item:focused #subscribe-to-activityStream .ikonli-font-icon {
     -fx-icon-color: white;
 }
@@ -724,9 +778,11 @@ modena.css is the default css.
     -fx-icon-code: "mdi2c-cached";
     -fx-icon-size: 20;
 }
+
 .add-tab-menu-item #synchronize-activityStream .ikonli-font-icon {
     -fx-icon-color: -komet-blue-color;
 }
+
 .add-tab-menu-item:focused #synchronize-activityStream .ikonli-font-icon {
     -fx-icon-color: white;
 }
@@ -736,19 +792,19 @@ modena.css is the default css.
     -fx-border-color: -komet-blue-color;
 
 }
+
 .concept-label {
     -fx-background-color: -komet-blue-color;
     -fx-text-fill: white;
-    -fx-font-size:18;
+    -fx-font-size: 18;
     -fx-font-weight: bold;
     -fx-border-color: -komet-blue-color;
-    -fx-padding:2;
+    -fx-padding: 2;
 }
 
 
 .concept-label-toolbar {
     -fx-background-color: -komet-blue-color;
-    -fx-border-color: -komet-blue-color;
     -fx-border-color: -komet-panel-background-color;
     -fx-border-width: 1 0 0 1;
     -fx-padding: 1 0 5 4;
@@ -759,10 +815,11 @@ modena.css is the default css.
     -fx-border-color: -komet-blue-color;
     -fx-border-insets: 0;
     -fx-border-width: 0;
-    -fx-padding:3 0 -5 -8;
+    -fx-padding: 3 0 -5 -8;
 }
+
 .concept-label-toolbar .arrow-button {
-    -fx-padding:-5 10 0 0;
+    -fx-padding: -5 10 0 0;
 }
 
 .concept-label-toolbar .arrow {
@@ -774,22 +831,28 @@ modena.css is the default css.
     -icons-color: white;
     -fx-background-color: red;
 }
+
 .concept-label-toolbar .menu-button .menu-item .glyph-icon {
     -icons-color: -komet-blue-color;
 }
+
 .concept-label-toolbar .menu-button .menu-item .label {
     -fx-text-fill: -komet-blue-color;
-    -fx-font-size:15;
+    -fx-font-size: 15;
 }
+
 .concept-label-toolbar .menu-button .menu-item:focused .glyph-icon {
     -icons-color: white;
 }
+
 .concept-label-toolbar .menu-button .menu-item:focused .label {
     -fx-text-fill: white;
 }
+
 .concept-label-toolbar .menu-button .menu-item:focused {
     -fx-background-color: -komet-blue-color;
 }
+
 .component-panel:inactive .text-area,
 .component-panel:inactive .viewport,
 .component-panel:inactive .scroll-pane,
@@ -801,7 +864,8 @@ modena.css is the default css.
     -fx-text-fill: black;
     -fx-border-color: transparent;
 }
-.component-panel:inactive  {
+
+.component-panel:inactive {
     /*-fx-border-color: white;*/
     /*-fx-border-width: 1 0 1 0; */
     -fx-border-width: 1 0 1 0;
@@ -811,8 +875,7 @@ modena.css is the default css.
 .version-panel:inactive .text-area,
 .version-panel:inactive .viewport,
 .version-panel:inactive .scroll-pane,
-.version-panel:inactive .text-area .content
-{
+.version-panel:inactive .text-area .content {
     /*-fx-border-color: white;*/
     /*-fx-border-width: 1 0 1 0; */
     -fx-background-color: transparent;
@@ -826,6 +889,7 @@ modena.css is the default css.
     -fx-border-color: transparent;
     -fx-background-color: transparent;
 }
+
 .version-panel:inactive .component-text,
 .version-panel:inactive .component-text .text-area {
     -fx-border-color: transparent;
@@ -833,30 +897,35 @@ modena.css is the default css.
 }
 
 .component-panel {
-    -fx-border-color: -komet-box-border -komet-box-border -komet-box-border transparent ;
+    -fx-border-color: -komet-box-border -komet-box-border -komet-box-border transparent;
     -fx-text-fill: black;
     -fx-border-width: 1 0 1 5;
-    -fx-border-insets: 0 0 0 0;
+    -fx-border-insets: 5 0 5 3;
+    -fx-background-color: white;
 }
 
 .component-panel:concept {
-    -fx-border-color: -komet-box-border -komet-box-border -komet-box-border -komet-concept-color ;
+    -fx-border-color: -komet-box-border -komet-box-border -komet-box-border -komet-concept-color;
     -fx-text-fill: -komet-concept-color;
 }
+
 .component-panel:description {
-    -fx-border-color: -komet-box-border -komet-box-border -komet-box-border -komet-description-color ;
+    -fx-border-color: -komet-box-border -komet-box-border -komet-box-border -komet-description-color;
     -fx-text-fill: -komet-description-color;
 }
+
 .component-panel:logical-definition {
-    -fx-border-color: -komet-box-border -komet-box-border -komet-box-border -komet-definition-color ;
+    -fx-border-color: -komet-box-border -komet-box-border -komet-box-border -komet-definition-color;
     -fx-text-fill: -komet-definition-color;
 }
+
 .component-panel:semantic {
-    -fx-border-color: -komet-box-border -komet-box-border -komet-box-border purple ;
+    -fx-border-color: -komet-box-border -komet-box-border -komet-box-border purple;
     -fx-text-fill: purple;
 }
+
 .component-panel:pattern {
-    -fx-border-color: -komet-box-border -komet-box-border -komet-box-border royalblue ;
+    -fx-border-color: -komet-box-border -komet-box-border -komet-box-border royalblue;
     -fx-text-fill: royalblue;
 }
 

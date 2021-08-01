@@ -4,27 +4,44 @@ import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WeakChangeListener;
-import org.hl7.tinkar.entity.*;
+import javafx.scene.control.ScrollPane;
+import org.hl7.komet.framework.view.ViewProperties;
+import org.hl7.tinkar.terms.EntityFacade;
 
-public class ComponentPanel<T extends Entity<? extends EntityVersion>>
-        extends ComponentPanelAbstract<T>
-        implements ChangeListener<T> {
+import java.util.Optional;
 
-    private final ObservableValue<T> componentProperty;
+public class ComponentPanel<C extends EntityFacade>
+        extends ComponentPanelAbstract<C>
+        implements ChangeListener<C> {
 
-    private final WeakChangeListener<T> weakComponentChangedListener = new WeakChangeListener(this);
+    private final ScrollPane scrollPane = new ScrollPane(componentPanelBox);
+    private final ObservableValue<C> componentProperty;
+    private final WeakChangeListener<C> weakComponentChangedListener = new WeakChangeListener(this);
 
-    public ComponentPanel(ObservableValue<T> componentProperty) {
+    {
+        this.scrollPane.setFitToWidth(true);
+        this.scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        this.scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        this.componentDetailPane.setCenter(this.scrollPane);
+    }
+
+    public ComponentPanel(ObservableValue<C> componentProperty, ViewProperties viewProperties) {
+        super(viewProperties);
         this.componentProperty = componentProperty;
         this.componentProperty.addListener(this.weakComponentChangedListener);
         Platform.runLater(() -> changed(this.componentProperty, null, this.componentProperty.getValue()));
     }
 
     @Override
-    public void changed(ObservableValue<? extends T> observable, T oldValue, T newValue) {
+    public void changed(ObservableValue<? extends C> observable, C oldValue, C newValue) {
         getComponentPanelBox().getChildren().clear();
         if (newValue != null) {
-            getComponentPanelBox().getChildren().add(makeComponentPanel(newValue).getDetailPane());
+            getComponentPanelBox().getChildren().add(makeComponentPanel(newValue).getComponentDetailPane());
         }
+    }
+
+    @Override
+    public Optional<C> getComponent() {
+        return Optional.ofNullable(componentProperty.getValue());
     }
 }

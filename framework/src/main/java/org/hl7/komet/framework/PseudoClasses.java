@@ -3,7 +3,6 @@ package org.hl7.komet.framework;
 import javafx.css.PseudoClass;
 
 /**
- *
  * @author kec
  */
 public class PseudoClasses {
@@ -12,7 +11,7 @@ public class PseudoClasses {
     /**
      * may be active, but superceded by a different component, so not current in the display
      */
-    public static final PseudoClass SUPERCEDED_PSEUDO_CLASS = PseudoClass.getPseudoClass("superceded");
+    public static final PseudoClass SUPERSEDED_PSEUDO_CLASS = PseudoClass.getPseudoClass("superseded");
     public static final PseudoClass CONTRADICTED_PSEUDO_CLASS = PseudoClass.getPseudoClass("contradicted");
 
     public static final PseudoClass UNCOMMITTED_PSEUDO_CLASS = PseudoClass.getPseudoClass("uncommitted");
