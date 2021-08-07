@@ -5,32 +5,28 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
-import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
-import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.RowConstraints;
 import org.hl7.komet.executor.TaskWrapper;
 import org.hl7.komet.framework.activity.ActivityStream;
 import org.hl7.komet.framework.activity.ActivityStreamOption;
 import org.hl7.komet.framework.activity.ActivityStreams;
 import org.hl7.komet.framework.context.AddToContextMenu;
 import org.hl7.komet.framework.context.AddToContextMenuSimple;
+import org.hl7.komet.framework.controls.EntityLabelWithDragAndDrop;
 import org.hl7.komet.framework.graphics.Icon;
 import org.hl7.komet.framework.view.ViewMenuTask;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
-import org.hl7.tinkar.common.util.time.DateTimeUtil;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculatorWithCache;
 import org.hl7.tinkar.terms.EntityFacade;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 public class TopPanelFactory {
     public static Node make(ViewProperties viewProperties,
@@ -52,8 +48,9 @@ public class TopPanelFactory {
         viewPropertiesButton.setGraphic(Icon.VIEW.makeIcon());
 
         SimpleIntegerProperty selectionIndexProperty = new SimpleIntegerProperty();
-        Runnable unlink = () -> { };
-        AddToContextMenu[] contextMenuProviders = new AddToContextMenu[] { new AddToContextMenuSimple() };
+        Runnable unlink = () -> {
+        };
+        AddToContextMenu[] contextMenuProviders = new AddToContextMenu[]{new AddToContextMenuSimple()};
 
         EntityLabelWithDragAndDrop entityLabel = EntityLabelWithDragAndDrop.make(viewProperties,
                 entityFocusProperty, null, selectionIndexProperty, unlink,
@@ -167,10 +164,10 @@ public class TopPanelFactory {
         activityStreamMenu.getItems().add(focusOnActivityMenuItem);
         activityStreamMenu.getItems().add(new SeparatorMenuItem());
 
-        for (PublicIdStringKey<ActivityStream> key: ActivityStreams.KEYS) {
+        for (PublicIdStringKey<ActivityStream> key : ActivityStreams.KEYS) {
             Menu optionsForStreamMenu = new Menu(key.getString(), ActivityStreams.getActivityIcon(key));
             activityStreamMenu.getItems().add(optionsForStreamMenu);
-            for (ActivityStreamOption activityStreamOption: ActivityStreamOption.optionsForStream(key)) {
+            for (ActivityStreamOption activityStreamOption : ActivityStreamOption.optionsForStream(key)) {
                 MenuItem activityStreamOptionItem = new MenuItem(activityStreamOption.keyForOption().getString(),
                         activityStreamOption.iconForOption());
                 optionsForStreamMenu.getItems().add(activityStreamOptionItem);

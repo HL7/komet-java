@@ -1,7 +1,8 @@
 package org.hl7.komet.framework;
 
-import org.hl7.komet.preferences.KometPreferences;
+import org.hl7.komet.framework.controls.EntityLabelWithDragAndDrop;
 import org.hl7.komet.framework.view.ViewProperties;
+import org.hl7.komet.preferences.KometPreferences;
 
 public abstract class DetailNodeAbstract extends ExplorationNodeAbstract {
 

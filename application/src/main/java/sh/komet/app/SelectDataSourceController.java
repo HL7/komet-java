@@ -16,20 +16,20 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import org.controlsfx.control.PropertySheet;
-import org.controlsfx.validation.*;
+import org.controlsfx.validation.ValidationMessage;
+import org.controlsfx.validation.ValidationResult;
+import org.controlsfx.validation.ValidationSupport;
+import org.controlsfx.validation.Validator;
 import org.hl7.komet.framework.KometNode;
-import org.hl7.komet.framework.activity.ActivityStreams;
-import org.hl7.komet.framework.alerts.AlertStreams;
+import org.hl7.komet.framework.propsheet.KometPropertyEditorFactory;
+import org.hl7.komet.framework.propsheet.SheetItem;
 import org.hl7.komet.progress.ProgressNodeFactory;
-import org.hl7.komet.tabs.DetachableTab;
 import org.hl7.tinkar.common.service.DataServiceController;
 import org.hl7.tinkar.common.service.DataServiceProperty;
 import org.hl7.tinkar.common.service.DataUriOption;
 import org.hl7.tinkar.common.service.PrimitiveData;
 import org.hl7.tinkar.common.util.text.NaturalOrder;
 import org.hl7.tinkar.common.validation.ValidationRecord;
-import sh.komet.app.propsheet.PropertyEditorFactoryWithValidation;
-import sh.komet.app.propsheet.SheetItem;
 
 import java.io.File;
 import java.net.URL;
@@ -76,22 +76,25 @@ public class SelectDataSourceController {
         Platform.exit();
     }
 
+    // This method is called by the FXMLLoader when initialization is complete
     @FXML
-    void okButtonPressed(ActionEvent event) {
-        saveDataServiceProperties(dataSourceChoiceBox.getValue());
-        dataSourceChoiceBox.getValue().setDataUriOption(fileListView.getSelectionModel().getSelectedItem());
-        PrimitiveData.setController(dataSourceChoiceBox.getValue());
-        TabPane progressTabPane = new TabPane();
-        rootBorderPane.setCenter(progressTabPane);
-        rootBorderPane.setTop(null);
-        rootBorderPane.setBottom(null);
-        ProgressNodeFactory progressNodeFactory = new ProgressNodeFactory();
-        KometNode kometNode = progressNodeFactory.create();
-        Tab progressTab = new Tab(kometNode.getTitle().getValue(), kometNode.getNode());
-        progressTab.setGraphic(kometNode.getTitleNode());
-        progressTabPane.getTabs().add(progressTab);
+    void initialize() {
+        assert dataSourceChoiceBox != null : "fx:id=\"dataSourceChoiceBox\" was not injected: check your FXML file 'SelectDataSource.fxml'.";
+        assert cancelButton != null : "fx:id=\"cancelButton\" was not injected: check your FXML file 'SelectDataSource.fxml'.";
+        ObservableList<DataServiceController> controllerOptions = FXCollections.observableList(PrimitiveData.getControllerOptions());
+        controllerOptions.forEach(dataServiceController -> dataSourceChoiceBox.getItems().add(dataServiceController));
 
-        Platform.runLater(() -> App.state.set(AppState.SELECTED_DATA_SOURCE));
+        dataSourceChoiceBox.getSelectionModel().selectedItemProperty().addListener(this::dataSourceChanged);
+
+        fileListView.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) {
+                okButtonPressed(null);
+            }
+        });
+
+        propertySheet.setPropertyEditorFactory(new KometPropertyEditorFactory(null));
+
+        Platform.runLater(() -> dataSourceChoiceBox.getSelectionModel().select(controllerOptions.get(4)));
     }
 
     void dataSourceChanged(ObservableValue<? extends DataServiceController<?>> observable,
@@ -121,27 +124,23 @@ public class SelectDataSourceController {
                             @Override
                             public ValidationResult apply(Control control, String s) {
                                 ValidationResult validationResult = new ValidationResult();
-                                for  (ValidationRecord validationRecord: dataSourceController.validate(key, s, control)) {
+                                for (ValidationRecord validationRecord : dataSourceController.validate(key, s, control)) {
                                     switch (validationRecord.severity()) {
-                                        case ERROR ->
-                                                validationResult.add(ValidationMessage.error(
-                                                        (Control) validationRecord.target(), validationRecord.message()));
-                                        case  INFO ->
-                                                validationResult.add(ValidationMessage.info(
-                                                        (Control) validationRecord.target(), validationRecord.message()));
-                                        case OK ->
-                                                validationResult.add(ValidationMessage.ok(
-                                                        (Control) validationRecord.target(), validationRecord.message()));
-                                        case WARNING ->
-                                                validationResult.add(ValidationMessage.warning(
-                                                        (Control) validationRecord.target(), validationRecord.message()));
+                                        case ERROR -> validationResult.add(ValidationMessage.error(
+                                                (Control) validationRecord.target(), validationRecord.message()));
+                                        case INFO -> validationResult.add(ValidationMessage.info(
+                                                (Control) validationRecord.target(), validationRecord.message()));
+                                        case OK -> validationResult.add(ValidationMessage.ok(
+                                                (Control) validationRecord.target(), validationRecord.message()));
+                                        case WARNING -> validationResult.add(ValidationMessage.warning(
+                                                (Control) validationRecord.target(), validationRecord.message()));
                                     }
                                 }
                                 return validationResult;
                             }
                         };
                         if (key.hiddenText()) {
-                            propertySheet.getItems().add(SheetItem.makeForPassword(dataServiceProperty, validationSupport,validator));
+                            propertySheet.getItems().add(SheetItem.makeForPassword(dataServiceProperty, validationSupport, validator));
 
                         } else {
                             propertySheet.getItems().add(SheetItem.make(dataServiceProperty, validationSupport, validator));
@@ -156,30 +155,27 @@ public class SelectDataSourceController {
                 });
     }
 
+    @FXML
+    void okButtonPressed(ActionEvent event) {
+        saveDataServiceProperties(dataSourceChoiceBox.getValue());
+        dataSourceChoiceBox.getValue().setDataUriOption(fileListView.getSelectionModel().getSelectedItem());
+        PrimitiveData.setController(dataSourceChoiceBox.getValue());
+        TabPane progressTabPane = new TabPane();
+        rootBorderPane.setCenter(progressTabPane);
+        rootBorderPane.setTop(null);
+        rootBorderPane.setBottom(null);
+        ProgressNodeFactory progressNodeFactory = new ProgressNodeFactory();
+        KometNode kometNode = progressNodeFactory.create();
+        Tab progressTab = new Tab(kometNode.getTitle().getValue(), kometNode.getNode());
+        progressTab.setGraphic(kometNode.getTitleNode());
+        progressTabPane.getTabs().add(progressTab);
+
+        Platform.runLater(() -> App.state.set(AppState.SELECTED_DATA_SOURCE));
+    }
+
     private void saveDataServiceProperties(DataServiceController<?> dataServiceController) {
         dataServicePropertyStringMap.forEach((dataServiceProperty, simpleStringProperty) -> {
             dataServiceController.setDataServiceProperty(dataServiceProperty, simpleStringProperty.getValue());
         });
-    }
-
-    // This method is called by the FXMLLoader when initialization is complete
-    @FXML
-    void initialize() {
-        assert dataSourceChoiceBox != null : "fx:id=\"dataSourceChoiceBox\" was not injected: check your FXML file 'SelectDataSource.fxml'.";
-        assert cancelButton != null : "fx:id=\"cancelButton\" was not injected: check your FXML file 'SelectDataSource.fxml'.";
-        ObservableList<DataServiceController> controllerOptions = FXCollections.observableList(PrimitiveData.getControllerOptions());
-        controllerOptions.forEach(dataServiceController -> dataSourceChoiceBox.getItems().add(dataServiceController));
-
-        dataSourceChoiceBox.getSelectionModel().selectedItemProperty().addListener(this::dataSourceChanged);
-
-        fileListView.setOnMouseClicked(event -> {
-            if (event.getClickCount() == 2) {
-                okButtonPressed(null);
-            }
-        });
-
-        propertySheet.setPropertyEditorFactory(new PropertyEditorFactoryWithValidation());
-
-        Platform.runLater(() -> dataSourceChoiceBox.getSelectionModel().select(controllerOptions.get(4)));
     }
 }

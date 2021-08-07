@@ -27,9 +27,14 @@ public class ComponentIsFinalPanel<C extends Entity<V>, V extends EntityVersion>
         }
         this.component = component;
         List<DiTree<VersionVertex<V>>> versionGraph = viewProperties.calculator().getVersionGraphList(component);
-        for (DiTree<VersionVertex<V>> diTree : versionGraph) {
-            dfsAddVersion(diTree.root(), diTree);
-        }
+        Platform.runLater(() -> {
+            for (DiTree<VersionVertex<V>> diTree : versionGraph) {
+                dfsAddVersion(diTree.root(), diTree);
+            }
+        });
+        Platform.runLater(() -> {
+            addSemanticReferences(component);
+        });
     }
 
     private void dfsAddVersion(VersionVertex<V> versionVertex, DiTree<VersionVertex<V>> versionGraph) {

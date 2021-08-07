@@ -933,3 +933,23 @@ modena.css is the default css.
 .component-panel:inactive {
     -fx-text-fill: -komet-inactive-color;
 }
+
+.prop-sheet-entity-label {
+    -fx-border-color: -komet-box-border;
+    -fx-background-color: white;
+    -fx-padding: 3 5 3 5;
+}
+
+.prop-sheet-entity-label:concept {
+    -fx-text-fill: -komet-concept-color;
+}
+
+
+.prop-sheet-entity-label:semantic {
+    -fx-text-fill: -komet-description-color;
+}
+
+
+.prop-sheet-entity-label:pattern {
+    -fx-text-fill: royalblue;
+}

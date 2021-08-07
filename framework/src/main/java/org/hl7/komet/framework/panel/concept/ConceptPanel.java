@@ -12,10 +12,9 @@ public class ConceptPanel<T extends ConceptEntity> extends ComponentIsFinalPanel
 
     public ConceptPanel(T conceptEntity, ViewProperties viewProperties) {
         super(conceptEntity, viewProperties);
-        Label label = new Label("Concept Panel: " + conceptEntity.publicId().toString());
+        Label label = new Label("Concept Panel: " + viewProperties.calculator().getDescriptionTextOrNid(conceptEntity));
         label.setWrapText(true);
         this.getComponentPanelBox().getChildren().add(label);
         this.getComponentPanelBox().pseudoClassStateChanged(PseudoClasses.CONCEPT_PSEUDO_CLASS, true);
-        addSemanticReferences(conceptEntity);
     }
 }

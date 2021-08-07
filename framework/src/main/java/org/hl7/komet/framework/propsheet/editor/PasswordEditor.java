@@ -1,4 +1,4 @@
-package sh.komet.app.propsheet.editor;
+package org.hl7.komet.framework.propsheet.editor;
 
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.PasswordField;
@@ -14,11 +14,13 @@ public class PasswordEditor extends AbstractPropertyEditor<String, PasswordField
         super(property, new PasswordField(), readonly);
     }
 
-    @Override protected StringProperty getObservableValue() {
+    @Override
+    protected StringProperty getObservableValue() {
         return getEditor().textProperty();
     }
 
-    @Override public void setValue(String value) {
+    @Override
+    public void setValue(String value) {
         getEditor().setText(value);
     }
 

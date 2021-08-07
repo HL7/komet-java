@@ -12,7 +12,9 @@ public class SemanticPanel<T extends SemanticEntity> extends ComponentIsFinalPan
 
     public SemanticPanel(T semanticEntity, ViewProperties viewProperties) {
         super(semanticEntity, viewProperties);
-        Label label = new Label("Semantic Panel: " + semanticEntity.publicId().toString());
+
+        Label label = new Label("Semantic Panel: " +
+                viewProperties.calculator().getDescriptionTextOrNid(semanticEntity.patternNid()));
         label.setWrapText(true);
         this.getComponentPanelBox().getChildren().add(label);
         if (semanticEntity.patternNid() == TinkarTerm.EL_PLUS_PLUS_STATED_AXIOMS_PATTERN.nid() ||
@@ -23,8 +25,5 @@ public class SemanticPanel<T extends SemanticEntity> extends ComponentIsFinalPan
         } else {
             this.getComponentPanelBox().pseudoClassStateChanged(PseudoClasses.SEMANTIC_PSEUDO_CLASS, true);
         }
-
-
-        addSemanticReferences(semanticEntity);
     }
 }

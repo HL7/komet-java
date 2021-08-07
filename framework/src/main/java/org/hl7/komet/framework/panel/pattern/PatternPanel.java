@@ -11,10 +11,9 @@ public class PatternPanel<T extends PatternEntity> extends ComponentIsFinalPanel
 
     public PatternPanel(T patternEntity, ViewProperties viewProperties) {
         super(patternEntity, viewProperties);
-        Label label = new Label("Pattern Panel: " + patternEntity.publicId().toString());
+        Label label = new Label("Pattern Panel: " + viewProperties.calculator().getDescriptionTextOrNid(patternEntity));
         label.setWrapText(true);
         this.getComponentPanelBox().getChildren().add(label);
         this.getComponentPanelBox().pseudoClassStateChanged(PseudoClasses.PATTERN_PSEUDO_CLASS, true);
-        addSemanticReferences(patternEntity);
     }
 }

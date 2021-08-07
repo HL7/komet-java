@@ -1,5 +1,5 @@
-import org.hl7.komet.framework.KometNodeFactory;
 import org.hl7.komet.executor.TaskLists;
+import org.hl7.komet.framework.KometNodeFactory;
 import org.hl7.tinkar.common.service.DataServiceController;
 
 module org.hl7.komet.application {
@@ -26,5 +26,4 @@ module org.hl7.komet.application {
     opens sh.komet.app to javafx.fxml;
 
     exports sh.komet.app to javafx.graphics;
-    exports sh.komet.app.propsheet.editor to org.controlsfx.controls;
 }
