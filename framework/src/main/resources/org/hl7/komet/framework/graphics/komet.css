@@ -781,6 +781,22 @@ modena.css is the default css.
     -fx-icon-size: 20;
 }
 
+#indent-increase .ikonli-font-icon {
+    -fx-icon-code: "mdi2f-format-indent-increase";
+    -fx-icon-size: 20;
+}
+
+#indent-decrease .ikonli-font-icon {
+    -fx-icon-code: "mdi2f-format-indent-decrease";
+    -fx-icon-size: 20;
+}
+
+
+#by-name .ikonli-font-icon {
+    -fx-icon-code: "mdi2f-format-list-text";
+    -fx-icon-size: 20;
+}
+
 
 .add-tab-menu-item #subscribe-to-activityStream .ikonli-font-icon {
     -fx-icon-color: -komet-blue-color;

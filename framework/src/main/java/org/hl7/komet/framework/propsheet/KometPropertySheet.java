@@ -11,6 +11,7 @@ public class KometPropertySheet extends PropertySheet {
         setMode(PropertySheet.Mode.NAME);
         setSearchBoxVisible(false);
         setModeSwitcherVisible(false);
+        setSkin(new KometPropertySheetSkin(this));
     }
 
     public KometPropertySheet(ViewProperties viewProperties) {

@@ -16,9 +16,11 @@ import org.hl7.komet.framework.propsheet.editor.ListEditor;
 import org.hl7.komet.framework.propsheet.editor.PasswordEditor;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.tinkar.common.id.IntIdCollection;
+import org.hl7.tinkar.common.util.text.NaturalOrder;
 import org.hl7.tinkar.entity.Field;
 import org.hl7.tinkar.terms.EntityFacade;
 
+import java.util.List;
 import java.util.Optional;
 
 public class SheetItem<T> implements PropertySheet.Item {
@@ -85,11 +87,23 @@ public class SheetItem<T> implements PropertySheet.Item {
                 propertyEditorClass = EntityLabelWithDragAndDrop.class;
                 break;
             case COMPONENT_ID_LIST:
-            case COMPONENT_ID_SET:
+                // leave list in same order...
                 classType = ObservableList.class;
                 propertyEditorClass = ListEditor.class;
                 if (property.getValue() instanceof IntIdCollection intIdCollection) {
                     property.setValue(FXCollections.observableArrayList(intIdCollection.mapToList(nid -> EntityFacade.make(nid))));
+                }
+                break;
+            case COMPONENT_ID_SET:
+                // sort set for presentation, order does not matter in set.
+                classType = ObservableList.class;
+                propertyEditorClass = ListEditor.class;
+                if (property.getValue() instanceof IntIdCollection intIdCollection) {
+                    List<EntityFacade> facades = intIdCollection.mapToList(nid -> EntityFacade.make(nid));
+                    facades.sort((o1, o2) -> NaturalOrder.compareStrings(viewProperties.calculator().getDescriptionTextOrNid(o1),
+                            viewProperties.calculator().getDescriptionTextOrNid(o2)));
+
+                    property.setValue(FXCollections.observableArrayList(facades));
                 }
                 break;
             default:

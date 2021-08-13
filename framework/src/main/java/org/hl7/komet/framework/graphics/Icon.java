@@ -60,7 +60,10 @@ public enum Icon {
     CANCEL("cancel", "mdi2c-cancel", MaterialDesign2),
     DUPLICATE("duplicate", "mdi2c-content-duplicate", MaterialDesign2),
     PLUS("plus", "mdi2p-plus", MaterialDesign2),
-    ;
+
+    INDENT_INCREASE("indent-increase", "mdi2f-format-indent-increase", MaterialDesign2),
+    INDENT_DECREASE("indent-decrease", "mdi2f-format-indent-decrease", MaterialDesign2),
+    BY_NAME("by-name", "mdi2f-format-list-text", MaterialDesign2);
 
     String styleId;
     String iconCode;

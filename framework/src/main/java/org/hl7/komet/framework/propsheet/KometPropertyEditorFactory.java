@@ -56,11 +56,11 @@ public class KometPropertyEditorFactory implements Callback<PropertySheet.Item, 
             if (editorClass == ListEditor.class) {
                 return Optional.of(new ListEditor(viewProperties, (SimpleObjectProperty<ObservableList<EntityFacade>>) property.getObservableValue().get()));
             }
+            if (editorClass == EntityLabelWithDragAndDrop.class) {
+                return Optional.of(EntityLabelWithDragAndDrop.make(viewProperties, (ObjectProperty<EntityFacade>) property.getObservableValue().get()));
+            }
         }
         return property.getPropertyEditorClass().map(cls -> {
-            if (cls == EntityLabelWithDragAndDrop.class) {
-                return EntityLabelWithDragAndDrop.make(viewProperties, (ObjectProperty<EntityFacade>) property.getObservableValue().get());
-            }
             try {
                 Constructor<?> cn = cls.getConstructor(PropertySheet.Item.class, ViewProperties.class);
                 return (PropertyEditor<?>) cn.newInstance(property, viewProperties);
