@@ -4,14 +4,18 @@ import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.control.Control;
 import org.controlsfx.control.PropertySheet;
 import org.controlsfx.property.editor.PropertyEditor;
 import org.controlsfx.validation.ValidationSupport;
 import org.controlsfx.validation.Validator;
 import org.hl7.komet.framework.controls.EntityLabelWithDragAndDrop;
+import org.hl7.komet.framework.propsheet.editor.ListEditor;
 import org.hl7.komet.framework.propsheet.editor.PasswordEditor;
 import org.hl7.komet.framework.view.ViewProperties;
+import org.hl7.tinkar.common.id.IntIdCollection;
 import org.hl7.tinkar.entity.Field;
 import org.hl7.tinkar.terms.EntityFacade;
 
@@ -24,12 +28,12 @@ public class SheetItem<T> implements PropertySheet.Item {
     private final String name;
     private final String description;
     private final Property<T> property;
-    private final Class<? extends PropertyEditor<?>> propertyEditorClass;
+    private final Class propertyEditorClass;
     private final ValidationSupport validationSupport;
     private final Validator<T> validator;
 
     private SheetItem(Class<?> classType, String category, String name,
-                      String description, Property<T> property, Class<? extends PropertyEditor<?>> propertyEditorClass,
+                      String description, Property<T> property, Class propertyEditorClass,
                       ValidationSupport validationSupport, Validator<T> validator) {
         this.classType = classType;
         this.category = category;
@@ -50,15 +54,18 @@ public class SheetItem<T> implements PropertySheet.Item {
     }
 
     public static <T> SheetItem<T> make(Field field, ViewProperties viewProperties) {
+        return make(field, null, viewProperties);
+    }
+
+    public static <T> SheetItem<T> make(Field field, String category, ViewProperties viewProperties) {
         Class<?> classType;
-        String category = null;
         // meaning
         String name = viewProperties.calculator().getDescriptionTextOrNid(field.meaningNid());
         // Purpose
         String description = viewProperties.calculator().getDescriptionTextOrNid(field.purposeNid());
-        Property<T> property = new SimpleObjectProperty<T>((T) field.value());
+        SimpleObjectProperty property = new SimpleObjectProperty(field.value());
 
-        Class<? extends PropertyEditor<?>> propertyEditorClass = null;
+        Class propertyEditorClass = null;
         switch (field.fieldDataType()) {
             case STRING:
                 classType = String.class;
@@ -76,6 +83,14 @@ public class SheetItem<T> implements PropertySheet.Item {
             case IDENTIFIED_THING:
                 classType = EntityFacade.class;
                 propertyEditorClass = EntityLabelWithDragAndDrop.class;
+                break;
+            case COMPONENT_ID_LIST:
+            case COMPONENT_ID_SET:
+                classType = ObservableList.class;
+                propertyEditorClass = ListEditor.class;
+                if (property.getValue() instanceof IntIdCollection intIdCollection) {
+                    property.setValue(FXCollections.observableArrayList(intIdCollection.mapToList(nid -> EntityFacade.make(nid))));
+                }
                 break;
             default:
                 classType = Object.class;

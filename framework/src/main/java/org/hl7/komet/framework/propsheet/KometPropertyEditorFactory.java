@@ -1,6 +1,8 @@
 package org.hl7.komet.framework.propsheet;
 
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.ObservableList;
 import javafx.scene.control.Control;
 import javafx.util.Callback;
 import org.controlsfx.control.PropertySheet;
@@ -8,6 +10,7 @@ import org.controlsfx.property.editor.DefaultPropertyEditorFactory;
 import org.controlsfx.property.editor.Editors;
 import org.controlsfx.property.editor.PropertyEditor;
 import org.hl7.komet.framework.controls.EntityLabelWithDragAndDrop;
+import org.hl7.komet.framework.propsheet.editor.ListEditor;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.tinkar.terms.EntityFacade;
 import org.slf4j.Logger;
@@ -48,6 +51,12 @@ public class KometPropertyEditorFactory implements Callback<PropertySheet.Item, 
     }
 
     public static final Optional<PropertyEditor<?>> createCustomEditor(final PropertySheet.Item property, final ViewProperties viewProperties) {
+        if (property.getPropertyEditorClass().isPresent()) {
+            Class editorClass = property.getPropertyEditorClass().get();
+            if (editorClass == ListEditor.class) {
+                return Optional.of(new ListEditor(viewProperties, (SimpleObjectProperty<ObservableList<EntityFacade>>) property.getObservableValue().get()));
+            }
+        }
         return property.getPropertyEditorClass().map(cls -> {
             if (cls == EntityLabelWithDragAndDrop.class) {
                 return EntityLabelWithDragAndDrop.make(viewProperties, (ObjectProperty<EntityFacade>) property.getObservableValue().get());
@@ -67,5 +76,4 @@ public class KometPropertyEditorFactory implements Callback<PropertySheet.Item, 
             return null;
         });
     }
-
 }

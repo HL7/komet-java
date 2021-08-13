@@ -39,23 +39,27 @@ public enum Icon {
 
     // Activity streams
     ACTIVITY("activityStream", "oct-pulse-16", OctIcons),
-    ANY_ACTIVITY_STREAM("any-activityStream","mdi2l-link-variant", MaterialDesign2),
-    UNLINKED_ACTIVITY_STREAM("unlinked-activityStream","mdi2l-link-variant-off", MaterialDesign2),
-    SEARCH_ACTIVITY_STREAM("search-activityStream","mdi2m-magnify", MaterialDesign2),
+    ANY_ACTIVITY_STREAM("any-activityStream", "mdi2l-link-variant", MaterialDesign2),
+    UNLINKED_ACTIVITY_STREAM("unlinked-activityStream", "mdi2l-link-variant-off", MaterialDesign2),
+    SEARCH_ACTIVITY_STREAM("search-activityStream", "mdi2m-magnify", MaterialDesign2),
     NAVIGATION_ACTIVITY_STREAM("navigation-activityStream", "mdi2f-file-tree", MaterialDesign2),
-    CLASSIFICATION_ACTIVITY_STREAM("classification-activityStream","fa-gears", Fontawesome),
+    CLASSIFICATION_ACTIVITY_STREAM("classification-activityStream", "fa-gears", Fontawesome),
     CORRELATION_ACTIVITY_STREAM("correlation-activityStream", "mdi2c-compare-horizontal", MaterialDesign2),
     LIST_ACTIVITY_STREAM("list-activityStream", "mdi2s-script-text-outline", MaterialDesign2),
-    BUILDER_ACTIVITY_STREAM("builder-activityStream","mdi2s-shape-circle-plus",MaterialDesign2),
-    FLWOR_ACTIVITY_STREAM("flwor-activityStream","mdi2f-flower", MaterialDesign2),
-    PREFERENCES_ACTIVITY_STREAM("preferences-activityStream","fas-sliders-h",Fontawesome),
+    BUILDER_ACTIVITY_STREAM("builder-activityStream", "mdi2s-shape-circle-plus", MaterialDesign2),
+    FLWOR_ACTIVITY_STREAM("flwor-activityStream", "mdi2f-flower", MaterialDesign2),
+    PREFERENCES_ACTIVITY_STREAM("preferences-activityStream", "fas-sliders-h", Fontawesome),
 
     PUBLISH_TO_STREAM("publish-to-activityStream", "mdi2l-location-exit", MaterialDesign2),
     SUBSCRIBE_TO_STREAM("subscribe-to-activityStream", "mdi2l-location-enter", MaterialDesign2),
     SYNCHRONIZE_WITH_STREAM("synchronize-activityStream", "mdi2c-cached", MaterialDesign2),
 
-    EYE("focus","far-eye",Fontawesome5),
-    EYE_SLASH("focus-no", "far-eye-slash",Fontawesome5),
+    EYE("focus", "far-eye", Fontawesome5),
+    EYE_SLASH("focus-no", "far-eye-slash", Fontawesome5),
+
+    CANCEL("cancel", "mdi2c-cancel", MaterialDesign2),
+    DUPLICATE("duplicate", "mdi2c-content-duplicate", MaterialDesign2),
+    PLUS("plus", "mdi2p-plus", MaterialDesign2),
     ;
 
     String styleId;
@@ -69,21 +73,12 @@ public enum Icon {
         this.cheatSheet = cheatSheet;
     }
 
-    public String styleId() {
-        return styleId;
-    }
-
-    public String iconCode() {
-        return iconCode;
-    }
-
-    public Label makeIcon() {
-        FontIcon icon = new FontIcon();
-        //icon.setId(this.styleId);
-        Label iconLabel = new Label("", icon);
-        iconLabel.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-        iconLabel.setId(this.styleId);
-        return iconLabel;
+    public static HBox makeIconGroup(String... styleIds) {
+        HBox titleNode = new HBox(2);
+        for (String styleId : styleIds) {
+            titleNode.getChildren().add(makeIcon(styleId));
+        }
+        return titleNode;
     }
 
     public static Label makeIcon(String styleId) {
@@ -95,26 +90,35 @@ public enum Icon {
         return iconLabel;
     }
 
-    public static HBox makeIconGroup(String... styleIds) {
+    public static HBox makeIconGroup(Node... icons) {
         HBox titleNode = new HBox(2);
-        for (String styleId: styleIds) {
-            titleNode.getChildren().add(makeIcon(styleId));
+        for (Node icon : icons) {
+            titleNode.getChildren().add(icon);
         }
         return titleNode;
     }
 
-    public static HBox makeIconGroup(Node... icons) {
-        HBox titleNode = new HBox(2);
-        for (Node icon: icons) {
-            titleNode.getChildren().add(icon);
-        }
-        return titleNode;
+    public String styleId() {
+        return styleId;
+    }
+
+    public String iconCode() {
+        return iconCode;
     }
 
     public Label makeIconWithStyles(String... styleClasses) {
         Label label = makeIcon();
         label.getStyleClass().addAll(styleClasses);
         return label;
+    }
+
+    public Label makeIcon() {
+        FontIcon icon = new FontIcon();
+        //icon.setId(this.styleId);
+        Label iconLabel = new Label("", icon);
+        iconLabel.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+        iconLabel.setId(this.styleId);
+        return iconLabel;
     }
 
 }

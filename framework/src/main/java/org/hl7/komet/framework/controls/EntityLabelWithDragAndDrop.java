@@ -29,7 +29,7 @@ import org.hl7.tinkar.terms.EntityFacade;
 import org.hl7.tinkar.terms.ProxyFactory;
 
 import java.util.Optional;
-import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static org.hl7.komet.framework.StyleClasses.CONCEPT_LABEL;
 import static org.hl7.komet.framework.StyleClasses.PROP_SHEET_ENTITY_LABEL;
@@ -42,12 +42,12 @@ import static org.hl7.komet.framework.StyleClasses.PROP_SHEET_ENTITY_LABEL;
  * @author kec
  */
 public class EntityLabelWithDragAndDrop
-        extends Label implements PropertyEditor<EntityFacade>, Consumer<EntityLabelWithDragAndDrop> {
+        extends Label implements PropertyEditor<EntityFacade>, Function<EntityFacade, String> {
 
     public static final String EMPTY_TEXT = "empty";
     final ViewProperties viewProperties;
     final ObjectProperty<EntityFacade> entityFocusProperty;
-    final Consumer<EntityLabelWithDragAndDrop> descriptionTextUpdater;
+    final Function<EntityFacade, String> descriptionTextUpdater;
     final DragAndDropHelper dragAndDropHelper;
     final SimpleIntegerProperty selectionIndexProperty;
     final Runnable unlink;
@@ -56,7 +56,7 @@ public class EntityLabelWithDragAndDrop
     //~--- constructors --------------------------------------------------------
     private EntityLabelWithDragAndDrop(ViewProperties viewProperties,
                                        ObjectProperty<EntityFacade> entityFocusProperty,
-                                       Consumer<EntityLabelWithDragAndDrop> descriptionTextUpdater,
+                                       Function<EntityFacade, String> descriptionTextUpdater,
                                        SimpleIntegerProperty selectionIndexProperty,
                                        Runnable unlink,
                                        AddToContextMenu[] contextMenuProviders) {
@@ -72,10 +72,6 @@ public class EntityLabelWithDragAndDrop
         this.selectionIndexProperty = selectionIndexProperty;
         this.unlink = unlink;
         this.contextMenuProviders = contextMenuProviders;
-        this.descriptionTextUpdater.accept(this);
-        this.entityFocusProperty.addListener((observable, oldValue, newValue) -> {
-            this.descriptionTextUpdater.accept(this);
-        });
         this.getStyleClass().add(CONCEPT_LABEL.toString());
         this.dragAndDropHelper = new DragAndDropHelper(this, () -> {
             Optional<EntityFacade> optionalConcept = Optional.ofNullable(entityFocusProperty.getValue());
@@ -101,9 +97,9 @@ public class EntityLabelWithDragAndDrop
 
         this.setContextMenu(contextMenu);
         contextMenu.setOnShowing(this::handle);
-        this.descriptionTextUpdater.accept(this);
+        setText(this.descriptionTextUpdater.apply(entityFocusProperty.get()));
         entityFocusProperty.addListener((observable, oldValue, newValue) -> {
-            EntityLabelWithDragAndDrop.this.descriptionTextUpdater.accept(this);
+            setText(this.descriptionTextUpdater.apply(newValue));
             setPseudoClasses();
         });
         Platform.runLater(() -> setPseudoClasses());
@@ -117,7 +113,13 @@ public class EntityLabelWithDragAndDrop
         Runnable unlink = () -> {
         };
         AddToContextMenu[] contextMenuProviders = new AddToContextMenu[]{new AddToContextMenuSimple()};
-        Consumer<EntityLabelWithDragAndDrop> descriptionTextUpdater = null;
+        Function<EntityFacade, String> descriptionTextUpdater = entityFacade -> {
+            if (entityFacade == null) {
+                return EMPTY_TEXT;
+            }
+            return viewProperties.calculator().getPreferredDescriptionTextWithFallbackOrNid(entityFacade);
+        };
+
         EntityLabelWithDragAndDrop entityLabel = new EntityLabelWithDragAndDrop(viewProperties, entityFocusProperty,
                 descriptionTextUpdater, selectionIndexProperty, unlink, contextMenuProviders);
         entityLabel.getStyleClass().remove(CONCEPT_LABEL.toString());
@@ -127,7 +129,7 @@ public class EntityLabelWithDragAndDrop
 
     public static EntityLabelWithDragAndDrop make(ViewProperties viewProperties,
                                                   ObjectProperty<EntityFacade> entityFocusProperty,
-                                                  Consumer<EntityLabelWithDragAndDrop> descriptionTextUpdater,
+                                                  Function<EntityFacade, String> descriptionTextUpdater,
                                                   SimpleIntegerProperty selectionIndexProperty,
                                                   Runnable unlink,
                                                   AddToContextMenu[] contextMenuProviders) {
@@ -224,11 +226,11 @@ public class EntityLabelWithDragAndDrop
     }
 
     @Override
-    public void accept(EntityLabelWithDragAndDrop entityLabelWithDragAndDrop) {
+    public String apply(EntityFacade entityFacade) {
         if (this.entityFocusProperty.get() == null) {
-            setText("empty");
+            return EMPTY_TEXT;
         } else {
-            setText(this.viewProperties.nodeView().calculator().getFullyQualifiedNameTextOrNid(this.entityFocusProperty.getValue()));
+            return this.viewProperties.nodeView().calculator().getFullyQualifiedDescriptionTextWithFallbackOrNid(this.entityFocusProperty.getValue());
         }
     }
 

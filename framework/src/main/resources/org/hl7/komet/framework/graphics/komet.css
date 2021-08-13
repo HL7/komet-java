@@ -766,6 +766,22 @@ modena.css is the default css.
     -fx-icon-size: 20;
 }
 
+#cancel .ikonli-font-icon {
+    -fx-icon-code: "mdi2c-cancel";
+    -fx-icon-size: 20;
+}
+
+#duplicate .ikonli-font-icon {
+    -fx-icon-code: "mdi2c-content-duplicate";
+    -fx-icon-size: 20;
+}
+
+#plus .ikonli-font-icon {
+    -fx-icon-code: "mdi2p-plus";
+    -fx-icon-size: 20;
+}
+
+
 .add-tab-menu-item #subscribe-to-activityStream .ikonli-font-icon {
     -fx-icon-color: -komet-blue-color;
 }
