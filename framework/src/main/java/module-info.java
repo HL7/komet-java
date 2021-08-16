@@ -47,5 +47,6 @@ module org.hl7.komet.framework {
     exports org.hl7.komet.framework.panel;
     exports org.hl7.komet.framework.propsheet;
     exports org.hl7.komet.framework.propsheet.editor to org.controlsfx.controls;
+    exports org.hl7.komet.framework.docbook;
 
 }

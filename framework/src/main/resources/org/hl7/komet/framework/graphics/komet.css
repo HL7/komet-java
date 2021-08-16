@@ -602,6 +602,41 @@ modena.css is the default css.
     -fx-icon-size: 20;
 }
 
+#literal-string .ikonli-font-icon {
+    -fx-icon-code: "mdi2f-format-quote-close";
+    -fx-icon-size: 20;
+}
+
+#literal-number .ikonli-font-icon {
+    -fx-icon-code: "fas-hashtag";
+    -fx-icon-size: 20;
+}
+
+#lambda .ikonli-font-icon {
+    -fx-icon-code: "mdi2l-lambda";
+    -fx-icon-size: 20;
+}
+
+#role-group .ikonli-font-icon {
+    -fx-icon-code: "mdi2f-format-list-bulleted-type";
+    -fx-icon-size: 20;
+}
+
+#close-disclosure .ikonli-font-icon {
+    -fx-icon-code: "mdi2m-menu-right";
+    -fx-icon-size: 20;
+}
+
+#open-disclosure .ikonli-font-icon {
+    -fx-icon-code: "mdi2m-menu-down";
+    -fx-icon-size: 20;
+}
+
+#EDIT_PENCIL .ikonli-font-icon {
+    -fx-icon-code: "mdi2l-lead-pencil";
+    -fx-icon-size: 20;
+}
+
 .menu-item:focused .ikonli-font-icon {
     -fx-icon-color: white;
 }
@@ -984,4 +1019,113 @@ modena.css is the default css.
 
 .prop-sheet-entity-label:pattern {
     -fx-text-fill: royalblue;
+}
+
+.def-concept {
+    -fx-background-color: white;
+    -fx-padding: 0;
+    -fx-border-insets: 2 0 2 0;
+    -fx-border-width: 2 1 2 2;
+    -fx-border-color: -komet-panel-background-color;
+    -fx-border-style: solid;
+    -fx-background-insets: 4 0 2 0;
+}
+
+.def-necessary-set {
+    -fx-background-color: white;
+    -fx-padding: 0;
+    -fx-border-insets: 2 0 2 0;
+    -fx-border-width: 1 0 1 5;
+    -fx-border-color: -komet-panel-background-color -komet-panel-background-color -komet-panel-background-color #FF4E08;
+    -fx-border-style: solid;
+    -fx-background-insets: 4 0 2 0;
+}
+
+.def-sufficient-set {
+    -fx-background-color: white;
+    -fx-padding: 0;
+    -fx-border-color: -komet-panel-background-color -komet-panel-background-color -komet-panel-background-color -komet-concept-color;
+    -fx-border-insets: 2 0 2 0;
+    -fx-border-width: 1 0 1 5;
+    -fx-background-insets: 4 0 2 0;
+}
+
+.def-role-group {
+    -fx-background-color: white;
+    -fx-padding: 0;
+    -fx-border-insets: 2 0 2 0;
+    -fx-border-width: 1 0 1 5;
+    -fx-border-color: -komet-panel-background-color -komet-panel-background-color -komet-panel-background-color #009bff;
+    -fx-border-style: solid;
+    -fx-background-insets: 4 0 2 0;
+}
+
+.def-role {
+    -fx-background-color: white;
+    -fx-padding: 0;
+    -fx-border-insets: 2 0 2 0;
+    -fx-border-width: 1 0 1 5;
+    -fx-border-color: -komet-panel-background-color -komet-panel-background-color -komet-panel-background-color -komet-description-color;
+    -fx-border-style: solid;
+    -fx-background-insets: 4 0 2 0;
+}
+
+.def-feature {
+    -fx-background-color: white;
+    -fx-padding: 0;
+    -fx-border-insets: 2 0 2 0;
+    -fx-border-width: 1 0 1 5;
+    -fx-border-color: -komet-panel-background-color -komet-panel-background-color -komet-panel-background-color #005ca2;
+    -fx-border-style: solid;
+    -fx-background-insets: 4 0 2 0;
+}
+
+.def-literal {
+    -fx-background-color: white;
+    -fx-padding: 0;
+    -fx-border-insets: 2 0 2 0;
+    -fx-border-width: 1 0 1 5;
+    -fx-border-color: -komet-panel-background-color -komet-panel-background-color -komet-panel-background-color -komet-concept-color;
+    -fx-border-style: solid;
+    -fx-background-insets: 4 0 2 0;
+}
+
+.def-feature .open-concept-button {
+    -fx-padding: 0 0 0 0;
+}
+
+.def-role .open-concept-button {
+    -fx-padding: 0 0 0 0;
+}
+
+.def-feature .toggle-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.def-root .toggle-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.def-root {
+    -fx-background-color: white;
+}
+
+.def-necessary-set .toggle-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.def-necessary-set .toggle-button:selected {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.def-concept:inferred {
+
+}
+
+.def-concept:stated {
+
 }

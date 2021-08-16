@@ -63,8 +63,18 @@ public enum Icon {
 
     INDENT_INCREASE("indent-increase", "mdi2f-format-indent-increase", MaterialDesign2),
     INDENT_DECREASE("indent-decrease", "mdi2f-format-indent-decrease", MaterialDesign2),
-    BY_NAME("by-name", "mdi2f-format-list-text", MaterialDesign2);
+    BY_NAME("by-name", "mdi2f-format-list-text", MaterialDesign2),
 
+    LITERAL_STRING("literal-string", "mdi2f-format-quote-close", MaterialDesign2),
+    LITERAL_NUMERIC("literal-number", "fas-hashtag", Fontawesome5),
+    LAMBDA("lambda", "mdi2l-lambda", MaterialDesign2),
+    ROLE_GROUP("role-group", "mdi2f-format-list-bulleted-type", MaterialDesign2),
+
+    OPEN("open-disclosure", "mdi2m-menu-down", MaterialDesign2),
+    CLOSE("close-disclosure", "mdi2m-menu-right", MaterialDesign2),
+    EDIT_PENCIL("edit-pencil", "mdi2l-lead-pencil", MaterialDesign2),
+
+    ;
     String styleId;
     String iconCode;
     IconCheetSheet cheatSheet;
