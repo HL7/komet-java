@@ -3,16 +3,14 @@ package org.hl7.komet.framework.panel.pattern;
 import javafx.scene.Node;
 import org.controlsfx.control.PropertySheet;
 import org.hl7.komet.framework.panel.ComponentVersionIsFinalPanel;
+import org.hl7.komet.framework.propsheet.FieldDefinitionRecord;
 import org.hl7.komet.framework.propsheet.KometPropertySheet;
 import org.hl7.komet.framework.propsheet.SheetItem;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.tinkar.common.util.text.NaturalOrder;
-import org.hl7.tinkar.component.FieldDataType;
 import org.hl7.tinkar.entity.FieldDefinitionForEntity;
-import org.hl7.tinkar.entity.FieldRecord;
 import org.hl7.tinkar.entity.PatternEntityVersion;
 import org.hl7.tinkar.terms.EntityProxy;
-import org.hl7.tinkar.terms.TinkarTerm;
 
 public class PatternVersionPanel extends ComponentVersionIsFinalPanel<PatternEntityVersion> {
 
@@ -26,14 +24,16 @@ public class PatternVersionPanel extends ComponentVersionIsFinalPanel<PatternEnt
     protected Node makeCenterNode(PatternEntityVersion version, ViewProperties viewProperties) {
         KometPropertySheet propertySheet = new KometPropertySheet(viewProperties);
         // Referenced component meaning:
-        // TODO Referenced component meaning concept.
-        FieldRecord referencedComponentMeaningField = new FieldRecord(EntityProxy.Concept.make(version.referencedComponentMeaningNid()),
-                TinkarTerm.MEANING.nid(), TinkarTerm.MEANING.nid(), FieldDataType.CONCEPT);
+        // TODO Referenced component meaning concept & definition.
+        FieldDefinitionRecord referencedComponentMeaningField = new FieldDefinitionRecord(EntityProxy.Concept.make(version.referencedComponentMeaningNid()),
+                "The meaning of the referenced component of a semantic with this pattern",
+                "Referenced component meaning", version);
         propertySheet.getItems().add(SheetItem.make(referencedComponentMeaningField, REFERENCED_COMPONENT, viewProperties));
         // Referenced component purpose:
-        // TODO Referenced component purpose concept.
-        FieldRecord referencedComponentPurposeField = new FieldRecord(EntityProxy.Concept.make(version.referencedComponentPurposeNid()),
-                TinkarTerm.PURPOSE.nid(), TinkarTerm.PURPOSE.nid(), FieldDataType.CONCEPT);
+        // TODO Referenced component purpose concept & definition.
+        FieldDefinitionRecord referencedComponentPurposeField = new FieldDefinitionRecord(EntityProxy.Concept.make(version.referencedComponentPurposeNid()),
+                "The purpose served by the referenced component of a semantic with this pattern",
+                "Referenced component purpose ", version);
         propertySheet.getItems().add(SheetItem.make(referencedComponentPurposeField, REFERENCED_COMPONENT, viewProperties));
         // Add the field definitions.
 
@@ -41,14 +41,17 @@ public class PatternVersionPanel extends ComponentVersionIsFinalPanel<PatternEnt
         for (FieldDefinitionForEntity fieldDef : version.fieldDefinitions()) {
             String categoryName = "Field " + i + ": " + viewProperties.calculator().getPreferredDescriptionTextWithFallbackOrNid(fieldDef.meaning());
 
-            FieldRecord fieldDataTypeField = new FieldRecord(EntityProxy.Concept.make(fieldDef.dataType()),
-                    TinkarTerm.SEMANTIC_FIELD_TYPE.nid(), TinkarTerm.SEMANTIC_FIELD_TYPE.nid(), FieldDataType.CONCEPT);
+            FieldDefinitionRecord fieldDataTypeField = new FieldDefinitionRecord(EntityProxy.Concept.make(fieldDef.dataTypeNid()),
+                    "Specify the data type of this field for semantics of this pattern",
+                    "Data type", version);
             propertySheet.getItems().add(SheetItem.make(fieldDataTypeField, categoryName, viewProperties));
-            FieldRecord fieldPurposeField = new FieldRecord(EntityProxy.Concept.make(fieldDef.purpose()),
-                    TinkarTerm.PURPOSE.nid(), TinkarTerm.PURPOSE.nid(), FieldDataType.CONCEPT);
+            FieldDefinitionRecord fieldPurposeField = new FieldDefinitionRecord(EntityProxy.Concept.make(fieldDef.purposeNid()),
+                    "Specify the purpose of this field for semantics of this pattern",
+                    "Purpose", version);
             propertySheet.getItems().add(SheetItem.make(fieldPurposeField, categoryName, viewProperties));
-            FieldRecord fieldMeaningField = new FieldRecord(EntityProxy.Concept.make(fieldDef.meaning()),
-                    TinkarTerm.MEANING.nid(), TinkarTerm.MEANING.nid(), FieldDataType.CONCEPT);
+            FieldDefinitionRecord fieldMeaningField = new FieldDefinitionRecord(EntityProxy.Concept.make(fieldDef.meaningNid()),
+                    "Specify the meaning of this field for semantics of this pattern",
+                    "Meaning", version);
             propertySheet.getItems().add(SheetItem.make(fieldMeaningField, categoryName, viewProperties));
             i++;
         }

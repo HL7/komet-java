@@ -21,7 +21,7 @@ public class SemanticVersionPanel extends ComponentVersionIsFinalPanel<SemanticE
         Latest<PatternEntityVersion> latestPatternEntityVersion = viewProperties.calculator().latestPatternEntityVersion(version.patternNid());
         latestPatternEntityVersion.ifPresent(patternEntityVersion -> {
             for (Field field : version.fields(patternEntityVersion)) {
-                propertySheet.getItems().add(SheetItem.make(field, viewProperties));
+                propertySheet.getItems().add(SheetItem.make(field, version, viewProperties));
             }
         });
 

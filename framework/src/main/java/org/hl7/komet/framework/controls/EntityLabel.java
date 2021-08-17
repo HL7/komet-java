@@ -95,9 +95,10 @@ public class EntityLabel extends Label {
         }
         if (axiomSemanticForEntity.isPresent()) {
             PopOver popover = new PopOver();
-            popover.setContentNode(AxiomView.createWithCommitPanel(axiomSemanticForEntity.get(),
+            AxiomView axiomView = AxiomView.createWithCommitPanel(axiomSemanticForEntity.get(),
                     premiseType,
-                    viewProperties));
+                    viewProperties);
+            popover.setContentNode(axiomView.getEditor());
             popover.setCloseButtonEnabled(true);
             popover.setHeaderAlwaysVisible(false);
             popover.setTitle("");

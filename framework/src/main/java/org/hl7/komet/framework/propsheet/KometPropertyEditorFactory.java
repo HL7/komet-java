@@ -10,9 +10,16 @@ import org.controlsfx.property.editor.DefaultPropertyEditorFactory;
 import org.controlsfx.property.editor.Editors;
 import org.controlsfx.property.editor.PropertyEditor;
 import org.hl7.komet.framework.controls.EntityLabelWithDragAndDrop;
+import org.hl7.komet.framework.panel.axiom.AxiomView;
 import org.hl7.komet.framework.propsheet.editor.ListEditor;
 import org.hl7.komet.framework.view.ViewProperties;
+import org.hl7.tinkar.component.graph.DiTree;
+import org.hl7.tinkar.coordinate.logic.PremiseType;
+import org.hl7.tinkar.entity.SemanticEntityVersion;
+import org.hl7.tinkar.entity.graph.EntityVertex;
 import org.hl7.tinkar.terms.EntityFacade;
+import org.hl7.tinkar.terms.EntityProxy;
+import org.hl7.tinkar.terms.TinkarTerm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,6 +65,18 @@ public class KometPropertyEditorFactory implements Callback<PropertySheet.Item, 
             }
             if (editorClass == EntityLabelWithDragAndDrop.class) {
                 return Optional.of(EntityLabelWithDragAndDrop.make(viewProperties, (ObjectProperty<EntityFacade>) property.getObservableValue().get()));
+            }
+            if (editorClass == AxiomView.class) {
+                //TODO add stated/inferred to root property?
+                DiTree<EntityVertex> axiomTree = (DiTree<EntityVertex>) property.getValue();
+                Optional<EntityProxy.Concept> optionalPremiseType = axiomTree.root().uncommittedProperty(TinkarTerm.PREMISE_TYPE_FOR_MANIFOLD.nid());
+                Optional<SemanticEntityVersion> optionalSemanticVersion = axiomTree.root().uncommittedProperty(TinkarTerm.LOGICAL_EXPRESSION_SEMANTIC.nid());
+                PremiseType premiseType = PremiseType.STATED;
+                if (optionalPremiseType.get().nid() == TinkarTerm.INFERRED_PREMISE_TYPE.nid()) {
+                    premiseType = PremiseType.INFERRED;
+                }
+                AxiomView axiomView = AxiomView.create(optionalSemanticVersion.get(), premiseType, viewProperties);
+                return Optional.of(axiomView);
             }
         }
         return property.getPropertyEditorClass().map(cls -> {

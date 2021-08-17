@@ -668,9 +668,10 @@ public class ClauseView {
                 .getAxiomSemanticForEntity(conceptNid, this.axiomView.premiseType);
         if (expression.isPresent()) {
             popover = new PopOver();
-            popover.setContentNode(AxiomView.createWithCommitPanel(expression.get(),
+            AxiomView axiomView = AxiomView.createWithCommitPanel(expression.get(),
                     this.axiomView.premiseType,
-                    viewProperties()));
+                    viewProperties());
+            popover.setContentNode(axiomView.getEditor());
             popover.setCloseButtonEnabled(true);
             popover.setHeaderAlwaysVisible(false);
             popover.setTitle("");
@@ -704,8 +705,8 @@ public class ClauseView {
 
     private void handleShowConceptNodeClick(MouseEvent mouseEvent) {
         if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
-            ConceptFacade roleType = ROLE.getPropertyFast(logicVertex);
-            showPopup(roleType.nid(), mouseEvent);
+            ConceptFacade vertexConcept = CONCEPT.getPropertyFast(logicVertex);
+            showPopup(vertexConcept.nid(), mouseEvent);
         }
     }
 

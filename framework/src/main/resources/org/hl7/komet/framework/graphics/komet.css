@@ -516,6 +516,7 @@ modena.css is the default css.
 
 #link-external .ikonli-font-icon {
     -fx-icon-code: "oct-link-external-16";
+    -fx-icon-size: 9pt;
 }
 
 #taxonomy-root-icon .ikonli-font-icon {
@@ -1091,11 +1092,15 @@ modena.css is the default css.
 }
 
 .def-feature .open-concept-button {
-    -fx-padding: 0 0 0 0;
+    -fx-padding: 0 3 0 0;
 }
 
 .def-role .open-concept-button {
-    -fx-padding: 0 0 0 0;
+    -fx-padding: 0 3 0 0;
+}
+
+.def-concept .open-concept-button {
+    -fx-padding: 0 3 0 0;
 }
 
 .def-feature .toggle-button {

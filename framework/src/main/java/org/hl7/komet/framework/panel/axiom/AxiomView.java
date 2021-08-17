@@ -6,6 +6,7 @@ import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import org.controlsfx.property.editor.PropertyEditor;
 import org.hl7.komet.framework.PseudoClasses;
 import org.hl7.komet.framework.graphics.Icon;
 import org.hl7.komet.framework.view.ViewProperties;
@@ -26,7 +27,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author kec
  */
-public class AxiomView {
+public class AxiomView implements PropertyEditor<DiTree<EntityVertex>> {
     public static final Border TOOL_BAR_BORDER = new Border(
             new BorderStroke(Color.LIGHTGRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(0, 0, 0, 0))
     );
@@ -45,17 +46,19 @@ public class AxiomView {
     final SemanticEntityVersion axiomTreeSemanticVersion;
     private final AnchorPane anchorPane = new AnchorPane();
     DiTree<EntityVertex> axiomTree;
-    BorderPane borderPane;
+    BorderPane borderPane = new BorderPane();
 
     private AxiomView(SemanticEntityVersion axiomTreeSemanticVersion, PremiseType premiseType, ViewProperties viewProperties) {
         this.axiomTreeSemanticVersion = axiomTreeSemanticVersion;
         viewProperties.calculator().getFieldForSemanticWithPurpose(axiomTreeSemanticVersion.nid(), TinkarTerm.LOGICAL_DEFINITION).ifPresentOrElse(objectField -> {
-            axiomTree = (DiTree<EntityVertex>) objectField;
+            axiomTree = (DiTree<EntityVertex>) objectField.value();
         }, () -> {
             throw new IllegalStateException("No logical definition found. ");
         });
         this.viewProperties = viewProperties;
         this.premiseType = premiseType;
+        ClauseView clauseView = new ClauseView(axiomTree.root(), this);
+        borderPane.setCenter(clauseView.rootBorderPane);
     }
 
     public static final Node computeGraphic(int conceptNid, boolean expanded, State state, ViewProperties viewProperties, PremiseType premiseType) {
@@ -100,7 +103,7 @@ public class AxiomView {
         return Icon.TAXONOMY_PRIMITIVE_SINGLE_PARENT.makeIcon();
     }
 
-    public static Node create(SemanticEntityVersion logicGraphVersion, PremiseType premiseType, ViewProperties viewProperties) {
+    public static AxiomView create(SemanticEntityVersion logicGraphVersion, PremiseType premiseType, ViewProperties viewProperties) {
         AxiomView axiomView = new AxiomView(logicGraphVersion, premiseType, viewProperties);
         BorderPane axiomBorderPane = axiomView.create(axiomView.axiomTree.root());
         AnchorPane.setBottomAnchor(axiomBorderPane, 0.0);
@@ -108,7 +111,7 @@ public class AxiomView {
         AnchorPane.setRightAnchor(axiomBorderPane, 0.0);
         AnchorPane.setTopAnchor(axiomBorderPane, 0.0);
         axiomView.anchorPane.getChildren().setAll(axiomBorderPane);
-        return axiomView.anchorPane;
+        return axiomView;
     }
 
     private BorderPane create(EntityVertex logicNode) {
@@ -116,7 +119,7 @@ public class AxiomView {
         return clauseView.rootBorderPane;
     }
 
-    public static Node createWithCommitPanel(SemanticEntityVersion logicGraphVersion, PremiseType premiseType, ViewProperties viewProperties) {
+    public static AxiomView createWithCommitPanel(SemanticEntityVersion logicGraphVersion, PremiseType premiseType, ViewProperties viewProperties) {
         AxiomView axiomView = new AxiomView(logicGraphVersion, premiseType, viewProperties);
         BorderPane axiomBorderPane = axiomView.create(axiomView.axiomTree.root());
         AnchorPane.setBottomAnchor(axiomBorderPane, 0.0);
@@ -125,7 +128,24 @@ public class AxiomView {
         AnchorPane.setTopAnchor(axiomBorderPane, 0.0);
         axiomView.anchorPane.getChildren().setAll(axiomBorderPane);
         axiomView.borderPane = new BorderPane(axiomView.anchorPane);
-        return axiomView.borderPane;
+        return axiomView;
+    }
+
+    @Override
+    public Node getEditor() {
+        return anchorPane;
+    }
+
+    @Override
+    public DiTree<EntityVertex> getValue() {
+        return axiomTree;
+    }
+
+    @Override
+    public void setValue(DiTree<EntityVertex> value) {
+        this.axiomTree = axiomTree;
+        ClauseView clauseView = new ClauseView(axiomTree.root(), this);
+        borderPane.setCenter(clauseView.rootBorderPane);
     }
 
     String getEntityForAxiomsText(String prefix) {

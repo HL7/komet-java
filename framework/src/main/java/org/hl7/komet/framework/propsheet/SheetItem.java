@@ -12,13 +12,18 @@ import org.controlsfx.property.editor.PropertyEditor;
 import org.controlsfx.validation.ValidationSupport;
 import org.controlsfx.validation.Validator;
 import org.hl7.komet.framework.controls.EntityLabelWithDragAndDrop;
+import org.hl7.komet.framework.panel.axiom.AxiomView;
 import org.hl7.komet.framework.propsheet.editor.ListEditor;
 import org.hl7.komet.framework.propsheet.editor.PasswordEditor;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.tinkar.common.id.IntIdCollection;
 import org.hl7.tinkar.common.util.text.NaturalOrder;
+import org.hl7.tinkar.component.graph.DiTree;
 import org.hl7.tinkar.entity.Field;
+import org.hl7.tinkar.entity.SemanticEntityVersion;
+import org.hl7.tinkar.entity.graph.EntityVertex;
 import org.hl7.tinkar.terms.EntityFacade;
+import org.hl7.tinkar.terms.TinkarTerm;
 
 import java.util.List;
 import java.util.Optional;
@@ -55,11 +60,11 @@ public class SheetItem<T> implements PropertySheet.Item {
                 null, property, null, validationSupport, validator);
     }
 
-    public static <T> SheetItem<T> make(Field field, ViewProperties viewProperties) {
-        return make(field, null, viewProperties);
+    public static <T> SheetItem<T> make(Field field, SemanticEntityVersion version, ViewProperties viewProperties) {
+        return make(field, null, version, viewProperties);
     }
 
-    public static <T> SheetItem<T> make(Field field, String category, ViewProperties viewProperties) {
+    public static <T> SheetItem<T> make(Field field, String category, SemanticEntityVersion version, ViewProperties viewProperties) {
         Class<?> classType;
         // meaning
         String name = viewProperties.calculator().getDescriptionTextOrNid(field.meaningNid());
@@ -106,10 +111,48 @@ public class SheetItem<T> implements PropertySheet.Item {
                     property.setValue(FXCollections.observableArrayList(facades));
                 }
                 break;
+            case DITREE: {
+                classType = DiTree.class;
+                propertyEditorClass = AxiomView.class;
+                DiTree<EntityVertex> axiomTree = (DiTree<EntityVertex>) field.value();
+                // TODO consider if this is the right model data... PREMISE_TYPE_FOR_MANIFOLD?
+                // TODO update the EL_PLUS_PLUS_STATED_FORM_ASSEMBLAGE to pattern? Need to clean up metadata.
+                if (viewProperties.nodeView().logicCoordinate().inferredAxiomsPatternNid() == version.patternNid()) {
+                    axiomTree.root().putUncommittedProperty(TinkarTerm.PREMISE_TYPE_FOR_MANIFOLD.nid(), TinkarTerm.INFERRED_PREMISE_TYPE);
+                } else if (viewProperties.nodeView().logicCoordinate().statedAxiomsPatternNid() == version.patternNid()) {
+                    axiomTree.root().putUncommittedProperty(TinkarTerm.PREMISE_TYPE_FOR_MANIFOLD.nid(), TinkarTerm.STATED_PREMISE_TYPE);
+                }
+                // TODO restructure AxiomView to work with just the field, and not require the semantic.
+                axiomTree.root().putUncommittedProperty(TinkarTerm.LOGICAL_EXPRESSION_SEMANTIC.nid(), version);
+            }
+            break;
             default:
                 classType = Object.class;
                 propertyEditorClass = null;
         }
+        ValidationSupport validationSupport = null;
+        Validator<T> validator = null;
+
+        return new SheetItem<>(classType, category, name,
+                description, property, propertyEditorClass,
+                validationSupport, validator);
+    }
+
+    public static <T> SheetItem<T> make(Field field, ViewProperties viewProperties) {
+        return make(field, null, null, viewProperties);
+    }
+
+    public static <T> SheetItem<T> make(Field field, String category, ViewProperties viewProperties) {
+        return make(field, category, null, viewProperties);
+    }
+
+    public static <T> SheetItem<T> make(FieldDefinitionRecord fieldDefinition, String category, ViewProperties viewProperties) {
+        Class<?> classType;
+        String name = fieldDefinition.propertyName();
+        String description = fieldDefinition.propertyDescription();
+        SimpleObjectProperty property = new SimpleObjectProperty(fieldDefinition.value());
+        classType = EntityFacade.class;
+        Class propertyEditorClass = EntityLabelWithDragAndDrop.class;
         ValidationSupport validationSupport = null;
         Validator<T> validator = null;
 
