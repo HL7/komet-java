@@ -2,49 +2,49 @@ package org.hl7.komet.search;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.hl7.komet.framework.ExplorationNodeAbstract;
 import org.hl7.komet.framework.TopPanelFactory;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.komet.preferences.KometPreferences;
-import org.hl7.tinkar.coordinate.view.calculator.ViewCalculatorWithCache;
 import org.hl7.tinkar.terms.EntityFacade;
+
+import java.io.IOException;
 
 public class SearchNode extends ExplorationNodeAbstract {
     protected static final String STYLE_ID = "search-node";
     protected static final String TITLE = "Search";
-
-    private final BorderPane searchPane = new BorderPane();
     // TODO link entityFocus with list selection
-    final SimpleObjectProperty<EntityFacade> entityFocusProperty  = new SimpleObjectProperty<>();;
+    final SimpleObjectProperty<EntityFacade> entityFocusProperty = new SimpleObjectProperty<>();
+    final SearchPanelController controller;
+    private final BorderPane searchPane = new BorderPane();
 
     public SearchNode(ViewProperties viewProperties, KometPreferences nodePreferences) {
         super(viewProperties, nodePreferences);
-             // TODO makeOverridableViewProperties should accept node preferences, and accept saved overrides
+        // TODO makeOverridableViewProperties should accept node preferences, and accept saved overrides
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/hl7/komet/search/SearchPanel.fxml"));
+            this.searchPane.setCenter(loader.load());
+            this.controller = loader.getController();
 
             Platform.runLater(() -> {
-                this.searchPane.setCenter(new Label(titleProperty.getValue()));
+                this.controller.setProperties(this, viewProperties, nodePreferences);
                 Node topPanel = TopPanelFactory.make(viewProperties, entityFocusProperty,
                         activityStreamKeyProperty(), optionForActivityStreamKeyProperty());
                 this.searchPane.setTop(topPanel);
             });
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
     }
+
     @Override
     protected boolean showActivityStreamIcon() {
         return false;
-    }
-
-    @Override
-    public void handleActivity(ImmutableList<EntityFacade> entities) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Node getNode() {
-        return searchPane;
     }
 
     @Override
@@ -55,6 +55,16 @@ public class SearchNode extends ExplorationNodeAbstract {
     @Override
     public String getDefaultTitle() {
         return TITLE;
+    }
+
+    @Override
+    public void handleActivity(ImmutableList<EntityFacade> entities) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Node getNode() {
+        return searchPane;
     }
 
     @Override

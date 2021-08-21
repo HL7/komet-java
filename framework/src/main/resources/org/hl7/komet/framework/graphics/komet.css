@@ -1134,3 +1134,11 @@ modena.css is the default css.
 .def-concept:stated {
 
 }
+
+.stamp-panel {
+    -fx-padding: 0 0 0 5;
+}
+
+.header-text {
+    -fx-padding: 0 0 0 5;
+}

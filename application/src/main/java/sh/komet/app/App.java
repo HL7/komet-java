@@ -29,18 +29,29 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-import static sh.komet.app.AppState.*;
+import static sh.komet.app.AppState.LOADING_DATA_SOURCE;
+import static sh.komet.app.AppState.STARTING;
 
 /**
  * JavaFX App
  */
 public class App extends Application {
     public static final String CSS_LOCATION = "org/hl7/komet/framework/graphics/komet.css";
+    public static final SimpleObjectProperty<AppState> state = new SimpleObjectProperty<>(STARTING);
     public static Logger kometLog;
     private static Stage primaryStage;
     private static Module graphicsModule;
 
-    public static final SimpleObjectProperty<AppState> state = new SimpleObjectProperty<>(STARTING);
+    public static void main(String[] args) {
+        // https://stackoverflow.com/questions/42598097/using-javafx-application-stop-method-over-shutdownhook
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("Starting shutdown hook");
+            PrimitiveData.save();
+            PrimitiveData.stop();
+            System.out.println("Finished shutdown hook");
+        }));
+        launch();
+    }
 
     public void init() throws Exception {
         /*
@@ -100,10 +111,9 @@ public class App extends Application {
             Scene sourceScene = new Scene(sourceRoot, 600, 400);
 
 
-
             sourceScene.getStylesheets()
 
-                       .add(graphicsModule.getClassLoader().getResource(CSS_LOCATION).toString());
+                    .add(graphicsModule.getClassLoader().getResource(CSS_LOCATION).toString());
             stage.setScene(sourceScene);
             stage.setTitle("KOMET Startup");
 
@@ -170,13 +180,6 @@ public class App extends Application {
         // There is a known bug on shutdown:
         // https://bugs.openjdk.java.net/browse/JDK-8231558
         // Java has been detached already, but someone is still trying to use it at -[GlassViewDelegate dealloc]
-    }
-
-    public static void main(String[] args) {
-        // https://stackoverflow.com/questions/42598097/using-javafx-application-stop-method-over-shutdownhook
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> System.out.println("Shutdown hook")));
-
-        launch();
     }
 
 }
