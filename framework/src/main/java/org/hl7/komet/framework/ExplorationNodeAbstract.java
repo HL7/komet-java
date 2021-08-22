@@ -5,11 +5,11 @@ import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringPropertyBase;
-import javafx.beans.value.ChangeListener;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.hl7.komet.framework.activity.ActivityStream;
@@ -18,10 +18,9 @@ import org.hl7.komet.framework.activity.ActivityStreams;
 import org.hl7.komet.framework.alerts.AlertObject;
 import org.hl7.komet.framework.alerts.AlertStreams;
 import org.hl7.komet.framework.graphics.Icon;
-import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.komet.framework.view.ViewProperties;
+import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
-import org.hl7.tinkar.terms.ConceptFacade;
 import org.hl7.tinkar.terms.EntityFacade;
 import org.kordamp.ikonli.javafx.FontIcon;
 
@@ -34,14 +33,16 @@ public abstract class ExplorationNodeAbstract implements KometNode, Flow.Subscri
 
     protected final SimpleObjectProperty<PublicIdStringKey<ActivityStream>> activityStreamKeyProperty = new SimpleObjectProperty<>();
     protected final SimpleObjectProperty<PublicIdStringKey<ActivityStreamOption>> optionForActivityStreamKeyProperty = new SimpleObjectProperty<>();
-    protected final SimpleStringProperty toolTipProperty = new SimpleStringProperty("uninitialized tool tip");
     protected final SimpleStringProperty titleProperty = new SimpleStringProperty(getDefaultTitle());
+    protected final SimpleStringProperty toolTipTextProperty = new SimpleStringProperty("");
     protected final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(getMenuIconGraphic());
     protected final ViewProperties viewProperties;
     protected final KometPreferences nodePreferences;
-    private AtomicReference<Flow.Subscription> flowSubscriptionReference = new AtomicReference<>();
-
     protected HBox titleNode = new HBox(2);
+    private AtomicReference<Flow.Subscription> flowSubscriptionReference = new AtomicReference<>();
+    private Runnable nodeSelectionMethod = () -> {
+    }; // default to an empty operation.
+
     {
         titleNode.alignmentProperty().setValue(Pos.CENTER);
         titleNode.getChildren().add(Icon.makeIcon(getStyleId()));
@@ -57,14 +58,6 @@ public abstract class ExplorationNodeAbstract implements KometNode, Flow.Subscri
                 }
             }
         });
-    }
-
-    /**
-     * Subclasses can override if it does not want activity stream icon shown in title node.
-     * @return
-     */
-    protected boolean showActivityStreamIcon() {
-        return true;
     }
 
     public ExplorationNodeAbstract(ViewProperties viewProperties, KometPreferences nodePreferences) {
@@ -92,13 +85,34 @@ public abstract class ExplorationNodeAbstract implements KometNode, Flow.Subscri
         //this.titleLabel = new EntityLabelWithDragAndDrop();
     }
 
+    protected void updateActivityStream() {
+        if (this.optionForActivityStreamKeyProperty.get().equals(ActivityStreamOption.SUBSCRIBE.keyForOption()) ||
+                this.optionForActivityStreamKeyProperty.get().equals(ActivityStreamOption.SYNCHRONIZE.keyForOption())) {
+            this.getActivityStream().subscribe(this);
+        }
+
+        if (this.optionForActivityStreamKeyProperty.get().equals(ActivityStreamOption.PUBLISH.keyForOption()) ||
+                this.optionForActivityStreamKeyProperty.get().equals(ActivityStreamOption.SYNCHRONIZE.keyForOption())) {
+            // Dispatch is handled dynamically, no need for static setup.
+        }
+    }
+
     public ExplorationNodeAbstract() {
         this.viewProperties = null;
         this.nodePreferences = null;
     }
 
-    public abstract String getStyleId();
+    /**
+     * Subclasses can override if it does not want activity stream icon shown in title node.
+     *
+     * @return
+     */
+    protected boolean showActivityStreamIcon() {
+        return true;
+    }
+
     public abstract String getDefaultTitle();
+
     @Override
     public void onSubscribe(Flow.Subscription subscription) {
         flowSubscriptionReference.getAndUpdate(existingSubscription -> {
@@ -126,20 +140,19 @@ public abstract class ExplorationNodeAbstract implements KometNode, Flow.Subscri
         // nothing to do.
     }
 
-    protected void updateActivityStream() {
-        if (this.optionForActivityStreamKeyProperty.get().equals(ActivityStreamOption.SUBSCRIBE.keyForOption()) ||
-            this.optionForActivityStreamKeyProperty.get().equals(ActivityStreamOption.SYNCHRONIZE.keyForOption()) ) {
-            this.getActivityStream().subscribe(this);
-        }
+    public abstract void handleActivity(ImmutableList<EntityFacade> entities);
 
-        if (this.optionForActivityStreamKeyProperty.get().equals(ActivityStreamOption.PUBLISH.keyForOption()) ||
-                this.optionForActivityStreamKeyProperty.get().equals(ActivityStreamOption.SYNCHRONIZE.keyForOption()) ) {
-            // Dispatch is handled dynamically, no need for static setup.
-        }
+    public void dispatchActivity(ImmutableList<EntityFacade> entities) {
+        getActivityStream().dispatch(entities);
     }
+
+    protected final Runnable getNodeSelectionMethod() {
+        return nodeSelectionMethod;
+    }
+
     @Override
-    public Node getTitleNode() {
-        return titleNode;
+    public final void setNodeSelectionMethod(Runnable nodeSelectionMethod) {
+        this.nodeSelectionMethod = nodeSelectionMethod;
     }
 
     @Override
@@ -149,19 +162,44 @@ public abstract class ExplorationNodeAbstract implements KometNode, Flow.Subscri
         return menuIcon;
     }
 
+    public abstract String getStyleId();
+
     @Override
-    public final Scene getScene() {
-        return getNode().getScene();
+    public KometPreferences getNodePreferences() {
+        return nodePreferences;
+    }
+
+    //~--- get methods ---------------------------------------------------------
+    @Override
+    public final StringPropertyBase getTitle() {
+        return this.titleProperty;
     }
 
     @Override
-    public final SimpleObjectProperty<Node> getMenuIconProperty() {
-        return menuIconProperty;
+    public Node getTitleNode() {
+        return titleNode;
+    }
+
+    @Override
+    public final ReadOnlyProperty<String> toolTipTextProperty() {
+        return this.toolTipTextProperty;
+    }
+
+    @Override
+    public Tooltip makeToolTip() {
+        Tooltip tooltip = new Tooltip(toolTipTextProperty().getValue());
+        tooltip.textProperty().bind(toolTipTextProperty());
+        return tooltip;
     }
 
     @Override
     public final ViewProperties getViewProperties() {
         return this.viewProperties;
+    }
+
+    @Override
+    public final ActivityStream getActivityStream() {
+        return ActivityStreams.get(activityStreamKeyProperty.get());
     }
 
     @Override
@@ -175,41 +213,12 @@ public abstract class ExplorationNodeAbstract implements KometNode, Flow.Subscri
     }
 
     @Override
-    public final ActivityStream getActivityStream() {
-        return ActivityStreams.get(activityStreamKeyProperty.get());
-    }
-
-    public void dispatchActivity(ImmutableList<EntityFacade> entities) {
-        getActivityStream().dispatch(entities);
-    }
-
-    public abstract void handleActivity(ImmutableList<EntityFacade> entities);
-
-    private Runnable nodeSelectionMethod = () -> {}; // default to an empty operation.
-
-
-    @Override
-    public final ReadOnlyProperty<String> getToolTip() {
-        return this.toolTipProperty;
+    public final Scene getScene() {
+        return getNode().getScene();
     }
 
     @Override
-    public final void setNodeSelectionMethod(Runnable nodeSelectionMethod) {
-        this.nodeSelectionMethod = nodeSelectionMethod;
-    }
-
-    protected final Runnable getNodeSelectionMethod() {
-        return nodeSelectionMethod;
-    }
-
-    //~--- get methods ---------------------------------------------------------
-    @Override
-    public final StringPropertyBase getTitle() {
-        return this.titleProperty;
-    }
-
-    @Override
-    public KometPreferences getNodePreferences() {
-        return nodePreferences;
+    public final SimpleObjectProperty<Node> getMenuIconProperty() {
+        return menuIconProperty;
     }
 }

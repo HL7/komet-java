@@ -5,6 +5,7 @@ import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Tooltip;
 import org.hl7.komet.framework.activity.ActivityStream;
 import org.hl7.komet.framework.activity.ActivityStreamOption;
 import org.hl7.komet.framework.alerts.AlertObject;
@@ -24,11 +25,6 @@ import org.hl7.tinkar.common.id.PublicIdStringKey;
  */
 
 public interface KometNode {
-    enum PreferenceKey {
-        ACTIVITY_STREAM_KEY,
-        ACTIVITY_STREAM_OPTION_KEY,
-        PARENT_ALERT_STREAM_KEY
-    }
     /**
      * A title as might be used to provide a title in a tab for a PanelNode.
      *
@@ -52,10 +48,11 @@ public interface KometNode {
      *
      * @return the read-only property for the tool-tip text.
      */
-    ReadOnlyProperty<String> getToolTip();
+    ReadOnlyProperty<String> toolTipTextProperty();
+
+    Tooltip makeToolTip();
 
     /**
-     *
      * @return the Manifold associated with this DetailNode.
      */
     ViewProperties getViewProperties();
@@ -65,15 +62,15 @@ public interface KometNode {
     SimpleObjectProperty<PublicIdStringKey<ActivityStream>> activityStreamKeyProperty();
 
     SimpleObjectProperty<PublicIdStringKey<ActivityStreamOption>> optionForActivityStreamKeyProperty();
-    /**
-     * @return The node to be displayed
-     */
-    Node getNode();
 
     default Scene getScene() {
         return getNode().getScene();
     }
 
+    /**
+     * @return The node to be displayed
+     */
+    Node getNode();
 
     ObjectProperty<Node> getMenuIconProperty();
 
@@ -98,16 +95,22 @@ public interface KometNode {
 
     void revertPreferences();
 
-    Node getMenuIconGraphic();
-
     default Node getTitleIconGraphic() {
         return getMenuIconGraphic();
     }
 
-    KometPreferences getNodePreferences();
+    Node getMenuIconGraphic();
 
     default void dispatchAlert(AlertObject alertObject) {
         PublicIdStringKey<AlertStream> streamKey = getNodePreferences().getObject(PreferenceKey.PARENT_ALERT_STREAM_KEY, AlertStreams.ROOT_ALERT_STREAM_KEY);
         AlertStreams.get(streamKey).dispatch(alertObject);
+    }
+
+    KometPreferences getNodePreferences();
+
+    enum PreferenceKey {
+        ACTIVITY_STREAM_KEY,
+        ACTIVITY_STREAM_OPTION_KEY,
+        PARENT_ALERT_STREAM_KEY
     }
 }

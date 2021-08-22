@@ -61,7 +61,7 @@ public abstract class ComponentPanelAbstract<C extends EntityFacade> {
         if (entity instanceof ConceptEntity conceptEntity) {
             return new ConceptPanel(conceptEntity, viewProperties);
         } else if (entity instanceof SemanticEntity semanticEntity) {
-            return new SemanticPanel(semanticEntity, viewProperties);
+            return new SemanticPanel(semanticEntity, viewProperties, true);
         } else if (entity instanceof PatternEntity patternEntity) {
             return new PatternPanel(patternEntity, viewProperties);
         } else {

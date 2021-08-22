@@ -25,16 +25,16 @@ public class PatternVersionPanel extends ComponentVersionIsFinalPanel<PatternEnt
         KometPropertySheet propertySheet = new KometPropertySheet(viewProperties);
         // Referenced component meaning:
         // TODO Referenced component meaning concept & definition.
-        FieldDefinitionRecord referencedComponentMeaningField = new FieldDefinitionRecord(EntityProxy.Concept.make(version.referencedComponentMeaningNid()),
+        FieldDefinitionRecord semanticMeaningField = new FieldDefinitionRecord(EntityProxy.Concept.make(version.semanticMeaningNid()),
                 "The meaning of the referenced component of a semantic with this pattern",
                 "Referenced component meaning", version);
-        propertySheet.getItems().add(SheetItem.make(referencedComponentMeaningField, REFERENCED_COMPONENT, viewProperties));
+        propertySheet.getItems().add(SheetItem.make(semanticMeaningField, REFERENCED_COMPONENT, viewProperties));
         // Referenced component purpose:
         // TODO Referenced component purpose concept & definition.
-        FieldDefinitionRecord referencedComponentPurposeField = new FieldDefinitionRecord(EntityProxy.Concept.make(version.referencedComponentPurposeNid()),
+        FieldDefinitionRecord semanticPurposeField = new FieldDefinitionRecord(EntityProxy.Concept.make(version.semanticPurposeNid()),
                 "The purpose served by the referenced component of a semantic with this pattern",
                 "Referenced component purpose ", version);
-        propertySheet.getItems().add(SheetItem.make(referencedComponentPurposeField, REFERENCED_COMPONENT, viewProperties));
+        propertySheet.getItems().add(SheetItem.make(semanticPurposeField, REFERENCED_COMPONENT, viewProperties));
         // Add the field definitions.
 
         int i = 1;

@@ -23,6 +23,8 @@ import org.hl7.komet.framework.activity.ActivityStreamOption;
 import org.hl7.komet.framework.activity.ActivityStreams;
 import org.hl7.komet.framework.alerts.AlertStream;
 import org.hl7.komet.framework.alerts.AlertStreams;
+import org.hl7.komet.framework.view.ObservableViewNoOverride;
+import org.hl7.komet.framework.view.ViewMenuTask;
 import org.hl7.komet.navigator.GraphNavigatorNodeFactory;
 import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.komet.progress.CompletionNodeFactory;
@@ -30,8 +32,6 @@ import org.hl7.komet.progress.ProgressNodeFactory;
 import org.hl7.komet.search.SearchNodeFactory;
 import org.hl7.komet.tabs.DetachableTab;
 import org.hl7.komet.tabs.TabStack;
-import org.hl7.komet.framework.view.ObservableViewNoOverride;
-import org.hl7.komet.framework.view.ViewMenuTask;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
 import org.hl7.tinkar.common.service.Executor;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculatorWithCache;
@@ -54,13 +54,7 @@ import java.util.logging.Logger;
 public class KometStageController implements SetupNode {
 
     private static final Logger LOG = Logger.getLogger(KometStageController.class.getName());
-
-    public enum Keys {
-        FACTORY_CLASS,
-        TAB_PANE_INDEX,
-        INDEX_IN_TAB_PANE,
-    }
-
+    private final ImageView vanityImage = new ImageView();
     ArrayList<TabPane> tabPanes = new ArrayList<>();
     @FXML  // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
@@ -104,9 +98,6 @@ public class KometStageController implements SetupNode {
 
     private ObservableViewNoOverride windowView;
     private KometPreferences nodePreferences;
-
-    private final ImageView vanityImage = new ImageView();
-
     private TabStack leftDetachableTabPane;
     private TabStack centerDetachableTabPane;
     private TabStack rightDetachableTabPane;
@@ -268,19 +259,28 @@ public class KometStageController implements SetupNode {
                 ActivityStreams.NAVIGATION, ActivityStreamOption.SUBSCRIBE.keyForOption(), AlertStreams.ROOT_ALERT_STREAM_KEY);
 
         DetachableTab detailsNode1Tab = new DetachableTab(detailsNode1.getTitle().getValue(), detailsNode1.getNode());
+        // TODO: setting up tab graphic, title, and tooltip needs to be standardized by the factory...
         detailsNode1Tab.setGraphic(detailsNode1.getTitleNode());
+        detailsNode1Tab.textProperty().bind(detailsNode1.getTitle());
+        detailsNode1Tab.tooltipProperty().setValue(detailsNode1.makeToolTip());
         this.centerDetachableTabPane.getTabs().add(detailsNode1Tab);
 
         KometNode detailsNode2 = detailsNodeFactory.create(windowView, nodePreferences,
                 ActivityStreams.SEARCH, ActivityStreamOption.SUBSCRIBE.keyForOption(), AlertStreams.ROOT_ALERT_STREAM_KEY);
         DetachableTab detailsNode2Tab = new DetachableTab(detailsNode2.getTitle().getValue(), detailsNode2.getNode());
+        // TODO: setting up tab graphic, title, and tooltip needs to be standardized by the factory...
         detailsNode2Tab.setGraphic(detailsNode2.getTitleNode());
+        detailsNode2Tab.textProperty().bind(detailsNode2.getTitle());
+        detailsNode2Tab.tooltipProperty().setValue(detailsNode2.makeToolTip());
         this.centerDetachableTabPane.getTabs().add(detailsNode2Tab);
 
         KometNode detailsNode3 = detailsNodeFactory.create(windowView, nodePreferences,
                 ActivityStreams.UNLINKED, ActivityStreamOption.PUBLISH.keyForOption(), AlertStreams.ROOT_ALERT_STREAM_KEY);
         DetachableTab detailsNode3Tab = new DetachableTab(detailsNode3.getTitle().getValue(), detailsNode3.getNode());
+        // TODO: setting up tab graphic, title, and tooltip needs to be standardized by the factory...
         detailsNode3Tab.setGraphic(detailsNode3.getTitleNode());
+        detailsNode3Tab.textProperty().bind(detailsNode3.getTitle());
+        detailsNode3Tab.tooltipProperty().setValue(detailsNode3.makeToolTip());
         this.centerDetachableTabPane.getTabs().add(detailsNode3Tab);
 
 
@@ -299,12 +299,18 @@ public class KometStageController implements SetupNode {
         this.rightDetachableTabPane.getTabs().add(progressTab);
 
         CompletionNodeFactory completionNodeFactory = new CompletionNodeFactory();
-        KometNode completionNode  = completionNodeFactory.create(windowView, nodePreferences,
+        KometNode completionNode = completionNodeFactory.create(windowView, nodePreferences,
                 null, null, AlertStreams.ROOT_ALERT_STREAM_KEY);
         DetachableTab completionTab = new DetachableTab(completionNode.getTitle().getValue(), completionNode.getNode());
         completionTab.setGraphic(completionNode.getTitleNode());
         this.rightDetachableTabPane.getTabs().add(completionTab);
 
         this.rightDetachableTabPane.getSelectionModel().select(progressTab);
+    }
+
+    public enum Keys {
+        FACTORY_CLASS,
+        TAB_PANE_INDEX,
+        INDEX_IN_TAB_PANE,
     }
 }
