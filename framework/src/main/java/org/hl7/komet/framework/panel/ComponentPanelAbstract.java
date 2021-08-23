@@ -1,6 +1,7 @@
 package org.hl7.komet.framework.panel;
 
 import javafx.application.Platform;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
@@ -20,7 +21,7 @@ import org.hl7.tinkar.terms.EntityFacade;
 
 import java.util.Optional;
 
-public abstract class ComponentPanelAbstract<C extends EntityFacade> {
+public abstract class ComponentPanelAbstract {
     protected final BorderPane componentDetailPane = new BorderPane();
     protected final VBox componentPanelBox = new VBox(8);
     protected final ViewProperties viewProperties;
@@ -34,7 +35,7 @@ public abstract class ComponentPanelAbstract<C extends EntityFacade> {
         this.viewProperties = viewProperties;
     }
 
-    public abstract Optional<C> getComponent();
+    public abstract <C extends EntityFacade> Optional<C> getComponent();
 
     public ViewCalculator calculator() {
         return viewProperties.calculator();
@@ -44,26 +45,26 @@ public abstract class ComponentPanelAbstract<C extends EntityFacade> {
         return componentPanelBox;
     }
 
-    protected void addSemanticReferences(C entity) {
+    protected void addSemanticReferences(EntityFacade entity, SimpleObjectProperty<EntityFacade> topEnclosingComponentProperty) {
         if (entity != null) {
             Executor.threadPool().execute(() -> {
                 PrimitiveData.get().forEachSemanticNidForComponent(entity.nid(), semanticNid -> {
                     SemanticEntity semanticEntity = Entity.getFast(semanticNid);
-                    ComponentPanelAbstract<?> semanticPanel = makeComponentPanel(semanticEntity);
+                    ComponentPanelAbstract semanticPanel = makeComponentPanel(semanticEntity, topEnclosingComponentProperty);
                     Platform.runLater(() -> ComponentPanelAbstract.this.componentPanelBox.getChildren().add(semanticPanel.getComponentDetailPane()));
                 });
             });
         }
     }
 
-    public ComponentPanelAbstract<?> makeComponentPanel(EntityFacade facade) {
+    public ComponentPanelAbstract makeComponentPanel(EntityFacade facade, SimpleObjectProperty<EntityFacade> topEnclosingComponentProperty) {
         Entity<?> entity = Entity.getFast(facade);
         if (entity instanceof ConceptEntity conceptEntity) {
-            return new ConceptPanel(conceptEntity, viewProperties);
+            return new ConceptPanel(conceptEntity, viewProperties, topEnclosingComponentProperty);
         } else if (entity instanceof SemanticEntity semanticEntity) {
-            return new SemanticPanel(semanticEntity, viewProperties, true);
+            return new SemanticPanel(semanticEntity, viewProperties, topEnclosingComponentProperty);
         } else if (entity instanceof PatternEntity patternEntity) {
-            return new PatternPanel(patternEntity, viewProperties);
+            return new PatternPanel(patternEntity, viewProperties, topEnclosingComponentProperty);
         } else {
             throw new IllegalStateException("Can't handle: " + entity);
         }

@@ -3,7 +3,10 @@ package org.hl7.komet.framework.propsheet;
 
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -15,11 +18,15 @@ import org.controlsfx.control.textfield.TextFields;
 import org.controlsfx.property.editor.AbstractPropertyEditor;
 import org.controlsfx.property.editor.PropertyEditor;
 import org.hl7.komet.framework.graphics.Icon;
+import org.hl7.komet.framework.panel.axiom.AxiomView;
+import org.hl7.komet.framework.propsheet.editor.ListEditor;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+
+import static org.hl7.komet.framework.StyleClasses.PROP_SHEET_PROPERTY_NAME;
 
 public class KometPropertySheetSkin extends SkinBase<PropertySheet> {
 
@@ -124,21 +131,18 @@ public class KometPropertySheetSkin extends SkinBase<PropertySheet> {
                     list.add(p);
                 }
 
-                // create category-based accordion
-                Accordion accordion = new Accordion();
+                // WAS: create category-based accordion; KEC want to support more than one pane open.
+                VBox categoryPanes = new VBox(2);
                 for (String category : categoryMap.keySet()) {
                     KometPropertySheetSkin.PropertyPane props = new KometPropertySheetSkin.PropertyPane(categoryMap.get(category));
                     // Only show non-empty categories
                     if (props.getChildrenUnmodifiable().size() > 0) {
                         TitledPane pane = new TitledPane(category, props);
                         pane.setExpanded(true);
-                        accordion.getPanes().add(pane);
+                        categoryPanes.getChildren().add(pane);
                     }
                 }
-                if (accordion.getPanes().size() > 0) {
-                    accordion.setExpandedPane(accordion.getPanes().get(0));
-                }
-                return accordion;
+                return categoryPanes;
             }
 
             default:
@@ -211,6 +215,7 @@ public class KometPropertySheetSkin extends SkinBase<PropertySheet> {
             int row = 0;
 
             for (PropertySheet.Item item : properties) {
+                Node editor = getEditor(item);
 
                 // filter properties
                 String title = item.getName();
@@ -218,9 +223,11 @@ public class KometPropertySheetSkin extends SkinBase<PropertySheet> {
                 if (!filter.isEmpty() && title.toLowerCase().indexOf(filter) < 0) continue;
 
                 // setup property label
-                Label label = new Label(title);
+                Label label = new Label(title + ": ");
+                label.setAlignment(Pos.CENTER_RIGHT);
                 label.setWrapText(true);
                 label.setMinWidth(MIN_COLUMN_WIDTH);
+                label.getStyleClass().add(PROP_SHEET_PROPERTY_NAME.toString());
 
                 // show description as a tooltip
                 String description = item.getDescription();
@@ -228,10 +235,17 @@ public class KometPropertySheetSkin extends SkinBase<PropertySheet> {
                     label.setTooltip(new Tooltip(description));
                 }
 
+                GridPane.setHalignment(label, HPos.RIGHT);
+                item.getPropertyEditorClass().ifPresent((Class aClass) -> {
+                    if (aClass == AxiomView.class ||
+                            aClass == ListEditor.class) {
+                        label.setMaxWidth(100);
+                        GridPane.setValignment(label, VPos.TOP);
+                    }
+                });
                 add(label, 0, row);
 
                 // setup property editor
-                Node editor = getEditor(item);
 
                 if (editor instanceof Region) {
                     ((Region) editor).setMinWidth(MIN_COLUMN_WIDTH);

@@ -967,10 +967,68 @@ modena.css is the default css.
 .component-panel {
     -fx-border-color: -komet-box-border -komet-box-border -komet-box-border transparent;
     -fx-text-fill: black;
-    -fx-border-width: 1 0 1 5;
-    -fx-border-insets: 5 0 5 3;
+    -fx-border-width: 1 0 1 7;
+    -fx-border-insets: 0 0 5 3;
     -fx-background-color: white;
+    -fx-padding: 0 0 0 5;
 }
+
+.component-collapsible-panel {
+    -fx-border-width: 1 0 1 5;
+}
+
+.component-collapsible-panel * .arrow {
+    -fx-focus-color: derive(-fx-mark-color, 25%);
+    -fx-faint-focus-color: derive(-fx-mark-color, 50%);
+    -fx-border-color: derive(-fx-mark-color, -10%);
+}
+
+.component-collapsible-panel:concept * .arrow {
+    -fx-mark-color: -komet-concept-color;
+    -fx-border-color: -fx-mark-color;
+}
+
+.component-collapsible-panel:concept {
+    -fx-text-fill: -komet-concept-color;
+}
+
+.component-collapsible-panel:pattern {
+    -fx-text-fill: royalblue;
+}
+
+.component-collapsible-panel:pattern * .arrow {
+    -fx-mark-color: royalblue;
+}
+
+.component-collapsible-panel:description {
+    -fx-text-fill: -komet-description-color;
+}
+
+.component-collapsible-panel:description * .arrow {
+    -fx-mark-color: -komet-description-color;
+}
+
+.component-collapsible-panel:logical-definition {
+    -fx-text-fill: -komet-definition-color;
+}
+
+.component-collapsible-panel:logical-definition * .arrow {
+    -fx-mark-color: -komet-definition-color;
+}
+
+.component-collapsible-panel:semantic {
+    -fx-text-fill: -komet-tab-background-color;
+}
+
+.component-collapsible-panel:semantic * .arrow {
+    -fx-mark-color: -komet-tab-background-color;
+}
+
+.component-collapsible-panel > *.content {
+    -fx-border-width: 0;
+    -fx-padding: -10 0 0 -15;
+}
+
 
 .component-panel:concept {
     -fx-border-color: -komet-box-border -komet-box-border -komet-box-border -komet-concept-color;
@@ -988,8 +1046,8 @@ modena.css is the default css.
 }
 
 .component-panel:semantic {
-    -fx-border-color: -komet-box-border -komet-box-border -komet-box-border purple;
-    -fx-text-fill: purple;
+    -fx-border-color: -komet-box-border -komet-box-border -komet-box-border -komet-tab-background-color;
+    -fx-text-fill: -komet-tab-background-color;
 }
 
 .component-panel:pattern {
@@ -1141,4 +1199,9 @@ modena.css is the default css.
 
 .header-text {
     -fx-padding: 0 0 0 5;
+}
+
+.prop-sheet-property-name {
+    -fx-text-fill: -komet-tab-background-color;
+    -fx-font-size: 12;
 }

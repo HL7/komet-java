@@ -1,7 +1,10 @@
 package org.hl7.komet.framework.panel;
 
 import javafx.application.Platform;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.control.TitledPane;
 import javafx.scene.layout.BorderPane;
 import org.hl7.komet.framework.panel.concept.ConceptVersionPanel;
 import org.hl7.komet.framework.panel.pattern.PatternVersionPanel;
@@ -10,17 +13,25 @@ import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.tinkar.component.graph.DiTree;
 import org.hl7.tinkar.entity.*;
 import org.hl7.tinkar.entity.graph.VersionVertex;
+import org.hl7.tinkar.terms.EntityFacade;
 
 import java.util.List;
 import java.util.Optional;
 
+import static org.hl7.komet.framework.StyleClasses.COMPONENT_COLLAPSIBLE_PANEL;
+
 /**
  * @param <C>
  */
-public class ComponentIsFinalPanel<C extends Entity<V>, V extends EntityVersion> extends ComponentPanelAbstract<C> {
+public class ComponentIsFinalPanel<C extends Entity<V>, V extends EntityVersion> extends ComponentPanelAbstract {
+    protected final TitledPane collapsiblePane = new TitledPane("Component", componentDetailPane);
     private final C component;
 
-    public ComponentIsFinalPanel(C component, ViewProperties viewProperties) {
+    {
+        collapsiblePane.getStyleClass().add(COMPONENT_COLLAPSIBLE_PANEL.toString());
+    }
+
+    public ComponentIsFinalPanel(C component, ViewProperties viewProperties, SimpleObjectProperty<EntityFacade> topEnclosingComponentProperty) {
         super(viewProperties);
         if (component == null) {
             throw new NullPointerException();
@@ -33,7 +44,7 @@ public class ComponentIsFinalPanel<C extends Entity<V>, V extends EntityVersion>
             }
         });
         Platform.runLater(() -> {
-            addSemanticReferences(component);
+            addSemanticReferences(component, topEnclosingComponentProperty);
         });
     }
 
@@ -62,4 +73,10 @@ public class ComponentIsFinalPanel<C extends Entity<V>, V extends EntityVersion>
     public final Optional<C> getComponent() {
         return Optional.of(component);
     }
+
+
+    public Node getComponentDetailPane() {
+        return collapsiblePane;
+    }
+
 }

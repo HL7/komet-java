@@ -30,9 +30,9 @@ import org.eclipse.collections.impl.factory.primitive.IntSets;
 import org.hl7.komet.executor.TaskWrapper;
 import org.hl7.komet.framework.Dialogs;
 import org.hl7.komet.framework.KometNode;
-import org.hl7.komet.framework.activity.ActivityStream;
 import org.hl7.komet.framework.LayoutAnimator;
 import org.hl7.komet.framework.RefreshListener;
+import org.hl7.komet.framework.activity.ActivityStream;
 import org.hl7.komet.framework.activity.ActivityStreams;
 import org.hl7.komet.framework.alerts.AlertCategory;
 import org.hl7.komet.framework.alerts.AlertObject;
@@ -42,19 +42,14 @@ import org.hl7.komet.framework.dnd.ClipboardHelper;
 import org.hl7.komet.framework.dnd.KometClipboard;
 import org.hl7.komet.framework.graphics.Icon;
 import org.hl7.komet.framework.temp.FxGet;
-import org.hl7.komet.preferences.KometPreferences;
-import org.hl7.komet.framework.view.ViewMenuModel;
 import org.hl7.komet.framework.view.ObservableView;
+import org.hl7.komet.framework.view.ViewMenuModel;
+import org.hl7.komet.framework.view.ViewProperties;
+import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.tinkar.common.id.IntIds;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
-import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.tinkar.common.service.Executor;
-import org.hl7.tinkar.common.service.PrimitiveData;
 import org.hl7.tinkar.common.service.TrackingCallable;
-import org.hl7.tinkar.component.ConceptChronology;
-import org.hl7.tinkar.component.ConceptVersion;
-import org.hl7.tinkar.component.SemanticChronology;
-import org.hl7.tinkar.component.SemanticVersion;
 import org.hl7.tinkar.coordinate.navigation.calculator.Edge;
 import org.hl7.tinkar.coordinate.stamp.StampPathImmutable;
 import org.hl7.tinkar.coordinate.view.ViewCoordinate;
@@ -68,7 +63,6 @@ import org.hl7.tinkar.terms.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
@@ -76,35 +70,10 @@ import static org.hl7.komet.framework.StyleClasses.MULTI_PARENT_TREE_NODE;
 
 public class MultiParentGraphViewController implements RefreshListener {
     private static final Logger LOG = LoggerFactory.getLogger(MultiParentGraphViewController.class);
-    private ObservableView observableView;
-
     private static volatile boolean shutdownRequested = false;
-
-    @FXML
-    private BorderPane topBorderPane;
-
-    @FXML
-    private GridPane topGridPane;
-
-    @FXML
-    private ToolBar toolBar;
-
-    @FXML
-    private MenuButton navigationMenuButton;
-
-    @FXML
-    Menu navigationCoordinateMenu;
-
     private final Label navigationLabel = new Label();
-    ViewMenuModel viewMenuModel;
-
-
-    //~--- fields --------------------------------------------------------------
-    private NavigatorDisplayPolicies displayPolicies;
-    private OptionalInt selectedItemNidOptional = OptionalInt.empty();
     private final MutableIntList expandedNids = IntLists.mutable.empty();
     private final ObservableList<AlertObject> alertList = FXCollections.observableArrayList();
-
     /**
      * added to prevent garbage collection of listener while this node is still
      * active
@@ -113,19 +82,43 @@ public class MultiParentGraphViewController implements RefreshListener {
     private final LayoutAnimator alertsAnimator = new LayoutAnimator();
     private final SimpleObjectProperty<Navigator> navigatorProperty = new SimpleObjectProperty<>();
     private final UUID uuid = UUID.randomUUID();
-
+    @FXML
+    Menu navigationCoordinateMenu;
+    ViewMenuModel viewMenuModel;
+    private ObservableView observableView;
+    @FXML
+    private BorderPane topBorderPane;
+    @FXML
+    private GridPane topGridPane;
+    @FXML
+    private ToolBar toolBar;
+    @FXML
+    private MenuButton navigationMenuButton;
+    //~--- fields --------------------------------------------------------------
+    private NavigatorDisplayPolicies displayPolicies;
+    private OptionalInt selectedItemNidOptional = OptionalInt.empty();
     private KometPreferences nodePreferences;
 
     private MultiParentVertexImpl rootTreeItem;
     private TreeView<ConceptFacade> treeView;
     private ViewProperties viewProperties;
+    private final ChangeListener<ViewCoordinateRecord> viewChangedListener = this::viewChanged;
     private GraphNavigatorNode graphNavigatorNode;
-
     private SimpleObjectProperty<PublicIdStringKey<ActivityStream>> activityStreamKeyProperty = new SimpleObjectProperty<>();
     private SimpleObjectProperty<ActivityStream> activityStreamProperty = new SimpleObjectProperty<>();
 
-    private final ChangeListener<ViewCoordinateRecord> viewChangedListener = this::viewChanged;
-    private ChangeListener<Scene> sceneChangedListener = this::sceneChanged;
+    /**
+     * Tell the tree to stop whatever threading operations it has running, since
+     * the application is exiting.
+     */
+    public static void globalShutdownRequested() {
+        shutdownRequested = true;
+        LOG.info("Global Navigator shutdown called!");
+    }    private ChangeListener<Scene> sceneChangedListener = this::sceneChanged;
+
+    protected static boolean wasGlobalShutdownRequested() {
+        return shutdownRequested;
+    }
 
     private void sceneChanged(ObservableValue<? extends Scene> observableValue, Scene oldScene, Scene newScene) {
         if (newScene == null) {
@@ -133,6 +126,18 @@ public class MultiParentGraphViewController implements RefreshListener {
             this.topBorderPane.sceneProperty().removeListener(this.sceneChangedListener);
             this.getObservableView().removeListener(this.viewChangedListener);
         }
+    }
+
+    protected void shutdownInstance() {
+        LOG.info("Shutdown graph view instance");
+        this.getObservableView().removeListener(this.viewChangedListener);
+        if (rootTreeItem != null) {
+            rootTreeItem.clearChildren();  // This recursively cancels any active lookups
+        }
+    }
+
+    public ObservableView getObservableView() {
+        return this.observableView;
     }
 
     private void viewChanged(ObservableValue<? extends ViewCoordinateRecord> observable,
@@ -195,7 +200,7 @@ public class MultiParentGraphViewController implements RefreshListener {
     @FXML
     void copySelectedConcepts(ActionEvent event) {
         List<EntityProxy> identifiedObjects = new ArrayList<>();
-        for (TreeItem<ConceptFacade> ConceptEntityTreeItem: this.treeView.getSelectionModel().getSelectedItems()) {
+        for (TreeItem<ConceptFacade> ConceptEntityTreeItem : this.treeView.getSelectionModel().getSelectedItems()) {
             identifiedObjects.add(ConceptEntityTreeItem.getValue().toProxy());
         }
         Clipboard.getSystemClipboard().setContent(new KometClipboard(identifiedObjects));
@@ -206,18 +211,20 @@ public class MultiParentGraphViewController implements RefreshListener {
         this.nodePreferences.putObject(KometNode.PreferenceKey.ACTIVITY_STREAM_KEY, this.activityStreamKeyProperty.get());
 
     }
+
     private void menuUpdate() {
         ImmutableList<String> navigationPatternDescriptions = this.viewProperties.nodeView().calculator().
                 getPreferredDescriptionTextListForComponents(this.observableView.navigationCoordinate().navigationPatternNids());
         this.navigationLabel.setText(navigationPatternDescriptions.toString());
         refreshTaxonomy();
     }
+
     public void setProperties(GraphNavigatorNode graphNavigatorNode, ViewProperties viewProperties, KometPreferences nodePreferences) {
         this.graphNavigatorNode = graphNavigatorNode;
         this.nodePreferences = nodePreferences;
         this.viewProperties = viewProperties;
         this.observableView = this.viewProperties.nodeView();
-        this.navigationCoordinateMenu.setGraphic(Icon.VIEW.makeIcon());
+        this.navigationCoordinateMenu.setGraphic(Icon.COORDINATES.makeIcon());
         this.viewMenuModel = new ViewMenuModel(viewProperties, navigationMenuButton, navigationCoordinateMenu);
         this.menuUpdate();
         FxGet.pathCoordinates(viewProperties.nodeView().calculator()).addListener((MapChangeListener<PublicIdStringKey, StampPathImmutable>) change -> menuUpdate());
@@ -252,7 +259,7 @@ public class MultiParentGraphViewController implements RefreshListener {
         if (activityStream != null) {
             EntityFacade[] selectionArray = new EntityFacade[c.getList().size()];
             int i = 0;
-            for (TreeItem<ConceptFacade> treeItem: c.getList()) {
+            for (TreeItem<ConceptFacade> treeItem : c.getList()) {
                 selectionArray[i++] = treeItem.getValue();
             }
             activityStream.dispatch(selectionArray);
@@ -260,9 +267,7 @@ public class MultiParentGraphViewController implements RefreshListener {
         }
     }
 
-    public ObservableView getObservableView() {
-        return this.observableView;
-    }
+    //~--- methods -------------------------------------------------------------
 
     private void dragDropped(DragEvent event) {
         Dragboard db = event.getDragboard();
@@ -272,10 +277,10 @@ public class MultiParentGraphViewController implements RefreshListener {
             showConcept(conceptProxy.nid());
             success = true;
         } else if (db.hasContent(KometClipboard.KOMET_SEMANTIC_PROXY)) {
-           EntityProxy.Semantic semanticProxy = ProxyFactory.fromXmlFragment((String) db.getContent(KometClipboard.KOMET_SEMANTIC_PROXY));
-           Optional<ConceptEntity> optionalConcept = Entity.getConceptForSemantic(semanticProxy);
-           optionalConcept.ifPresent(conceptEntity -> showConcept(conceptEntity.nid()));
-           success = optionalConcept.isPresent();
+            EntityProxy.Semantic semanticProxy = ProxyFactory.fromXmlFragment((String) db.getContent(KometClipboard.KOMET_SEMANTIC_PROXY));
+            Optional<ConceptEntity> optionalConcept = Entity.getConceptForSemantic(semanticProxy);
+            optionalConcept.ifPresent(conceptEntity -> showConcept(conceptEntity.nid()));
+            success = optionalConcept.isPresent();
         } else if (db.hasContent(KometClipboard.KOMET_PATTERN_PROXY)) {
             EntityProxy.Pattern patternProxy = ProxyFactory.fromXmlFragment((String) db.getContent(KometClipboard.KOMET_PATTERN_PROXY));
             // don't know what to do with pattern and navigation...
@@ -309,28 +314,16 @@ public class MultiParentGraphViewController implements RefreshListener {
         event.consume();
     }
 
-    //~--- methods -------------------------------------------------------------
+    @Override
+    public UUID getListenerUuid() {
+        return this.uuid;
+    }
 
     @Override
     public void refresh() {
         Platform.runLater(() -> {
             this.refreshTaxonomy();
         });
-    }
-
-    /**
-     * Tell the tree to stop whatever threading operations it has running, since
-     * the application is exiting.
-     *
-     */
-    public static void globalShutdownRequested() {
-        shutdownRequested = true;
-        LOG.info("Global Navigator shutdown called!");
-    }
-
-    @Override
-    public UUID getListenerUuid() {
-        return this.uuid;
     }
 
     public void showConcept(final int conceptNid) {
@@ -342,25 +335,13 @@ public class MultiParentGraphViewController implements RefreshListener {
                 .submit(task);
     }
 
-    protected void shutdownInstance() {
-        LOG.info("Shutdown graph view instance");
-        this.getObservableView().removeListener(this.viewChangedListener);
-        if (rootTreeItem != null) {
-            rootTreeItem.clearChildren();  // This recursively cancels any active lookups
-        }
-    }
-
-    protected static boolean wasGlobalShutdownRequested() {
-        return shutdownRequested;
-    }
-
     /**
      * The first call you make to this should pass in the root node.
-     *
+     * <p>
      * After that you can call it repeatedly to walk down the tree (you need to
      * know the path first) This will handle the waiting for each node to open,
      * before moving on to the next node.
-     *
+     * <p>
      * This should be called on a background thread.
      *
      * @param item
@@ -467,7 +448,7 @@ public class MultiParentGraphViewController implements RefreshListener {
 
     public void expandAndSelect(IntList expansionPath) {
         boolean foundRoot = false;
-        for (TreeItem<ConceptFacade> rootConcept: rootTreeItem.getChildren()) {
+        for (TreeItem<ConceptFacade> rootConcept : rootTreeItem.getChildren()) {
             MultiParentVertexImpl viewRoot = (MultiParentVertexImpl) rootConcept;
             if (viewRoot.getConceptNid() == expansionPath.get(0)) {
                 foundRoot = true;
@@ -487,41 +468,6 @@ public class MultiParentGraphViewController implements RefreshListener {
                     affectedComponents);
             this.graphNavigatorNode.dispatchAlert(alert);
         }
-    }
-
-    private class ExpandTask extends TrackingCallable<Void> {
-
-        final IntList expansionPath;
-        final int pathIndex;
-        final MultiParentVertexImpl currentItem;
-
-        public ExpandTask(MultiParentVertexImpl currentItem, IntList expansionPath, int pathIndex) {
-            this.currentItem = currentItem;
-            this.expansionPath = expansionPath;
-            this.pathIndex = pathIndex;
-        }
-
-        @Override
-        protected Void compute() throws Exception {
-            treeView.scrollTo(treeView.getRow(currentItem));
-            treeView.getSelectionModel().clearSelection();
-            treeView.getSelectionModel().select(currentItem);
-            if (pathIndex < expansionPath.size()) {
-                int childNidToMatch = expansionPath.get(pathIndex);
-                for (TreeItem child : currentItem.getChildren()) {
-                    MultiParentVertexImpl childItem = (MultiParentVertexImpl) child;
-                    if (childItem.getConceptNid() == childNidToMatch) {
-                        childItem.addChildrenNow();
-                        currentItem.setExpanded(true);
-                        Platform.runLater(TaskWrapper.make(
-                                new MultiParentGraphViewController.ExpandTask(childItem, expansionPath, pathIndex + 1)));
-                        break;
-                    }
-                }
-            }
-            return null;
-        }
-
     }
 
     private void saveExpanded() {
@@ -581,7 +527,7 @@ public class MultiParentGraphViewController implements RefreshListener {
     }
 
     public final void generateSmartGraphCode(ActionEvent event) {
-        TreeItem<ConceptFacade> item  = this.treeView.getSelectionModel().getSelectedItem();
+        TreeItem<ConceptFacade> item = this.treeView.getSelectionModel().getSelectedItem();
         ConceptFacade concept = item.getValue();
         Navigator navigator = navigatorProperty.get();
         MutableIntSet conceptNids = IntSets.mutable.empty();
@@ -598,8 +544,8 @@ public class MultiParentGraphViewController implements RefreshListener {
         });
         buff.append("\n");
         int edgeCount = 1;
-        for (Map.Entry<Integer, ArrayList<Edge>> entry: taxonomyLinks.entrySet()) {
-            for (Edge link: entry.getValue()) {
+        for (Map.Entry<Integer, ArrayList<Edge>> entry : taxonomyLinks.entrySet()) {
+            for (Edge link : entry.getValue()) {
                 buff.append("   g.insertEdge(\"").append(this.viewProperties.calculator().getPreferredDescriptionTextWithFallbackOrNid(entry.getKey())).append("\", \"")
                         .append(this.viewProperties.calculator().getPreferredDescriptionTextWithFallbackOrNid(link.destinationNid())).append("\", \"").append(edgeCount++).append("\");\n");
             }
@@ -608,8 +554,9 @@ public class MultiParentGraphViewController implements RefreshListener {
         ClipboardHelper.copyToClipboard(buff);
         LOG.info(event.toString());
     }
+
     public final void generateJGraphTCode(ActionEvent event) {
-        TreeItem<ConceptFacade> item  = this.treeView.getSelectionModel().getSelectedItem();
+        TreeItem<ConceptFacade> item = this.treeView.getSelectionModel().getSelectedItem();
         ConceptFacade concept = item.getValue();
         Navigator navigator = navigatorProperty.get();
         MutableIntSet conceptNids = IntSets.mutable.empty();
@@ -628,8 +575,8 @@ public class MultiParentGraphViewController implements RefreshListener {
         });
         buff.append("\n");
         int edgeCount = 1;
-        for (Map.Entry<Integer, ArrayList<Edge>> entry: taxonomyLinks.entrySet()) {
-            for (Edge link: entry.getValue()) {
+        for (Map.Entry<Integer, ArrayList<Edge>> entry : taxonomyLinks.entrySet()) {
+            for (Edge link : entry.getValue()) {
                 buff.append("   g.addEdge(\"\\\"").append(this.viewProperties.calculator().getPreferredDescriptionTextWithFallbackOrNid(entry.getKey())).append("\\\"\", \"\\\"")
                         .append(this.viewProperties.calculator().getPreferredDescriptionTextWithFallbackOrNid(link.destinationNid())).append("\\\"\");\n");
             }
@@ -644,7 +591,7 @@ public class MultiParentGraphViewController implements RefreshListener {
             conceptNids.add(conceptNid);
             ArrayList<Edge> linkList = new ArrayList<>();
             taxonomyLinks.put(conceptNid, linkList);
-            for (Edge link: navigator.getParentEdges(conceptNid)) {
+            for (Edge link : navigator.getParentEdges(conceptNid)) {
                 if (link.typeNids().contains(TinkarTerm.IS_A.nid())) {
                     linkList.add(link);
                 }
@@ -652,7 +599,6 @@ public class MultiParentGraphViewController implements RefreshListener {
             }
         }
     }
-
 
     public final void handleDescriptionTypeChange(ActionEvent event) {
         this.rootTreeItem.invalidate();
@@ -672,7 +618,7 @@ public class MultiParentGraphViewController implements RefreshListener {
         if (this.navigatorProperty.get().getRootNids().length > 1) {
             LOG.error("To many roots: " + this.navigatorProperty.get().getRootNids());
         }
-        for (int rootNid: this.navigatorProperty.get().getRootNids()) {
+        for (int rootNid : this.navigatorProperty.get().getRootNids()) {
             MultiParentVertexImpl graphRoot = new MultiParentVertexImpl(
                     Entity.getFast(rootNid),
                     MultiParentGraphViewController.this,
@@ -680,7 +626,7 @@ public class MultiParentGraphViewController implements RefreshListener {
                     Icon.TAXONOMY_ROOT_ICON.makeIcon());
             this.rootTreeItem.getChildren().add(graphRoot);
         }
-        for (TreeItem<ConceptFacade> rootChild: this.rootTreeItem.getChildren()) {
+        for (TreeItem<ConceptFacade> rootChild : this.rootTreeItem.getChildren()) {
             ((MultiParentVertexImpl) rootChild).clearChildren();
             Executor.threadPool().execute(() -> ((MultiParentVertexImpl) rootChild).addChildren());
         }
@@ -700,8 +646,6 @@ public class MultiParentGraphViewController implements RefreshListener {
         this.displayPolicies = policies;
     }
 
-    //~--- get methods ---------------------------------------------------------
-
     public MultiParentVertexImpl getRoot() {
         return rootTreeItem;
     }
@@ -709,6 +653,8 @@ public class MultiParentGraphViewController implements RefreshListener {
     protected Navigator getNavigator() {
         return navigatorProperty.get();
     }
+
+    //~--- get methods ---------------------------------------------------------
 
     public BorderPane getPane() {
         return topBorderPane;
@@ -725,5 +671,42 @@ public class MultiParentGraphViewController implements RefreshListener {
     public void dispatchAlert(AlertObject alertObject) {
         graphNavigatorNode.dispatchAlert(alertObject);
     }
+
+    private class ExpandTask extends TrackingCallable<Void> {
+
+        final IntList expansionPath;
+        final int pathIndex;
+        final MultiParentVertexImpl currentItem;
+
+        public ExpandTask(MultiParentVertexImpl currentItem, IntList expansionPath, int pathIndex) {
+            this.currentItem = currentItem;
+            this.expansionPath = expansionPath;
+            this.pathIndex = pathIndex;
+        }
+
+        @Override
+        protected Void compute() throws Exception {
+            treeView.scrollTo(treeView.getRow(currentItem));
+            treeView.getSelectionModel().clearSelection();
+            treeView.getSelectionModel().select(currentItem);
+            if (pathIndex < expansionPath.size()) {
+                int childNidToMatch = expansionPath.get(pathIndex);
+                for (TreeItem child : currentItem.getChildren()) {
+                    MultiParentVertexImpl childItem = (MultiParentVertexImpl) child;
+                    if (childItem.getConceptNid() == childNidToMatch) {
+                        childItem.addChildrenNow();
+                        currentItem.setExpanded(true);
+                        Platform.runLater(TaskWrapper.make(
+                                new MultiParentGraphViewController.ExpandTask(childItem, expansionPath, pathIndex + 1)));
+                        break;
+                    }
+                }
+            }
+            return null;
+        }
+
+    }
+
+
 }
 

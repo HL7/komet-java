@@ -14,7 +14,7 @@ import org.hl7.tinkar.terms.EntityProxy;
 
 public class PatternVersionPanel extends ComponentVersionIsFinalPanel<PatternEntityVersion> {
 
-    public static final String REFERENCED_COMPONENT = "Referenced component";
+    public static final String SEMANTIC_INFO = "Semantic info";
 
     public PatternVersionPanel(PatternEntityVersion version, ViewProperties viewProperties) {
         super(version, viewProperties);
@@ -26,15 +26,15 @@ public class PatternVersionPanel extends ComponentVersionIsFinalPanel<PatternEnt
         // Referenced component meaning:
         // TODO Referenced component meaning concept & definition.
         FieldDefinitionRecord semanticMeaningField = new FieldDefinitionRecord(EntityProxy.Concept.make(version.semanticMeaningNid()),
-                "The meaning of the referenced component of a semantic with this pattern",
-                "Referenced component meaning", version);
-        propertySheet.getItems().add(SheetItem.make(semanticMeaningField, REFERENCED_COMPONENT, viewProperties));
+                "The meaning of a semantic with this pattern",
+                "Semantic meaning", version);
+        propertySheet.getItems().add(SheetItem.make(semanticMeaningField, SEMANTIC_INFO, viewProperties));
         // Referenced component purpose:
         // TODO Referenced component purpose concept & definition.
         FieldDefinitionRecord semanticPurposeField = new FieldDefinitionRecord(EntityProxy.Concept.make(version.semanticPurposeNid()),
-                "The purpose served by the referenced component of a semantic with this pattern",
-                "Referenced component purpose ", version);
-        propertySheet.getItems().add(SheetItem.make(semanticPurposeField, REFERENCED_COMPONENT, viewProperties));
+                "The purpose of a semantic with this pattern",
+                "Semantic purpose ", version);
+        propertySheet.getItems().add(SheetItem.make(semanticPurposeField, SEMANTIC_INFO, viewProperties));
         // Add the field definitions.
 
         int i = 1;
@@ -60,10 +60,10 @@ public class PatternVersionPanel extends ComponentVersionIsFinalPanel<PatternEnt
             if (o1.equals(o2)) {
                 return 0;
             }
-            if (o1.equals(REFERENCED_COMPONENT)) {
+            if (o1.equals(SEMANTIC_INFO)) {
                 return -1;
             }
-            if (o2.equals(REFERENCED_COMPONENT)) {
+            if (o2.equals(SEMANTIC_INFO)) {
                 return 1;
             }
             return NaturalOrder.compareStrings(o1, o2);

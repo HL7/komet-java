@@ -1,6 +1,7 @@
 package org.hl7.komet.framework.panel;
 
 import javafx.application.Platform;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WeakChangeListener;
@@ -10,13 +11,13 @@ import org.hl7.tinkar.terms.EntityFacade;
 
 import java.util.Optional;
 
-public class ComponentPanel<C extends EntityFacade>
-        extends ComponentPanelAbstract<C>
-        implements ChangeListener<C> {
+public class ComponentPanel
+        extends ComponentPanelAbstract
+        implements ChangeListener<EntityFacade> {
 
     private final ScrollPane scrollPane = new ScrollPane(componentPanelBox);
-    private final ObservableValue<C> componentProperty;
-    private final WeakChangeListener<C> weakComponentChangedListener = new WeakChangeListener(this);
+    private final SimpleObjectProperty<EntityFacade> componentProperty;
+    private final WeakChangeListener<EntityFacade> weakComponentChangedListener = new WeakChangeListener(this);
 
     {
         this.scrollPane.setFitToWidth(true);
@@ -25,7 +26,7 @@ public class ComponentPanel<C extends EntityFacade>
         this.componentDetailPane.setCenter(this.scrollPane);
     }
 
-    public ComponentPanel(ObservableValue<C> componentProperty, ViewProperties viewProperties) {
+    public ComponentPanel(SimpleObjectProperty<EntityFacade> componentProperty, ViewProperties viewProperties) {
         super(viewProperties);
         this.componentProperty = componentProperty;
         this.componentProperty.addListener(this.weakComponentChangedListener);
@@ -33,15 +34,15 @@ public class ComponentPanel<C extends EntityFacade>
     }
 
     @Override
-    public void changed(ObservableValue<? extends C> observable, C oldValue, C newValue) {
+    public void changed(ObservableValue<? extends EntityFacade> observable, EntityFacade oldValue, EntityFacade newValue) {
         getComponentPanelBox().getChildren().clear();
         if (newValue != null) {
-            getComponentPanelBox().getChildren().add(makeComponentPanel(newValue).getComponentDetailPane());
+            getComponentPanelBox().getChildren().add(makeComponentPanel(newValue, componentProperty).getComponentDetailPane());
         }
     }
 
     @Override
-    public Optional<C> getComponent() {
-        return Optional.ofNullable(componentProperty.getValue());
+    public <C extends EntityFacade> Optional<C> getComponent() {
+        return Optional.ofNullable((C) componentProperty.getValue());
     }
 }

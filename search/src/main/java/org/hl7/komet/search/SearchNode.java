@@ -7,7 +7,6 @@ import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.hl7.komet.framework.ExplorationNodeAbstract;
-import org.hl7.komet.framework.TopPanelFactory;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.tinkar.terms.EntityFacade;
@@ -22,6 +21,7 @@ public class SearchNode extends ExplorationNodeAbstract {
     final SearchPanelController controller;
     private final BorderPane searchPane = new BorderPane();
 
+    // TODO add option to send semantic or enclosing top component to activity stream...
     public SearchNode(ViewProperties viewProperties, KometPreferences nodePreferences) {
         super(viewProperties, nodePreferences);
         // TODO makeOverridableViewProperties should accept node preferences, and accept saved overrides
@@ -32,9 +32,7 @@ public class SearchNode extends ExplorationNodeAbstract {
 
             Platform.runLater(() -> {
                 this.controller.setProperties(this, viewProperties, nodePreferences);
-                Node topPanel = TopPanelFactory.make(viewProperties, entityFocusProperty,
-                        activityStreamKeyProperty(), optionForActivityStreamKeyProperty());
-                this.searchPane.setTop(topPanel);
+                this.searchPane.setTop(null);
             });
         } catch (IOException e) {
             e.printStackTrace();
@@ -48,11 +46,6 @@ public class SearchNode extends ExplorationNodeAbstract {
     }
 
     @Override
-    public String getStyleId() {
-        return STYLE_ID;
-    }
-
-    @Override
     public String getDefaultTitle() {
         return TITLE;
     }
@@ -60,6 +53,11 @@ public class SearchNode extends ExplorationNodeAbstract {
     @Override
     public void handleActivity(ImmutableList<EntityFacade> entities) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String getStyleId() {
+        return STYLE_ID;
     }
 
     @Override
