@@ -26,4 +26,7 @@ module org.hl7.komet.application {
     opens sh.komet.app to javafx.fxml;
 
     exports sh.komet.app to javafx.graphics;
+
+    // For ScenicView...
+    requires org.scenicview.scenicview;
 }

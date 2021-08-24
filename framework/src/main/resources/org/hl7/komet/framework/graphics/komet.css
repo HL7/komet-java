@@ -964,17 +964,19 @@ modena.css is the default css.
     -fx-background-color: transparent;
 }
 
-.component-panel {
-    -fx-border-color: -komet-box-border -komet-box-border -komet-box-border transparent;
-    -fx-text-fill: black;
-    -fx-border-width: 1 0 1 7;
-    -fx-border-insets: 0 0 5 3;
+.content {
     -fx-background-color: white;
-    -fx-padding: 0 0 0 5;
+}
+
+.titled-pane > .content {
+    -fx-border-color: red;
+    -fx-border-width: 0;
+    -fx-border-insets: 0 -5 0 0;
 }
 
 .component-collapsible-panel {
-    -fx-border-width: 1 0 1 5;
+    -fx-border-width: 1 1 1 5;
+    -fx-border-insets: 0 -10 0 0;
 }
 
 .component-collapsible-panel * .arrow {
@@ -992,8 +994,16 @@ modena.css is the default css.
     -fx-text-fill: -komet-concept-color;
 }
 
+.component-collapsible-panel:concept > .title > .text {
+    -fx-font-weight: bold;
+}
+
 .component-collapsible-panel:pattern {
     -fx-text-fill: royalblue;
+}
+
+.component-collapsible-panel:pattern > .title > .text {
+    -fx-font-weight: bold;
 }
 
 .component-collapsible-panel:pattern * .arrow {
@@ -1004,6 +1014,10 @@ modena.css is the default css.
     -fx-text-fill: -komet-description-color;
 }
 
+.component-collapsible-panel:description > .title > .text {
+    -fx-font-weight: bold;
+}
+
 .component-collapsible-panel:description * .arrow {
     -fx-mark-color: -komet-description-color;
 }
@@ -1012,12 +1026,20 @@ modena.css is the default css.
     -fx-text-fill: -komet-definition-color;
 }
 
+.component-collapsible-panel:logical-definition > .title > .text {
+    -fx-font-weight: bold;
+}
+
 .component-collapsible-panel:logical-definition * .arrow {
     -fx-mark-color: -komet-definition-color;
 }
 
 .component-collapsible-panel:semantic {
     -fx-text-fill: -komet-tab-background-color;
+}
+
+.component-collapsible-panel:semantic > .title > .text {
+    -fx-font-weight: bold;
 }
 
 .component-collapsible-panel:semantic * .arrow {
@@ -1029,29 +1051,70 @@ modena.css is the default css.
     -fx-padding: -10 0 0 -15;
 }
 
+.component-collapsible-panel > *.content {
+    -fx-border-width: 0;
+    -fx-padding: -10 0 0 -15;
+}
+
+.component-collapsible-panel .component-collapsible-panel {
+    -fx-border-width: 0;
+    -fx-padding: 0 0 0 5;
+}
+
+.component-version-panel {
+    -fx-padding: 0 -8 0 0;
+    -fx-border-insets: 0 -8 -1 0;
+    -fx-border-width: 0 0 1.5 0;
+}
+
+.component-collapsible-panel:semantic .component-version-panel {
+    -fx-border-color: -komet-tab-background-color;
+}
+
+.component-collapsible-panel:definition .component-version-panel {
+    -fx-border-color: -komet-definition-color;
+}
+
+.component-collapsible-panel:description .component-version-panel {
+    -fx-border-color: -komet-description-color;
+}
+
+.component-version-panel > *.content {
+    -fx-border-insets: 0 0 0 0;
+    -fx-padding: 0 -5 0 0;
+}
+
+.component-panel {
+    -fx-border-color: transparent;
+    -fx-text-fill: black;
+    -fx-border-width: 0 2 1.5 7;
+    -fx-border-insets: 0 -10 5 3;
+    -fx-background-color: white;
+    -fx-padding: 0 0 0 0;
+}
 
 .component-panel:concept {
-    -fx-border-color: -komet-box-border -komet-box-border -komet-box-border -komet-concept-color;
+    -fx-border-color: -komet-concept-color -komet-concept-color -komet-concept-color -komet-concept-color;
     -fx-text-fill: -komet-concept-color;
 }
 
 .component-panel:description {
-    -fx-border-color: -komet-box-border -komet-box-border -komet-box-border -komet-description-color;
+    -fx-border-color: -komet-description-color -komet-description-color -komet-description-color -komet-description-color;
     -fx-text-fill: -komet-description-color;
 }
 
 .component-panel:logical-definition {
-    -fx-border-color: -komet-box-border -komet-box-border -komet-box-border -komet-definition-color;
+    -fx-border-color: -komet-definition-color -komet-definition-color -komet-definition-color -komet-definition-color;
     -fx-text-fill: -komet-definition-color;
 }
 
 .component-panel:semantic {
-    -fx-border-color: -komet-box-border -komet-box-border -komet-box-border -komet-tab-background-color;
+    -fx-border-color: -komet-tab-background-color -komet-tab-background-color -komet-tab-background-color -komet-tab-background-color;
     -fx-text-fill: -komet-tab-background-color;
 }
 
 .component-panel:pattern {
-    -fx-border-color: -komet-box-border -komet-box-border -komet-box-border royalblue;
+    -fx-border-color: royalblue royalblue royalblue royalblue;
     -fx-text-fill: royalblue;
 }
 

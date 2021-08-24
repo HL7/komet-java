@@ -9,6 +9,8 @@ import org.hl7.tinkar.common.util.time.DateTimeUtil;
 import org.hl7.tinkar.entity.EntityVersion;
 import org.hl7.tinkar.entity.StampEntity;
 
+import static org.hl7.komet.framework.StyleClasses.COMPONENT_VERSION_PANEL;
+
 public abstract class ComponentVersionIsFinalPanel<V extends EntityVersion> {
     protected final BorderPane versionDetailsPane = new BorderPane();
     protected final TitledPane collapsiblePane = new TitledPane("version", versionDetailsPane);
@@ -29,6 +31,7 @@ public abstract class ComponentVersionIsFinalPanel<V extends EntityVersion> {
                 " on " + viewProperties.calculator().getPreferredDescriptionTextWithFallbackOrNid(stampEntity.pathNid()) +
                 " in " + viewProperties.calculator().getPreferredDescriptionTextWithFallbackOrNid(stampEntity.moduleNid()) +
                 " by " + viewProperties.calculator().getPreferredDescriptionTextWithFallbackOrNid(stampEntity.authorNid()));
+        this.collapsiblePane.getStyleClass().add(COMPONENT_VERSION_PANEL.toString());
     }
 
     protected abstract Node makeCenterNode(V version, ViewProperties viewProperties);

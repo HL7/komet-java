@@ -1,5 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.hl7</groupId>
@@ -141,8 +141,10 @@
                         </annotationProcessorPath>
                     </annotationProcessorPaths>
                     <annotationProcessors>
-                        <annotationProcessor>io.soabase.recordbuilder.processor.RecordBuilderProcessor</annotationProcessor>
-                        <annotationProcessor>com.google.auto.service.processor.AutoServiceProcessor</annotationProcessor>
+                        <annotationProcessor>io.soabase.recordbuilder.processor.RecordBuilderProcessor
+                        </annotationProcessor>
+                        <annotationProcessor>com.google.auto.service.processor.AutoServiceProcessor
+                        </annotationProcessor>
                     </annotationProcessors>
                 </configuration>
             </plugin>
@@ -168,28 +170,30 @@
                                 <option>--add-opens</option>
                                 <option>javafx.graphics/javafx.scene=org.controlsfx.controls</option>
                                 <option>--add-exports</option>
-                                <option>javafx.controls/com.sun.javafx.scene.control.behavior=org.hl7.komet.navigator</option>
+                                <option>javafx.controls/com.sun.javafx.scene.control.behavior=org.hl7.komet.navigator
+                                </option>
                             </options>
                         </configuration>
                     </execution>
                     <execution>
                         <!-- Configuration for debugging -->
                         <id>debug</id>
-                          <configuration>
-                              <mainClass>org.hl7.komet.application/sh.komet.app.App</mainClass>
-                              <stripDebug>false</stripDebug>
-                              <compress>2</compress>
-                              <noHeaderFiles>true</noHeaderFiles>
-                              <noManPages>true</noManPages>
-                              <launcher>launchKomet</launcher>
-                              <jlinkImageName>kometImage</jlinkImageName>
-                              <jlinkZipName>kometJlink</jlinkZipName>
-                              <ignoreSigningInformation>true</ignoreSigningInformation>
-                              <options>
+                        <configuration>
+                            <mainClass>org.hl7.komet.application/sh.komet.app.App</mainClass>
+                            <stripDebug>false</stripDebug>
+                            <compress>2</compress>
+                            <noHeaderFiles>true</noHeaderFiles>
+                            <noManPages>true</noManPages>
+                            <launcher>launchKomet</launcher>
+                            <jlinkImageName>kometImage</jlinkImageName>
+                            <jlinkZipName>kometJlink</jlinkZipName>
+                            <ignoreSigningInformation>true</ignoreSigningInformation>
+                            <options>
                                 <option>--add-opens</option>
                                 <option>javafx.graphics/javafx.scene=org.controlsfx.controls</option>
-                                  <option>--add-exports</option>
-                                  <option>javafx.controls/com.sun.javafx.scene.control.behavior=org.hl7.komet.navigator</option>
+                                <option>--add-exports</option>
+                                <option>javafx.controls/com.sun.javafx.scene.control.behavior=org.hl7.komet.navigator
+                                </option>
                                 <option>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:8000</option>
                             </options>
                         </configuration>
@@ -211,8 +215,11 @@
                                 <option>--add-opens</option>
                                 <option>javafx.graphics/javafx.scene=org.controlsfx.controls</option>
                                 <option>--add-exports</option>
-                                <option>javafx.controls/com.sun.javafx.scene.control.behavior=org.hl7.komet.navigator</option>
-                                <option>-agentpath:/Applications/JProfiler.app/Contents/Resources/app/bin/macos/libjprofilerti.jnilib=port=8849</option>
+                                <option>javafx.controls/com.sun.javafx.scene.control.behavior=org.hl7.komet.navigator
+                                </option>
+                                <option>
+                                    -agentpath:/Applications/JProfiler.app/Contents/Resources/app/bin/macos/libjprofilerti.jnilib=port=8849
+                                </option>
                             </options>
                         </configuration>
                     </execution>
@@ -253,10 +260,38 @@
                     <type>APP_IMAGE</type>
                     <icon>${project.basedir}/src/main/resources/icons/KOMET.icns</icon>
                     <javaOptions>
-                        <option>-Dfile.encoding=UTF-8 --add-opens=javafx.graphics/javafx.scene=org.controlsfx.controls</option>
+                        <option>-Dfile.encoding=UTF-8 --add-opens=javafx.graphics/javafx.scene=org.controlsfx.controls
+                        </option>
                     </javaOptions>
                 </configuration>
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>scenic-view</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.scenicview</groupId>
+                    <artifactId>scenicview</artifactId>
+                    <version>11.0.2-SNAPSHOT</version>
+                </dependency>
+                <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-web -->
+                <dependency>
+                    <groupId>org.openjfx</groupId>
+                    <artifactId>javafx-web</artifactId>
+                    <version>${openjfx.version}</version>
+                </dependency>
+                <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-swing -->
+                <dependency>
+                    <groupId>org.openjfx</groupId>
+                    <artifactId>javafx-swing</artifactId>
+                    <version>${openjfx.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 </project>

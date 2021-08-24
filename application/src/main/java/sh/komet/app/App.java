@@ -21,6 +21,7 @@ import org.hl7.tinkar.common.id.PublicIdStringKey;
 import org.hl7.tinkar.common.service.Executor;
 import org.hl7.tinkar.common.service.PrimitiveData;
 import org.hl7.tinkar.coordinate.Coordinates;
+import org.scenicview.ScenicView;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -120,7 +121,7 @@ public class App extends Application {
             stage.show();
             state.set(AppState.SELECT_DATA_SOURCE);
             state.addListener(this::appStateChangeListener);
-
+            
         } catch (IOException e) {
             kometLog.log(Level.SEVERE, e.getLocalizedMessage(), e);
             Platform.exit();
@@ -156,6 +157,7 @@ public class App extends Application {
                     primaryStage.setTitle("Komet");
                     primaryStage.centerOnScreen();
 
+                    ScenicView.show(kometRoot);
 
                 }
                 case SHUTDOWN -> {
