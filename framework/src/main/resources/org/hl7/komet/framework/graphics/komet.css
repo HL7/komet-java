@@ -1064,7 +1064,7 @@ modena.css is the default css.
 .component-version-panel {
     -fx-padding: 0 -8 0 0;
     -fx-border-insets: 0 -8 -1 0;
-    -fx-border-width: 0 0 1.5 0;
+    -fx-border-width: 0 0 1 0;
 }
 
 .component-collapsible-panel:semantic .component-version-panel {
@@ -1267,4 +1267,18 @@ modena.css is the default css.
 .prop-sheet-property-name {
     -fx-text-fill: -komet-tab-background-color;
     -fx-font-size: 12;
+}
+
+.stamp-label {
+    -fx-text-fill: -komet-tab-background-color;
+    -fx-font-size: 10;
+}
+
+.component-collapsible-panel:collapsed {
+    -fx-border-color: white;
+    -fx-border-insets: 0 0 6 0;
+}
+
+.search-match {
+    -fx-fill: -komet-concept-color;
 }

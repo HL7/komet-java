@@ -271,7 +271,7 @@
         <profile>
             <id>scenic-view</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <activeByDefault>false</activeByDefault>
             </activation>
             <dependencies>
                 <dependency>
