@@ -1,9 +1,12 @@
 package org.hl7.komet.search;
 
 import javafx.application.Platform;
+import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.control.TabPane;
 import javafx.scene.layout.BorderPane;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.hl7.komet.framework.ExplorationNodeAbstract;
@@ -12,6 +15,7 @@ import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.tinkar.terms.EntityFacade;
 
 import java.io.IOException;
+import java.util.Optional;
 
 public class SearchNode extends ExplorationNodeAbstract {
     protected static final String STYLE_ID = "search-node";
@@ -20,6 +24,8 @@ public class SearchNode extends ExplorationNodeAbstract {
     final SimpleObjectProperty<EntityFacade> entityFocusProperty = new SimpleObjectProperty<>();
     final SearchPanelController controller;
     private final BorderPane searchPane = new BorderPane();
+
+    private ReadOnlyDoubleProperty widthProperty;
 
     // TODO add option to send semantic or enclosing top component to activity stream...
     public SearchNode(ViewProperties viewProperties, KometPreferences nodePreferences) {
@@ -31,6 +37,14 @@ public class SearchNode extends ExplorationNodeAbstract {
             this.controller = loader.getController();
 
             Platform.runLater(() -> {
+                findTabPaneParent().ifPresent(tabPane -> {
+                    widthProperty = tabPane.widthProperty();
+                    tabPane.widthProperty().addListener((observable, oldValue, newValue) -> {
+                        this.searchPane.setMinWidth(newValue.doubleValue());
+                        this.searchPane.setPrefWidth(newValue.doubleValue());
+                        this.searchPane.setMaxWidth(newValue.doubleValue());
+                    });
+                });
                 this.controller.setProperties(this, viewProperties, nodePreferences);
                 this.searchPane.setTop(null);
             });
@@ -38,6 +52,22 @@ public class SearchNode extends ExplorationNodeAbstract {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
+    }
+
+    Optional<TabPane> findTabPaneParent() {
+        Parent parent = this.searchPane.getParent();
+        while (parent != null) {
+            if (parent instanceof TabPane tabPane) {
+                return Optional.of(tabPane);
+            }
+            parent = parent.getParent();
+        }
+        System.out.println("Tab pane not found...");
+        return Optional.empty();
+    }
+
+    protected ReadOnlyDoubleProperty widthProperty() {
+        return widthProperty;
     }
 
     @Override

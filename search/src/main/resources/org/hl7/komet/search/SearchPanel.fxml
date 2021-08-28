@@ -33,6 +33,10 @@
       </GridPane>
    </top>
    <center>
-      <TreeView fx:id="resultTreeView" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+      <BorderPane fx:id="treeBorderPane" BorderPane.alignment="CENTER">
+         <center>
+            <TreeView fx:id="resultTreeView" prefHeight="200.0" prefWidth="200.0" />
+         </center>
+      </BorderPane>
    </center>
 </BorderPane>

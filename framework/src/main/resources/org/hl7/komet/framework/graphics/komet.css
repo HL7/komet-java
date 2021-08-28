@@ -1279,6 +1279,19 @@ modena.css is the default css.
     -fx-border-insets: 0 0 6 0;
 }
 
+.tree-cell:focused .search-not-matched {
+    -fx-fill: white;
+}
+
 .search-match {
     -fx-fill: -komet-concept-color;
+    -fx-font-weight: bold;
+}
+
+.search-top-component {
+    -fx-font-weight: bold;
+}
+
+.tree-cell:focused .search-top-component {
+    -fx-fill: white;
 }

@@ -5,6 +5,7 @@ import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.BorderPane;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
@@ -38,10 +39,10 @@ public class SearchPanelController implements ListChangeListener<TreeItem<Object
     @FXML
     private Menu navigationCoordinateMenu;
 
-
     @FXML
-    private TreeView<Object> resultTreeView;
+    private BorderPane treeBorderPane;
 
+    private SearchTreeView searchTreeView = new SearchTreeView();
 
     @FXML
     private ComboBox<RESULT_LAYOUT_OPTIONS> resultsLayoutCombo;
@@ -54,17 +55,20 @@ public class SearchPanelController implements ListChangeListener<TreeItem<Object
     @FXML
     void initialize() {
         assert queryString != null : "fx:id=\"queryString\" was not injected: check your FXML file 'SearchPanel.fxml'.";
-        assert resultTreeView != null : "fx:id=\"resultsListView\" was not injected: check your FXML file 'SearchPanel.fxml'.";
-        resultTreeView.getSelectionModel().getSelectedItems().addListener(this);
-        resultTreeView.setRoot(resultsRoot);
-        resultsRoot.setExpanded(true);
-        resultTreeView.setShowRoot(false);
-        resultTreeView.setFixedCellSize(USE_COMPUTED_SIZE);
-        resultTreeView.setMinWidth(350);
-        resultTreeView.setPrefWidth(350);
-        resultTreeView.setMaxWidth(350);
+        assert treeBorderPane != null : "fx:id=\"treeBorderPane\" was not injected: check your FXML file 'SearchPanel.fxml'.";
 
-        resultTreeView.setCellFactory(param -> new SearchResultCell());
+        treeBorderPane.setCenter(searchTreeView);
+
+        searchTreeView.getSelectionModel().getSelectedItems().addListener(this);
+        searchTreeView.setRoot(resultsRoot);
+        resultsRoot.setExpanded(true);
+        searchTreeView.setShowRoot(false);
+        searchTreeView.setFixedCellSize(USE_COMPUTED_SIZE);
+        searchTreeView.setMinWidth(350);
+        searchTreeView.setPrefWidth(350);
+        searchTreeView.setMaxWidth(350);
+
+        searchTreeView.setCellFactory(param -> new SearchResultCell());
 
         resultsLayoutCombo.getItems().addAll(RESULT_LAYOUT_OPTIONS.values());
         resultsLayoutCombo.getSelectionModel().select(RESULT_LAYOUT_OPTIONS.MATCHED_SEMANTIC_SCORE);
@@ -75,6 +79,9 @@ public class SearchPanelController implements ListChangeListener<TreeItem<Object
     void doSearch(ActionEvent event) {
         System.out.println("start search...");
         resultsRoot.getChildren().clear();
+        if (queryString.getText() == null || queryString.getText().isEmpty()) {
+            return;
+        }
         Executor.threadPool().execute(() -> {
             try {
                 TreeItem<Object> tempRoot = new TreeItem<>("Temp root");
@@ -152,6 +159,11 @@ public class SearchPanelController implements ListChangeListener<TreeItem<Object
         this.viewProperties.nodeView().addListener((observable, oldValue, newValue) -> {
             menuUpdate();
         });
+        this.searchNode.widthProperty().addListener((observable, oldValue, newValue) -> {
+            setWidth(newValue.doubleValue());
+            System.out.println("Width: " + newValue);
+        });
+        this.setWidth(searchNode.widthProperty().get());
     }
 
     private void menuUpdate() {
@@ -159,6 +171,25 @@ public class SearchPanelController implements ListChangeListener<TreeItem<Object
             resultsRoot.getChildren().clear();
             doSearch(null);
         }
+    }
+
+    private void setWidth(Double width) {
+        this.searchTreeView.setMinWidth(width);
+        this.searchTreeView.setPrefWidth(width);
+        this.searchTreeView.setMaxWidth(width);
+        Platform.runLater(() -> {
+            doSearch(null);
+//            VirtualFlow<IndexedCell> vf = (VirtualFlow<IndexedCell>) this.searchTreeView.getChildrenUnmodifiable().get(0);
+//            int cellCount = vf.getCellCount();
+//            for (int i = 0; i < cellCount; i++) {
+//                SearchResultCell cell = (SearchResultCell) vf.getCell(i);
+//                Platform.runLater(() -> {
+//                    cell.updateItem(cell.getItem(), cell.isEmpty(), width);
+//                    cell.layout();
+//                });
+//            }
+//            Platform.runLater(() -> this.searchTreeView.layout());
+        });
     }
 
     @Override

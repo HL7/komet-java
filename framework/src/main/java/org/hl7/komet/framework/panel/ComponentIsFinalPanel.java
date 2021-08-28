@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.BorderPane;
 import org.hl7.komet.framework.panel.concept.ConceptVersionPanel;
@@ -37,6 +38,9 @@ public class ComponentIsFinalPanel<C extends Entity<V>, V extends EntityVersion>
             throw new NullPointerException();
         }
         this.component = component;
+        this.collapsiblePane.setContentDisplay(ContentDisplay.LEFT);
+        // TODO finish good identicon graphic.
+        //this.collapsiblePane.setGraphic(Identicon.generateIdenticon(component.publicId(), 24, 24));
         List<DiTree<VersionVertex<V>>> versionGraph = viewProperties.calculator().getVersionGraphList(component);
         Platform.runLater(() -> {
             for (DiTree<VersionVertex<V>> diTree : versionGraph) {
