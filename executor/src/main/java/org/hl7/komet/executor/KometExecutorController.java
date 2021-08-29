@@ -5,13 +5,14 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import org.hl7.tinkar.common.service.CachingService;
 import org.hl7.tinkar.common.service.ExecutorController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.Logger;
 
-@AutoService({ExecutorController.class, CachingService.class, TaskLists.class })
+@AutoService({ExecutorController.class, CachingService.class, TaskLists.class})
 public class KometExecutorController implements ExecutorController, CachingService, TaskLists {
-    private static final Logger LOG = Logger.getLogger(KometExecutorController.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(KometExecutorController.class);
     private AtomicReference<KometExecutor> providerReference = new AtomicReference<>();
 
     @Override

@@ -34,10 +34,7 @@ import org.hl7.komet.framework.LayoutAnimator;
 import org.hl7.komet.framework.RefreshListener;
 import org.hl7.komet.framework.activity.ActivityStream;
 import org.hl7.komet.framework.activity.ActivityStreams;
-import org.hl7.komet.framework.alerts.AlertCategory;
-import org.hl7.komet.framework.alerts.AlertObject;
 import org.hl7.komet.framework.alerts.AlertPanel;
-import org.hl7.komet.framework.alerts.AlertType;
 import org.hl7.komet.framework.dnd.ClipboardHelper;
 import org.hl7.komet.framework.dnd.KometClipboard;
 import org.hl7.komet.framework.graphics.Icon;
@@ -46,6 +43,9 @@ import org.hl7.komet.framework.view.ObservableView;
 import org.hl7.komet.framework.view.ViewMenuModel;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.komet.preferences.KometPreferences;
+import org.hl7.tinkar.common.alert.AlertCategory;
+import org.hl7.tinkar.common.alert.AlertObject;
+import org.hl7.tinkar.common.alert.AlertType;
 import org.hl7.tinkar.common.id.IntIds;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
 import org.hl7.tinkar.common.service.Executor;
@@ -114,11 +114,11 @@ public class MultiParentGraphViewController implements RefreshListener {
     public static void globalShutdownRequested() {
         shutdownRequested = true;
         LOG.info("Global Navigator shutdown called!");
-    }    private ChangeListener<Scene> sceneChangedListener = this::sceneChanged;
+    }
 
     protected static boolean wasGlobalShutdownRequested() {
         return shutdownRequested;
-    }
+    }    private ChangeListener<Scene> sceneChangedListener = this::sceneChanged;
 
     private void sceneChanged(ObservableValue<? extends Scene> observableValue, Scene oldScene, Scene newScene) {
         if (newScene == null) {
@@ -267,8 +267,6 @@ public class MultiParentGraphViewController implements RefreshListener {
         }
     }
 
-    //~--- methods -------------------------------------------------------------
-
     private void dragDropped(DragEvent event) {
         Dragboard db = event.getDragboard();
         boolean success = false;
@@ -302,6 +300,8 @@ public class MultiParentGraphViewController implements RefreshListener {
 
         event.consume();
     }
+
+    //~--- methods -------------------------------------------------------------
 
     private void dragOver(DragEvent event) {
 
@@ -654,11 +654,11 @@ public class MultiParentGraphViewController implements RefreshListener {
         return navigatorProperty.get();
     }
 
-    //~--- get methods ---------------------------------------------------------
-
     public BorderPane getPane() {
         return topBorderPane;
     }
+
+    //~--- get methods ---------------------------------------------------------
 
     public TreeView<ConceptFacade> getTreeView() {
         return treeView;
@@ -706,6 +706,8 @@ public class MultiParentGraphViewController implements RefreshListener {
         }
 
     }
+
+
 
 
 }

@@ -1,6 +1,9 @@
 package org.hl7.komet.framework.alerts;
 
 import org.hl7.komet.framework.Dialogs;
+import org.hl7.tinkar.common.alert.AlertCategory;
+import org.hl7.tinkar.common.alert.AlertObject;
+import org.hl7.tinkar.common.alert.AlertType;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.Flow;
@@ -16,6 +19,12 @@ public class AlertDialogSubscriber implements Flow.Subscriber<AlertObject> {
         this.subscription = subscription;
         this.subscription.request(1);
 
+    }
+
+    @Override
+    public void onNext(AlertObject item) {
+        Dialogs.showDialogForAlert(item);
+        this.subscription.request(1);
     }
 
     @Override
@@ -38,11 +47,5 @@ public class AlertDialogSubscriber implements Flow.Subscriber<AlertObject> {
     @Override
     public void onComplete() {
 
-    }
-
-    @Override
-    public void onNext(AlertObject item) {
-        Dialogs.showDialogForAlert(item);
-        this.subscription.request(1);
     }
 }

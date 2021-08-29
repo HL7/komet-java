@@ -21,8 +21,6 @@ import org.hl7.komet.framework.SetupNode;
 import org.hl7.komet.framework.activity.ActivityStream;
 import org.hl7.komet.framework.activity.ActivityStreamOption;
 import org.hl7.komet.framework.activity.ActivityStreams;
-import org.hl7.komet.framework.alerts.AlertStream;
-import org.hl7.komet.framework.alerts.AlertStreams;
 import org.hl7.komet.framework.view.ObservableViewNoOverride;
 import org.hl7.komet.framework.view.ViewMenuTask;
 import org.hl7.komet.navigator.GraphNavigatorNodeFactory;
@@ -32,10 +30,14 @@ import org.hl7.komet.progress.ProgressNodeFactory;
 import org.hl7.komet.search.SearchNodeFactory;
 import org.hl7.komet.tabs.DetachableTab;
 import org.hl7.komet.tabs.TabStack;
+import org.hl7.tinkar.common.alert.AlertStream;
+import org.hl7.tinkar.common.alert.AlertStreams;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
 import org.hl7.tinkar.common.service.Executor;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculatorWithCache;
 import org.kordamp.ikonli.javafx.FontIcon;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +45,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.logging.Logger;
 
 
 /**
@@ -53,7 +54,7 @@ import java.util.logging.Logger;
  */
 public class KometStageController implements SetupNode {
 
-    private static final Logger LOG = Logger.getLogger(KometStageController.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(KometStageController.class);
     private final ImageView vanityImage = new ImageView();
     ArrayList<TabPane> tabPanes = new ArrayList<>();
     @FXML  // ResourceBundle that was given to the FXMLLoader

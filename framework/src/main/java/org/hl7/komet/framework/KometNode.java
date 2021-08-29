@@ -8,11 +8,11 @@ import javafx.scene.Scene;
 import javafx.scene.control.Tooltip;
 import org.hl7.komet.framework.activity.ActivityStream;
 import org.hl7.komet.framework.activity.ActivityStreamOption;
-import org.hl7.komet.framework.alerts.AlertObject;
-import org.hl7.komet.framework.alerts.AlertStream;
-import org.hl7.komet.framework.alerts.AlertStreams;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.komet.preferences.KometPreferences;
+import org.hl7.tinkar.common.alert.AlertObject;
+import org.hl7.tinkar.common.alert.AlertStream;
+import org.hl7.tinkar.common.alert.AlertStreams;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
 
 /**

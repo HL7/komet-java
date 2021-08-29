@@ -1,18 +1,18 @@
 package org.hl7.komet.framework.dnd;
 
 import javafx.geometry.Insets;
-import javafx.scene.input.*;
+import javafx.scene.input.DataFormat;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
-import org.hl7.tinkar.terms.EntityFacade;
-import org.hl7.tinkar.terms.ProxyFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
@@ -23,11 +23,11 @@ public class DropHelper {
     protected static final Logger LOG = LoggerFactory.getLogger(DropHelper.class);
 
     private final Region region;
-    private Background originalBackground;
-    private TransferMode[] transferMode = null;
     private final Consumer<Dragboard> draggedObjectAcceptor;
     private final Predicate<DragEvent> acceptDrop;
     private final BooleanSupplier dragInProgress;
+    private Background originalBackground;
+    private TransferMode[] transferMode = null;
 
     public DropHelper(Region region,
                       Consumer<Dragboard> draggedObjectAcceptor,
@@ -43,22 +43,20 @@ public class DropHelper {
         region.setOnDragDropped(this::handleDragDropped);
     }
 
-
-
-    private void handleDragDropped(DragEvent event) {
-        LOG.debug("Dragging dropped: " + event);
+    private void handleDragOver(DragEvent event) {
+        // LOG.info("Dragging over: " + event );
         if (this.dragInProgress.getAsBoolean()) {
+            event.consume();
             return;
         }
         if (!this.acceptDrop.test(event)) {
+            event.consume();
             return;
         }
-        Dragboard db = event.getDragboard();
-        this.draggedObjectAcceptor.accept(db);
-
-        region.setBackground(originalBackground);
-        event.setDropCompleted(true);
-        event.consume();
+        if (this.transferMode != null) {
+            event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+            event.consume();
+        }
     }
 
     private void handleDragEntered(DragEvent event) {
@@ -104,19 +102,19 @@ public class DropHelper {
         event.consume();
     }
 
-    private void handleDragOver(DragEvent event) {
-        // System.out.println("Dragging over: " + event );
+    private void handleDragDropped(DragEvent event) {
+        LOG.debug("Dragging dropped: " + event);
         if (this.dragInProgress.getAsBoolean()) {
-            event.consume();
             return;
         }
         if (!this.acceptDrop.test(event)) {
-            event.consume();
             return;
         }
-        if (this.transferMode != null) {
-            event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
-            event.consume();
-        }
+        Dragboard db = event.getDragboard();
+        this.draggedObjectAcceptor.accept(db);
+
+        region.setBackground(originalBackground);
+        event.setDropCompleted(true);
+        event.consume();
     }
 }

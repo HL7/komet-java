@@ -20,6 +20,8 @@ import org.hl7.tinkar.common.util.text.NaturalOrder;
 import org.hl7.tinkar.coordinate.stamp.calculator.LatestVersionSearchResult;
 import org.hl7.tinkar.terms.EntityFacade;
 import org.hl7.tinkar.terms.EntityProxy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -27,7 +29,7 @@ import java.util.ResourceBundle;
 import static javafx.scene.layout.Region.USE_COMPUTED_SIZE;
 
 public class SearchPanelController implements ListChangeListener<TreeItem<Object>> {
-
+    private static final Logger LOG = LoggerFactory.getLogger(SearchPanelController.class);
     @FXML
     private ResourceBundle resources;
     @FXML
@@ -77,7 +79,7 @@ public class SearchPanelController implements ListChangeListener<TreeItem<Object
 
     @FXML
     void doSearch(ActionEvent event) {
-        System.out.println("start search...");
+        LOG.info("start search...");
         resultsRoot.getChildren().clear();
         if (queryString.getText() == null || queryString.getText().isEmpty()) {
             return;
@@ -86,7 +88,7 @@ public class SearchPanelController implements ListChangeListener<TreeItem<Object
             try {
                 TreeItem<Object> tempRoot = new TreeItem<>("Temp root");
                 ImmutableList<LatestVersionSearchResult> results = viewProperties.calculator().search(queryString.getText(), 1000);
-                System.out.println("Finished search. Hits: " + results.size());
+                LOG.info("Finished search. Hits: " + results.size());
                 switch (resultsLayoutCombo.getSelectionModel().getSelectedItem()) {
                     case MATCHED_SEMANTIC_SCORE -> {
                         results = results.toSortedList((o1, o2) -> Float.compare(o1.score(), o2.score())).toImmutable();
@@ -161,7 +163,7 @@ public class SearchPanelController implements ListChangeListener<TreeItem<Object
         });
         this.searchNode.widthProperty().addListener((observable, oldValue, newValue) -> {
             setWidth(newValue.doubleValue());
-            System.out.println("Width: " + newValue);
+            LOG.info("Width: " + newValue);
         });
         this.setWidth(searchNode.widthProperty().get());
     }

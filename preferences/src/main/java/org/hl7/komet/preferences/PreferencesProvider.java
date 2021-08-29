@@ -2,9 +2,9 @@ package org.hl7.komet.preferences;
 
 import org.hl7.tinkar.common.service.Executor;
 import org.hl7.tinkar.common.service.SimpleIndeterminateTracker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -17,12 +17,10 @@ import java.util.prefs.Preferences;
 public class PreferencesProvider
         implements PreferencesService {
 
-    private static Logger LOG = Logger.getLogger(KometPreferencesImpl.class.getName());
-
     public static final PreferencesProvider singleton = new PreferencesProvider();
+    private static final Logger LOG = LoggerFactory.getLogger(PreferencesProvider.class);
 
     //~--- methods -------------------------------------------------------------
-
 
     /**
      * Start me.
@@ -34,7 +32,7 @@ public class PreferencesProvider
             //Just doing this to make sure it starts without errors
             KometPreferencesImpl.getConfigurationRootPreferences();
         } catch (Throwable ex) {
-            LOG.log(Level.SEVERE, ex.getLocalizedMessage(), ex);
+            LOG.error(ex.getLocalizedMessage(), ex);
         } finally {
             progressTask.finished();
         }
@@ -49,7 +47,7 @@ public class PreferencesProvider
         try {
             KometPreferencesImpl.getConfigurationRootPreferences().sync();
         } catch (Throwable ex) {
-            LOG.log(Level.SEVERE, ex.getLocalizedMessage(), ex);
+            LOG.error(ex.getLocalizedMessage(), ex);
         } finally {
             progressTask.finished();
         }

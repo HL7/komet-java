@@ -3,9 +3,11 @@ package org.hl7.komet.framework.alerts;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.VPos;
-
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ToolBar;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.text.Text;
@@ -13,23 +15,24 @@ import org.hl7.komet.framework.PseudoClasses;
 import org.hl7.komet.framework.StyleClasses;
 import org.hl7.komet.framework.controls.TextAreaReadOnly;
 import org.hl7.komet.framework.graphics.Icon;
+import org.hl7.tinkar.common.alert.AlertObject;
+import org.hl7.tinkar.common.alert.AlertResolver;
 
 
 //~--- classes ----------------------------------------------------------------
 
 /**
- *
  * @author kec
  */
 public class AlertPanel
         extends GridPane {
-    private final ToolBar     resolverBar       = new ToolBar();
-    private boolean           showDetails       = false;
-    protected final Text      alertTitle        = new Text();
-    protected final TextAreaReadOnly alertDescription  = new TextAreaReadOnly();
-    protected final Button    moreDetailsButton = new Button("    More details");
+    protected final Text alertTitle = new Text();
+    protected final TextAreaReadOnly alertDescription = new TextAreaReadOnly();
+    protected final Button moreDetailsButton = new Button("    More details");
+    protected final Node alertIcon;
+    private final ToolBar resolverBar = new ToolBar();
     private final AlertObject alert;
-    protected final Node      alertIcon;
+    private boolean showDetails = false;
 
     //~--- constructors --------------------------------------------------------
 
@@ -71,7 +74,7 @@ public class AlertPanel
         alertIcon.getStyleClass()
                 .add(StyleClasses.ALERT_ICON.toString());
 
-        if ((alert.getAlertDescription() != null) &&!alert.getAlertDescription().isEmpty()) {
+        if ((alert.getAlertDescription() != null) && !alert.getAlertDescription().isEmpty()) {
             this.alertTitle.setText(this.alert.getAlertTitle() + "...");
         } else {
             this.alertTitle.setText(this.alert.getAlertTitle());
@@ -101,7 +104,7 @@ public class AlertPanel
         getChildren()
                 .clear();
 
-        int row    = 0;
+        int row = 0;
         int column = 0;
 
         GridPane.setConstraints(
@@ -181,7 +184,7 @@ public class AlertPanel
                     .add(alertDescription);
             row++;
 
-            for (AlertResolver resolver: alert.getResolvers()) {
+            for (AlertResolver resolver : alert.getResolvers()) {
 
                 Node graphic = null;
                 switch (resolver.getPersistence()) {

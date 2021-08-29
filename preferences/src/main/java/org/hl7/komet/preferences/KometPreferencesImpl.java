@@ -2,16 +2,10 @@ package org.hl7.komet.preferences;
 
 import org.hl7.tinkar.common.service.ServiceKeys;
 import org.hl7.tinkar.common.service.ServiceProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-
-//~--- JDK imports ------------------------------------------------------------
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
@@ -20,10 +14,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.prefs.AbstractPreferences;
 import java.util.prefs.BackingStoreException;
+
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -31,16 +25,13 @@ import java.util.prefs.BackingStoreException;
  * @author kec
  */
 public class KometPreferencesImpl
-        extends AbstractPreferences  {
-    private static Logger LOG = Logger.getLogger(KometPreferencesImpl.class.getName());
-
+        extends AbstractPreferences {
     public static final String DB_PREFERENCES_FOLDER = "preferences";
-
     public static final KometPreferencesImpl preferencesImpl = new KometPreferencesImpl();
     public static final KometPreferencesWrapper preferencesWrapper = new KometPreferencesWrapper(preferencesImpl);
+    private static final Logger LOG = LoggerFactory.getLogger(KometPreferencesImpl.class);
 
     //~--- fields --------------------------------------------------------------
-
     private final ConcurrentSkipListMap<String, String> preferencesTree = new ConcurrentSkipListMap<>();
     private final File directory;
     private final File preferencesFile;
@@ -58,6 +49,22 @@ public class KometPreferencesImpl
         init();
     }
 
+    private void init() {
+        preferencesTree.clear();
+        if (preferencesFile.exists()) {
+            try (FileInputStream fis = new FileInputStream(preferencesFile)) {
+                importMap(fis, preferencesTree);
+            } catch (Exception ex) {
+                LOG.error(ex.getLocalizedMessage(), ex);
+            }
+        }
+    }
+
+    static void importMap(InputStream is, Map<String, String> map)
+            throws Exception {
+        XmlForKometPreferences.importMap(is, map);
+    }
+
     //We only enforce singleton for the root preferences.  Its up to the AbstractPreferences to keep track of
     //child references properly.
     private KometPreferencesImpl(KometPreferencesImpl parent, String name) {
@@ -73,9 +80,13 @@ public class KometPreferencesImpl
         init();
     }
 
-    @Override
-    public String toString() {
-        return "Configuration Preference Node: " + this.absolutePath();
+    public static boolean isValidPath(String path) {
+        try {
+            Paths.get(path);
+        } catch (InvalidPathException | NullPointerException ex) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -86,6 +97,7 @@ public class KometPreferencesImpl
     public static KometPreferences getConfigurationRootPreferences() {
         return preferencesWrapper;
     }
+    //~--- methods -------------------------------------------------------------
 
     public static void reloadConfigurationPreferences() {
         recursiveInit(preferencesImpl);
@@ -97,41 +109,57 @@ public class KometPreferencesImpl
             recursiveInit((KometPreferencesImpl) childPreferences);
         }
     }
-    //~--- methods -------------------------------------------------------------
-
-    private void init() {
-        preferencesTree.clear();
-        if (preferencesFile.exists()) {
-            try (FileInputStream fis = new FileInputStream(preferencesFile)) {
-                importMap(fis, preferencesTree);
-            } catch (Exception ex) {
-                LOG.log(Level.SEVERE, ex.getLocalizedMessage(), ex);
-            }
-        }
-    }
-
-    static void exportMap(OutputStream os, Map<String, String> map)
-            throws Exception {
-        XmlForKometPreferences.exportMap(os, map);
-    }
-
-    static void importMap(InputStream is, Map<String, String> map)
-            throws Exception {
-        XmlForKometPreferences.importMap(is, map);
-    }
-
-    @Override
-    protected KometPreferencesImpl childSpi(String name) {
-        return new KometPreferencesImpl(this, name);
-    }
-
-    @Override
-    public boolean isRemoved() {
-        return super.isRemoved();
-    }
 
     public Object getLock() {
         return lock;
+    }
+
+    @Override
+    protected void putSpi(String key, String value) {
+        preferencesTree.put(key, value);
+    }
+
+    @Override
+    protected String getSpi(String key) {
+        return preferencesTree.get(key);
+    }
+
+    @Override
+    protected void removeSpi(String key) {
+        preferencesTree.remove(key);
+    }
+
+    @Override
+    protected void removeNodeSpi()
+            throws BackingStoreException {
+        if (this.preferencesFile.exists()) {
+            this.preferencesFile.delete();
+        }
+
+        if (this.temporaryFile.exists()) {
+            this.temporaryFile.delete();
+        }
+
+        File[] extras = directory.listFiles();
+
+        if (extras != null && extras.length != 0) {
+            LOG.warn("Found extraneous files when removing node: " + Arrays.asList(extras));
+
+            for (File extra : extras) {
+                extra.delete();
+            }
+        }
+
+        if (!directory.delete()) {
+            throw new BackingStoreException("Couldn't delete: " + directory);
+        }
+    }
+
+    @Override
+    protected String[] keysSpi()
+            throws BackingStoreException {
+        return preferencesTree.keySet()
+                .toArray(new String[preferencesTree.size()]);
     }
 
     @Override
@@ -152,52 +180,13 @@ public class KometPreferencesImpl
     }
 
     @Override
-    protected void flushSpi()
-            throws BackingStoreException {
-        // nothing to do per the FileSystemPreferences implementation.
+    protected KometPreferencesImpl childSpi(String name) {
+        return new KometPreferencesImpl(this, name);
     }
 
     @Override
-    protected String[] keysSpi()
-            throws BackingStoreException {
-        return preferencesTree.keySet()
-                .toArray(new String[preferencesTree.size()]);
-    }
-
-    @Override
-    protected void putSpi(String key, String value) {
-        preferencesTree.put(key, value);
-    }
-
-    @Override
-    protected void removeNodeSpi()
-            throws BackingStoreException {
-        if (this.preferencesFile.exists()) {
-            this.preferencesFile.delete();
-        }
-
-        if (this.temporaryFile.exists()) {
-            this.temporaryFile.delete();
-        }
-
-        File[] extras = directory.listFiles();
-
-        if (extras != null && extras.length != 0) {
-            LOG.warning("Found extraneous files when removing node: " + Arrays.asList(extras));
-
-            for (File extra : extras) {
-                extra.delete();
-            }
-        }
-
-        if (!directory.delete()) {
-            throw new BackingStoreException("Couldn't delete: " + directory);
-        }
-    }
-
-    @Override
-    protected void removeSpi(String key) {
-        preferencesTree.remove(key);
+    public String toString() {
+        return "Configuration Preference Node: " + this.absolutePath();
     }
 
     @Override
@@ -221,19 +210,21 @@ public class KometPreferencesImpl
         }
     }
 
+    static void exportMap(OutputStream os, Map<String, String> map)
+            throws Exception {
+        XmlForKometPreferences.exportMap(os, map);
+    }
+
     //~--- get methods ---------------------------------------------------------
 
     @Override
-    protected String getSpi(String key) {
-        return preferencesTree.get(key);
+    protected void flushSpi()
+            throws BackingStoreException {
+        // nothing to do per the FileSystemPreferences implementation.
     }
 
-    public static boolean isValidPath(String path) {
-        try {
-            Paths.get(path);
-        } catch (InvalidPathException | NullPointerException ex) {
-            return false;
-        }
-        return true;
+    @Override
+    public boolean isRemoved() {
+        return super.isRemoved();
     }
 }

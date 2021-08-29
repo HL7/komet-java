@@ -13,6 +13,8 @@ import org.hl7.komet.framework.ExplorationNodeAbstract;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.tinkar.terms.EntityFacade;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -20,6 +22,7 @@ import java.util.Optional;
 public class SearchNode extends ExplorationNodeAbstract {
     protected static final String STYLE_ID = "search-node";
     protected static final String TITLE = "Search";
+    private static final Logger LOG = LoggerFactory.getLogger(SearchNode.class);
     // TODO link entityFocus with list selection
     final SimpleObjectProperty<EntityFacade> entityFocusProperty = new SimpleObjectProperty<>();
     final SearchPanelController controller;
@@ -62,7 +65,7 @@ public class SearchNode extends ExplorationNodeAbstract {
             }
             parent = parent.getParent();
         }
-        System.out.println("Tab pane not found...");
+        LOG.info("Tab pane not found...");
         return Optional.empty();
     }
 

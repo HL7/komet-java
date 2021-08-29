@@ -16,12 +16,10 @@
  */
 package org.hl7.komet.navigator;
 
-import java.util.*;
-
 import javafx.application.Platform;
 import org.eclipse.collections.api.list.primitive.MutableIntList;
 import org.eclipse.collections.impl.factory.primitive.IntLists;
-import org.hl7.komet.framework.alerts.AlertObject;
+import org.hl7.tinkar.common.alert.AlertObject;
 import org.hl7.tinkar.common.service.TrackingCallable;
 import org.hl7.tinkar.entity.ConceptEntity;
 import org.hl7.tinkar.entity.Entity;
@@ -29,8 +27,10 @@ import org.hl7.tinkar.terms.TinkarTerm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+import java.util.Optional;
+
 /**
- *
  * @author kec
  */
 public class ShowConceptInGraphTask extends TrackingCallable<Void> {

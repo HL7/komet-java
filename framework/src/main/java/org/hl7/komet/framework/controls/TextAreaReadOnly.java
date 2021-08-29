@@ -3,12 +3,14 @@ package org.hl7.komet.framework.controls;
 import javafx.event.EventHandler;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.MouseEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- *
  * @author kec
  */
 public class TextAreaReadOnly extends TextArea {
+    private static final Logger LOG = LoggerFactory.getLogger(TextAreaReadOnly.class);
 
     TextAreaSkinNoScroller textAreaSkinNoScroller;
 
@@ -33,7 +35,7 @@ public class TextAreaReadOnly extends TextArea {
         });
 
         focusedProperty().addListener((observable, oldValue, newValue) -> {
-            selectRange(0,0);
+            selectRange(0, 0);
         });
 
         addEventFilter(
@@ -42,7 +44,7 @@ public class TextAreaReadOnly extends TextArea {
                     @Override
                     public void handle(MouseEvent event) {
                         if (event.getClickCount() > 2)
-                            System.out.println("ClickCount: " + event.getClickCount());
+                            LOG.info("ClickCount: " + event.getClickCount());
                     }
                 }
         );

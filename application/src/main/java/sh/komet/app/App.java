@@ -10,24 +10,22 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import org.hl7.komet.framework.activity.ActivityStream;
 import org.hl7.komet.framework.activity.ActivityStreams;
-import org.hl7.komet.framework.alerts.AlertStream;
-import org.hl7.komet.framework.alerts.AlertStreams;
 import org.hl7.komet.framework.graphics.LoadFonts;
 import org.hl7.komet.framework.view.ObservableViewNoOverride;
 import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.komet.preferences.KometPreferencesImpl;
 import org.hl7.komet.preferences.Preferences;
+import org.hl7.tinkar.common.alert.AlertStream;
+import org.hl7.tinkar.common.alert.AlertStreams;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
 import org.hl7.tinkar.common.service.Executor;
 import org.hl7.tinkar.common.service.PrimitiveData;
 import org.hl7.tinkar.coordinate.Coordinates;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
 
 import static sh.komet.app.AppState.LOADING_DATA_SOURCE;
 import static sh.komet.app.AppState.STARTING;
@@ -38,17 +36,17 @@ import static sh.komet.app.AppState.STARTING;
 public class App extends Application {
     public static final String CSS_LOCATION = "org/hl7/komet/framework/graphics/komet.css";
     public static final SimpleObjectProperty<AppState> state = new SimpleObjectProperty<>(STARTING);
-    public static Logger kometLog;
+    private static final Logger LOG = LoggerFactory.getLogger(App.class);
     private static Stage primaryStage;
     private static Module graphicsModule;
 
     public static void main(String[] args) {
         // https://stackoverflow.com/questions/42598097/using-javafx-application-stop-method-over-shutdownhook
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            System.out.println("Starting shutdown hook");
+            LOG.info("Starting shutdown hook");
             PrimitiveData.save();
             PrimitiveData.stop();
-            System.out.println("Finished shutdown hook");
+            LOG.info("Finished shutdown hook");
         }));
         launch();
     }
@@ -74,22 +72,7 @@ public class App extends Application {
 
         File logDirectory = new File(System.getProperty("user.home"), "Solor/komet/logs");
         logDirectory.mkdirs();
-        // TODO replace logger configuration
-        String loggerConfiguraton =
-                "handlers= java.util.logging.FileHandler, java.util.logging.ConsoleHandler\n" +
-                        ".level= ALL\n" +
-                        "java.util.logging.FileHandler.pattern = %h/Solor/komet/logs/komet%g.log\n" +
-                        "java.util.logging.FileHandler.limit = 50000\n" +
-                        "java.util.logging.FileHandler.count = 1\n" +
-                        "java.util.logging.FileHandler.formatter = java.util.logging.SimpleFormatter\n" +
-                        "# For example, set the com.xyz.foo logger to only log SEVERE\n" +
-                        "# messages:\n" +
-                        "com.xyz.foo.level = SEVERE";
-
-
-        LogManager.getLogManager().readConfiguration(new ByteArrayInputStream(loggerConfiguraton.getBytes("UTF-8")));
-        kometLog = Logger.getLogger("komet");
-        kometLog.info("Starting Komet");
+        LOG.info("Starting Komet");
         LoadFonts.load();
         graphicsModule = ModuleLayer.boot()
                 .findModule("org.hl7.komet.framework")
@@ -122,7 +105,7 @@ public class App extends Application {
             state.addListener(this::appStateChangeListener);
 
         } catch (IOException e) {
-            kometLog.log(Level.SEVERE, e.getLocalizedMessage(), e);
+            LOG.error(e.getLocalizedMessage(), e);
             Platform.exit();
         }
     }
@@ -176,11 +159,7 @@ public class App extends Application {
 
     @Override
     public void stop() {
-        kometLog.info("Stopping application\n\n###############\n\n");
-
-        // There is a known bug on shutdown:
-        // https://bugs.openjdk.java.net/browse/JDK-8231558
-        // Java has been detached already, but someone is still trying to use it at -[GlassViewDelegate dealloc]
+        LOG.info("Stopping application\n\n###############\n\n");
     }
 
 }

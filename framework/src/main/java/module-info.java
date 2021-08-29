@@ -9,7 +9,6 @@ module org.hl7.komet.framework {
     exports org.hl7.komet.framework.view;
     exports org.hl7.komet.framework;
 
-    requires io.smallrye.mutiny;
     requires org.kordamp.ikonli.fontawesome5;
     requires org.kordamp.ikonli.fontawesome;
     requires org.kordamp.ikonli.foundation;

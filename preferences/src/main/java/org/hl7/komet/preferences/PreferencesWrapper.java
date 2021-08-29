@@ -1,5 +1,8 @@
 package org.hl7.komet.preferences;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.prefs.BackingStoreException;
@@ -9,9 +12,11 @@ import java.util.prefs.Preferences;
 
 /**
  * An system or user preferences wrapper.
+ *
  * @author kec
  */
 public class PreferencesWrapper implements KometPreferences {
+    private static final Logger LOG = LoggerFactory.getLogger(PreferencesWrapper.class);
     final Preferences delegate;
 
     public PreferencesWrapper(Preferences delegate) {
@@ -81,7 +86,7 @@ public class PreferencesWrapper implements KometPreferences {
     @Override
     public void putByteArray(String key, byte[] value) {
         if (key.equals("navigation")) {
-            System.out.println("navigation 1: " + java.util.Base64.getEncoder().encodeToString(value));
+            LOG.info("navigation 1: " + java.util.Base64.getEncoder().encodeToString(value));
         }
         delegate.putByteArray(key, value);
     }
@@ -147,11 +152,6 @@ public class PreferencesWrapper implements KometPreferences {
     }
 
     @Override
-    public String toString() {
-        return delegate.toString();
-    }
-
-    @Override
     public void flush() throws BackingStoreException {
         delegate.flush();
     }
@@ -189,6 +189,11 @@ public class PreferencesWrapper implements KometPreferences {
     @Override
     public void exportSubtree(OutputStream os) throws IOException, BackingStoreException {
         delegate.exportSubtree(os);
+    }
+
+    @Override
+    public String toString() {
+        return delegate.toString();
     }
 
 }

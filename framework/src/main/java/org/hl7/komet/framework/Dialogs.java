@@ -9,7 +9,7 @@ import javafx.stage.Modality;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import org.controlsfx.dialog.ExceptionDialog;
-import org.hl7.komet.framework.alerts.AlertObject;
+import org.hl7.tinkar.common.alert.AlertObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,42 +33,12 @@ public class Dialogs {
         // hidden
     }
 
-    private static Alert createAlertDialog(AlertType type, Modality modality) {
-        return createAlertDialog(type, modality, null);
-    }
-
-    private static Alert createAlertDialog(AlertType type, Modality modality, Window owner) {
-        Alert dialog = new Alert(type, "");
-        dialog.initModality(modality);
-        dialog.initOwner(owner);
-        dialog.setResizable(true);
-        return dialog;
-    }
-
     public static void showInformationDialog(String title, String message) {
         showInformationDialog(title, message, null);
     }
 
-    public static void showInformationDialog(String title, Node content) {
-        Runnable r = () -> {
-            Alert informationDialog = createAlertDialog(AlertType.INFORMATION, Modality.NONE);
-            informationDialog.setTitle("");
-            informationDialog.getDialogPane().setHeaderText(title);
-            informationDialog.getDialogPane().setContent(content);
-            informationDialog.initStyle(StageStyle.UTILITY);
-            informationDialog.setResizable(true);
-            informationDialog.showAndWait();
-        };
-        show(r);
-    }
-
     public static void showInformationDialog(String title, String message, Window parentWindow) {
         showDialog(AlertType.INFORMATION, title, message, parentWindow);
-    }
-
-
-    public static void showWarningDialog(String title, String message, Window parentWindow) {
-        showDialog(AlertType.WARNING, title, message, parentWindow);
     }
 
     private static void showDialog(AlertType alertType, String title, String message, Window parentWindow) {
@@ -84,12 +54,41 @@ public class Dialogs {
         show(r);
     }
 
+    private static Alert createAlertDialog(AlertType type, Modality modality, Window owner) {
+        Alert dialog = new Alert(type, "");
+        dialog.initModality(modality);
+        dialog.initOwner(owner);
+        dialog.setResizable(true);
+        return dialog;
+    }
+
     private static void show(Runnable r) {
         if (Platform.isFxApplicationThread()) {
             r.run();
         } else {
             Platform.runLater(r);
         }
+    }
+
+    public static void showInformationDialog(String title, Node content) {
+        Runnable r = () -> {
+            Alert informationDialog = createAlertDialog(AlertType.INFORMATION, Modality.NONE);
+            informationDialog.setTitle("");
+            informationDialog.getDialogPane().setHeaderText(title);
+            informationDialog.getDialogPane().setContent(content);
+            informationDialog.initStyle(StageStyle.UTILITY);
+            informationDialog.setResizable(true);
+            informationDialog.showAndWait();
+        };
+        show(r);
+    }
+
+    private static Alert createAlertDialog(AlertType type, Modality modality) {
+        return createAlertDialog(type, modality, null);
+    }
+
+    public static void showWarningDialog(String title, String message, Window parentWindow) {
+        showDialog(AlertType.WARNING, title, message, parentWindow);
     }
 
     public static void showErrorDialog(String title, String message, Throwable throwable, Window parentWindow) {
@@ -150,9 +149,11 @@ public class Dialogs {
             throw new RuntimeException(ex);
         }
     }
+
     public static Optional<ButtonType> showDialogForAlert(AlertObject alertObject) {
         return showDialogForAlert(alertObject, null);
     }
+
     public static Optional<ButtonType> showDialogForAlert(AlertObject alertObject, Window parentWindow) {
         return switch (alertObject.getAlertType()) {
             case SUCCESS, INFORMATION -> {
@@ -174,7 +175,7 @@ public class Dialogs {
                 yield Optional.empty();
             }
 
-            case CONFIRMATION ->  showYesNoDialog(alertObject.getAlertTitle(), alertObject.getAlertDescription(), parentWindow);
+            case CONFIRMATION -> showYesNoDialog(alertObject.getAlertTitle(), alertObject.getAlertDescription(), parentWindow);
 
             default -> {
                 showErrorDialog(alertObject.getAlertTitle(), alertObject.getAlertType().toString() + " " +
