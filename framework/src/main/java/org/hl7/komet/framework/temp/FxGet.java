@@ -26,11 +26,8 @@ public class FxGet {
 
     static {
         NAVIGATION_OPTIONS.addAll(
-                Lists.immutable.of(TinkarTerm.EL_PLUS_PLUS_INFERRED_DIGRAPH),
-                Lists.immutable.of(TinkarTerm.EL_PLUS_PLUS_STATED_DIGRAPH),
-                Lists.immutable.of(TinkarTerm.EL_PLUS_PLUS_STATED_DIGRAPH, TinkarTerm.EL_PLUS_PLUS_STATED_DIGRAPH),
-                Lists.immutable.of(TinkarTerm.PATH_ORIGINS_PATTERN),
-                Lists.immutable.of(TinkarTerm.DEPENDENCY_MANAGEMENT_ASSEMBLAGE));
+                Lists.immutable.of(TinkarTerm.INFERRED_NAVIGATION_PATTERN),
+                Lists.immutable.of(TinkarTerm.STATED_NAVIGATION_PATTERN));
     }
 
     public static Collection<? extends ConceptFacade> allowedLanguages() {

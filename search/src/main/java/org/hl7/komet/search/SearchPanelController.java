@@ -15,8 +15,11 @@ import org.hl7.komet.framework.graphics.Icon;
 import org.hl7.komet.framework.view.ViewMenuModel;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.komet.preferences.KometPreferences;
+import org.hl7.tinkar.common.id.PublicIds;
 import org.hl7.tinkar.common.service.Executor;
+import org.hl7.tinkar.common.service.PrimitiveData;
 import org.hl7.tinkar.common.util.text.NaturalOrder;
+import org.hl7.tinkar.common.util.uuid.UuidUtil;
 import org.hl7.tinkar.coordinate.stamp.calculator.LatestVersionSearchResult;
 import org.hl7.tinkar.terms.EntityFacade;
 import org.hl7.tinkar.terms.EntityProxy;
@@ -24,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
+import java.util.OptionalInt;
 import java.util.ResourceBundle;
 
 import static javafx.scene.layout.Region.USE_COMPUTED_SIZE;
@@ -79,61 +83,98 @@ public class SearchPanelController implements ListChangeListener<TreeItem<Object
 
     @FXML
     void doSearch(ActionEvent event) {
-        LOG.info("start search...");
         resultsRoot.getChildren().clear();
         if (queryString.getText() == null || queryString.getText().isEmpty()) {
             return;
         }
-        Executor.threadPool().execute(() -> {
-            try {
-                TreeItem<Object> tempRoot = new TreeItem<>("Temp root");
-                ImmutableList<LatestVersionSearchResult> results = viewProperties.calculator().search(queryString.getText(), 1000);
-                LOG.info("Finished search. Hits: " + results.size());
-                switch (resultsLayoutCombo.getSelectionModel().getSelectedItem()) {
-                    case MATCHED_SEMANTIC_SCORE -> {
-                        results = results.toSortedList((o1, o2) -> Float.compare(o1.score(), o2.score())).toImmutable();
-                        for (LatestVersionSearchResult result : results) {
-                            tempRoot.getChildren().add(new TreeItem<>(result));
-                        }
-                    }
-                    case MATCHED_SEMANTIC_NATURAL_ORDER -> {
-                        results = results.toSortedList((o1, o2) -> {
-                            String string1 = (String) o1.latestVersion().get().fields().get(o1.fieldIndex());
-                            String string2 = (String) o2.latestVersion().get().fields().get(o2.fieldIndex());
-                            return NaturalOrder.compareStrings(string1, string2);
-                        }).toImmutable();
-                        for (LatestVersionSearchResult result : results) {
-                            tempRoot.getChildren().add(new TreeItem<>(result));
-                        }
-                    }
-                    case TOP_COMPONENT_NATURAL_ORDER -> {
-                        populateTempRoot(tempRoot, results);
-                        tempRoot.getChildren().sort((o1, o2) ->
-                                NaturalOrder.compareStrings(o1.getValue().toString(),
-                                        o2.getValue().toString()));
-                        for (TreeItem child : tempRoot.getChildren()) {
-                            child.getChildren().sort((o1, o2) -> NaturalOrder.compareStrings(o1.toString(), o2.toString()));
-                        }
-                    }
-
-                    case TOP_COMPONENT_SEMANTIC_SCORE -> {
-                        populateTempRoot(tempRoot, results);
-                        for (TreeItem<Object> topItem : tempRoot.getChildren()) {
-                            topItem.getChildren().sort((o1, o2) ->
-                                    Float.compare(((LatestVersionSearchResult) o1.getValue()).score(),
-                                            ((LatestVersionSearchResult) o2.getValue()).score()));
-                        }
-                        tempRoot.getChildren().sort((o1, o2) -> Float.compare(((LatestVersionSearchResult) o1.getChildren().get(0).getValue()).score(),
-                                ((LatestVersionSearchResult) o2.getChildren().get(0).getValue()).score()));
-                    }
-                }
-                Platform.runLater(() -> {
-                    resultsRoot.getChildren().setAll(tempRoot.getChildren());
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
+        // TODO: add to activity.
+        LOG.info("start search...");
+        String queryText = queryString.getText().strip();
+        if (queryText.startsWith("-") && parseInt(queryText).isPresent()) {
+            addComponentFromNid(queryText);
+        } else if (queryText.startsWith("[") && queryText.endsWith("]")) {
+            queryText = queryText.replace("[", "").replace("]", "");
+            String[] nidStrings = queryText.split(",");
+            for (String nidString : nidStrings) {
+                addComponentFromNid(nidString.strip());
             }
-        });
+        } else if (queryText.length() == 36 && UuidUtil.isUUID(queryText)) {
+            UuidUtil.getUUID(queryText).ifPresent(uuid -> {
+                addComponentFromNid(PrimitiveData.nid(PublicIds.of(uuid)));
+            });
+        } else {
+            Executor.threadPool().execute(() -> {
+                try {
+                    TreeItem<Object> tempRoot = new TreeItem<>("Temp root");
+                    ImmutableList<LatestVersionSearchResult> results = viewProperties.calculator().search(queryString.getText(), 1000);
+                    LOG.info("Finished search. Hits: " + results.size());
+                    switch (resultsLayoutCombo.getSelectionModel().getSelectedItem()) {
+                        case MATCHED_SEMANTIC_SCORE -> {
+                            results = results.toSortedList((o1, o2) -> Float.compare(o1.score(), o2.score())).toImmutable();
+                            for (LatestVersionSearchResult result : results) {
+                                tempRoot.getChildren().add(new TreeItem<>(result));
+                            }
+                        }
+                        case MATCHED_SEMANTIC_NATURAL_ORDER -> {
+                            results = results.toSortedList((o1, o2) -> {
+                                String string1 = (String) o1.latestVersion().get().fields().get(o1.fieldIndex());
+                                String string2 = (String) o2.latestVersion().get().fields().get(o2.fieldIndex());
+                                return NaturalOrder.compareStrings(string1, string2);
+                            }).toImmutable();
+                            for (LatestVersionSearchResult result : results) {
+                                tempRoot.getChildren().add(new TreeItem<>(result));
+                            }
+                        }
+                        case TOP_COMPONENT_NATURAL_ORDER -> {
+                            populateTempRoot(tempRoot, results);
+                            tempRoot.getChildren().sort((o1, o2) ->
+                                    NaturalOrder.compareStrings(o1.getValue().toString(),
+                                            o2.getValue().toString()));
+                            for (TreeItem child : tempRoot.getChildren()) {
+                                child.getChildren().sort((o1, o2) -> NaturalOrder.compareStrings(o1.toString(), o2.toString()));
+                            }
+                        }
+
+                        case TOP_COMPONENT_SEMANTIC_SCORE -> {
+                            populateTempRoot(tempRoot, results);
+                            for (TreeItem<Object> topItem : tempRoot.getChildren()) {
+                                topItem.getChildren().sort((o1, o2) ->
+                                        Float.compare(((LatestVersionSearchResult) o1.getValue()).score(),
+                                                ((LatestVersionSearchResult) o2.getValue()).score()));
+                            }
+                            tempRoot.getChildren().sort((o1, o2) -> Float.compare(((LatestVersionSearchResult) o1.getChildren().get(0).getValue()).score(),
+                                    ((LatestVersionSearchResult) o2.getChildren().get(0).getValue()).score()));
+                        }
+                    }
+                    Platform.runLater(() -> {
+                        resultsRoot.getChildren().setAll(tempRoot.getChildren());
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+
+    }
+
+    private OptionalInt parseInt(String possibleInt) {
+        try {
+            return OptionalInt.of(Integer.parseInt(possibleInt));
+        } catch (NumberFormatException e) {
+            return OptionalInt.empty();
+        }
+    }
+
+    private void addComponentFromNid(String queryText) {
+        int nid = parseInt(queryText).getAsInt();
+        addComponentFromNid(nid);
+    }
+
+    private void addComponentFromNid(int nid) {
+        String topText = viewProperties.nodeView().calculator().getFullyQualifiedDescriptionTextWithFallbackOrNid(nid);
+        TreeItem<Object> topItem = new TreeItem<>(new NidTextRecord(nid, topText));
+        resultsRoot.getChildren().add(topItem);
+        topItem.setExpanded(true);
     }
 
     private void populateTempRoot(TreeItem<Object> tempRoot, ImmutableList<LatestVersionSearchResult> results) {

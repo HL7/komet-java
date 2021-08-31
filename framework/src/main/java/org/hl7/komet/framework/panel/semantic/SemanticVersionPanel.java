@@ -1,6 +1,7 @@
 package org.hl7.komet.framework.panel.semantic;
 
 import javafx.scene.Node;
+import org.eclipse.collections.api.list.ImmutableList;
 import org.hl7.komet.framework.panel.ComponentVersionIsFinalPanel;
 import org.hl7.komet.framework.propsheet.KometPropertySheet;
 import org.hl7.komet.framework.propsheet.SheetItem;
@@ -20,11 +21,14 @@ public class SemanticVersionPanel extends ComponentVersionIsFinalPanel<SemanticE
         KometPropertySheet propertySheet = new KometPropertySheet(viewProperties);
         Latest<PatternEntityVersion> latestPatternEntityVersion = viewProperties.calculator().latestPatternEntityVersion(version.patternNid());
         latestPatternEntityVersion.ifPresent(patternEntityVersion -> {
-            for (Field field : version.fields(patternEntityVersion)) {
+            ImmutableList<Field> fields = version.fields(patternEntityVersion);
+            if (fields.isEmpty()) {
+                collapsiblePane.setExpanded(false);
+                collapsiblePane.setContent(null);
+            } else for (Field field : fields) {
                 propertySheet.getItems().add(SheetItem.make(field, version, viewProperties));
             }
         });
-
         return propertySheet;
     }
 }
