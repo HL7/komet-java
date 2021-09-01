@@ -5,13 +5,13 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.BorderPane;
+import org.hl7.komet.framework.PseudoClasses;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.tinkar.common.util.time.DateTimeUtil;
 import org.hl7.tinkar.entity.EntityVersion;
 import org.hl7.tinkar.entity.StampEntity;
 
-import static org.hl7.komet.framework.StyleClasses.COMPONENT_VERSION_PANEL;
-import static org.hl7.komet.framework.StyleClasses.STAMP_LABEL;
+import static org.hl7.komet.framework.StyleClasses.*;
 
 public abstract class ComponentVersionIsFinalPanel<V extends EntityVersion> {
     protected final BorderPane versionDetailsPane = new BorderPane();
@@ -25,7 +25,9 @@ public abstract class ComponentVersionIsFinalPanel<V extends EntityVersion> {
         Node versionNode = makeCenterNode(version, viewProperties);
         if (versionNode != null) {
             BorderPane.setAlignment(versionNode, Pos.TOP_LEFT);
+            versionNode.pseudoClassStateChanged(PseudoClasses.INACTIVE_PSEUDO_CLASS, !version.isActive());
         }
+        this.versionDetailsPane.getStyleClass().add(COMPONENT_VERSION_BORDER_PANEL.toString());
         this.versionDetailsPane.setCenter(versionNode);
         //this.versionDetailsPane.setBottom(new StampPanel<V>(version, viewProperties));
         StampEntity stampEntity = version.stamp();
@@ -36,7 +38,7 @@ public abstract class ComponentVersionIsFinalPanel<V extends EntityVersion> {
         stampLabel.getStyleClass().add(STAMP_LABEL.toString());
         this.collapsiblePane.setGraphic(stampLabel);
         this.collapsiblePane.setText("");
-
+        this.collapsiblePane.pseudoClassStateChanged(PseudoClasses.INACTIVE_PSEUDO_CLASS, !version.isActive());
         this.collapsiblePane.getStyleClass().add(COMPONENT_VERSION_PANEL.toString());
     }
 

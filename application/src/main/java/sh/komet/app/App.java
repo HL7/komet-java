@@ -21,6 +21,7 @@ import org.hl7.tinkar.common.id.PublicIdStringKey;
 import org.hl7.tinkar.common.service.Executor;
 import org.hl7.tinkar.common.service.PrimitiveData;
 import org.hl7.tinkar.coordinate.Coordinates;
+import org.scenicview.ScenicView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -139,7 +140,7 @@ public class App extends Application {
                     primaryStage.setTitle("Komet");
                     primaryStage.centerOnScreen();
 
-                    //ScenicView.show(kometRoot);
+                    ScenicView.show(kometRoot);
 
                 }
                 case SHUTDOWN -> {

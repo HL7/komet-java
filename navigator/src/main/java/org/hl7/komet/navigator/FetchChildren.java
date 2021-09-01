@@ -17,9 +17,6 @@
 package org.hl7.komet.navigator;
 
 
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import javafx.application.Platform;
 import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.hl7.komet.framework.view.ObservableView;
@@ -34,24 +31,29 @@ import org.hl7.tinkar.terms.ConceptFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
- *
  * @author kec
  */
 public class FetchChildren extends TrackingCallable<Void> {
     private static final Logger LOG = LoggerFactory.getLogger(FetchChildren.class);
-   private static final AtomicInteger FETCHER_SEQUENCE = new AtomicInteger(1);
-   private static final ConcurrentHashMap<Integer, FetchChildren> FETCHER_MAP = new ConcurrentHashMap<>();
+    private static final AtomicInteger FETCHER_SEQUENCE = new AtomicInteger(1);
+    private static final ConcurrentHashMap<Integer, FetchChildren> FETCHER_MAP = new ConcurrentHashMap<>();
 
     private final CountDownLatch childrenLoadedLatch;
     private final MultiParentVertexImpl parentGraphItem;
     private final int fetcherId = FETCHER_SEQUENCE.incrementAndGet();
-    private int childrenFound = 0;
     private final String parentName;
     private final ViewCalculator viewCalculator;
+    private int childrenFound = 0;
 
     public FetchChildren(CountDownLatch childrenLoadedLatch,
-            MultiParentVertexImpl parentGraphItem) {
+                         MultiParentVertexImpl parentGraphItem) {
+        super(false, true);
         this.childrenLoadedLatch = childrenLoadedLatch;
         this.parentGraphItem = parentGraphItem;
         this.viewCalculator = parentGraphItem.getViewCalculator();
@@ -63,7 +65,7 @@ public class FetchChildren extends TrackingCallable<Void> {
         updateTitle("Fetching children for: " + this.parentName);
 
         FetchChildren oldFetcher = FETCHER_MAP.put(parentGraphItem.getValue().nid(), this);
-        
+
         if (oldFetcher != null) {
             oldFetcher.cancel();  //Interrupts are bad for code that uses NIO.
         }
@@ -128,17 +130,18 @@ public class FetchChildren extends TrackingCallable<Void> {
 
                 childrenFound = childrenToAdd.size();
             }
-            updateMessage("Found " + childrenFound + " children in " + durationString() + " for " + this.parentName);
+            updateTitle("Fetched " + childrenFound + " children for " + this.parentName);
+            updateMessage("In " + durationString());
             return null;
         } finally {
             childrenLoadedLatch.countDown();
             FETCHER_MAP.remove(parentGraphItem.getValue().nid());
             if (FetchChildren.this.isCancelled()) {
                 LOG.debug("Canceled Adding children for: " + parentGraphItem.getValue().nid()
-                                    + " from: " + fetcherId);
+                        + " from: " + fetcherId);
             } else {
                 LOG.trace("Finished Adding children for: " + parentGraphItem.getValue().nid()
-                                    + " from: " + fetcherId);
+                        + " from: " + fetcherId);
             }
         }
     }

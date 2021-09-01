@@ -2,6 +2,7 @@ package org.hl7.komet.framework.panel.axiom;
 
 import org.eclipse.collections.api.list.ImmutableList;
 import org.hl7.komet.framework.view.ViewProperties;
+import org.hl7.tinkar.common.util.text.NaturalOrder;
 import org.hl7.tinkar.component.graph.DiTree;
 import org.hl7.tinkar.entity.graph.EntityVertex;
 import org.hl7.tinkar.terms.ConceptFacade;
@@ -33,6 +34,12 @@ public class AxiomComparator implements Comparator<ClauseView> {
 
     private int compare(EntityVertex vertex1, EntityVertex vertex2) {
         if (vertex1.getMeaningNid() != vertex2.getMeaningNid()) {
+            if (vertex1.getMeaningNid() == TinkarTerm.AND.nid()) {
+                return -1;
+            }
+            if (vertex2.getMeaningNid() == TinkarTerm.AND.nid()) {
+                return 1;
+            }
             if (vertex1.getMeaningNid() == TinkarTerm.SUFFICIENT_SET.nid()) {
                 return -1;
             }
@@ -69,7 +76,11 @@ public class AxiomComparator implements Comparator<ClauseView> {
             ImmutableList<EntityVertex> children1 = diGraph.successors(vertex1);
             ImmutableList<EntityVertex> children2 = diGraph.successors(vertex2);
 
-            if (vertex1.getMeaningNid() == TinkarTerm.NECESSARY_SET.nid()) {
+            if (vertex1.getMeaningNid() == TinkarTerm.NECESSARY_SET.nid() ||
+                    vertex1.getMeaningNid() == TinkarTerm.AND.nid() ||
+                    vertex1.getMeaningNid() == TinkarTerm.SUFFICIENT_SET.nid() ||
+                    vertex1.getMeaningNid() == TinkarTerm.NECESSARY_SET.nid() ||
+                    vertex1.getMeaningNid() == TinkarTerm.FEATURE.nid()) {
                 if (children1.isEmpty()) {
                     if (children2.isEmpty()) {
                         return 0;
@@ -125,6 +136,8 @@ public class AxiomComparator implements Comparator<ClauseView> {
                             roleType1.nid() != TinkarTerm.ROLE_GROUP.nid()) {
                         return 1;
                     }
+                    return NaturalOrder.compareStrings(viewProperties.calculator().getDescriptionTextOrNid(roleType1),
+                            viewProperties.calculator().getDescriptionTextOrNid(roleType2));
                 }
                 if (roleOperator1.nid() == TinkarTerm.UNIVERSAL_RESTRICTION.nid()) {
                     return -1;
@@ -133,7 +146,7 @@ public class AxiomComparator implements Comparator<ClauseView> {
                     return 1;
                 }
             }
-            throw new UnsupportedOperationException("Can't sort o1: " + vertex1 + "\no2: " + vertex2);
+            throw new UnsupportedOperationException("Can't sort \no1: " + vertex1 + "\n\no2: " + vertex2);
         }
         return 0;
     }

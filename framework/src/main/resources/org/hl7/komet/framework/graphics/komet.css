@@ -940,6 +940,12 @@ modena.css is the default css.
     -fx-background-color: -komet-inactive-background;
 }
 
+.component-version-panel:inactive .content {
+    -fx-background-color: -komet-inactive-background;
+    -fx-border-color: -komet-inactive-background;
+}
+
+
 .version-panel:inactive .text-area,
 .version-panel:inactive .viewport,
 .version-panel:inactive .scroll-pane,
@@ -966,12 +972,6 @@ modena.css is the default css.
 
 .content {
     -fx-background-color: white;
-}
-
-.titled-pane > .content {
-    -fx-border-color: red;
-    -fx-border-width: 0;
-    -fx-border-insets: 0 -5 0 0;
 }
 
 .component-collapsible-panel {

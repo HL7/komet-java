@@ -1,5 +1,6 @@
 package org.hl7.komet.framework.propsheet;
 
+import javafx.application.Platform;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.StringProperty;
@@ -17,6 +18,7 @@ import org.hl7.komet.framework.propsheet.editor.ListEditor;
 import org.hl7.komet.framework.propsheet.editor.PasswordEditor;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.tinkar.common.id.IntIdCollection;
+import org.hl7.tinkar.common.service.Executor;
 import org.hl7.tinkar.common.util.text.NaturalOrder;
 import org.hl7.tinkar.component.graph.DiTree;
 import org.hl7.tinkar.entity.Field;
@@ -25,7 +27,7 @@ import org.hl7.tinkar.entity.graph.EntityVertex;
 import org.hl7.tinkar.terms.EntityFacade;
 import org.hl7.tinkar.terms.TinkarTerm;
 
-import java.util.List;
+import java.util.Arrays;
 import java.util.Optional;
 
 public class SheetItem<T> implements PropertySheet.Item {
@@ -104,11 +106,17 @@ public class SheetItem<T> implements PropertySheet.Item {
                 classType = ObservableList.class;
                 propertyEditorClass = ListEditor.class;
                 if (property.getValue() instanceof IntIdCollection intIdCollection) {
-                    List<EntityFacade> facades = intIdCollection.mapToList(nid -> EntityFacade.make(nid));
-                    facades.sort((o1, o2) -> NaturalOrder.compareStrings(viewProperties.calculator().getDescriptionTextOrNid(o1),
-                            viewProperties.calculator().getDescriptionTextOrNid(o2)));
+                    ObservableList facadeList = FXCollections.observableArrayList();
+                    property.setValue(facadeList);
+                    Executor.threadPool().execute(() -> {
+                        EntityFacade[] facades = intIdCollection.mapToArray(nid -> EntityFacade.make(nid), EntityFacade.class);
+                        Arrays.parallelSort(facades, (o1, o2) -> NaturalOrder.compareStrings(viewProperties.calculator().getDescriptionTextOrNid(o1),
+                                viewProperties.calculator().getDescriptionTextOrNid(o2)));
+                        Platform.runLater(() -> {
+                            facadeList.addAll(facades);
+                        });
 
-                    property.setValue(FXCollections.observableArrayList(facades));
+                    });
                 }
                 break;
             case DITREE: {

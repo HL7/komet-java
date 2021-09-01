@@ -11,6 +11,7 @@ import org.hl7.komet.framework.panel.concept.ConceptVersionPanel;
 import org.hl7.komet.framework.panel.pattern.PatternVersionPanel;
 import org.hl7.komet.framework.panel.semantic.SemanticVersionPanel;
 import org.hl7.komet.framework.view.ViewProperties;
+import org.hl7.tinkar.common.service.Executor;
 import org.hl7.tinkar.component.graph.DiTree;
 import org.hl7.tinkar.entity.*;
 import org.hl7.tinkar.entity.graph.VersionVertex;
@@ -42,12 +43,10 @@ public class ComponentIsFinalPanel<C extends Entity<V>, V extends EntityVersion>
         // TODO finish good identicon graphic.
         //this.collapsiblePane.setGraphic(Identicon.generateIdenticon(component.publicId(), 24, 24));
         List<DiTree<VersionVertex<V>>> versionGraph = viewProperties.calculator().getVersionGraphList(component);
-        Platform.runLater(() -> {
+        Executor.threadPool().execute(() -> {
             for (DiTree<VersionVertex<V>> diTree : versionGraph) {
                 dfsAddVersion(diTree.root(), diTree);
             }
-        });
-        Platform.runLater(() -> {
             addSemanticReferences(component, topEnclosingComponentProperty);
         });
     }
