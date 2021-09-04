@@ -1,6 +1,5 @@
-package org.hl7.komet.navigator;
+package org.hl7.komet.navigator.graph;
 
-import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.hl7.tinkar.coordinate.navigation.calculator.Edge;
 import org.hl7.tinkar.coordinate.view.ViewCoordinate;
@@ -11,6 +10,7 @@ import org.hl7.tinkar.terms.TinkarTerm;
 public class ViewNavigator implements Navigator {
 
     private final ViewCalculator viewCalculator;
+
     public ViewNavigator(ViewCoordinate viewCoordinate) {
         viewCalculator = ViewCalculatorWithCache.getCalculator(viewCoordinate.toViewCoordinateRecord());
     }
@@ -32,7 +32,7 @@ public class ViewNavigator implements Navigator {
 
     @Override
     public ImmutableList<Edge> getChildEdges(int parentNid) {
-         return viewCalculator.childEdges(parentNid);
+        return viewCalculator.childEdges(parentNid);
     }
 
     @Override
@@ -52,7 +52,7 @@ public class ViewNavigator implements Navigator {
 
     @Override
     public int[] getRootNids() {
-        return new int[] {TinkarTerm.ROOT_VERTEX.nid()};
+        return new int[]{TinkarTerm.ROOT_VERTEX.nid()};
     }
 
     @Override

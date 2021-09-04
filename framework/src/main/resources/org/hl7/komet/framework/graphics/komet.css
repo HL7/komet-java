@@ -141,6 +141,7 @@ modena.css is the default css.
 
 /* #navigator-node pair */
 #navigator-node .ikonli-font-icon {
+    /* -fx-icon-code: "mdi2g-graph"; */
     -fx-icon-code: "mdi2f-file-tree";
     -fx-icon-color: -komet-blue-color;
     -fx-icon-size: 20;
@@ -148,6 +149,22 @@ modena.css is the default css.
 
 .add-tab-menu-item:focused #navigator-node .ikonli-font-icon,
 .tab #navigator-node .ikonli-font-icon {
+    -fx-icon-color: white;
+    -fx-icon-size: 20;
+}
+
+/* #navigator-node pair */
+#pattern-navigator-node .ikonli-font-icon {
+    /*-fx-icon-code: "mdi2m-math-compass";*/
+    -fx-icon-code: "mdi2r-ruler-square";
+    /*-fx-icon-code: "mdi2r-ruler-square-compass";*/
+    /*-fx-icon-code: "fas-pencil-ruler"; */
+    -fx-icon-color: -komet-blue-color;
+    -fx-icon-size: 20;
+}
+
+.add-tab-menu-item:focused #pattern-navigator-node .ikonli-font-icon,
+.tab #pattern-navigator-node .ikonli-font-icon {
     -fx-icon-color: white;
     -fx-icon-size: 20;
 }
@@ -789,6 +806,16 @@ modena.css is the default css.
     -fx-icon-size: 20;
 }
 
+#paper-clip .ikonli-font-icon {
+    -fx-icon-code: "mdi2p-paperclip";
+    -fx-icon-size: 20;
+}
+
+#pattern .ikonli-font-icon {
+    -fx-icon-code: "fas-pencil-ruler";
+    -fx-icon-size: 20;
+}
+
 .add-tab-menu-item #publish-to-activityStream .ikonli-font-icon {
     -fx-icon-color: -komet-blue-color;
 }
@@ -1121,6 +1148,14 @@ modena.css is the default css.
 
 .component-panel:inactive {
     -fx-text-fill: -komet-inactive-color;
+}
+
+.text-input {
+    -fx-border-color: -fx-box-border;
+}
+
+.property-pane .text-input .content {
+    -fx-background-color: white;
 }
 
 .prop-sheet-entity-label {

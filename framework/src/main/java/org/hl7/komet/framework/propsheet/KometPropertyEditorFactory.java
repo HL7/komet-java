@@ -1,13 +1,19 @@
 package org.hl7.komet.framework.propsheet;
 
+import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.StringProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Control;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputControl;
 import javafx.util.Callback;
 import org.controlsfx.control.PropertySheet;
+import org.controlsfx.property.editor.AbstractPropertyEditor;
 import org.controlsfx.property.editor.DefaultPropertyEditorFactory;
-import org.controlsfx.property.editor.Editors;
 import org.controlsfx.property.editor.PropertyEditor;
 import org.hl7.komet.framework.controls.EntityLabelWithDragAndDrop;
 import org.hl7.komet.framework.panel.axiom.AxiomView;
@@ -39,9 +45,11 @@ public class KometPropertyEditorFactory implements Callback<PropertySheet.Item, 
     @Override
     public PropertyEditor<?> call(PropertySheet.Item item) {
         PropertyEditor<?> propertyEditor;
-
-        if (item.getType() == String.class) {
-            propertyEditor = Editors.createTextEditor(item);
+        Optional<Class<? extends PropertyEditor<?>>> optionalPropertyEditorClass = item.getPropertyEditorClass();
+        if (optionalPropertyEditorClass.isPresent() && optionalPropertyEditorClass.get() == KometPropertyEditorFactory.TextFieldEditor.class) {
+            propertyEditor = new TextFieldEditor(item);
+        } else if (item.getType() == String.class) {
+            propertyEditor = createTextAreaEditor(item);
         } else if (item.getPropertyEditorClass().isPresent()) {
             Optional<PropertyEditor<?>> ed = createCustomEditor(item, viewProperties);
             propertyEditor = ed.get();
@@ -55,6 +63,33 @@ public class KometPropertyEditorFactory implements Callback<PropertySheet.Item, 
             }
         }
         return propertyEditor;
+    }
+
+    public static final PropertyEditor<?> createTextAreaEditor(PropertySheet.Item property) {
+
+        return new AbstractPropertyEditor<String, TextArea>(property, new TextArea()) {
+
+            {
+                getEditor().setWrapText(true);
+                getEditor().setPrefRowCount(2);
+                enableAutoSelectAll(getEditor());
+            }
+
+            @Override
+            protected StringProperty getObservableValue() {
+                return getEditor().textProperty();
+            }
+
+            @Override
+            public void setValue(String value) {
+                if (value.length() < 60) {
+                    getEditor().setPrefRowCount(1);
+                } else {
+                    getEditor().setPrefRowCount(2 + value.length() / 80);
+                }
+                getEditor().setText(value);
+            }
+        };
     }
 
     public static final Optional<PropertyEditor<?>> createCustomEditor(final PropertySheet.Item property, final ViewProperties viewProperties) {
@@ -94,5 +129,39 @@ public class KometPropertyEditorFactory implements Callback<PropertySheet.Item, 
             }
             return null;
         });
+    }
+
+    private static void enableAutoSelectAll(final TextInputControl control) {
+        control.focusedProperty().addListener((ObservableValue<? extends Boolean> o, Boolean oldValue, Boolean newValue) -> {
+            if (newValue) {
+                Platform.runLater(() -> {
+                    control.selectAll();
+                });
+            }
+        });
+    }
+
+    public static class TextFieldEditor extends AbstractPropertyEditor<String, TextField> {
+        {
+            enableAutoSelectAll(getEditor());
+        }
+
+        public TextFieldEditor(PropertySheet.Item property) {
+            super(property, new TextField());
+        }
+
+        public TextFieldEditor(PropertySheet.Item property, boolean readonly) {
+            super(property, new TextField(), readonly);
+        }
+
+        @Override
+        protected StringProperty getObservableValue() {
+            return getEditor().textProperty();
+        }
+
+        @Override
+        public void setValue(String value) {
+            getEditor().setText(value);
+        }
     }
 }

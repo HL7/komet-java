@@ -13,6 +13,7 @@ import org.hl7.komet.framework.panel.semantic.SemanticVersionPanel;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.tinkar.common.service.Executor;
 import org.hl7.tinkar.component.graph.DiTree;
+import org.hl7.tinkar.coordinate.stamp.calculator.Latest;
 import org.hl7.tinkar.entity.*;
 import org.hl7.tinkar.entity.graph.VersionVertex;
 import org.hl7.tinkar.terms.EntityFacade;
@@ -42,17 +43,36 @@ public class ComponentIsFinalPanel<C extends Entity<V>, V extends EntityVersion>
         this.collapsiblePane.setContentDisplay(ContentDisplay.LEFT);
         // TODO finish good identicon graphic.
         //this.collapsiblePane.setGraphic(Identicon.generateIdenticon(component.publicId(), 24, 24));
-        List<DiTree<VersionVertex<V>>> versionGraph = viewProperties.calculator().getVersionGraphList(component);
         Executor.threadPool().execute(() -> {
-            for (DiTree<VersionVertex<V>> diTree : versionGraph) {
-                dfsAddVersion(diTree.root(), diTree);
-            }
+            List<DiTree<VersionVertex<V>>> versionGraph = viewProperties.calculator().getVersionGraphList(component);
+            Latest<V> latestVersion = viewProperties.calculator().latest(component);
+            latestVersion.ifPresent(version -> {
+                for (DiTree<VersionVertex<V>> diTree : versionGraph) {
+                    for (VersionVertex<V> vertex : diTree.vertexMap()) {
+                        if (vertex.version().stampNid() == version.stampNid()) {
+                            addVersionAndPredecessors(vertex, diTree, true);
+                            break;
+                        }
+                    }
+                }
+            });
             addSemanticReferences(component, topEnclosingComponentProperty);
         });
     }
 
+    private void addVersionAndPredecessors(VersionVertex<V> versionVertex, DiTree<VersionVertex<V>> versionGraph, boolean expanded) {
+        if (versionVertex != null) {
+            ComponentVersionIsFinalPanel<V> versionPanel = makeVersionPanel(versionVertex.version());
+            BorderPane.setAlignment(versionPanel.versionDetailsPane, Pos.TOP_LEFT);
+            versionPanel.collapsiblePane.setExpanded(expanded);
+            Platform.runLater(() -> ComponentIsFinalPanel.this.componentPanelBox.getChildren().add(versionPanel.getVersionDetailsPane()));
+            versionGraph.predecessor(versionVertex).ifPresent(predecessorVertex -> {
+                addVersionAndPredecessors(predecessorVertex, versionGraph, false);
+            });
+        }
+    }
+
     private void dfsAddVersion(VersionVertex<V> versionVertex, DiTree<VersionVertex<V>> versionGraph) {
-        //versionGraph.predecessor(versionVertex);
         ComponentVersionIsFinalPanel<V> versionPanel = makeVersionPanel(versionVertex.version());
         BorderPane.setAlignment(versionPanel.versionDetailsPane, Pos.TOP_LEFT);
         Platform.runLater(() -> ComponentIsFinalPanel.this.componentPanelBox.getChildren().add(versionPanel.getVersionDetailsPane()));
@@ -76,7 +96,6 @@ public class ComponentIsFinalPanel<C extends Entity<V>, V extends EntityVersion>
     public final Optional<C> getComponent() {
         return Optional.of(component);
     }
-
 
     public Node getComponentDetailPane() {
         return collapsiblePane;

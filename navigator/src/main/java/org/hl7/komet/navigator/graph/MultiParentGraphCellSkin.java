@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hl7.komet.navigator;
+package org.hl7.komet.navigator.graph;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,7 +39,6 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- *
  * @author kec
  */
 public class MultiParentGraphCellSkin extends CellSkinBase<TreeCell<ConceptFacade>> {
@@ -47,23 +46,33 @@ public class MultiParentGraphCellSkin extends CellSkinBase<TreeCell<ConceptFacad
 
     /**
      * The amount of space to multiply by the methodTreeItem.level to get the left
-     margin for this tree cell. This is settable from CSS
+     * margin for this tree cell. This is settable from CSS
      */
     private DoubleProperty indent = null;
-    public final void setIndent(double value) { indentProperty().set(value); }
-    public final double getIndent() { return indent == null ? 10.0 : indent.get(); }
+
+    public final void setIndent(double value) {
+        indentProperty().set(value);
+    }
+
+    public final double getIndent() {
+        return indent == null ? 10.0 : indent.get();
+    }
+
     public final DoubleProperty indentProperty() {
         if (indent == null) {
             indent = new StyleableDoubleProperty(10.0) {
-                @Override public Object getBean() {
+                @Override
+                public Object getBean() {
                     return MultiParentGraphCellSkin.this;
                 }
 
-                @Override public String getName() {
+                @Override
+                public String getName() {
                     return "indent";
                 }
 
-                @Override public CssMetaData<TreeCell<?>,Number> getCssMetaData() {
+                @Override
+                public CssMetaData<TreeCell<?>, Number> getCssMetaData() {
                     return MultiParentGraphCellSkin.StyleableProperties.INDENT;
                 }
             };
@@ -229,12 +238,14 @@ public class MultiParentGraphCellSkin extends CellSkinBase<TreeCell<ConceptFacad
         }
     }
 
-    @Override protected void updateChildren() {
+    @Override
+    protected void updateChildren() {
         super.updateChildren();
         updateDisclosureNode();
     }
 
-    @Override protected double computeMinHeight(double width, double topInset, double rightInset, double bottomInset, double leftInset) {
+    @Override
+    protected double computeMinHeight(double width, double topInset, double rightInset, double bottomInset, double leftInset) {
         if (fixedCellSizeEnabled) {
             return fixedCellSize;
         }
@@ -244,7 +255,8 @@ public class MultiParentGraphCellSkin extends CellSkinBase<TreeCell<ConceptFacad
         return (d == null) ? pref : Math.max(d.minHeight(-1), pref);
     }
 
-    @Override protected double computePrefHeight(double width, double topInset, double rightInset, double bottomInset, double leftInset) {
+    @Override
+    protected double computePrefHeight(double width, double topInset, double rightInset, double bottomInset, double leftInset) {
         if (fixedCellSizeEnabled) {
             return fixedCellSize;
         }
@@ -260,7 +272,8 @@ public class MultiParentGraphCellSkin extends CellSkinBase<TreeCell<ConceptFacad
         return snapSize(Math.max(cell.getMinHeight(), prefHeight));
     }
 
-    @Override protected double computeMaxHeight(double width, double topInset, double rightInset, double bottomInset, double leftInset) {
+    @Override
+    protected double computeMaxHeight(double width, double topInset, double rightInset, double bottomInset, double leftInset) {
         if (fixedCellSizeEnabled) {
             return fixedCellSize;
         }
@@ -274,25 +287,30 @@ public class MultiParentGraphCellSkin extends CellSkinBase<TreeCell<ConceptFacad
      *                                                                         *
      **************************************************************************/
 
-    /** @treatAsPrivate */
+    /**
+     * @treatAsPrivate
+     */
     private static class StyleableProperties {
 
-        private static final CssMetaData<TreeCell<?>,Number> INDENT =
-                new CssMetaData<TreeCell<?>,Number>("-fx-indent",
+        private static final CssMetaData<TreeCell<?>, Number> INDENT =
+                new CssMetaData<TreeCell<?>, Number>("-fx-indent",
                         SizeConverter.getInstance(), 10.0) {
 
-                    @Override public boolean isSettable(TreeCell<?> n) {
+                    @Override
+                    public boolean isSettable(TreeCell<?> n) {
                         DoubleProperty p = ((MultiParentGraphCellSkin) n.getSkin()).indentProperty();
                         return p == null || !p.isBound();
                     }
 
-                    @Override public StyleableProperty<Number> getStyleableProperty(TreeCell<?> n) {
+                    @Override
+                    public StyleableProperty<Number> getStyleableProperty(TreeCell<?> n) {
                         final MultiParentGraphCellSkin skin = (MultiParentGraphCellSkin) n.getSkin();
-                        return (StyleableProperty<Number>)(WritableValue<Number>)skin.indentProperty();
+                        return (StyleableProperty<Number>) (WritableValue<Number>) skin.indentProperty();
                     }
                 };
 
         private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES;
+
         static {
             final List<CssMetaData<? extends Styleable, ?>> styleables =
                     new ArrayList<>(CellSkinBase.getClassCssMetaData());

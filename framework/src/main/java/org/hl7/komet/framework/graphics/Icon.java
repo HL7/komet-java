@@ -74,6 +74,9 @@ public enum Icon {
     CLOSE("close-disclosure", "mdi2m-menu-right", MaterialDesign2),
     EDIT_PENCIL("edit-pencil", "mdi2l-lead-pencil", MaterialDesign2),
 
+    PAPER_CLIP("paper-clip", "mdi2p-paperclip", MaterialDesign2),
+
+    PATTERN("pattern", "mdi2m-math-compass", MaterialDesign2),
     ;
     String styleId;
     String iconCode;

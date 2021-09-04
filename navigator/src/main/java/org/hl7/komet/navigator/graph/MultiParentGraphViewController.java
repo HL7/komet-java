@@ -1,4 +1,4 @@
-package org.hl7.komet.navigator;
+package org.hl7.komet.navigator.graph;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
@@ -118,7 +118,9 @@ public class MultiParentGraphViewController implements RefreshListener {
 
     protected static boolean wasGlobalShutdownRequested() {
         return shutdownRequested;
-    }    private ChangeListener<Scene> sceneChangedListener = this::sceneChanged;
+    }
+
+    private ChangeListener<Scene> sceneChangedListener = this::sceneChanged;
 
     private void sceneChanged(ObservableValue<? extends Scene> observableValue, Scene oldScene, Scene newScene) {
         if (newScene == null) {
@@ -706,8 +708,6 @@ public class MultiParentGraphViewController implements RefreshListener {
         }
 
     }
-
-
 
 
 }

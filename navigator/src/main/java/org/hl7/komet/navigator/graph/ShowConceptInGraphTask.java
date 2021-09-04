@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hl7.komet.navigator;
+package org.hl7.komet.navigator.graph;
 
 import javafx.application.Platform;
 import org.eclipse.collections.api.list.primitive.MutableIntList;

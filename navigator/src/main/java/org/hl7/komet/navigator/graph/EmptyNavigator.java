@@ -1,4 +1,4 @@
-package org.hl7.komet.navigator;
+package org.hl7.komet.navigator.graph;
 
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.ImmutableList;
@@ -56,7 +56,7 @@ public class EmptyNavigator implements Navigator {
     @Override
     public int[] getRootNids() {
         if (roots.isEmpty()) {
-            return new int[] {TinkarTerm.UNINITIALIZED_COMPONENT.nid()};
+            return new int[]{TinkarTerm.UNINITIALIZED_COMPONENT.nid()};
         }
         return roots.stream().mapToInt(value -> value.nid()).toArray();
     }

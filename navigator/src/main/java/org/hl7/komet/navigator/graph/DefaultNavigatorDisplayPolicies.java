@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package org.hl7.komet.navigator;
+package org.hl7.komet.navigator.graph;
 
 import javafx.scene.Node;
 import javafx.scene.layout.HBox;
@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
  *
  * @author kec
  * @author <a href="mailto:joel.kniaz@gmail.com">Joel Kniaz</a>
- *
  */
 public class DefaultNavigatorDisplayPolicies implements NavigatorDisplayPolicies {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultNavigatorDisplayPolicies.class);

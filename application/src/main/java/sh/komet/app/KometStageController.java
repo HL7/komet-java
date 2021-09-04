@@ -23,7 +23,8 @@ import org.hl7.komet.framework.activity.ActivityStreamOption;
 import org.hl7.komet.framework.activity.ActivityStreams;
 import org.hl7.komet.framework.view.ObservableViewNoOverride;
 import org.hl7.komet.framework.view.ViewMenuTask;
-import org.hl7.komet.navigator.GraphNavigatorNodeFactory;
+import org.hl7.komet.navigator.graph.GraphNavigatorNodeFactory;
+import org.hl7.komet.navigator.pattern.PatternNavigatorFactory;
 import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.komet.progress.CompletionNodeFactory;
 import org.hl7.komet.progress.ProgressNodeFactory;
@@ -254,6 +255,16 @@ public class KometStageController implements SetupNode {
         DetachableTab navigatorNode1Tab = new DetachableTab(navigatorNode1.getTitle().getValue(), navigatorNode1.getNode());
         navigatorNode1Tab.setGraphic(navigatorNode1.getTitleNode());
         this.leftDetachableTabPane.getTabPane().getTabs().add(navigatorNode1Tab);
+
+        PatternNavigatorFactory patternNavigatorNodeFactory = new PatternNavigatorFactory();
+
+        KometNode patternNavigatorNode2 = patternNavigatorNodeFactory.create(windowView, nodePreferences,
+                ActivityStreams.NAVIGATION, ActivityStreamOption.PUBLISH.keyForOption(), AlertStreams.ROOT_ALERT_STREAM_KEY);
+
+        DetachableTab patternNavigatorNode1Tab = new DetachableTab(patternNavigatorNode2.getTitle().getValue(), patternNavigatorNode2.getNode());
+        patternNavigatorNode1Tab.setGraphic(patternNavigatorNode2.getTitleNode());
+        this.leftDetachableTabPane.getTabPane().getTabs().add(patternNavigatorNode1Tab);
+
 
         DetailsNodeFactory detailsNodeFactory = new DetailsNodeFactory();
         KometNode detailsNode1 = detailsNodeFactory.create(windowView, nodePreferences,

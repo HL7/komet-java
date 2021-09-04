@@ -59,7 +59,7 @@ public class SheetItem<T> implements PropertySheet.Item {
             throw new IllegalStateException("Validation and validation support cannot be null");
         }
         return new SheetItem(String.class, null, property.getName(),
-                null, property, null, validationSupport, validator);
+                null, property, KometPropertyEditorFactory.TextFieldEditor.class, validationSupport, validator);
     }
 
     public static <T> SheetItem<T> make(Field field, SemanticEntityVersion version, ViewProperties viewProperties) {

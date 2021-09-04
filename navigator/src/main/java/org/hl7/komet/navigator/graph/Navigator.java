@@ -1,4 +1,4 @@
-package org.hl7.komet.navigator;
+package org.hl7.komet.navigator.graph;
 
 import org.eclipse.collections.api.list.ImmutableList;
 import org.hl7.tinkar.coordinate.navigation.calculator.Edge;
@@ -24,6 +24,7 @@ public interface Navigator {
 
     /**
      * For circumstances where there is more than one type of navigable relationship.
+     *
      * @param childNid
      * @return an ImmutableCollection of all the parent Edges.
      */
@@ -31,13 +32,13 @@ public interface Navigator {
 
     /**
      * For circumstances where there is more than one type of navigable relationship.
+     *
      * @param parentNid
      * @return an ImmutableCollection of all the child Edges.
      */
     ImmutableList<Edge> getChildEdges(int parentNid);
 
     /**
-     *
      * @param conceptNid concept to test if it is a leaf node
      * @return true if the node is a leaf (it has no children)
      */
@@ -46,7 +47,7 @@ public interface Navigator {
     /**
      * Checks if child of.
      *
-     * @param childNid the child id
+     * @param childNid  the child id
      * @param parentNid the parent id
      * @return true, if child of
      */
@@ -56,7 +57,7 @@ public interface Navigator {
      * Checks if descendant  of.
      *
      * @param descendantNid the descendant id
-     * @param ancestorNid the parent id
+     * @param ancestorNid   the parent id
      * @return true, if kind of
      */
     boolean isDescendentOf(int descendantNid, int ancestorNid);
@@ -70,6 +71,7 @@ public interface Navigator {
 
     /**
      * Get the ViewCalculator which defines the parent/child relationships of this tree.
+     *
      * @return ViewCalculator
      */
     ViewCalculator getViewCalculator();

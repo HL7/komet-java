@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.hl7.komet.navigator;
+package org.hl7.komet.navigator.graph;
 
 import com.google.auto.service.AutoService;
 import org.eclipse.collections.api.factory.Lists;
@@ -31,52 +31,51 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
  * @author kec
  */
 
 @AutoService(KometNodeFactory.class)
 public class GraphNavigatorNodeFactory
         implements KometNodeFactory {
-   private static final Logger LOG = LoggerFactory.getLogger(GraphNavigatorNodeFactory.class);
-   protected static final String STYLE_ID = GraphNavigatorNode.STYLE_ID;
-   protected static final String TITLE = GraphNavigatorNode.TITLE;
+    private static final Logger LOG = LoggerFactory.getLogger(GraphNavigatorNodeFactory.class);
+    protected static final String STYLE_ID = GraphNavigatorNode.STYLE_ID;
+    protected static final String TITLE = GraphNavigatorNode.TITLE;
 
-   @Override
-   public KometNode create(ObservableViewNoOverride windowViewReference, KometPreferences nodePreferences) {
-      return new GraphNavigatorNode(windowViewReference.makeOverridableViewProperties(), nodePreferences);
-   }
+    @Override
+    public KometNode create(ObservableViewNoOverride windowViewReference, KometPreferences nodePreferences) {
+        return new GraphNavigatorNode(windowViewReference.makeOverridableViewProperties(), nodePreferences);
+    }
 
-   @Override
-   public ImmutableList<PublicIdStringKey<ActivityStream>> defaultActivityStreamChoices() {
-      return Lists.immutable.of(ActivityStreams.NAVIGATION);
-   }
+    @Override
+    public ImmutableList<PublicIdStringKey<ActivityStream>> defaultActivityStreamChoices() {
+        return Lists.immutable.of(ActivityStreams.NAVIGATION);
+    }
 
-   @Override
-   public ImmutableList<PublicIdStringKey<ActivityStreamOption>> defaultOptionsForActivityStream(PublicIdStringKey<ActivityStream> streamKey) {
-      if (defaultActivityStreamChoices().contains(streamKey)) {
-         return Lists.immutable.of(ActivityStreamOption.PUBLISH.keyForOption());
-      }
-      return Lists.immutable.empty();
-   }
+    @Override
+    public ImmutableList<PublicIdStringKey<ActivityStreamOption>> defaultOptionsForActivityStream(PublicIdStringKey<ActivityStream> streamKey) {
+        if (defaultActivityStreamChoices().contains(streamKey)) {
+            return Lists.immutable.of(ActivityStreamOption.PUBLISH.keyForOption());
+        }
+        return Lists.immutable.empty();
+    }
 
-   @Override
-   public String getMenuText() {
-      return TITLE;
-   }
+    @Override
+    public String getMenuText() {
+        return TITLE;
+    }
 
-   @Override
-   public String getStyleId() {
-      return STYLE_ID;
-   }
+    @Override
+    public String getStyleId() {
+        return STYLE_ID;
+    }
 
-   @Override
-   public void addDefaultNodePreferences(KometPreferences nodePreferences) {
+    @Override
+    public void addDefaultNodePreferences(KometPreferences nodePreferences) {
 
-   }
+    }
 
-   @Override
-   public Class<? extends KometNode> kometNodeClass() {
-      return GraphNavigatorNode.class;
-   }
+    @Override
+    public Class<? extends KometNode> kometNodeClass() {
+        return GraphNavigatorNode.class;
+    }
 }

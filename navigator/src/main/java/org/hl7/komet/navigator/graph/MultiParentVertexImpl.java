@@ -1,4 +1,4 @@
-/* 
+/*
  * Licensed under the Apache License, Version 2.0 (the "License");
  *
  * You may not use this file except in compliance with the License.
@@ -14,29 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Contributions from 2013-2017 where performed either by US government 
- * employees, or under US Veterans Health Administration contracts. 
+ * Contributions from 2013-2017 where performed either by US government
+ * employees, or under US Veterans Health Administration contracts.
  *
  * US Veterans Health Administration contributions by government employees
  * are work of the U.S. Government and are not subject to copyright
- * protection in the United States. Portions contributed by government 
- * employees are USGovWork (17USC §105). Not subject to copyright. 
- * 
+ * protection in the United States. Portions contributed by government
+ * employees are USGovWork (17USC §105). Not subject to copyright.
+ *
  * Contribution by contractors to the US Veterans Health Administration
  * during this period are contractually contributed under the
  * Apache License, Version 2.0.
  *
  * See: https://www.usa.gov/government-works
- * 
+ *
  * Contributions prior to 2013:
  *
  * Copyright (C) International Health Terminology Standards Development Organisation.
  * Licensed under the Apache License, Version 2.0.
  *
  */
-package org.hl7.komet.navigator;
+package org.hl7.komet.navigator.graph;
 
 //~--- JDK imports ------------------------------------------------------------
+
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
@@ -62,9 +63,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 //~--- classes ----------------------------------------------------------------
+
 /**
  * A {@link TreeItem} for modeling nodes in ISAAC taxonomies.
- *
+ * <p>
  * The {@code MultiParentGraphItemImpl} is not a visual component. The
  * {@code MultiParentGraphCell} provides the rendering for this tree item.
  *
@@ -160,7 +162,7 @@ public class MultiParentVertexImpl
     public int compareTo(MultiParentVertexImpl o) {
         int compare = NaturalOrder.compareStrings(this.toString(), o.toString());
         if (compare != 0) {
-           return compare; 
+            return compare;
         }
         return Integer.compare(nid, o.nid);
     }
@@ -260,7 +262,7 @@ public class MultiParentVertexImpl
                         } else {
                             LOG.atTrace().log(
                                     "item.shouldDisplay() == false: not adding " + childItem.getConceptPublicId() + " as child of "
-                                    + this.getConceptPublicId());
+                                            + this.getConceptPublicId());
                         }
                     }
 
