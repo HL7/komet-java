@@ -20,7 +20,9 @@ import org.hl7.tinkar.common.service.Executor;
 import org.hl7.tinkar.common.service.PrimitiveData;
 import org.hl7.tinkar.common.util.text.NaturalOrder;
 import org.hl7.tinkar.common.util.uuid.UuidUtil;
+import org.hl7.tinkar.coordinate.stamp.calculator.Latest;
 import org.hl7.tinkar.coordinate.stamp.calculator.LatestVersionSearchResult;
+import org.hl7.tinkar.entity.EntityVersion;
 import org.hl7.tinkar.terms.EntityFacade;
 import org.hl7.tinkar.terms.EntityProxy;
 import org.slf4j.Logger;
@@ -172,7 +174,11 @@ public class SearchPanelController implements ListChangeListener<TreeItem<Object
 
     private void addComponentFromNid(int nid) {
         String topText = viewProperties.nodeView().calculator().getFullyQualifiedDescriptionTextWithFallbackOrNid(nid);
-        TreeItem<Object> topItem = new TreeItem<>(new NidTextRecord(nid, topText));
+        Latest<EntityVersion> latestTopVersion = viewProperties.nodeView().calculator().latest(nid);
+        TreeItem<Object> topItem = new TreeItem<>();
+        latestTopVersion.ifPresentOrElse(entityVersion ->
+                        topItem.setValue(new NidTextRecord(nid, topText, entityVersion.isActive())),
+                () -> topItem.setValue(new NidTextRecord(nid, topText, false)));
         resultsRoot.getChildren().add(topItem);
         topItem.setExpanded(true);
     }
@@ -185,10 +191,14 @@ public class SearchPanelController implements ListChangeListener<TreeItem<Object
         }
         for (int topNid : topNidMatchMap.keySet().toArray()) {
             String topText = viewProperties.nodeView().calculator().getFullyQualifiedDescriptionTextWithFallbackOrNid(topNid);
-            TreeItem<Object> topItem = new TreeItem<>(new NidTextRecord(topNid, topText));
-            tempRoot.getChildren().add(topItem);
-            topNidMatchMap.get(topNid).forEach(latestVersionSearchResult -> topItem.getChildren().add(new TreeItem<>(latestVersionSearchResult)));
-            topItem.setExpanded(true);
+            Latest<EntityVersion> latestTopVersion = viewProperties.nodeView().calculator().latest(topNid);
+            latestTopVersion.ifPresent(entityVersion -> {
+                TreeItem<Object> topItem = new TreeItem<>();
+                topItem.setValue(new NidTextRecord(topNid, topText, entityVersion.isActive()));
+                tempRoot.getChildren().add(topItem);
+                topNidMatchMap.get(topNid).forEach(latestVersionSearchResult -> topItem.getChildren().add(new TreeItem<>(latestVersionSearchResult)));
+                topItem.setExpanded(true);
+            });
         }
     }
 
@@ -270,6 +280,6 @@ public class SearchPanelController implements ListChangeListener<TreeItem<Object
         }
     }
 
-    protected record NidTextRecord(int nid, String text) {
+    protected record NidTextRecord(int nid, String text, boolean active) {
     }
 }

@@ -54,9 +54,6 @@ public class ListEditor<L extends ObservableList<EntityFacade>>
 
     private void updateList() {
         listView.getChildren().clear();
-        if (!entitiesListProperty.getValue().isEmpty()) {
-            LOG.info("Update list size: " + entitiesListProperty.getValue().size());
-        }
         for (EntityFacade entityFacade : entitiesListProperty.getValue()) {
             EntityLabelWithDragAndDrop entityLabelWithDragAndDrop =
                     EntityLabelWithDragAndDrop.make(this.viewProperties, new SimpleObjectProperty<>(entityFacade));

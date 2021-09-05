@@ -8,6 +8,7 @@ import javafx.scene.text.TextFlow;
 import org.hl7.komet.framework.StyleClasses;
 import org.hl7.tinkar.coordinate.stamp.calculator.LatestVersionSearchResult;
 
+import static org.hl7.komet.framework.PseudoClasses.INACTIVE_PSEUDO_CLASS;
 import static org.hl7.komet.framework.StyleClasses.*;
 
 public class SearchResultCell extends TreeCell<Object> {
@@ -89,12 +90,18 @@ public class SearchResultCell extends TreeCell<Object> {
                 }
                 HBox hBox = new HBox(textFlow);
                 setGraphic(hBox);
+                latestVersionSearchResult.latestVersion().ifPresent(semanticEntityVersion -> {
+                    pseudoClassStateChanged(INACTIVE_PSEUDO_CLASS, !semanticEntityVersion.isActive());
+                });
+
             } else if (item instanceof String itemString) {
                 setTextFlow(itemString);
             } else if (item instanceof SearchPanelController.NidTextRecord nidTextRecord) {
                 setTextFlow(nidTextRecord.text(), SEARCH_TOP_COMPONENT);
+                pseudoClassStateChanged(INACTIVE_PSEUDO_CLASS, !nidTextRecord.active());
             } else {
                 setTextFlow(item.toString());
+                pseudoClassStateChanged(INACTIVE_PSEUDO_CLASS, false);
             }
         }
     }

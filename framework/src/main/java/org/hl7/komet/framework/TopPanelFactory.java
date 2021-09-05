@@ -12,7 +12,6 @@ import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import org.hl7.komet.executor.TaskWrapper;
 import org.hl7.komet.framework.activity.ActivityStream;
 import org.hl7.komet.framework.activity.ActivityStreamOption;
 import org.hl7.komet.framework.activity.ActivityStreams;
@@ -20,32 +19,33 @@ import org.hl7.komet.framework.context.AddToContextMenu;
 import org.hl7.komet.framework.context.AddToContextMenuSimple;
 import org.hl7.komet.framework.controls.EntityLabelWithDragAndDrop;
 import org.hl7.komet.framework.graphics.Icon;
-import org.hl7.komet.framework.view.ViewMenuTask;
+import org.hl7.komet.framework.view.ViewMenuModel;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculatorWithCache;
 import org.hl7.tinkar.terms.EntityFacade;
 
-import java.util.List;
-
 public class TopPanelFactory {
     public static Node make(ViewProperties viewProperties,
                             SimpleObjectProperty<EntityFacade> entityFocusProperty,
                             SimpleObjectProperty<PublicIdStringKey<ActivityStream>> activityStreamKeyProperty,
-                            SimpleObjectProperty<PublicIdStringKey<ActivityStreamOption>> optionForActivityStreamKeyProperty) {
+                            SimpleObjectProperty<PublicIdStringKey<ActivityStreamOption>> optionForActivityStreamKeyProperty,
+                            boolean focusOnActivity) {
 
         ViewCalculatorWithCache viewCalculator =
                 ViewCalculatorWithCache.getCalculator(viewProperties.nodeView().getValue());
 
-        SimpleBooleanProperty focusOnActivity = new SimpleBooleanProperty(Boolean.FALSE);
+        SimpleBooleanProperty focusOnActivityProperty = new SimpleBooleanProperty(focusOnActivity);
         GridPane gridPane = new GridPane();
         gridPane.getStyleClass().add("top-panel");
 
-        MenuButton viewPropertiesButton = new MenuButton();
+        MenuButton viewPropertiesMenuButton = new MenuButton();
         Menu coordinatesMenu = new Menu("Coordinates", Icon.COORDINATES.makeIcon());
 
-        viewPropertiesButton.getItems().add(coordinatesMenu);
-        viewPropertiesButton.setGraphic(Icon.VIEW.makeIcon());
+        ViewMenuModel viewMenuModel = new ViewMenuModel(viewProperties, viewPropertiesMenuButton, coordinatesMenu);
+        viewPropertiesMenuButton.getProperties().put("viewMenuModel", viewMenuModel);
+        viewPropertiesMenuButton.getItems().add(coordinatesMenu);
+        viewPropertiesMenuButton.setGraphic(Icon.VIEW.makeIcon());
 
         SimpleIntegerProperty selectionIndexProperty = new SimpleIntegerProperty();
         Runnable unlink = () -> {
@@ -57,22 +57,19 @@ public class TopPanelFactory {
                 contextMenuProviders);
         Menu activityStreamMenu = new Menu("Activity stream", Icon.ACTIVITY.makeIcon());
 
-        updateGridPane(activityStreamKeyProperty, optionForActivityStreamKeyProperty, gridPane, viewPropertiesButton, activityStreamMenu, focusOnActivity, entityLabel);
+        updateGridPane(activityStreamKeyProperty, optionForActivityStreamKeyProperty, gridPane, viewPropertiesMenuButton, activityStreamMenu, focusOnActivityProperty, entityLabel);
         activityStreamKeyProperty.addListener((observable, oldValue, newValue) -> {
             Platform.runLater(() -> updateGridPane(activityStreamKeyProperty, optionForActivityStreamKeyProperty, gridPane,
-                    viewPropertiesButton, activityStreamMenu, focusOnActivity, entityLabel));
+                    viewPropertiesMenuButton, activityStreamMenu, focusOnActivityProperty, entityLabel));
         });
         optionForActivityStreamKeyProperty.addListener((observable, oldValue, newValue) -> {
             Platform.runLater(() -> updateGridPane(activityStreamKeyProperty, optionForActivityStreamKeyProperty, gridPane,
-                    viewPropertiesButton, activityStreamMenu, focusOnActivity, entityLabel));
+                    viewPropertiesMenuButton, activityStreamMenu, focusOnActivityProperty, entityLabel));
         });
 
-        Platform.runLater(TaskWrapper.make(new ViewMenuTask(viewCalculator, viewProperties.nodeView()),
-                (List<MenuItem> result) -> coordinatesMenu.getItems().addAll(result)));
-
-        viewPropertiesButton.getItems().add(activityStreamMenu);
+        viewPropertiesMenuButton.getItems().add(activityStreamMenu);
         entityFocusProperty.addListener((observable, oldValue, newValue) -> {
-            if (focusOnActivity.get()) {
+            if (focusOnActivityProperty.get()) {
                 Parent parentNode = gridPane.getParent();
                 Node tabContentRegion = null;
 

@@ -37,12 +37,21 @@ public class DetailsNode extends ExplorationNodeAbstract {
         super(viewProperties, nodePreferences);
         this.componentPanel = new ComponentPanel(entityFocusProperty, viewProperties);
 
-        Platform.runLater(() -> {
-            this.detailsPane.setCenter(this.componentPanel.getComponentDetailPane());
-            Node topPanel = TopPanelFactory.make(viewProperties, entityFocusProperty,
-                    activityStreamKeyProperty, optionForActivityStreamKeyProperty);
-            this.detailsPane.setTop(topPanel);
+        this.viewProperties.nodeView().addListener((observable, oldValue, newValue) -> {
+            setupTopPanel(viewProperties);
+            this.componentPanel.changed(entityFocusProperty, null, entityFocusProperty.getValue());
         });
+
+        Platform.runLater(() -> {
+            setupTopPanel(viewProperties);
+        });
+    }
+
+    private void setupTopPanel(ViewProperties viewProperties) {
+        this.detailsPane.setCenter(this.componentPanel.getComponentDetailPane());
+        Node topPanel = TopPanelFactory.make(viewProperties, entityFocusProperty,
+                activityStreamKeyProperty, optionForActivityStreamKeyProperty, true);
+        this.detailsPane.setTop(topPanel);
     }
 
     protected static void addDefaultNodePreferences(KometPreferences nodePreferences) {

@@ -31,6 +31,7 @@ import org.hl7.tinkar.terms.ProxyFactory;
 import java.util.Optional;
 import java.util.function.Function;
 
+import static org.hl7.komet.framework.PseudoClasses.INACTIVE_PSEUDO_CLASS;
 import static org.hl7.komet.framework.StyleClasses.CONCEPT_LABEL;
 import static org.hl7.komet.framework.StyleClasses.PROP_SHEET_ENTITY_LABEL;
 
@@ -122,6 +123,9 @@ public class EntityLabelWithDragAndDrop
 
         EntityLabelWithDragAndDrop entityLabel = new EntityLabelWithDragAndDrop(viewProperties, entityFocusProperty,
                 descriptionTextUpdater, selectionIndexProperty, unlink, contextMenuProviders);
+        viewProperties.calculator().latest(entityFocusProperty.get()).ifPresentOrElse(entityVersion ->
+                        entityLabel.pseudoClassStateChanged(INACTIVE_PSEUDO_CLASS, !entityVersion.isActive()),
+                () -> entityLabel.pseudoClassStateChanged(INACTIVE_PSEUDO_CLASS, true));
         entityLabel.getStyleClass().remove(CONCEPT_LABEL.toString());
         entityLabel.getStyleClass().add(PROP_SHEET_ENTITY_LABEL.toString());
         return entityLabel;

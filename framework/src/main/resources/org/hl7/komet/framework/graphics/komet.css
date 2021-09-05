@@ -1330,3 +1330,55 @@ modena.css is the default css.
 .tree-cell:focused .search-top-component {
     -fx-fill: white;
 }
+
+.tree-cell:filled:inactive {
+    -fx-background-color: -komet-inactive-background;
+}
+
+.tree-table-view:focused > .virtual-flow > .clipped-container > .sheet > .tree-table-row-cell:filled:selected:inactive,
+.tree-view:focused > .virtual-flow > .clipped-container > .sheet > .tree-cell:filled:selected:inactive {
+    -fx-background-color: -komet-inactive-background-selected;
+}
+
+.table-view:focused > .virtual-flow > .clipped-container > .sheet > .table-row-cell:filled:focused:selected .description-cell:referenced-component-inactive,
+.tree-table-view:focused > .virtual-flow > .clipped-container > .sheet > .tree-table-row-cell:filled:focused:selected .description-cell:referenced-component-inactive {
+    -fx-background-color: -komet-inactive-background-selected;
+}
+
+.komet-version-general-cell:inactive {
+    /*-fx-border-color: white;*/
+    /*-fx-border-width: 1 0 1 0; */
+    -fx-border-width: 1 0 1 0;
+    -fx-background-color: -komet-inactive-background;
+}
+
+.multi-parent-tree-cell:inactive {
+    -fx-border-color: white;
+    /*-fx-border-width: 1 0 1 0; */
+    -fx-border-width: 1 0 1 0;
+    -fx-background-color: -komet-inactive-background;
+}
+
+.component-panel:inactive {
+    /*-fx-border-color: white;*/
+    /*-fx-border-width: 1 0 1 0; */
+    -fx-border-width: 1 0 1 0;
+    -fx-background-color: -komet-inactive-background;
+}
+
+.def-root:inactive {
+    -fx-background-color: -komet-inactive-background;
+}
+
+.def-concept:inactive {
+    -fx-background-color: -komet-inactive-background;
+}
+
+.prop-sheet-entity-label:inactive {
+    -fx-background-color: -komet-inactive-background;
+}
+
+.prop-sheet-entity-label:inactive,
+.concept-lable:inactive {
+    -fx-background-color: -komet-inactive-background;
+}
