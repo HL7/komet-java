@@ -7,8 +7,43 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import javafx.scene.robot.Robot;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public class ScreenInfo {
     private static Robot robot;
+    private static AtomicBoolean mouseIsPressed = new AtomicBoolean(false);
+    private static AtomicBoolean mouseIsDragging = new AtomicBoolean(false);
+    private static AtomicBoolean mouseWasDraged = new AtomicBoolean(false);
+
+    public static void mouseWasDragged(boolean dragging) {
+        mouseWasDraged.set(dragging);
+    }
+
+    public static boolean mouseWasDragged() {
+        return mouseWasDraged.get();
+    }
+
+    public static void mouseIsDragging(boolean dragging) {
+        mouseIsDragging.set(dragging);
+    }
+
+    public static boolean isMouseDragging() {
+        return mouseIsDragging.get();
+    }
+
+    public static void mouseIsPressed(boolean pressed) {
+        mouseIsPressed.set(pressed);
+    }
+
+    public static boolean isMousePressed() {
+        return mouseIsPressed.get();
+    }
+
+    public static double getMouseX() {
+        validateState();
+        return robot.getMouseX();
+    }
+
     private static void validateState() {
         if (Platform.isFxApplicationThread()) {
             if (robot == null) {
@@ -17,11 +52,6 @@ public class ScreenInfo {
         } else {
             throw new IllegalStateException("Trying to access mouse info without using the applicaton thread");
         }
-    }
-
-    public static double getMouseX() {
-        validateState();
-        return robot.getMouseX();
     }
 
     public static double getMouseY() {

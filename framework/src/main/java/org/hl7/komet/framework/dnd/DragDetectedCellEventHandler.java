@@ -1,11 +1,8 @@
 package org.hl7.komet.framework.dnd;
 
-import java.util.function.IntSupplier;
-
-import javafx.scene.control.ListView;
-//~--- non-JDK imports --------------------------------------------------------
 import javafx.event.EventHandler;
 import javafx.scene.Node;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TreeCell;
@@ -13,12 +10,16 @@ import javafx.scene.image.Image;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
+import org.hl7.tinkar.entity.Entity;
 import org.hl7.tinkar.entity.EntityService;
 import org.hl7.tinkar.terms.EntityFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.function.IntSupplier;
+
 //~--- classes ----------------------------------------------------------------
+
 /**
  * {@link DragDetectedCellEventHandler}
  *
@@ -39,6 +40,7 @@ public class DragDetectedCellEventHandler
     }
 
     //~--- methods -------------------------------------------------------------
+
     /**
      * @param event
      * @see javafx.event.EventHandler#handle(javafx.event.Event)
@@ -58,8 +60,13 @@ public class DragDetectedCellEventHandler
                 LOG.warn("Non node source of drag? {}", event.getSource());
             }
         } else if (event.getSource() instanceof TreeCell) {
-            eventNode = (TreeCell<EntityFacade>) event.getSource();
-            identifiedObject = ((TreeCell<EntityFacade>) event.getSource()).getItem();
+            eventNode = (Node) event.getSource();
+            Object item = ((TreeCell<?>) event.getSource()).getItem();
+            if (item instanceof Integer nid) {
+                identifiedObject = Entity.getFast(nid);
+            } else if (item instanceof EntityFacade entityFacade) {
+                identifiedObject = entityFacade;
+            }
         } else if (event.getSource() instanceof TableCell) {
             eventNode = (TableCell) event.getSource();
             Object item = ((TableCell) eventNode).getItem();

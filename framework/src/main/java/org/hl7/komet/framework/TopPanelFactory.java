@@ -24,8 +24,15 @@ import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculatorWithCache;
 import org.hl7.tinkar.terms.EntityFacade;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class TopPanelFactory {
+    private static final Logger LOG = LoggerFactory.getLogger(TopPanelFactory.class);
+
     public static Node make(ViewProperties viewProperties,
                             SimpleObjectProperty<EntityFacade> entityFocusProperty,
                             SimpleObjectProperty<PublicIdStringKey<ActivityStream>> activityStreamKeyProperty,
@@ -70,31 +77,62 @@ public class TopPanelFactory {
         viewPropertiesMenuButton.getItems().add(activityStreamMenu);
         entityFocusProperty.addListener((observable, oldValue, newValue) -> {
             if (focusOnActivityProperty.get()) {
-                Parent parentNode = gridPane.getParent();
-                Node tabContentRegion = null;
+                if (!ScreenInfo.isMousePressed() & !ScreenInfo.mouseWasDragged()) {
+                    selectTab(gridPane);
+                } else {
+                    Timer timer = new Timer();
 
-                while (parentNode != null && !(parentNode instanceof TabPane)) {
-                    parentNode = parentNode.getParent();
-                    if (parentNode.getStyleClass().contains("tab-content-area")) {
-                        tabContentRegion = parentNode;
-                    }
-                }
-                if (parentNode != null && parentNode instanceof TabPane tabPane) {
-                    ObservableList<Tab> tabList = tabPane.getTabs();
+                    timer.schedule(new TimerTask() {
+                        boolean mouseWasDragged = false;
 
-                    for (Tab t : tabList) {
-                        if (t.getContent().getParent().equals(tabContentRegion)) {
-                            tabPane.getSelectionModel().select(t);
-                            break;
+                        @Override
+                        public void run() {
+                            if (ScreenInfo.isMousePressed()) {
+                                // come back later and check. ;
+                                //LOG.info("Mouse is pressed. Come back later and check again. ");
+                                mouseWasDragged = ScreenInfo.mouseWasDragged();
+                                if (mouseWasDragged) {
+                                    //LOG.info("Mouse was dragged.");
+                                }
+                            } else {
+                                if (mouseWasDragged || ScreenInfo.mouseWasDragged()) {
+                                    // Don't focus if from a drag event.
+                                    //LOG.info("No focus change because mouse was dragged.");
+                                } else {
+                                    Platform.runLater(() -> selectTab(gridPane));
+                                }
+                                timer.cancel();
+                                timer.purge();
+                            }
                         }
-                    }
+                    }, 500, 500);
                 }
-
-
             }
         });
         // show the current activity stream at the top
         return gridPane;
+    }
+
+    private static void selectTab(GridPane gridPane) {
+        Parent parentNode = gridPane.getParent();
+        Node tabContentRegion = null;
+
+        while (parentNode != null && !(parentNode instanceof TabPane)) {
+            parentNode = parentNode.getParent();
+            if (parentNode.getStyleClass().contains("tab-content-area")) {
+                tabContentRegion = parentNode;
+            }
+        }
+        if (parentNode != null && parentNode instanceof TabPane tabPane) {
+            ObservableList<Tab> tabList = tabPane.getTabs();
+
+            for (Tab t : tabList) {
+                if (t.getContent().getParent().equals(tabContentRegion)) {
+                    tabPane.getSelectionModel().select(t);
+                    break;
+                }
+            }
+        }
     }
 
     private static void updateGridPane(SimpleObjectProperty<PublicIdStringKey<ActivityStream>> activityStreamKeyProperty,

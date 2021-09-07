@@ -23,12 +23,14 @@ import org.hl7.komet.framework.activity.ActivityStreamOption;
 import org.hl7.komet.framework.activity.ActivityStreams;
 import org.hl7.komet.framework.view.ObservableViewNoOverride;
 import org.hl7.komet.framework.view.ViewMenuTask;
+import org.hl7.komet.list.ListNodeFactory;
 import org.hl7.komet.navigator.graph.GraphNavigatorNodeFactory;
 import org.hl7.komet.navigator.pattern.PatternNavigatorFactory;
 import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.komet.progress.CompletionNodeFactory;
 import org.hl7.komet.progress.ProgressNodeFactory;
 import org.hl7.komet.search.SearchNodeFactory;
+import org.hl7.komet.table.TableNodeFactory;
 import org.hl7.komet.tabs.DetachableTab;
 import org.hl7.komet.tabs.TabStack;
 import org.hl7.tinkar.common.alert.AlertStream;
@@ -265,7 +267,6 @@ public class KometStageController implements SetupNode {
         patternNavigatorNode1Tab.setGraphic(patternNavigatorNode2.getTitleNode());
         this.leftDetachableTabPane.getTabPane().getTabs().add(patternNavigatorNode1Tab);
 
-
         DetailsNodeFactory detailsNodeFactory = new DetailsNodeFactory();
         KometNode detailsNode1 = detailsNodeFactory.create(windowView, nodePreferences,
                 ActivityStreams.NAVIGATION, ActivityStreamOption.SUBSCRIBE.keyForOption(), AlertStreams.ROOT_ALERT_STREAM_KEY);
@@ -295,6 +296,25 @@ public class KometStageController implements SetupNode {
         detailsNode3Tab.tooltipProperty().setValue(detailsNode3.makeToolTip());
         this.centerDetachableTabPane.getTabs().add(detailsNode3Tab);
 
+        ListNodeFactory listNodeFactory = new ListNodeFactory();
+        KometNode listNode = listNodeFactory.create(windowView, nodePreferences,
+                ActivityStreams.LIST, ActivityStreamOption.PUBLISH.keyForOption(), AlertStreams.ROOT_ALERT_STREAM_KEY);
+        DetachableTab listNodeNodeTab = new DetachableTab(listNode.getTitle().getValue(), listNode.getNode());
+        // TODO: setting up tab graphic, title, and tooltip needs to be standardized by the factory...
+        listNodeNodeTab.setGraphic(listNode.getTitleNode());
+        listNodeNodeTab.textProperty().bind(listNode.getTitle());
+        listNodeNodeTab.tooltipProperty().setValue(listNode.makeToolTip());
+        this.centerDetachableTabPane.getTabs().add(listNodeNodeTab);
+
+        TableNodeFactory tableNodeFactory = new TableNodeFactory();
+        KometNode tableNode = tableNodeFactory.create(windowView, nodePreferences,
+                ActivityStreams.UNLINKED, ActivityStreamOption.PUBLISH.keyForOption(), AlertStreams.ROOT_ALERT_STREAM_KEY);
+        DetachableTab tableNodeTab = new DetachableTab(tableNode.getTitle().getValue(), tableNode.getNode());
+        // TODO: setting up tab graphic, title, and tooltip needs to be standardized by the factory...
+        tableNodeTab.setGraphic(tableNode.getTitleNode());
+        tableNodeTab.textProperty().bind(tableNode.getTitle());
+        tableNodeTab.tooltipProperty().setValue(tableNode.makeToolTip());
+        this.centerDetachableTabPane.getTabs().add(tableNodeTab);
 
         SearchNodeFactory searchNodeFactory = new SearchNodeFactory();
         KometNode searchNode = searchNodeFactory.create(windowView, nodePreferences,

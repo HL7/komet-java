@@ -18,6 +18,7 @@ module org.hl7.komet.application {
     requires org.kordamp.ikonli.javafx;
     requires org.hl7.komet.executor;
     requires org.hl7.komet.preferences;
+    requires org.hl7.komet.list;
 
     uses DataServiceController;
     uses TaskLists;
@@ -28,5 +29,5 @@ module org.hl7.komet.application {
     exports sh.komet.app to javafx.graphics;
 
     // For ScenicView...
-    // requires org.scenicview.scenicview;
+    //requires org.scenicview.scenicview;
 }

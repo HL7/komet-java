@@ -1,5 +1,6 @@
 import org.hl7.komet.framework.KometNodeFactory;
 import org.hl7.komet.list.ListNodeFactory;
+import org.hl7.komet.table.TableNodeFactory;
 
 module org.hl7.komet.list {
 
@@ -8,8 +9,11 @@ module org.hl7.komet.list {
 
     opens org.hl7.komet.list;
     exports org.hl7.komet.list;
-    
+
+    opens org.hl7.komet.table;
+    exports org.hl7.komet.table;
+
     provides KometNodeFactory
-            with ListNodeFactory;
+            with ListNodeFactory, TableNodeFactory;
 
 }

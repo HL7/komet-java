@@ -21,6 +21,11 @@ import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.tinkar.common.alert.AlertObject;
 import org.hl7.tinkar.common.alert.AlertStreams;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
+import org.hl7.tinkar.coordinate.logic.calculator.LogicCalculator;
+import org.hl7.tinkar.coordinate.navigation.calculator.NavigationCalculator;
+import org.hl7.tinkar.coordinate.view.ViewCoordinateRecord;
+import org.hl7.tinkar.coordinate.view.calculator.ViewCalculator;
+import org.hl7.tinkar.coordinate.view.calculator.ViewCalculatorDelegate;
 import org.hl7.tinkar.terms.EntityFacade;
 import org.kordamp.ikonli.javafx.FontIcon;
 
@@ -29,7 +34,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.hl7.komet.framework.KometNode.PreferenceKey.ACTIVITY_STREAM_OPTION_KEY;
 
-public abstract class ExplorationNodeAbstract implements KometNode, Flow.Subscriber<ImmutableList<EntityFacade>> {
+public abstract class ExplorationNodeAbstract implements KometNode, Flow.Subscriber<ImmutableList<EntityFacade>>, ViewCalculatorDelegate {
 
     protected final SimpleObjectProperty<PublicIdStringKey<ActivityStream>> activityStreamKeyProperty = new SimpleObjectProperty<>();
     protected final SimpleObjectProperty<PublicIdStringKey<ActivityStreamOption>> optionForActivityStreamKeyProperty = new SimpleObjectProperty<>();
@@ -100,6 +105,26 @@ public abstract class ExplorationNodeAbstract implements KometNode, Flow.Subscri
     public ExplorationNodeAbstract() {
         this.viewProperties = null;
         this.nodePreferences = null;
+    }
+
+    @Override
+    public ViewCalculator viewCalculator() {
+        return viewProperties.calculator();
+    }
+
+    @Override
+    public LogicCalculator logicCalculator() {
+        return viewProperties.calculator();
+    }
+
+    @Override
+    public NavigationCalculator navigationCalculator() {
+        return viewProperties.calculator();
+    }
+
+    @Override
+    public ViewCoordinateRecord viewCoordinateRecord() {
+        return viewProperties.nodeView().getOriginalValue();
     }
 
     /**

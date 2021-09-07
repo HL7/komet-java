@@ -1,23 +1,32 @@
 package org.hl7.komet.navigator.pattern;
 
+import javafx.geometry.HPos;
 import javafx.geometry.Rectangle2D;
+import javafx.geometry.VPos;
+import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
+import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.Label;
 import javafx.scene.control.TreeCell;
 import javafx.scene.image.Image;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.TilePane;
 import javafx.scene.transform.NonInvertibleTransformException;
 import org.hl7.komet.framework.dnd.DragDetectedCellEventHandler;
 import org.hl7.komet.framework.dnd.DragDoneEventHandler;
 import org.hl7.komet.framework.dnd.DraggableWithImage;
+import org.hl7.komet.framework.graphics.Icon;
 import org.hl7.komet.framework.view.ViewProperties;
+import org.hl7.tinkar.entity.Entity;
+import org.hl7.tinkar.entity.PatternEntity;
 
 public class EntityNidTreeCell extends TreeCell<Object>
         implements DraggableWithImage {
 
     final ViewProperties viewProperties;
+    TilePane graphicTilePane;
     private double dragOffset = 0;
-    private TilePane graphicTilePane;
-    private String entityDescriptionText; // Cached to speed up updates
 
     public EntityNidTreeCell(ViewProperties viewProperties) {
         this.viewProperties = viewProperties;
@@ -30,18 +39,31 @@ public class EntityNidTreeCell extends TreeCell<Object>
     @Override
     protected void updateItem(Object item, boolean empty) {
         super.updateItem(item, empty);
+        setGraphic(null);
         if (item != null && !empty) {
             if (item instanceof String stringItem) {
-                entityDescriptionText = stringItem;
+                setContentDisplay(ContentDisplay.TEXT_ONLY);
+                setText(stringItem);
             } else if (item instanceof Integer nid) {
-                if (entityDescriptionText != null) {
-                    entityDescriptionText = viewProperties.calculator().getPreferredDescriptionTextWithFallbackOrNid(nid);
+                String entityDescriptionText = viewProperties.calculator().getPreferredDescriptionTextWithFallbackOrNid(nid);
+                Entity entity = Entity.getFast(nid);
+                Node icon;
+                if (entity instanceof PatternEntity) {
+                    icon = Icon.PATTERN.makeIcon();
+                } else {
+                    icon = Icon.PAPER_CLIP.makeIcon();
                 }
+                setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                GridPane.setConstraints(icon, 0, 0, 1, 1, HPos.LEFT, VPos.TOP, Priority.NEVER, Priority.NEVER);
+                Label itemLabel = new Label(entityDescriptionText);
+                GridPane.setConstraints(itemLabel, 1, 0, 1, 1, HPos.LEFT, VPos.TOP, Priority.NEVER, Priority.NEVER);
+                GridPane gridPane = new GridPane();
+                gridPane.getChildren().setAll(icon, itemLabel);
+                this.setGraphic(gridPane);
             }
         } else {
-            entityDescriptionText = "";
+            setText("");
         }
-        setText(entityDescriptionText);
     }
 
     @Override

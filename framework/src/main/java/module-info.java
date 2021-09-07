@@ -1,14 +1,24 @@
-module org.hl7.komet.framework {
+open module org.hl7.komet.framework {
+
 
     exports org.hl7.komet.framework.activity;
     exports org.hl7.komet.framework.alerts;
+    exports org.hl7.komet.framework.context;
     exports org.hl7.komet.framework.controls;
     exports org.hl7.komet.framework.dnd;
+    exports org.hl7.komet.framework.docbook;
     exports org.hl7.komet.framework.graphics;
+    exports org.hl7.komet.framework.panel;
+    exports org.hl7.komet.framework.propsheet.editor to org.controlsfx.controls;
+    exports org.hl7.komet.framework.propsheet;
+    exports org.hl7.komet.framework.rulebase;
+    exports org.hl7.komet.framework.rulebase.statement;
+    exports org.hl7.komet.framework.temp;
     exports org.hl7.komet.framework.uncertain;
     exports org.hl7.komet.framework.view;
     exports org.hl7.komet.framework;
 
+    requires io.github.classgraph;
     requires org.kordamp.ikonli.fontawesome5;
     requires org.kordamp.ikonli.fontawesome;
     requires org.kordamp.ikonli.foundation;
@@ -39,13 +49,4 @@ module org.hl7.komet.framework {
     requires transitive org.hl7.tinkar.terms;
     requires transitive org.kordamp.ikonli.javafx;
     requires transitive org.slf4j;
-
-    opens org.hl7.komet.framework.graphics;
-    exports org.hl7.komet.framework.temp;
-    exports org.hl7.komet.framework.context;
-    exports org.hl7.komet.framework.panel;
-    exports org.hl7.komet.framework.propsheet;
-    exports org.hl7.komet.framework.propsheet.editor to org.controlsfx.controls;
-    exports org.hl7.komet.framework.docbook;
-
 }

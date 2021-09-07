@@ -4,8 +4,8 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.hl7.komet.framework.ExplorationNodeAbstract;
-import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.komet.framework.view.ViewProperties;
+import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.tinkar.terms.EntityFacade;
 
 public class ArtifactExportNode extends ExplorationNodeAbstract {
@@ -22,23 +22,8 @@ public class ArtifactExportNode extends ExplorationNodeAbstract {
     }
 
     @Override
-    public String getStyleId() {
-        return STYLE_ID;
-    }
-
-    @Override
-    public String getDefaultTitle() {
-        return TITLE;
-    }
-
-    @Override
     public void close() {
 
-    }
-
-    @Override
-    public void handleActivity(ImmutableList<EntityFacade> entities) {
-        // Nothing to do...
     }
 
     @Override
@@ -54,5 +39,20 @@ public class ArtifactExportNode extends ExplorationNodeAbstract {
     @Override
     public void revertPreferences() {
 
+    }
+
+    @Override
+    public String getDefaultTitle() {
+        return TITLE;
+    }
+
+    @Override
+    public void handleActivity(ImmutableList<EntityFacade> entities) {
+        // Nothing to do...
+    }
+
+    @Override
+    public String getStyleId() {
+        return STYLE_ID;
     }
 }

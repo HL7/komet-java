@@ -22,15 +22,15 @@ public class SemanticPanel<T extends SemanticEntity> extends ComponentIsFinalPan
         Latest<PatternEntityVersion> latestPatternVersion = viewProperties.calculator().latestPatternEntityVersion(semanticEntity.patternNid());
 
         latestPatternVersion.ifPresent(patternEntityVersion -> {
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder("[");
             sb.append(viewProperties.calculator().getPreferredDescriptionTextWithFallbackOrNid(patternEntityVersion.semanticMeaningNid()));
             if (patternEntityVersion.semanticMeaningNid() != patternEntityVersion.semanticPurposeNid()) {
-                sb.append(" for ");
+                sb.append("] of component for [");
                 sb.append(viewProperties.calculator().getPreferredDescriptionTextWithFallbackOrNid(patternEntityVersion.semanticPurposeNid()));
             }
-            sb.append(" of ");
+            sb.append("] in [");
             sb.append(viewProperties.calculator().getPreferredDescriptionTextWithFallbackOrNid(patternEntityVersion.nid()));
-
+            sb.append("]");
             collapsiblePane.setText(sb.toString());
             HBox referencedComponentInfo = new HBox(3);
             referencedComponentInfo.setAlignment(Pos.CENTER_LEFT);

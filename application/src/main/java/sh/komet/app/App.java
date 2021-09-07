@@ -6,8 +6,10 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import org.hl7.komet.framework.ScreenInfo;
 import org.hl7.komet.framework.activity.ActivityStream;
 import org.hl7.komet.framework.activity.ActivityStreams;
 import org.hl7.komet.framework.graphics.LoadFonts;
@@ -99,6 +101,20 @@ public class App extends Application {
                     .add(graphicsModule.getClassLoader().getResource(CSS_LOCATION).toString());
             stage.setScene(sourceScene);
             stage.setTitle("KOMET Startup");
+
+            stage.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
+                ScreenInfo.mouseIsPressed(true);
+                ScreenInfo.mouseWasDragged(false);
+            });
+            stage.addEventFilter(MouseEvent.MOUSE_RELEASED, event -> {
+                ScreenInfo.mouseIsPressed(false);
+                ScreenInfo.mouseIsDragging(false);
+            });
+            stage.addEventFilter(MouseEvent.DRAG_DETECTED, event -> {
+                ScreenInfo.mouseIsDragging(true);
+                ScreenInfo.mouseWasDragged(true);
+
+            });
 
             stage.show();
             state.set(AppState.SELECT_DATA_SOURCE);

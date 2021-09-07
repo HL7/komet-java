@@ -183,6 +183,25 @@ modena.css is the default css.
     -fx-icon-size: 20;
 }
 
+#semantic-table .ikonli-font-icon {
+    /*-fx-icon-code: "mdi2t-table-large";*/
+    -fx-icon-code: "mdi2t-table";
+    -fx-icon-size: 20;
+}
+
+
+/* #table-node pair */
+#table-node .ikonli-font-icon {
+    -fx-icon-code: "mdi2t-table";
+    -fx-icon-color: -komet-blue-color;
+    -fx-icon-size: 20;
+}
+
+.add-tab-menu-item:focused #table-node .ikonli-font-icon,
+.tab #table-node .ikonli-font-icon {
+    -fx-icon-color: white;
+    -fx-icon-size: 20;
+}
 
 /* #classification-results-node pair */
 #concept-details-node .ikonli-font-icon {
@@ -650,7 +669,7 @@ modena.css is the default css.
     -fx-icon-size: 20;
 }
 
-#EDIT_PENCIL .ikonli-font-icon {
+#edit-pencil .ikonli-font-icon {
     -fx-icon-code: "mdi2l-lead-pencil";
     -fx-icon-size: 20;
 }
@@ -812,7 +831,12 @@ modena.css is the default css.
 }
 
 #pattern .ikonli-font-icon {
-    -fx-icon-code: "fas-pencil-ruler";
+    -fx-icon-code: "mdi2m-math-compass";
+    -fx-icon-size: 20;
+}
+
+#semantic-table .ikonli-font-icon {
+    -fx-icon-code: "mdi2t-table";
     -fx-icon-size: 20;
 }
 
@@ -1381,4 +1405,28 @@ modena.css is the default css.
 .prop-sheet-entity-label:inactive,
 .concept-lable:inactive {
     -fx-background-color: -komet-inactive-background;
+}
+
+.edit-component-button {
+    -fx-content-display: graphic-only;
+    -fx-icon-size: 12;
+    -fx-border-width: 0;
+    -fx-border-insets: 0;
+}
+
+.edit-component-button #edit-pencil .ikonli-font-icon {
+    -fx-icon-code: "mdi2l-lead-pencil";
+    -fx-icon-size: 16;
+    -fx-icon-color: -komet-tab-background-color;
+}
+
+.edit-component-button .arrow-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.edit-component-button .arrow-button .arrow {
+    -fx-background-color: transparent;
+    -fx-mark-color: transparent;
+    -fx-padding: 0;
 }

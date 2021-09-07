@@ -77,6 +77,8 @@ public enum Icon {
     PAPER_CLIP("paper-clip", "mdi2p-paperclip", MaterialDesign2),
 
     PATTERN("pattern", "mdi2m-math-compass", MaterialDesign2),
+
+    SEMANTIC_TABLE("semantic-table", "mdi2t-table", MaterialDesign2),
     ;
     String styleId;
     String iconCode;
