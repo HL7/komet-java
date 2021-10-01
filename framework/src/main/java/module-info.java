@@ -17,6 +17,7 @@ open module org.hl7.komet.framework {
     exports org.hl7.komet.framework.uncertain;
     exports org.hl7.komet.framework.view;
     exports org.hl7.komet.framework;
+    exports org.hl7.komet.framework.observable;
 
     requires io.github.classgraph;
     requires org.kordamp.ikonli.fontawesome5;
@@ -49,4 +50,5 @@ open module org.hl7.komet.framework {
     requires transitive org.hl7.tinkar.terms;
     requires transitive org.kordamp.ikonli.javafx;
     requires transitive org.slf4j;
+    requires org.hl7.tinkar.collection;
 }

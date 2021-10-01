@@ -1,7 +1,6 @@
 package org.hl7.komet.preferences;
 
 import org.hl7.tinkar.common.binary.Encodable;
-import org.hl7.tinkar.component.Component;
 import org.hl7.tinkar.terms.*;
 
 import java.io.IOException;
@@ -13,109 +12,28 @@ import java.util.prefs.PreferenceChangeListener;
 import java.util.prefs.Preferences;
 
 /**
- *
  * @author kec
  */
 public interface KometPreferences {
-
-    /**
-     * Associates the specified value with the specified key in this preference
-     * node.
-     *
-     * @param key key with which the specified value is to be associated.
-     * @param value value to be associated with the specified key.
-     * @throws NullPointerException if key or value is <tt>null</tt>.
-     * @throws IllegalArgumentException if <tt>key.length()</tt> exceeds
-     * <tt>MAX_KEY_LENGTH</tt> or if <tt>value.length</tt> exceeds
-     * <tt>MAX_VALUE_LENGTH</tt>.
-     * @throws IllegalStateException if this node (or an ancestor) has been
-     * removed with the {@link #removeNode()} method.
-     */
-    void put(String key, String value);
 
     default void put(Enum key, String value) {
         put(enumToGeneralKey(key), value);
     }
 
     /**
-     * Associates the specified UUID value with the specified key in this preference
+     * Associates the specified value with the specified key in this preference
      * node.
      *
-     * @param key key with which the specified value is to be associated.
-     * @param value UUID value to be associated with the specified key.
-     * @throws NullPointerException if key or value is <tt>null</tt>.
+     * @param key   key with which the specified value is to be associated.
+     * @param value value to be associated with the specified key.
+     * @throws NullPointerException     if key or value is <tt>null</tt>.
      * @throws IllegalArgumentException if <tt>key.length()</tt> exceeds
-     * <tt>MAX_KEY_LENGTH</tt> or if <tt>value.length</tt> exceeds
-     * <tt>MAX_VALUE_LENGTH</tt>.
-     * @throws IllegalStateException if this node (or an ancestor) has been
-     * removed with the {@link #removeNode()} method.
+     *                                  <tt>MAX_KEY_LENGTH</tt> or if <tt>value.length</tt> exceeds
+     *                                  <tt>MAX_VALUE_LENGTH</tt>.
+     * @throws IllegalStateException    if this node (or an ancestor) has been
+     *                                  removed with the {@link #removeNode()} method.
      */
-    default void putUuid(Enum key, UUID value) {
-        put(enumToGeneralKey(key), value.toString());
-    }
-
-    /**
-     * Returns the UUID value associated with the specified key in this preference
-     * node. Returns the specified default if there is no value associated with
-     * the key, or the backing store is inaccessible.
-     * @param key
-     * @param defaultValue
-     * @throws NullPointerException if key or defaultValue is <tt>null</tt>.
-     * @return the value associated with <tt>key</tt>, or <tt>defaultValue</tt>
-     *  if no value is associated with <tt>key</tt>, or the backing store is
-     *  inaccessible.
-     */
-    default UUID getUuid(Enum key, UUID defaultValue) {
-        if (defaultValue != null) {
-            String uuidStr = get(key, defaultValue.toString());
-            return UUID.fromString(uuidStr);
-        }
-        throw new NullPointerException("Default value cannot be null");
-    }
-
-    default Optional<UUID> getUuid(Enum key) {
-        Optional<String> optionalString = get(key);
-        if (optionalString.isPresent()) {
-            return Optional.of(UUID.fromString(optionalString.get()));
-        }
-        return Optional.empty();
-    }
-
-    /**
-     * Returns the value associated with the specified key in this preference
-     * node. Returns the specified default if there is no value associated with
-     * the key, or the backing store is inaccessible.
-     *
-     * <p>
-     * Some implementations may store default values in their backing stores. If
-     * there is no value associated with the specified key but there is such a
-     * <i>stored default</i>, it is returned in preference to the specified
-     * default.
-     *
-     * @param key key whose associated value is to be returned.
-     * @param defaultValue the value to be returned in the event that this
-     * preference node has no value associated with <tt>key</tt>.
-     * @return the value associated with <tt>key</tt>, or <tt>defaultValue</tt>
-     * if no value is associated with <tt>key</tt>, or the backing store is
-     * inaccessible.
-     * @throws IllegalStateException if this node (or an ancestor) has been
-     * removed with the {@link #removeNode()} method.
-     * @throws NullPointerException if <tt>key</tt> or <tt>defaultValue</tt> is
-     * <tt>null</tt>.
-     */
-    String get(String key, String defaultValue);
-
-    default Optional<String> get(String key) {
-        return Optional.ofNullable(get(key, null));
-    }
-
-    default Optional<String> get(Enum key) {
-        return Optional.ofNullable(get(key, null));
-    }
-
-    default String get(Enum key, String defaultValue) {
-        return get(enumToGeneralKey(key), defaultValue);
-    }
+    void put(String key, String value);
 
     default String enumToGeneralKey(Enum key) {
         UUID uuidSuffix = UUID.nameUUIDFromBytes(key.getDeclaringClass().getName().getBytes());
@@ -134,6 +52,87 @@ public interface KometPreferences {
     }
 
     /**
+     * Associates the specified UUID value with the specified key in this preference
+     * node.
+     *
+     * @param key   key with which the specified value is to be associated.
+     * @param value UUID value to be associated with the specified key.
+     * @throws NullPointerException     if key or value is <tt>null</tt>.
+     * @throws IllegalArgumentException if <tt>key.length()</tt> exceeds
+     *                                  <tt>MAX_KEY_LENGTH</tt> or if <tt>value.length</tt> exceeds
+     *                                  <tt>MAX_VALUE_LENGTH</tt>.
+     * @throws IllegalStateException    if this node (or an ancestor) has been
+     *                                  removed with the {@link #removeNode()} method.
+     */
+    default void putUuid(Enum key, UUID value) {
+        put(enumToGeneralKey(key), value.toString());
+    }
+
+    /**
+     * Returns the UUID value associated with the specified key in this preference
+     * node. Returns the specified default if there is no value associated with
+     * the key, or the backing store is inaccessible.
+     *
+     * @param key
+     * @param defaultValue
+     * @return the value associated with <tt>key</tt>, or <tt>defaultValue</tt>
+     * if no value is associated with <tt>key</tt>, or the backing store is
+     * inaccessible.
+     * @throws NullPointerException if key or defaultValue is <tt>null</tt>.
+     */
+    default UUID getUuid(Enum key, UUID defaultValue) {
+        if (defaultValue != null) {
+            String uuidStr = get(key, defaultValue.toString());
+            return UUID.fromString(uuidStr);
+        }
+        throw new NullPointerException("Default value cannot be null");
+    }
+
+    default String get(Enum key, String defaultValue) {
+        return get(enumToGeneralKey(key), defaultValue);
+    }
+
+    /**
+     * Returns the value associated with the specified key in this preference
+     * node. Returns the specified default if there is no value associated with
+     * the key, or the backing store is inaccessible.
+     *
+     * <p>
+     * Some implementations may store default values in their backing stores. If
+     * there is no value associated with the specified key but there is such a
+     * <i>stored default</i>, it is returned in preference to the specified
+     * default.
+     *
+     * @param key          key whose associated value is to be returned.
+     * @param defaultValue the value to be returned in the event that this
+     *                     preference node has no value associated with <tt>key</tt>.
+     * @return the value associated with <tt>key</tt>, or <tt>defaultValue</tt>
+     * if no value is associated with <tt>key</tt>, or the backing store is
+     * inaccessible.
+     * @throws IllegalStateException if this node (or an ancestor) has been
+     *                               removed with the {@link #removeNode()} method.
+     * @throws NullPointerException  if <tt>key</tt> or <tt>defaultValue</tt> is
+     *                               <tt>null</tt>.
+     */
+    String get(String key, String defaultValue);
+
+    default Optional<UUID> getUuid(Enum key) {
+        Optional<String> optionalString = get(key);
+        if (optionalString.isPresent()) {
+            return Optional.of(UUID.fromString(optionalString.get()));
+        }
+        return Optional.empty();
+    }
+
+    default Optional<String> get(Enum key) {
+        return Optional.ofNullable(get(key, null));
+    }
+
+    default void remove(Enum key) {
+        remove(enumToGeneralKey(key));
+    }
+
+    /**
      * Removes the value associated with the specified key in this preference
      * node, if any.
      *
@@ -144,15 +143,11 @@ public interface KometPreferences {
      * succeeding call to <tt>get</tt>.
      *
      * @param key key whose mapping is to be removed from the preference node.
-     * @throws NullPointerException if <tt>key</tt> is <tt>null</tt>.
+     * @throws NullPointerException  if <tt>key</tt> is <tt>null</tt>.
      * @throws IllegalStateException if this node (or an ancestor) has been
-     * removed with the {@link #removeNode()} method.
+     *                               removed with the {@link #removeNode()} method.
      */
     void remove(String key);
-
-    default void remove(Enum key) {
-        remove(enumToGeneralKey(key));
-    }
 
     /**
      * Removes all of the preferences (key-value associations) in this
@@ -165,12 +160,16 @@ public interface KometPreferences {
      * by succeeding calls to <tt>get</tt>.
      *
      * @throws BackingStoreException if this operation cannot be completed due
-     * to a failure in the backing store, or inability to communicate with it.
+     *                               to a failure in the backing store, or inability to communicate with it.
      * @throws IllegalStateException if this node (or an ancestor) has been
-     * removed with the {@link #removeNode()} method.
+     *                               removed with the {@link #removeNode()} method.
      * @see #removeNode()
      */
     void clear() throws BackingStoreException;
+
+    default void putInt(Enum key, int value) {
+        putInt(enumToGeneralKey(key), value);
+    }
 
     /**
      * Associates a string representing the specified int value with the
@@ -179,19 +178,19 @@ public interface KometPreferences {
      * {@link Integer#toString(int)}. This method is intended for use in
      * conjunction with {@link #getInt}.
      *
-     * @param key key with which the string form of value is to be associated.
+     * @param key   key with which the string form of value is to be associated.
      * @param value value whose string form is to be associated with key.
-     * @throws NullPointerException if <tt>key</tt> is <tt>null</tt>.
+     * @throws NullPointerException     if <tt>key</tt> is <tt>null</tt>.
      * @throws IllegalArgumentException if <tt>key.length()</tt> exceeds
-     * <tt>MAX_KEY_LENGTH</tt>.
-     * @throws IllegalStateException if this node (or an ancestor) has been
-     * removed with the {@link #removeNode()} method.
-     * @see #getInt(String,int)
+     *                                  <tt>MAX_KEY_LENGTH</tt>.
+     * @throws IllegalStateException    if this node (or an ancestor) has been
+     *                                  removed with the {@link #removeNode()} method.
+     * @see #getInt(String, int)
      */
     void putInt(String key, int value);
 
-    default void putInt(Enum key, int value) {
-        putInt(enumToGeneralKey(key), value);
+    default int getInt(Enum key, int value) {
+        return getInt(enumToGeneralKey(key), value);
     }
 
     /**
@@ -210,26 +209,21 @@ public interface KometPreferences {
      * <tt>Integer.parseInt</tt>, this int is returned in preference to the
      * specified default.
      *
-     * @param key key whose associated value is to be returned as an int.
+     * @param key          key whose associated value is to be returned as an int.
      * @param defaultValue the value to be returned in the event that this
-     * preference node has no value associated with <tt>key</tt>
-     * or the associated value cannot be interpreted as an int, or the backing
-     * store is inaccessible.
+     *                     preference node has no value associated with <tt>key</tt>
+     *                     or the associated value cannot be interpreted as an int, or the backing
+     *                     store is inaccessible.
      * @return the int value represented by the string associated with
      * <tt>key</tt> in this preference node, or <tt>defaultValue</tt> if the
      * associated value does not exist or cannot be interpreted as an int.
      * @throws IllegalStateException if this node (or an ancestor) has been
-     * removed with the {@link #removeNode()} method.
-     * @throws NullPointerException if <tt>key</tt> is <tt>null</tt>.
-     * @see #putInt(String,int)
-     * @see #get(String,String)
+     *                               removed with the {@link #removeNode()} method.
+     * @throws NullPointerException  if <tt>key</tt> is <tt>null</tt>.
+     * @see #putInt(String, int)
+     * @see #get(String, String)
      */
     int getInt(String key, int defaultValue);
-
-    default int getInt(Enum key, int value) {
-        return getInt(enumToGeneralKey(key), value);
-    }
-
 
     default OptionalInt getInt(String key) {
         Optional<String> optionalValue = get(key);
@@ -239,6 +233,14 @@ public interface KometPreferences {
         return OptionalInt.empty();
     }
 
+    default Optional<String> get(String key) {
+        return Optional.ofNullable(get(key, null));
+    }
+
+    default void putLong(Enum key, long value) {
+        putLong(enumToGeneralKey(key), value);
+    }
+
     /**
      * Associates a string representing the specified long value with the
      * specified key in this preference node. The associated string is the one
@@ -246,20 +248,16 @@ public interface KometPreferences {
      * {@link Long#toString(long)}. This method is intended for use in
      * conjunction with {@link #getLong}.
      *
-     * @param key key with which the string form of value is to be associated.
+     * @param key   key with which the string form of value is to be associated.
      * @param value value whose string form is to be associated with key.
-     * @throws NullPointerException if <tt>key</tt> is <tt>null</tt>.
+     * @throws NullPointerException     if <tt>key</tt> is <tt>null</tt>.
      * @throws IllegalArgumentException if <tt>key.length()</tt> exceeds
-     * <tt>MAX_KEY_LENGTH</tt>.
-     * @throws IllegalStateException if this node (or an ancestor) has been
-     * removed with the {@link #removeNode()} method.
-     * @see #getLong(String,long)
+     *                                  <tt>MAX_KEY_LENGTH</tt>.
+     * @throws IllegalStateException    if this node (or an ancestor) has been
+     *                                  removed with the {@link #removeNode()} method.
+     * @see #getLong(String, long)
      */
     void putLong(String key, long value);
-
-    default void putLong(Enum key, long value) {
-        putLong(enumToGeneralKey(key), value);
-    }
 
     /**
      * Returns the long value represented by the string associated with the
@@ -277,19 +275,19 @@ public interface KometPreferences {
      * <tt>Long.parseLong</tt>, this long is returned in preference to the
      * specified default.
      *
-     * @param key key whose associated value is to be returned as a long.
+     * @param key          key whose associated value is to be returned as a long.
      * @param defaultValue the value to be returned in the event that this
-     * preference node has no value associated with <tt>key</tt>
-     * or the associated value cannot be interpreted as a long, or the backing
-     * store is inaccessible.
+     *                     preference node has no value associated with <tt>key</tt>
+     *                     or the associated value cannot be interpreted as a long, or the backing
+     *                     store is inaccessible.
      * @return the long value represented by the string associated with
      * <tt>key</tt> in this preference node, or <tt>defaultValue</tt> if the
      * associated value does not exist or cannot be interpreted as a long.
      * @throws IllegalStateException if this node (or an ancestor) has been
-     * removed with the {@link #removeNode()} method.
-     * @throws NullPointerException if <tt>key</tt> is <tt>null</tt>.
-     * @see #putLong(String,long)
-     * @see #get(String,String)
+     *                               removed with the {@link #removeNode()} method.
+     * @throws NullPointerException  if <tt>key</tt> is <tt>null</tt>.
+     * @see #putLong(String, long)
+     * @see #get(String, String)
      */
     long getLong(String key, long defaultValue);
 
@@ -301,6 +299,10 @@ public interface KometPreferences {
         return OptionalLong.empty();
     }
 
+    default void putBoolean(Enum key, boolean value) {
+        putBoolean(enumToGeneralKey(key), value);
+    }
+
     /**
      * Associates a string representing the specified boolean value with the
      * specified key in this preference node. The associated string is
@@ -308,20 +310,20 @@ public interface KometPreferences {
      * false. This method is intended for use in conjunction with
      * {@link #getBoolean}.
      *
-     * @param key key with which the string form of value is to be associated.
+     * @param key   key with which the string form of value is to be associated.
      * @param value value whose string form is to be associated with key.
-     * @throws NullPointerException if <tt>key</tt> is <tt>null</tt>.
+     * @throws NullPointerException     if <tt>key</tt> is <tt>null</tt>.
      * @throws IllegalArgumentException if <tt>key.length()</tt> exceeds
-     * <tt>MAX_KEY_LENGTH</tt>.
-     * @throws IllegalStateException if this node (or an ancestor) has been
-     * removed with the {@link #removeNode()} method.
-     * @see #getBoolean(String,boolean)
-     * @see #get(String,String)
+     *                                  <tt>MAX_KEY_LENGTH</tt>.
+     * @throws IllegalStateException    if this node (or an ancestor) has been
+     *                                  removed with the {@link #removeNode()} method.
+     * @see #getBoolean(String, boolean)
+     * @see #get(String, String)
      */
     void putBoolean(String key, boolean value);
 
-    default void putBoolean(Enum key, boolean value) {
-        putBoolean(enumToGeneralKey(key), value);
+    default boolean getBoolean(Enum key, boolean defaultValue) {
+        return getBoolean(enumToGeneralKey(key), defaultValue);
     }
 
     /**
@@ -345,25 +347,21 @@ public interface KometPreferences {
      * <tt>"true"</tt> or <tt>"false"</tt>, ignoring case, in which case the
      * specified default is used.
      *
-     * @param key key whose associated value is to be returned as a boolean.
+     * @param key          key whose associated value is to be returned as a boolean.
      * @param defaultValue the value to be returned in the event that this
-     * preference node has no value associated with <tt>key</tt>
-     * or the associated value cannot be interpreted as a boolean, or the
-     * backing store is inaccessible.
+     *                     preference node has no value associated with <tt>key</tt>
+     *                     or the associated value cannot be interpreted as a boolean, or the
+     *                     backing store is inaccessible.
      * @return the boolean value represented by the string associated with
      * <tt>key</tt> in this preference node, or <tt>defaultValue</tt> if the
      * associated value does not exist or cannot be interpreted as a boolean.
      * @throws IllegalStateException if this node (or an ancestor) has been
-     * removed with the {@link #removeNode()} method.
-     * @throws NullPointerException if <tt>key</tt> is <tt>null</tt>.
-     * @see #get(String,String)
-     * @see #putBoolean(String,boolean)
+     *                               removed with the {@link #removeNode()} method.
+     * @throws NullPointerException  if <tt>key</tt> is <tt>null</tt>.
+     * @see #get(String, String)
+     * @see #putBoolean(String, boolean)
      */
     boolean getBoolean(String key, boolean defaultValue);
-
-    default boolean getBoolean(Enum key, boolean defaultValue) {
-        return getBoolean(enumToGeneralKey(key), defaultValue);
-    }
 
     default Optional<Boolean> getBoolean(Enum key) {
         return getBoolean(enumToGeneralKey(key));
@@ -380,6 +378,10 @@ public interface KometPreferences {
         return Optional.empty();
     }
 
+    default void putDouble(Enum key, double value) {
+        putDouble(enumToGeneralKey(key), value);
+    }
+
     /**
      * Associates a string representing the specified double value with the
      * specified key in this preference node. The associated string is the one
@@ -387,19 +389,19 @@ public interface KometPreferences {
      * {@link Double#toString(double)}. This method is intended for use in
      * conjunction with {@link #getDouble}.
      *
-     * @param key key with which the string form of value is to be associated.
+     * @param key   key with which the string form of value is to be associated.
      * @param value value whose string form is to be associated with key.
-     * @throws NullPointerException if <tt>key</tt> is <tt>null</tt>.
+     * @throws NullPointerException     if <tt>key</tt> is <tt>null</tt>.
      * @throws IllegalArgumentException if <tt>key.length()</tt> exceeds
-     * <tt>MAX_KEY_LENGTH</tt>.
-     * @throws IllegalStateException if this node (or an ancestor) has been
-     * removed with the {@link #removeNode()} method.
-     * @see #getDouble(String,double)
+     *                                  <tt>MAX_KEY_LENGTH</tt>.
+     * @throws IllegalStateException    if this node (or an ancestor) has been
+     *                                  removed with the {@link #removeNode()} method.
+     * @see #getDouble(String, double)
      */
     void putDouble(String key, double value);
 
-    default void putDouble(Enum key, double value) {
-        putDouble(enumToGeneralKey(key), value);
+    default double getDouble(Enum key, double defaultValue) {
+        return getDouble(enumToGeneralKey(key), defaultValue);
     }
 
     /**
@@ -417,25 +419,21 @@ public interface KometPreferences {
      * <tt>Double.parseDouble</tt>, this double is returned in preference to the
      * specified default.
      *
-     * @param key key whose associated value is to be returned as a double.
+     * @param key          key whose associated value is to be returned as a double.
      * @param defaultValue the value to be returned in the event that this
-     * preference node has no value associated with <tt>key</tt>
-     * or the associated value cannot be interpreted as a double, or the backing
-     * store is inaccessible.
+     *                     preference node has no value associated with <tt>key</tt>
+     *                     or the associated value cannot be interpreted as a double, or the backing
+     *                     store is inaccessible.
      * @return the double value represented by the string associated with
      * <tt>key</tt> in this preference node, or <tt>defaultValue</tt> if the
      * associated value does not exist or cannot be interpreted as a double.
      * @throws IllegalStateException if this node (or an ancestor) has been
-     * removed with the {@link #removeNode()} method.
-     * @throws NullPointerException if <tt>key</tt> is <tt>null</tt>.
-     * @see #putDouble(String,double)
-     * @see #get(String,String)
+     *                               removed with the {@link #removeNode()} method.
+     * @throws NullPointerException  if <tt>key</tt> is <tt>null</tt>.
+     * @see #putDouble(String, double)
+     * @see #get(String, String)
      */
     double getDouble(String key, double defaultValue);
-
-    default double getDouble(Enum key, double defaultValue) {
-        return getDouble(enumToGeneralKey(key), defaultValue);
-    }
 
     default OptionalDouble getDouble(String key) {
         Optional<String> optionalValue = get(key);
@@ -451,13 +449,28 @@ public interface KometPreferences {
 
     default void putDoubleArray(String key, double[] array) {
         List<String> doubleList = new ArrayList<>(array.length);
-        for (double value: array) {
+        for (double value : array) {
             doubleList.add(Double.toString(value));
         }
         putList(key, doubleList);
     }
 
-    default  double[] getDoubleArray(String key, double[] defaultArray) {
+    default void putList(String key, List<String> list) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < list.size(); i++) {
+            builder.append(list.get(i));
+            if (i < list.size() - 1) {
+                builder.append("|!%|");
+            }
+        }
+        put(key, builder.toString());
+    }
+
+    default double[] getDoubleArray(Enum key, double[] defaultArray) {
+        return getDoubleArray(enumToGeneralKey(key), defaultArray);
+    }
+
+    default double[] getDoubleArray(String key, double[] defaultArray) {
         Optional<double[]> optionalArray = getDoubleArray(key);
         if (optionalArray.isPresent()) {
             return optionalArray.get();
@@ -465,12 +478,6 @@ public interface KometPreferences {
         return defaultArray;
     }
 
-    default  double[] getDoubleArray(Enum key, double[] defaultArray) {
-        return getDoubleArray(enumToGeneralKey(key), defaultArray);
-    }
-    default Optional<double[]> getDoubleArray(Enum key) {
-        return getDoubleArray(enumToGeneralKey(key));
-    }
     default Optional<double[]> getDoubleArray(String key) {
         Optional<List<String>> optionalValue = getOptionalList(key);
         if (optionalValue.isPresent()) {
@@ -482,6 +489,36 @@ public interface KometPreferences {
             return Optional.of(doubleArray);
         }
         return Optional.empty();
+    }
+
+    default Optional<List<String>> getOptionalList(String key) {
+        Optional<String> value = get(key);
+        if (value.isPresent()) {
+            return Optional.of(getList(key));
+        }
+        return Optional.empty();
+    }
+
+    default List<String> getList(String key) {
+        Optional<String> value = get(key);
+        if (value.isPresent()) {
+            String strValue = value.get();
+            if (strValue.equals("")) {
+                // nothing to do.
+            } else {
+                String[] elements = strValue.split("\\|!%\\|");
+                return new ArrayList(Arrays.asList(elements));
+            }
+        }
+        return new ArrayList<>();
+    }
+
+    default Optional<double[]> getDoubleArray(Enum key) {
+        return getDoubleArray(enumToGeneralKey(key));
+    }
+
+    default void putByteArray(Enum key, byte[] value) {
+        putByteArray(enumToGeneralKey(key), value);
     }
 
     /**
@@ -496,20 +533,36 @@ public interface KometPreferences {
      * does not exceed <tt>MAX_VALUE_LENGTH</tt>. This method is intended for
      * use in conjunction with {@link #getByteArray}.
      *
-     * @param key key with which the string form of value is to be associated.
+     * @param key   key with which the string form of value is to be associated.
      * @param value value whose string form is to be associated with key.
-     * @throws NullPointerException if key or value is <tt>null</tt>.
+     * @throws NullPointerException     if key or value is <tt>null</tt>.
      * @throws IllegalArgumentException if key.length() exceeds MAX_KEY_LENGTH
-     * or if value.length exceeds MAX_VALUE_LENGTH*3/4.
-     * @throws IllegalStateException if this node (or an ancestor) has been
-     * removed with the {@link #removeNode()} method.
-     * @see #getByteArray(String,byte[])
-     * @see #get(String,String)
+     *                                  or if value.length exceeds MAX_VALUE_LENGTH*3/4.
+     * @throws IllegalStateException    if this node (or an ancestor) has been
+     *                                  removed with the {@link #removeNode()} method.
+     * @see #getByteArray(String, byte[])
+     * @see #get(String, String)
      */
     void putByteArray(String key, byte[] value);
 
-    default void putByteArray(Enum key, byte[] value) {
-        putByteArray(enumToGeneralKey(key), value);
+    default <T extends Object> T getObject(UUID key, T defaultValue) {
+        return getObject(key.toString(), defaultValue);
+    }
+
+    default <T extends Object> T getObject(String key, T defaultValue) {
+        Optional<byte[]> optionalBytes = getByteArray(key);
+        if (optionalBytes.isPresent()) {
+            return Encodable.decode(optionalBytes.get());
+        }
+        return defaultValue;
+    }
+
+    default Optional<byte[]> getByteArray(String key) {
+        Optional<String> optionalValue = get(key);
+        if (optionalValue.isPresent()) {
+            return Optional.of(getByteArray(key, new byte[0]));
+        }
+        return Optional.empty();
     }
 
     /**
@@ -533,33 +586,23 @@ public interface KometPreferences {
      * default, unless the stored default is not a valid Base64 encoded byte
      * array (as defined above), in which case the specified default is used.
      *
-     * @param key key whose associated value is to be returned as a byte array.
+     * @param key          key whose associated value is to be returned as a byte array.
      * @param defaultValue the value to be returned in the event that this
-     * preference node has no value associated with <tt>key</tt>
-     * or the associated value cannot be interpreted as a byte array, or the
-     * backing store is inaccessible.
+     *                     preference node has no value associated with <tt>key</tt>
+     *                     or the associated value cannot be interpreted as a byte array, or the
+     *                     backing store is inaccessible.
      * @return the byte array value represented by the string associated with
      * <tt>key</tt> in this preference node, or <tt>defaultValue</tt> if the
      * associated value does not exist or cannot be interpreted as a byte array.
      * @throws IllegalStateException if this node (or an ancestor) has been
-     * removed with the {@link #removeNode()} method.
-     * @throws NullPointerException if <tt>key</tt> or <tt>defaultValue</tt> is
-     * <tt>null</tt>.
-     * @see #get(String,String)
-     * @see #putByteArray(String,byte[])
+     *                               removed with the {@link #removeNode()} method.
+     * @throws NullPointerException  if <tt>key</tt> or <tt>defaultValue</tt> is
+     *                               <tt>null</tt>.
+     * @see #get(String, String)
+     * @see #putByteArray(String, byte[])
      */
     byte[] getByteArray(String key, byte[] defaultValue);
 
-    default <T extends Object> T getObject(UUID key, T defaultValue) {
-        return getObject(key.toString(), defaultValue);
-    }
-    default <T extends Object> T getObject(String key, T defaultValue) {
-        Optional<byte[]> optionalBytes = getByteArray(key);
-        if (optionalBytes.isPresent()) {
-            return Encodable.decode(optionalBytes.get());
-        }
-        return defaultValue;
-    }
     default <T extends Object> T getObject(Enum key, T defaultValue) {
         Optional<byte[]> optionalBytes = getByteArray(key);
         if (optionalBytes.isPresent()) {
@@ -567,6 +610,11 @@ public interface KometPreferences {
         }
         return defaultValue;
     }
+
+    default Optional<byte[]> getByteArray(Enum key) {
+        return getByteArray(enumToGeneralKey(key));
+    }
+
     default <T extends Object> Optional<T> getObject(Enum key) {
         Optional<byte[]> optionalBytes = getByteArray(key);
         if (optionalBytes.isPresent()) {
@@ -574,9 +622,11 @@ public interface KometPreferences {
         }
         return Optional.empty();
     }
+
     default <T extends Object> Optional<T> getObject(UUID key) {
         return getObject(key.toString());
     }
+
     default <T extends Object> Optional<T> getObject(String key) {
         Optional<byte[]> optionalBytes = getByteArray(key);
         if (optionalBytes.isPresent()) {
@@ -585,68 +635,21 @@ public interface KometPreferences {
         return Optional.empty();
     }
 
-
-
-
     default void putObject(Enum key, Encodable encodable) {
         putObject(enumToGeneralKey(key), encodable);
     }
-    default void putObject(UUID key, Encodable encodable) {
-        putObject(key.toString(), encodable);
-    }
+
     default void putObject(String key, Encodable encodable) {
         putByteArray(key, encodable.toBytes());
     }
 
-    default Optional<byte[]> getByteArray(String key) {
-        Optional<String> optionalValue = get(key);
-        if (optionalValue.isPresent()) {
-            return Optional.of(getByteArray(key, new byte[0]));
-        }
-        return Optional.empty();
-    }
-
-
-    default Optional<byte[]> getByteArray(Enum key) {
-        return getByteArray(enumToGeneralKey(key));
+    default void putObject(UUID key, Encodable encodable) {
+        putObject(key.toString(), encodable);
     }
 
     default byte[] getByteArray(Enum key, byte[] defaultValue) {
         return getByteArray(enumToGeneralKey(key), defaultValue);
     }
-
-    /**
-     * Returns all of the keys that have an associated value in this preference
-     * node. (The returned array will be of size zero if this node has no
-     * preferences.)
-     *
-     * <p>
-     * If the implementation supports <i>stored defaults</i> and there are any
-     * such defaults at this node that have not been overridden, by explicit
-     * preferences, the defaults are returned in the array in addition to any
-     * explicit preferences.
-     *
-     * @return an array of the keys that have an associated value in this
-     * preference node.
-     * @throws BackingStoreException if this operation cannot be completed due
-     * to a failure in the backing store, or inability to communicate with it.
-     * @throws IllegalStateException if this node (or an ancestor) has been
-     * removed with the {@link #removeNode()} method.
-     */
-    String[] keys() throws BackingStoreException;
-
-    /**
-     * Returns the names of the children of this preference node, relative to
-     * this node. (The returned array will be of size zero if this node has no
-     * children.)
-     *
-     * @return the names of the children of this preference node.
-     * @throws BackingStoreException if this operation cannot be completed due
-     * to a failure in the backing store, or inability to communicate with it.
-     * @throws IllegalStateException if this node (or an ancestor) has been
-     * removed with the {@link #removeNode()} method.
-     */
-    String[] childrenNames() throws BackingStoreException;
 
     default KometPreferences[] children() throws BackingStoreException {
         String[] childrenNames = childrenNames();
@@ -657,19 +660,18 @@ public interface KometPreferences {
         return children;
     }
 
-    default boolean hasChildren() throws BackingStoreException {
-        return childrenNames().length != 0;
-    }
-
     /**
-     * Returns the parent of this preference node, or <tt>null</tt> if this is
-     * the root.
+     * Returns the names of the children of this preference node, relative to
+     * this node. (The returned array will be of size zero if this node has no
+     * children.)
      *
-     * @return the parent of this preference node.
+     * @return the names of the children of this preference node.
+     * @throws BackingStoreException if this operation cannot be completed due
+     *                               to a failure in the backing store, or inability to communicate with it.
      * @throws IllegalStateException if this node (or an ancestor) has been
-     * removed with the {@link #removeNode()} method.
+     *                               removed with the {@link #removeNode()} method.
      */
-    KometPreferences parent();
+    String[] childrenNames() throws BackingStoreException;
 
     /**
      * Returns the named preference node in the same tree as this node, creating
@@ -687,14 +689,28 @@ public interface KometPreferences {
      * @param pathName the path name of the preference node to return.
      * @return the specified preference node.
      * @throws IllegalArgumentException if the path name is invalid (i.e., it
-     * contains multiple consecutive slash characters, or ends with a slash
-     * character and is more than one character long).
-     * @throws NullPointerException if path name is <tt>null</tt>.
-     * @throws IllegalStateException if this node (or an ancestor) has been
-     * removed with the {@link #removeNode()} method.
+     *                                  contains multiple consecutive slash characters, or ends with a slash
+     *                                  character and is more than one character long).
+     * @throws NullPointerException     if path name is <tt>null</tt>.
+     * @throws IllegalStateException    if this node (or an ancestor) has been
+     *                                  removed with the {@link #removeNode()} method.
      * @see #flush()
      */
     KometPreferences node(String pathName);
+
+    default boolean hasChildren() throws BackingStoreException {
+        return childrenNames().length != 0;
+    }
+
+    /**
+     * Returns the parent of this preference node, or <tt>null</tt> if this is
+     * the root.
+     *
+     * @return the parent of this preference node.
+     * @throws IllegalStateException if this node (or an ancestor) has been
+     *                               removed with the {@link #removeNode()} method.
+     */
+    KometPreferences parent();
 
     default KometPreferences node(Class<?> c) {
         return node(nodeName(c));
@@ -714,6 +730,10 @@ public interface KometPreferences {
         return "/" + packageName.replace('.', '/');
     }
 
+    default boolean nodeExists(Class<?> c) throws BackingStoreException {
+        return nodeExists(nodeName(c));
+    }
+
     /**
      * Returns true if the named preference node exists in the same tree as this
      * node. Relative path names (which do not begin with the slash character
@@ -727,24 +747,20 @@ public interface KometPreferences {
      * test whether <tt>p</tt> has been removed.
      *
      * @param pathName the path name of the node whose existence is to be
-     * checked.
+     *                 checked.
      * @return true if the specified node exists.
-     * @throws BackingStoreException if this operation cannot be completed due
-     * to a failure in the backing store, or inability to communicate with it.
+     * @throws BackingStoreException    if this operation cannot be completed due
+     *                                  to a failure in the backing store, or inability to communicate with it.
      * @throws IllegalArgumentException if the path name is invalid (i.e., it
-     * contains multiple consecutive slash characters, or ends with a slash
-     * character and is more than one character long).
-     * @throws NullPointerException if path name is <tt>null</tt>.
-     * @throws IllegalStateException if this node (or an ancestor) has been
-     * removed with the {@link #removeNode()} method and
-     * <tt>pathName</tt> is not the empty string (<tt>""</tt>).
+     *                                  contains multiple consecutive slash characters, or ends with a slash
+     *                                  character and is more than one character long).
+     * @throws NullPointerException     if path name is <tt>null</tt>.
+     * @throws IllegalStateException    if this node (or an ancestor) has been
+     *                                  removed with the {@link #removeNode()} method and
+     *                                  <tt>pathName</tt> is not the empty string (<tt>""</tt>).
      */
     boolean nodeExists(String pathName)
             throws BackingStoreException;
-
-    default boolean nodeExists(Class<?> c) throws BackingStoreException {
-        return nodeExists(nodeName(c));
-    }
 
     /**
      * Removes this preference node and all of its descendants, invalidating any
@@ -769,12 +785,12 @@ public interface KometPreferences {
      * may return a (different) <tt>Preferences</tt> instance representing a
      * non-empty collection of preferences and/or children.
      *
-     * @throws BackingStoreException if this operation cannot be completed due
-     * to a failure in the backing store, or inability to communicate with it.
-     * @throws IllegalStateException if this node (or an ancestor) has already
-     * been removed with the {@link #removeNode()} method.
+     * @throws BackingStoreException         if this operation cannot be completed due
+     *                                       to a failure in the backing store, or inability to communicate with it.
+     * @throws IllegalStateException         if this node (or an ancestor) has already
+     *                                       been removed with the {@link #removeNode()} method.
      * @throws UnsupportedOperationException if this method is invoked on the
-     * root node.
+     *                                       root node.
      * @see #flush()
      */
     void removeNode() throws BackingStoreException;
@@ -794,8 +810,6 @@ public interface KometPreferences {
     String absolutePath();
 
     /**
-     *
-     *
      * @return the preference node type. CONFIGURATION, USER, or SYSTEM.
      */
     PreferenceNodeType getNodeType();
@@ -822,7 +836,7 @@ public interface KometPreferences {
      * on others.
      *
      * @throws BackingStoreException if this operation cannot be completed due
-     * to a failure in the backing store, or inability to communicate with it.
+     *                               to a failure in the backing store, or inability to communicate with it.
      * @see #sync()
      */
     void flush() throws BackingStoreException;
@@ -836,9 +850,9 @@ public interface KometPreferences {
      * method had been invoked on this node.
      *
      * @throws BackingStoreException if this operation cannot be completed due
-     * to a failure in the backing store, or inability to communicate with it.
+     *                               to a failure in the backing store, or inability to communicate with it.
      * @throws IllegalStateException if this node (or an ancestor) has been
-     * removed with the {@link #removeNode()} method.
+     *                               removed with the {@link #removeNode()} method.
      * @see #flush()
      */
     void sync() throws BackingStoreException;
@@ -862,9 +876,9 @@ public interface KometPreferences {
      * register with each descendant.
      *
      * @param pcl The preference change listener to add.
-     * @throws NullPointerException if <tt>pcl</tt> is null.
+     * @throws NullPointerException  if <tt>pcl</tt> is null.
      * @throws IllegalStateException if this node (or an ancestor) has been
-     * removed with the {@link #removeNode()} method.
+     *                               removed with the {@link #removeNode()} method.
      * @see #removePreferenceChangeListener(PreferenceChangeListener)
      * @see #addNodeChangeListener(NodeChangeListener)
      */
@@ -877,9 +891,9 @@ public interface KometPreferences {
      *
      * @param pcl The preference change listener to remove.
      * @throws IllegalArgumentException if <tt>pcl</tt> was not a registered
-     * preference change listener on this node.
-     * @throws IllegalStateException if this node (or an ancestor) has been
-     * removed with the {@link #removeNode()} method.
+     *                                  preference change listener on this node.
+     * @throws IllegalStateException    if this node (or an ancestor) has been
+     *                                  removed with the {@link #removeNode()} method.
      * @see #addPreferenceChangeListener(PreferenceChangeListener)
      */
     void removePreferenceChangeListener(
@@ -910,9 +924,9 @@ public interface KometPreferences {
      * change events nor prohibited from doing so.
      *
      * @param ncl The <tt>NodeChangeListener</tt> to add.
-     * @throws NullPointerException if <tt>ncl</tt> is null.
+     * @throws NullPointerException  if <tt>ncl</tt> is null.
      * @throws IllegalStateException if this node (or an ancestor) has been
-     * removed with the {@link #removeNode()} method.
+     *                               removed with the {@link #removeNode()} method.
      * @see #removeNodeChangeListener(NodeChangeListener)
      * @see #addPreferenceChangeListener(PreferenceChangeListener)
      */
@@ -924,9 +938,9 @@ public interface KometPreferences {
      *
      * @param ncl The <tt>NodeChangeListener</tt> to remove.
      * @throws IllegalArgumentException if <tt>ncl</tt> was not a registered
-     * <tt>NodeChangeListener</tt> on this node.
-     * @throws IllegalStateException if this node (or an ancestor) has been
-     * removed with the {@link #removeNode()} method.
+     *                                  <tt>NodeChangeListener</tt> on this node.
+     * @throws IllegalStateException    if this node (or an ancestor) has been
+     *                                  removed with the {@link #removeNode()} method.
      * @see #addNodeChangeListener(NodeChangeListener)
      */
     void removeNodeChangeListener(NodeChangeListener ncl);
@@ -952,12 +966,12 @@ public interface KometPreferences {
      * exported data while others may not.
      *
      * @param os the output stream on which to emit the XML document.
-     * @throws IOException if writing to the specified output stream results in
-     * an <tt>IOException</tt>.
+     * @throws IOException           if writing to the specified output stream results in
+     *                               an <tt>IOException</tt>.
      * @throws BackingStoreException if preference data cannot be read from
-     * backing store.
+     *                               backing store.
      * @throws IllegalStateException if this node (or an ancestor) has been
-     * removed with the {@link #removeNode()} method.
+     *                               removed with the {@link #removeNode()} method.
      */
     void exportNode(OutputStream os)
             throws IOException, BackingStoreException;
@@ -983,12 +997,12 @@ public interface KometPreferences {
      * exported data while others may not.
      *
      * @param os the output stream on which to emit the XML document.
-     * @throws IOException if writing to the specified output stream results in
-     * an <tt>IOException</tt>.
+     * @throws IOException           if writing to the specified output stream results in
+     *                               an <tt>IOException</tt>.
      * @throws BackingStoreException if preference data cannot be read from
-     * backing store.
+     *                               backing store.
      * @throws IllegalStateException if this node (or an ancestor) has been
-     * removed with the {@link #removeNode()} method.
+     *                               removed with the {@link #removeNode()} method.
      * @see #exportNode(OutputStream)
      */
     void exportSubtree(OutputStream os)
@@ -1032,11 +1046,12 @@ public interface KometPreferences {
         return get(key).isPresent();
     }
 
-    default void putList(Enum key, List<String> list) {
-        putList(enumToGeneralKey(key), list);
-    }
     default void putArray(Enum key, String[] array) {
         putList(key, Arrays.asList(array));
+    }
+
+    default void putList(Enum key, List<String> list) {
+        putList(enumToGeneralKey(key), list);
     }
 
     default void putArray(String key, String[] array) {
@@ -1051,20 +1066,10 @@ public interface KometPreferences {
         return getList(key).toArray(new String[2]);
     }
 
-    default void putList(String key, List<String> list) {
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < list.size(); i++) {
-            builder.append(list.get(i));
-            if (i < list.size() - 1) {
-                builder.append("|!%|");
-            }
-        }
-        put(key, builder.toString());
-    }
-
     default void putConceptList(Enum key, List<? extends ConceptFacade> list) {
         putConceptList(enumToGeneralKey(key), list);
     }
+
     default void putConceptList(String key, List<? extends ConceptFacade> list) {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < list.size(); i++) {
@@ -1075,9 +1080,11 @@ public interface KometPreferences {
         }
         put(key, builder.toString());
     }
+
     default void putComponentList(Enum key, Collection<? extends EntityFacade> list) {
         putComponentList(enumToGeneralKey(key), list);
     }
+
     default void putComponentList(String key, Collection<? extends EntityFacade> list) {
         StringBuilder builder = new StringBuilder();
         Iterator<? extends EntityFacade> itr = list.iterator();
@@ -1091,17 +1098,38 @@ public interface KometPreferences {
         put(key, builder.toString());
     }
 
-    default List<Component> getComponentList(Enum key) {
-        return getComponentList(enumToGeneralKey(key));
+    default <T extends EntityFacade> List<T> getEntityList(Enum key, T[] defaultList) {
+        return getEntityList(enumToGeneralKey(key), defaultList);
     }
-    default List<Component> getComponentList(String key) {
+
+    default <T extends EntityFacade> List<T> getEntityList(String key, T[] defaultList) {
+        Optional<List<String>> optionalList = getOptionalList(key);
+        List<T> componentList = new ArrayList<>(defaultList.length);
+        optionalList.ifPresentOrElse(stringList -> {
+            for (String entityFacadeXml : stringList) {
+                componentList.add((T) ProxyFactory.fromXmlFragment(entityFacadeXml));
+            }
+        }, () -> {
+            for (EntityFacade entityFacade : defaultList) {
+                componentList.add((T) entityFacade);
+            }
+        });
+        return componentList;
+    }
+
+    default List<EntityFacade> getEntityList(Enum key) {
+        return getEntityList(enumToGeneralKey(key));
+    }
+
+    default List<EntityFacade> getEntityList(String key) {
         List<String> list = getList(key);
-        List<Component> proxyList = new ArrayList<>(list.size());
-        for (String proxyString: list) {
+        List<EntityFacade> proxyList = new ArrayList<>(list.size());
+        for (String proxyString : list) {
             ProxyFactory.fromXmlFragmentOptional(proxyString).ifPresent(entityFacade -> proxyList.add(entityFacade));
         }
         return proxyList;
     }
+
     default List<String> getList(Enum key) {
         return getList(enumToGeneralKey(key));
     }
@@ -1121,38 +1149,72 @@ public interface KometPreferences {
     default List<EntityProxy.Concept> getConceptList(String key) {
         List<String> list = getList(key);
         List<EntityProxy.Concept> proxyList = new ArrayList<>(list.size());
-        for (String proxyString: list) {
+        for (String proxyString : list) {
             ProxyFactory.fromXmlFragmentOptional(proxyString).ifPresent(entityFacade -> proxyList.add((EntityProxy.Concept) entityFacade));
         }
         return proxyList;
     }
 
-    default Optional<List<EntityProxy.Concept>> getOptionalConceptList(String key) {
+    default List<PatternFacade> getPatternList(Enum key) {
+        return getPatternList(key, new ArrayList<>());
+    }
+
+    default List<PatternFacade> getPatternList(Enum key, List<PatternFacade> defaultList) {
+        Optional<List<PatternFacade>> optionalList = getOptionalPatternList(enumToGeneralKey(key));
+        if (optionalList.isEmpty()) {
+            List<PatternFacade> proxyList = new ArrayList<>(defaultList.size());
+            for (PatternFacade patternFacade : defaultList) {
+                proxyList.add(patternFacade);
+            }
+            return proxyList;
+        }
+        return optionalList.get();
+    }
+
+    default Optional<List<PatternFacade>> getOptionalPatternList(String key) {
         Optional<List<String>> optionalList = getOptionalList(key);
         if (optionalList.isPresent()) {
             List<String> list = optionalList.get();
-            List<EntityProxy.Concept> proxyList = new ArrayList<>(list.size());
-            for (String proxyString: list) {
-                ProxyFactory.fromXmlFragmentOptional(proxyString).ifPresent(entityFacade -> proxyList.add((EntityProxy.Concept) entityFacade));
+            List<PatternFacade> proxyList = new ArrayList<>(list.size());
+            for (String proxyString : list) {
+                ProxyFactory.fromXmlFragmentOptional(proxyString).ifPresent(entityFacade -> proxyList.add((EntityProxy.Pattern) entityFacade));
             }
             return Optional.of(proxyList);
         }
         return Optional.empty();
     }
-    default List<EntityProxy.Concept> getConceptList(Enum key, EntityProxy.Concept[] defaultList) {
+
+    default List<PatternFacade> getPatternList(Enum key, PatternFacade[] defaultList) {
+        return getPatternList(key, Arrays.asList(defaultList));
+    }
+
+    default List<ConceptFacade> getConceptList(Enum key, ConceptFacade[] defaultList) {
         return getConceptList(key, Arrays.asList(defaultList));
     }
 
-    default List<EntityProxy.Concept> getConceptList(Enum key, List<? extends EntityProxy.Concept> defaultList) {
-        Optional<List<EntityProxy.Concept>> optionalList = getOptionalConceptList(enumToGeneralKey(key));
+    default List<ConceptFacade> getConceptList(Enum key, List<ConceptFacade> defaultList) {
+        Optional<List<ConceptFacade>> optionalList = getOptionalConceptList(enumToGeneralKey(key));
         if (optionalList.isEmpty()) {
-            List<EntityProxy.Concept> proxyList = new ArrayList<>(defaultList.size());
-            for (EntityProxy.Concept conceptProxy: defaultList) {
+            List<ConceptFacade> proxyList = new ArrayList<>(defaultList.size());
+            for (ConceptFacade conceptProxy : defaultList) {
                 proxyList.add(conceptProxy);
             }
             return proxyList;
         }
         return optionalList.get();
+    }
+
+    default Optional<List<ConceptFacade>> getOptionalConceptList(String key) {
+        Optional<List<String>> optionalList = getOptionalList(key);
+        if (optionalList.isPresent()) {
+            List<String> list = optionalList.get();
+            List<ConceptFacade> proxyList = new ArrayList<>(list.size());
+            for (String proxyString : list) {
+                ProxyFactory.fromXmlFragmentOptional(proxyString).ifPresent(entityFacade -> proxyList.add((EntityProxy.Concept) entityFacade));
+            }
+            return Optional.of(proxyList);
+        }
+        return Optional.empty();
     }
 
     default List<String> getList(String key, List<String> defaultList) {
@@ -1161,27 +1223,6 @@ public interface KometPreferences {
             return defaultList;
         }
         return list;
-    }
-
-    default Optional<List<String>> getOptionalList(String key) {
-        Optional<String> value = get(key);
-        if (value.isPresent()) {
-            return Optional.of(getList(key));
-        }
-        return Optional.empty();
-    }
-    default List<String> getList(String key) {
-        Optional<String> value = get(key);
-        if (value.isPresent()) {
-            String strValue = value.get();
-            if (strValue.equals("")) {
-                // nothing to do.
-            } else {
-                String[] elements = strValue.split("\\|!%\\|");
-                return new ArrayList(Arrays.asList(elements));
-            }
-        }
-        return new ArrayList<>();
     }
 
     default void putPassword(Enum key, char[] password) {
@@ -1196,6 +1237,11 @@ public interface KometPreferences {
             throw new RuntimeException(ex);
         }
     }
+
+    default Optional<char[]> getPassword(Enum key) {
+        return getPassword(enumToGeneralKey(key));
+    }
+
     default Optional<char[]> getPassword(String key) {
         try {
             Optional<String> encryptedPassword = get(key);
@@ -1209,9 +1255,6 @@ public interface KometPreferences {
         }
     }
 
-    default Optional<char[]> getPassword(Enum key) {
-        return getPassword(enumToGeneralKey(key));
-    }
     default char[] getPassword(Enum key, char[] defaultPassword) {
         Optional<char[]> savedPassword = getPassword(enumToGeneralKey(key));
         if (savedPassword.isPresent()) {
@@ -1219,6 +1262,7 @@ public interface KometPreferences {
         }
         return defaultPassword;
     }
+
     default char[] getPassword(String key, char[] defaultPassword) {
         Optional<char[]> savedPassword = getPassword(key);
         if (savedPassword.isPresent()) {
@@ -1261,15 +1305,34 @@ public interface KometPreferences {
     }
 
     /**
-     *
      * @return Map of the preferences at this node level.
      * @throws java.util.prefs.BackingStoreException
      */
     default Map<String, String> getMap() throws BackingStoreException {
         HashMap<String, String> map = new HashMap<>();
-        for (String key: keys()) {
+        for (String key : keys()) {
             map.put(key, get(key, ""));
         }
         return map;
     }
+
+    /**
+     * Returns all of the keys that have an associated value in this preference
+     * node. (The returned array will be of size zero if this node has no
+     * preferences.)
+     *
+     * <p>
+     * If the implementation supports <i>stored defaults</i> and there are any
+     * such defaults at this node that have not been overridden, by explicit
+     * preferences, the defaults are returned in the array in addition to any
+     * explicit preferences.
+     *
+     * @return an array of the keys that have an associated value in this
+     * preference node.
+     * @throws BackingStoreException if this operation cannot be completed due
+     *                               to a failure in the backing store, or inability to communicate with it.
+     * @throws IllegalStateException if this node (or an ancestor) has been
+     *                               removed with the {@link #removeNode()} method.
+     */
+    String[] keys() throws BackingStoreException;
 }

@@ -9,7 +9,7 @@ import org.hl7.tinkar.entity.ConceptEntity;
 import org.hl7.tinkar.entity.ConceptEntityVersion;
 import org.hl7.tinkar.terms.EntityFacade;
 
-public class ConceptPanel<T extends ConceptEntity> extends ComponentIsFinalPanel<T, ConceptEntityVersion> {
+public class ConceptPanel<T extends ConceptEntity<ConceptEntityVersion>> extends ComponentIsFinalPanel<T, ConceptEntityVersion> {
 
     public ConceptPanel(T conceptEntity, ViewProperties viewProperties, SimpleObjectProperty<EntityFacade> topEnclosingComponentProperty) {
         super(conceptEntity, viewProperties, topEnclosingComponentProperty);

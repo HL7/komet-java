@@ -38,12 +38,7 @@ package org.hl7.komet.navigator.graph;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.*;
-import java.util.concurrent.CountDownLatch;
-
-//~--- non-JDK imports --------------------------------------------------------
 import javafx.application.Platform;
-
 import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
 import org.eclipse.collections.api.collection.ImmutableCollection;
@@ -62,6 +57,12 @@ import org.hl7.tinkar.terms.TinkarTerm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.OptionalInt;
+import java.util.concurrent.CountDownLatch;
+
 //~--- classes ----------------------------------------------------------------
 
 /**
@@ -79,19 +80,15 @@ public class MultiParentVertexImpl
         extends TreeItem<ConceptFacade>
         implements MultiParentVertex, Comparable<MultiParentVertexImpl> {
 
-    enum LeafStatus {
-        UNKNOWN, IS_LEAF, NOT_LEAF
-    }
-
     /**
      * The Constant LOG.
      */
     private static final Logger LOG = LoggerFactory.getLogger(MultiParentVertexImpl.class);
-
     //~--- fields --------------------------------------------------------------
     private final List<MultiParentVertexImpl> extraParents = new ArrayList<>();
+    private final int nid;
+    private final IntIdSet typeNids;
     private CountDownLatch childrenLoadedLatch = new CountDownLatch(1);
-
     private volatile boolean cancelLookup = false;
     private boolean defined = false;
     private boolean multiParent = false;
@@ -99,11 +96,8 @@ public class MultiParentVertexImpl
     private boolean secondaryParentOpened = false;
     private MultiParentGraphViewController graphController;
     private String conceptDescriptionText;  // Cached to speed up comparisons with toString method.
-    private final int nid;
-    private final IntIdSet typeNids;
     private ImmutableCollection<Edge> childLinks;
     private LeafStatus leafStatus = LeafStatus.UNKNOWN;
-
     //~--- constructors --------------------------------------------------------
     MultiParentVertexImpl(MultiParentGraphViewController graphController) {
         super();
@@ -116,14 +110,6 @@ public class MultiParentVertexImpl
         this(Entity.getFast(conceptNid), graphController, typeNids, null);
     }
 
-    @Override
-    public OptionalInt getOptionalParentNid() {
-        if (getParent() != null && getParent().getValue() != null) {
-            return OptionalInt.of(getParent().getValue().nid());
-        }
-        return OptionalInt.empty();
-    }
-
     MultiParentVertexImpl(ConceptEntity conceptEntity
             , MultiParentGraphViewController graphController, IntIdSet typeNids, Node graphic) {
         super(conceptEntity, graphic);
@@ -132,14 +118,27 @@ public class MultiParentVertexImpl
         this.typeNids = typeNids;
     }
 
+    private static int getConceptNid(TreeItem<ConceptEntity> item) {
+        return ((item != null) && (item.getValue() != null)) ? item.getValue()
+                .nid()
+                : null;
+    }
+
+    //~--- get methods ---------------------------------------------------------
+    private static TreeItem<ConceptEntity> getTreeRoot(TreeItem<ConceptEntity> item) {
+        TreeItem<ConceptEntity> parent = item.getParent();
+
+        if (parent == null) {
+            return item;
+        } else {
+            return getTreeRoot(parent);
+        }
+    }
+
     //~--- methods -------------------------------------------------------------
     public void blockUntilChildrenReady()
             throws InterruptedException {
         childrenLoadedLatch.await();
-    }
-
-    public IntIdSet getTypeNids() {
-        return typeNids;
     }
 
     /**
@@ -167,6 +166,14 @@ public class MultiParentVertexImpl
         return Integer.compare(nid, o.nid);
     }
 
+    private void updateDescription() {
+        if (this.nid != Integer.MAX_VALUE) {
+            this.conceptDescriptionText = graphController.getObservableView().getDescriptionTextOrNid(nid);
+        } else {
+            this.conceptDescriptionText = "hidden root";
+        }
+    }
+
     public Node computeGraphic() {
         return graphController.getDisplayPolicies()
                 .computeGraphic(this, graphController.getViewCalculator());
@@ -189,43 +196,6 @@ public class MultiParentVertexImpl
     public void removeChildren() {
         this.getChildren()
                 .clear();
-    }
-
-    public boolean shouldDisplay() {
-        if (graphController == null || graphController.getDisplayPolicies() == null) {
-            return false;
-        }
-        return graphController.getDisplayPolicies()
-                .shouldDisplay(this, graphController.getViewCalculator());
-    }
-
-    /**
-     * @see javafx.scene.control.TreeItem#toString() WARNING: toString is
-     * currently used in compareTo()
-     */
-    @Override
-    public String toString() {
-        try {
-            if (this.getValue() != null) {
-                if ((conceptDescriptionText == null) || conceptDescriptionText.startsWith("no description for ")) {
-                    updateDescription();
-                }
-                return this.conceptDescriptionText;
-            }
-
-            return "root";
-        } catch (RuntimeException | Error re) {
-            LOG.error(re.getLocalizedMessage(), re);
-            throw re;
-        }
-    }
-
-    private void updateDescription() {
-        if (this.nid != Integer.MAX_VALUE) {
-            this.conceptDescriptionText = graphController.getObservableView().getDescriptionTextOrNid(nid);
-        } else {
-            this.conceptDescriptionText = "hidden root";
-        }
     }
 
     void addChildrenNow() {
@@ -281,6 +251,19 @@ public class MultiParentVertexImpl
         }
     }
 
+    public boolean shouldDisplay() {
+        if (graphController == null || graphController.getDisplayPolicies() == null) {
+            return false;
+        }
+        return graphController.getDisplayPolicies()
+                .shouldDisplay(this, graphController.getViewCalculator());
+    }
+
+    public PublicId getConceptPublicId() {
+        return (getValue() != null) ? getValue().publicId()
+                : null;
+    }
+
     void addChildren() {
         LOG.atTrace().log("addChildren: ConceptEntity=" + this.getValue());
         if (getChildren().isEmpty()) {
@@ -316,33 +299,6 @@ public class MultiParentVertexImpl
     //~--- get methods ---------------------------------------------------------
     protected boolean isCancelRequested() {
         return cancelLookup;
-    }
-
-    @Override
-    public int getConceptNid() {
-        return (getValue() != null) ? getValue().nid()
-                : Integer.MIN_VALUE;
-    }
-
-    private static int getConceptNid(TreeItem<ConceptEntity> item) {
-        return ((item != null) && (item.getValue() != null)) ? item.getValue()
-                .nid()
-                : null;
-    }
-
-    public PublicId getConceptPublicId() {
-        return (getValue() != null) ? getValue().publicId()
-                : null;
-    }
-
-    @Override
-    public boolean isDefined() {
-        return defined;
-    }
-
-    //~--- set methods ---------------------------------------------------------
-    public void setDefined(boolean defined) {
-        this.defined = defined;
     }
 
     //~--- get methods ---------------------------------------------------------
@@ -382,25 +338,25 @@ public class MultiParentVertexImpl
         return leafStatus == LeafStatus.IS_LEAF;
     }
 
+    /**
+     * @see javafx.scene.control.TreeItem#toString() WARNING: toString is
+     * currently used in compareTo()
+     */
     @Override
-    public boolean isMultiParent() {
-        return multiParent;
-    }
+    public String toString() {
+        try {
+            if (this.getValue() != null) {
+                if ((conceptDescriptionText == null) || conceptDescriptionText.startsWith("no description for ")) {
+                    updateDescription();
+                }
+                return this.conceptDescriptionText;
+            }
 
-    //~--- set methods ---------------------------------------------------------
-    public void setMultiParent(boolean multiParent) {
-        this.multiParent = multiParent;
-    }
-
-    //~--- get methods ---------------------------------------------------------
-    @Override
-    public int getMultiParentDepth() {
-        return multiParentDepth;
-    }
-
-    //~--- set methods ---------------------------------------------------------
-    public void setMultiParentDepth(int multiParentDepth) {
-        this.multiParentDepth = multiParentDepth;
+            return "root";
+        } catch (RuntimeException | Error re) {
+            LOG.error(re.getLocalizedMessage(), re);
+            throw re;
+        }
     }
 
     //~--- get methods ---------------------------------------------------------
@@ -420,24 +376,62 @@ public class MultiParentVertexImpl
     }
 
     @Override
+    public boolean isDefined() {
+        return defined;
+    }
+
+    //~--- set methods ---------------------------------------------------------
+    public void setDefined(boolean defined) {
+        this.defined = defined;
+    }
+
+    @Override
+    public boolean isMultiParent() {
+        return multiParent;
+    }
+
+    //~--- set methods ---------------------------------------------------------
+    public void setMultiParent(boolean multiParent) {
+        this.multiParent = multiParent;
+    }
+
+    @Override
     public boolean isSecondaryParentOpened() {
         return secondaryParentOpened;
+    }
+
+    @Override
+    public int getConceptNid() {
+        return (getValue() != null) ? getValue().nid()
+                : Integer.MIN_VALUE;
+    }
+
+    public IntIdSet getTypeNids() {
+        return typeNids;
+    }
+
+    //~--- get methods ---------------------------------------------------------
+    @Override
+    public int getMultiParentDepth() {
+        return multiParentDepth;
+    }
+
+    @Override
+    public OptionalInt getOptionalParentNid() {
+        if (getParent() != null && getParent().getValue() != null) {
+            return OptionalInt.of(getParent().getValue().nid());
+        }
+        return OptionalInt.empty();
+    }
+
+    //~--- set methods ---------------------------------------------------------
+    public void setMultiParentDepth(int multiParentDepth) {
+        this.multiParentDepth = multiParentDepth;
     }
 
     //~--- set methods ---------------------------------------------------------
     public void setSecondaryParentOpened(boolean secondaryParentOpened) {
         this.secondaryParentOpened = secondaryParentOpened;
-    }
-
-    //~--- get methods ---------------------------------------------------------
-    private static TreeItem<ConceptEntity> getTreeRoot(TreeItem<ConceptEntity> item) {
-        TreeItem<ConceptEntity> parent = item.getParent();
-
-        if (parent == null) {
-            return item;
-        } else {
-            return getTreeRoot(parent);
-        }
     }
 
     public MultiParentGraphViewController getGraphController() {
@@ -446,5 +440,9 @@ public class MultiParentVertexImpl
 
     public ViewCalculator getViewCalculator() {
         return graphController.getObservableView().calculator();
+    }
+
+    enum LeafStatus {
+        UNKNOWN, IS_LEAF, NOT_LEAF
     }
 }

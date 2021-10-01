@@ -120,8 +120,6 @@ public class MultiParentGraphViewController implements RefreshListener {
         return shutdownRequested;
     }
 
-    private ChangeListener<Scene> sceneChangedListener = this::sceneChanged;
-
     private void sceneChanged(ObservableValue<? extends Scene> observableValue, Scene oldScene, Scene newScene) {
         if (newScene == null) {
             shutdownInstance();
@@ -136,7 +134,7 @@ public class MultiParentGraphViewController implements RefreshListener {
         if (rootTreeItem != null) {
             rootTreeItem.clearChildren();  // This recursively cancels any active lookups
         }
-    }
+    }    private ChangeListener<Scene> sceneChangedListener = this::sceneChanged;
 
     public ObservableView getObservableView() {
         return this.observableView;
@@ -303,8 +301,6 @@ public class MultiParentGraphViewController implements RefreshListener {
         event.consume();
     }
 
-    //~--- methods -------------------------------------------------------------
-
     private void dragOver(DragEvent event) {
 
         /* accept it only if it is  not dragged from the same node */
@@ -320,6 +316,8 @@ public class MultiParentGraphViewController implements RefreshListener {
     public UUID getListenerUuid() {
         return this.uuid;
     }
+
+    //~--- methods -------------------------------------------------------------
 
     @Override
     public void refresh() {
@@ -660,8 +658,6 @@ public class MultiParentGraphViewController implements RefreshListener {
         return topBorderPane;
     }
 
-    //~--- get methods ---------------------------------------------------------
-
     public TreeView<ConceptFacade> getTreeView() {
         return treeView;
     }
@@ -669,6 +665,8 @@ public class MultiParentGraphViewController implements RefreshListener {
     public ViewCalculator getViewCalculator() {
         return getObservableView().calculator();
     }
+
+    //~--- get methods ---------------------------------------------------------
 
     public void dispatchAlert(AlertObject alertObject) {
         graphNavigatorNode.dispatchAlert(alertObject);
@@ -708,6 +706,8 @@ public class MultiParentGraphViewController implements RefreshListener {
         }
 
     }
+
+
 
 
 }

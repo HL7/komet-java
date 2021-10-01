@@ -60,7 +60,6 @@ import org.hl7.komet.framework.graphics.Icon;
 import org.hl7.komet.framework.view.ObservableView;
 import org.hl7.tinkar.coordinate.navigation.calculator.Edge;
 import org.hl7.tinkar.entity.ConceptEntity;
-import org.hl7.tinkar.entity.ConceptEntityVersion;
 import org.hl7.tinkar.entity.Entity;
 import org.hl7.tinkar.terms.ConceptFacade;
 import org.slf4j.Logger;
@@ -74,7 +73,7 @@ import static org.hl7.komet.framework.StyleClasses.MULTI_PARENT_TREE_CELL;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * A {@link TreeCell} for rendering {@link ConceptEntity<ConceptEntityVersion>} objects.
+ * A {@link TreeCell} for rendering {@link ConceptEntity < ConceptEntityVersion >} objects.
  *
  * @author kec
  * @author ocarlsen

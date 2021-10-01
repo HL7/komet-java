@@ -143,6 +143,8 @@ modena.css is the default css.
 #navigator-node .ikonli-font-icon {
     /* -fx-icon-code: "mdi2g-graph"; */
     -fx-icon-code: "mdi2f-file-tree";
+    /*-fx-icon-code: "fas-sitemap";*/
+    /*-fx-icon-code: "fa-sitemap";*/
     -fx-icon-color: -komet-blue-color;
     -fx-icon-size: 20;
 }
@@ -1429,4 +1431,16 @@ modena.css is the default css.
     -fx-background-color: transparent;
     -fx-mark-color: transparent;
     -fx-padding: 0;
+}
+
+#panel-preference-sliders .ikonli-font-icon {
+    -fx-icon-code: "fa-sliders";
+    -fx-icon-size: 20;
+}
+
+#concept-details .ikonli-font-icon {
+    -fx-icon-code: "mdi2v-view-week";
+    -fx-icon-size: 20;
+    -fx-rotate: 90;
+
 }

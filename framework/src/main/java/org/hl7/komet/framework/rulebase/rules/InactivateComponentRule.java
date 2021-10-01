@@ -7,6 +7,7 @@ import org.hl7.komet.framework.rulebase.RuntimeRule;
 import org.hl7.komet.framework.rulebase.Topic;
 import org.hl7.komet.framework.rulebase.actions.AbstractAction;
 import org.hl7.komet.framework.rulebase.actions.InactivateComponentAction;
+import org.hl7.tinkar.coordinate.view.calculator.ViewCalculator;
 import org.hl7.tinkar.entity.EntityVersion;
 
 import java.util.Optional;
@@ -30,8 +31,8 @@ public class InactivateComponentRule extends AbstractComponentRule {
     }
 
     @Override
-    boolean conditionsMet(Observation observation) {
-        if (observation.subject() instanceof EntityVersion entityVersion) {
+    boolean conditionsMet(Observation observation, ViewCalculator viewCalculator) {
+        if (observation.isPresent() && observation.subject() instanceof EntityVersion entityVersion) {
             if (entityVersion.isActive()) {
                 return true;
             }
@@ -40,7 +41,7 @@ public class InactivateComponentRule extends AbstractComponentRule {
     }
 
     @Override
-    Optional<AbstractAction> makeAction(Observation observation) {
+    Optional<AbstractAction> makeAction(Observation observation, ViewCalculator viewCalculator) {
         if (observation.subject() instanceof EntityVersion entityVersion) {
             return Optional.of(new InactivateComponentAction(entityVersion));
         }

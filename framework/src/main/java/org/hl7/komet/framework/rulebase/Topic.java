@@ -4,5 +4,6 @@ package org.hl7.komet.framework.rulebase;
  * Temporary substitute for concepts until environment matures.
  */
 public enum Topic {
-    COMPONENT_FOCUSED
+    COMPONENT_FOCUSED,
+    PROPOSED_COMPONENT_CHANGE
 }

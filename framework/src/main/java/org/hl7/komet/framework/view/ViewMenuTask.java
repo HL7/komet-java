@@ -15,10 +15,10 @@ import org.eclipse.collections.api.list.primitive.ImmutableLongList;
 import org.eclipse.collections.api.map.primitive.MutableIntObjectMap;
 import org.eclipse.collections.impl.factory.primitive.IntObjectMaps;
 import org.hl7.komet.executor.TaskWrapper;
-import org.hl7.tinkar.common.id.IntIdSet;
-import org.hl7.tinkar.common.id.PublicIdStringKey;
 import org.hl7.komet.framework.temp.FxGet;
 import org.hl7.komet.framework.uncertain.ObservableEditCoordinate;
+import org.hl7.tinkar.common.id.IntIdSet;
+import org.hl7.tinkar.common.id.PublicIdStringKey;
 import org.hl7.tinkar.common.service.Executor;
 import org.hl7.tinkar.common.service.TrackingCallable;
 import org.hl7.tinkar.common.util.text.NaturalOrder;
@@ -33,7 +33,10 @@ import org.hl7.tinkar.coordinate.view.VertexSortNone;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculator;
 import org.hl7.tinkar.entity.Entity;
 import org.hl7.tinkar.entity.StampService;
-import org.hl7.tinkar.terms.*;
+import org.hl7.tinkar.terms.ConceptFacade;
+import org.hl7.tinkar.terms.EntityProxy;
+import org.hl7.tinkar.terms.PatternFacade;
+import org.hl7.tinkar.terms.TinkarTerm;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -51,66 +54,8 @@ public class ViewMenuTask extends TrackingCallable<List<MenuItem>> {
         updateProgress(-1, -1);
     }
 
-    @Override
-    protected List<MenuItem> compute() throws Exception {
-        List<MenuItem> menuItems = new ArrayList<>();
-        makeCoordinateDisplayMenu(viewCalculator,
-                menuItems,
-                observableCoordinate);
-        updateTitle("Updated View Menu");
-        updateMessage("In " + durationString());
-        return menuItems;
-    }
-
-    /**
-     * The
-     * @param viewCalculator Used to get preferred concept names
-     * @param observableCoordinate The coordinate to make an display menu for.
-     */
-    private void makeCoordinateDisplayMenu(ViewCalculator viewCalculator,
-                                                  List<MenuItem> menuItems,
-                                                  ObservableCoordinate observableCoordinate) {
-
-        makeRecursiveOverrideMenu(viewCalculator, menuItems,
-                observableCoordinate);
-
-        for (Property<?> baseProperty: observableCoordinate.getBaseProperties()) {
-            menuItems.add(new MenuItem(getNameAndValueString(viewCalculator, baseProperty)));
-        }
-
-        updateMessage("Making composite coordinate menu");
-        for (ObservableCoordinate<?> compositeCoordinate: observableCoordinate.getCompositeCoordinates()) {
-            String propertyName = getPropertyNameWithOverride(viewCalculator, compositeCoordinate);
-            Menu compositeMenu = new Menu(propertyName);
-            menuItems.add(compositeMenu);
-            makeCoordinateDisplayMenu(viewCalculator, compositeMenu.getItems(), compositeCoordinate);
-        }
-
-        if (observableCoordinate instanceof ObservableView observableView) {
-            addSeparator(menuItems);
-            //addRemoveOverrides(menuItems, observableCoordinate);
-            addChangeItemsForView(viewCalculator, menuItems, observableView);
-        } else if (observableCoordinate instanceof ObservableLanguageCoordinate observableLanguageCoordinate) {
-            addSeparator(menuItems);
-            updateMessage("Making change language menu");
-            addChangeItemsForLanguage(viewCalculator, menuItems, observableLanguageCoordinate);
-        } else if (observableCoordinate instanceof ObservableLogicCoordinate observableLogicCoordinate) {
-            //menuItems.add(new SeparatorMenuItem());
-            updateMessage("Making change logic menu");
-            addChangeItemsForLogic(viewCalculator, menuItems, observableLogicCoordinate);
-        } else if (observableCoordinate instanceof ObservableNavigationCoordinate observableNavigationCoordinate) {
-            addSeparator(menuItems);
-            updateMessage("Making change navigation menu");
-            addChangeItemsForNavigation(viewCalculator, menuItems, observableNavigationCoordinate);
-        } else if (observableCoordinate instanceof ObservableStampCoordinate observableStampCoordinate) {
-            addSeparator(menuItems);
-            updateMessage("Making change stamp filter menu");
-            addChangeItemsForFilter(viewCalculator, menuItems, observableStampCoordinate);
-        }
-    }
-
     private static void addSeparator(List<MenuItem> menuItems) {
-        if (menuItems.get(menuItems.size() -1) instanceof SeparatorMenuItem) {
+        if (menuItems.get(menuItems.size() - 1) instanceof SeparatorMenuItem) {
             // already a separator, don't duplicate.
         } else {
             menuItems.add(new SeparatorMenuItem());
@@ -135,7 +80,7 @@ public class ViewMenuTask extends TrackingCallable<List<MenuItem>> {
 
         Menu changePathMenu = new Menu("Change path");
         menuItems.add(changePathMenu);
-        for (PublicIdStringKey key: FxGet.pathCoordinates(viewCalculator).keySet()) {
+        for (PublicIdStringKey key : FxGet.pathCoordinates(viewCalculator).keySet()) {
             CheckMenuItem item = new CheckMenuItem(key.getString());
             StampPathImmutable pathForMenu = FxGet.pathCoordinates(viewCalculator).get(key);
             item.setSelected(pathForMenu.pathConceptNid() == observableCoordinate.pathNidForFilter());
@@ -157,10 +102,11 @@ public class ViewMenuTask extends TrackingCallable<List<MenuItem>> {
         addExcludedModulesMenu(menuItems, observableCoordinate, viewCalculator);
 
     }
+
     private static void changeStates(List<MenuItem> menuItems, String menuText, ObservableView observableView) {
         Menu changeAllowedStatusMenu = new Menu(menuText);
         menuItems.add(changeAllowedStatusMenu);
-        for (StateSet stateSet: new StateSet[] { StateSet.ACTIVE, StateSet.ACTIVE_AND_INACTIVE, StateSet.ACTIVE_INACTIVE_AND_WITHDRAWN,
+        for (StateSet stateSet : new StateSet[]{StateSet.ACTIVE, StateSet.ACTIVE_AND_INACTIVE, StateSet.ACTIVE_INACTIVE_AND_WITHDRAWN,
                 StateSet.INACTIVE, StateSet.WITHDRAWN}) {
             CheckMenuItem item = new CheckMenuItem(stateSet.toUserString());
             if (observableView.navigationCoordinate().getOriginalValue().vertexStates() == observableView.stampCoordinate().allowedStates()) {
@@ -181,7 +127,7 @@ public class ViewMenuTask extends TrackingCallable<List<MenuItem>> {
         Menu changeAllowedStatusMenu = new Menu(menuText);
         menuItems.add(changeAllowedStatusMenu);
 
-        for (StateSet statusSet: new StateSet[] { StateSet.ACTIVE, StateSet.ACTIVE_AND_INACTIVE,
+        for (StateSet statusSet : new StateSet[]{StateSet.ACTIVE, StateSet.ACTIVE_AND_INACTIVE,
                 StateSet.ACTIVE_INACTIVE_AND_WITHDRAWN, StateSet.INACTIVE, StateSet.WITHDRAWN}) {
             CheckMenuItem item = new CheckMenuItem(statusSet.toUserString());
             item.setSelected(statusSet.equals(statusProperty.get()));
@@ -225,7 +171,7 @@ public class ViewMenuTask extends TrackingCallable<List<MenuItem>> {
         ImmutableLongList times = StampService.get().getTimesInUse().toReversed();
 
         MutableIntObjectMap<Menu> yearMenuMap = IntObjectMaps.mutable.empty();
-        for (long time: times.toArray()) {
+        for (long time : times.toArray()) {
             LocalDateTime localTime = DateTimeUtil.epochToZonedDateTime(time).toLocalDateTime();
             Menu aYearMenu = yearMenuMap.getIfAbsentPutWithKey(localTime.getYear(), (int year) -> {
                 Menu yearMenu = new Menu(Integer.toString(year));
@@ -257,7 +203,7 @@ public class ViewMenuTask extends TrackingCallable<List<MenuItem>> {
 
         yearMenuMap.values().forEach(yearMenu -> {
             ArrayList<MenuItem> toRemove = new ArrayList<>();
-            for (MenuItem monthMenu: yearMenu.getItems()) {
+            for (MenuItem monthMenu : yearMenu.getItems()) {
                 if (((Menu) monthMenu).getItems().isEmpty()) {
                     toRemove.add(monthMenu);
                 }
@@ -316,7 +262,6 @@ public class ViewMenuTask extends TrackingCallable<List<MenuItem>> {
             addIncludedModulesMenu.getItems().add(item);
         });
     }
-
 
     private static void addExcludedModulesMenu(List<MenuItem> menuItems,
                                                ObservableStampCoordinate observableCoordinate,
@@ -384,7 +329,7 @@ public class ViewMenuTask extends TrackingCallable<List<MenuItem>> {
         IntIdSet authors = viewCalculator.kindOf(TinkarTerm.USER.nid());
 
         // Create author assemblage
-        for (int author: authors.toArray()) {
+        for (int author : authors.toArray()) {
             CheckMenuItem item = new CheckMenuItem(viewCalculator.getPreferredDescriptionStringOrNid(author));
             item.setSelected(observableCoordinate.getAuthorNidForChanges() == author);
             changeAuthorMenu.getItems().add(item);
@@ -398,7 +343,7 @@ public class ViewMenuTask extends TrackingCallable<List<MenuItem>> {
         Menu changeDefaultModuleMenu = new Menu("Change default module");
         menuItems.add(changeDefaultModuleMenu);
         // Create module assemblage
-        for (ConceptFacade module: new ConceptFacade[] {TinkarTerm.SOLOR_OVERLAY_MODULE, TinkarTerm.SOLOR_MODULE,
+        for (ConceptFacade module : new ConceptFacade[]{TinkarTerm.SOLOR_OVERLAY_MODULE, TinkarTerm.SOLOR_MODULE,
                 TinkarTerm.KOMET_MODULE, TinkarTerm.TEST_MODULE, TinkarTerm.TEST_PROMOTION_MODULE}) {
             CheckMenuItem item = new CheckMenuItem(viewCalculator.getPreferredDescriptionStringOrNid(module));
             item.setSelected(observableCoordinate.getDefaultModuleNid() == module.nid());
@@ -412,7 +357,7 @@ public class ViewMenuTask extends TrackingCallable<List<MenuItem>> {
         Menu changeDestinationModuleMenu = new Menu("Change destination module");
         menuItems.add(changeDestinationModuleMenu);
         // Create module assemblage
-        for (ConceptFacade module: new ConceptFacade[] {TinkarTerm.SOLOR_OVERLAY_MODULE, TinkarTerm.SOLOR_MODULE,
+        for (ConceptFacade module : new ConceptFacade[]{TinkarTerm.SOLOR_OVERLAY_MODULE, TinkarTerm.SOLOR_MODULE,
                 TinkarTerm.KOMET_MODULE}) {
             CheckMenuItem item = new CheckMenuItem(viewCalculator.getPreferredDescriptionStringOrNid(module));
             item.setSelected(observableCoordinate.getDestinationModuleNid() == module.nid());
@@ -427,7 +372,7 @@ public class ViewMenuTask extends TrackingCallable<List<MenuItem>> {
         Menu changePromotionPathMenu = new Menu("Change promotion path");
         menuItems.add(changePromotionPathMenu);
 
-        for (StampPathImmutable path: PathService.get().getPaths()) {
+        for (StampPathImmutable path : PathService.get().getPaths()) {
             CheckMenuItem item = new CheckMenuItem(viewCalculator.getPreferredDescriptionStringOrNid(path.pathConceptNid()));
             item.setSelected(observableCoordinate.getPromotionPathNid() == path.pathConceptNid());
             changePromotionPathMenu.getItems().add(item);
@@ -443,9 +388,9 @@ public class ViewMenuTask extends TrackingCallable<List<MenuItem>> {
                                                     ObservableNavigationCoordinate observableCoordinate) {
         Menu changeNavigationMenu = new Menu("Change navigation");
         menuItems.add(changeNavigationMenu);
-        for (ImmutableList<PatternFacade> navOption: FxGet.navigationOptions()) {
+        for (ImmutableList<PatternFacade> navOption : FxGet.navigationOptions()) {
             StringBuilder menuText = new StringBuilder();
-            for (PatternFacade navConcept: navOption) {
+            for (PatternFacade navConcept : navOption) {
                 if (menuText.length() > 0) {
                     menuText.append(", ");
                 }
@@ -454,7 +399,7 @@ public class ViewMenuTask extends TrackingCallable<List<MenuItem>> {
             CheckMenuItem item = new CheckMenuItem(menuText.toString());
             if (navOption.size() == observableCoordinate.navigationPatternNids().size()) {
                 boolean foundAll = true;
-                for (PatternFacade navPattern: navOption) {
+                for (PatternFacade navPattern : navOption) {
                     if (!observableCoordinate.navigationPatternNids().contains(navPattern.nid())) {
                         foundAll = false;
                     }
@@ -483,7 +428,7 @@ public class ViewMenuTask extends TrackingCallable<List<MenuItem>> {
 
         Menu changeTypeOrder = new Menu("Change description preference");
         menuItems.add(changeTypeOrder);
-        for (ImmutableList<? extends ConceptFacade> typePreferenceList: FxGet.allowedDescriptionTypeOrder()) {
+        for (ImmutableList<? extends ConceptFacade> typePreferenceList : FxGet.allowedDescriptionTypeOrder()) {
             CheckMenuItem typeOrderItem = new CheckMenuItem(viewCalculator.toEntityString(typePreferenceList.castToList(), viewCalculator::toEntityStringOrPublicIdAndNid));
             changeTypeOrder.getItems().add(typeOrderItem);
             typeOrderItem.setSelected(observableCoordinate.descriptionTypePreferenceListProperty().getValue().equals(typePreferenceList.castToList()));
@@ -498,7 +443,7 @@ public class ViewMenuTask extends TrackingCallable<List<MenuItem>> {
 
         Menu changeLanguageMenu = new Menu("Change language");
         menuItems.add(changeLanguageMenu);
-        for (ConceptFacade language: FxGet.allowedLanguages()) {
+        for (ConceptFacade language : FxGet.allowedLanguages()) {
             CheckMenuItem languageItem = new CheckMenuItem(viewCalculator.getPreferredDescriptionStringOrNid(language));
             changeLanguageMenu.getItems().add(languageItem);
             languageItem.setSelected(language.nid() == observableCoordinate.languageConceptProperty().get().nid());
@@ -510,7 +455,7 @@ public class ViewMenuTask extends TrackingCallable<List<MenuItem>> {
 
         Menu changeDialectOrder = new Menu("Change dialect preference order");
         menuItems.add(changeDialectOrder);
-        for (ImmutableList<? extends PatternFacade> dialectPreferenceList: FxGet.allowedDialectTypeOrder()) {
+        for (ImmutableList<? extends PatternFacade> dialectPreferenceList : FxGet.allowedDialectTypeOrder()) {
             CheckMenuItem dialectOrderItem = new CheckMenuItem(viewCalculator.toEntityString(dialectPreferenceList.castToList(), viewCalculator::toEntityStringOrPublicIdAndNid));
             changeDialectOrder.getItems().add(dialectOrderItem);
             dialectOrderItem.setSelected(observableCoordinate.dialectPatternPreferenceListProperty().getValue().equals(dialectPreferenceList.castToList()));
@@ -552,7 +497,7 @@ public class ViewMenuTask extends TrackingCallable<List<MenuItem>> {
             Menu changeDescriptionPreferenceMenu = new Menu("Change description preference");
             languageCoordinateMenu.getItems().add(changeDescriptionPreferenceMenu);
 
-            for (ImmutableList<? extends ConceptFacade> typePreferenceList: FxGet.allowedDescriptionTypeOrder()) {
+            for (ImmutableList<? extends ConceptFacade> typePreferenceList : FxGet.allowedDescriptionTypeOrder()) {
                 CheckMenuItem typeOrderItem = new CheckMenuItem(viewCalculator.toEntityString(typePreferenceList.castToList(), viewCalculator::toEntityStringOrPublicIdAndNid));
                 changeDescriptionPreferenceMenu.getItems().add(typeOrderItem);
                 typeOrderItem.setSelected(languageCoordinate.descriptionTypePreferenceListProperty().getValue().equals(typePreferenceList.castToList()));
@@ -572,7 +517,7 @@ public class ViewMenuTask extends TrackingCallable<List<MenuItem>> {
 
         Menu changePathMenu = new Menu("Change path");
         menuItems.add(changePathMenu);
-        for (PublicIdStringKey key: FxGet.pathCoordinates(viewCalculator).keySet()) {
+        for (PublicIdStringKey key : FxGet.pathCoordinates(viewCalculator).keySet()) {
             CheckMenuItem item = new CheckMenuItem(key.getString());
             StampPathImmutable pathCoordinate = FxGet.pathCoordinates(viewCalculator).get(key);
             int pathNid = pathCoordinate.pathConceptNid();
@@ -590,8 +535,8 @@ public class ViewMenuTask extends TrackingCallable<List<MenuItem>> {
 
         Menu changeVertexSortMenu = new Menu("Change sort");
         menuItems.add(changeVertexSortMenu);
-        VertexSort[] sorts = new VertexSort[] {VertexSortNaturalOrder.SINGLETON, VertexSortNone.SINGLETON};
-        for (VertexSort vertexSort: sorts) {
+        VertexSort[] sorts = new VertexSort[]{VertexSortNaturalOrder.SINGLETON, VertexSortNone.SINGLETON};
+        for (VertexSort vertexSort : sorts) {
             CheckMenuItem item = new CheckMenuItem(vertexSort.getVertexSortName());
             item.setSelected(observableView.navigationCoordinate().sortVerticesProperty().equals(vertexSort));
             item.setOnAction(event -> {
@@ -623,7 +568,7 @@ public class ViewMenuTask extends TrackingCallable<List<MenuItem>> {
         if (observableCoordinate.hasOverrides()) {
             Menu overridesMenu = new Menu(viewCalculator.toPreferredEntityStringOrInputString(observableCoordinate.getName()) + " has overrides");
             menuItems.add(overridesMenu);
-            for (Property property: observableCoordinate.getBaseProperties()) {
+            for (Property property : observableCoordinate.getBaseProperties()) {
                 if (property instanceof PropertyWithOverride) {
                     PropertyWithOverride propertyWithOverride = (PropertyWithOverride) property;
                     if (propertyWithOverride.isOverridden()) {
@@ -633,7 +578,7 @@ public class ViewMenuTask extends TrackingCallable<List<MenuItem>> {
             }
             addRemoveOverrides(menuItems, observableCoordinate);
 
-            for (ObservableCoordinate compositeCoordinate: observableCoordinate.getCompositeCoordinates()) {
+            for (ObservableCoordinate compositeCoordinate : observableCoordinate.getCompositeCoordinates()) {
                 if (makeRecursiveOverrideMenu(viewCalculator, overridesMenu.getItems(),
                         compositeCoordinate)) {
                     addSeparator(menuItems);
@@ -682,7 +627,7 @@ public class ViewMenuTask extends TrackingCallable<List<MenuItem>> {
             sb.append(((Activity) value).toUserString());
         } else if (value instanceof StateSet) {
             sb.append(((StateSet) value).toUserString());
-        }  else {
+        } else {
             viewCalculator.toEntityString(value, viewCalculator::getPreferredDescriptionStringOrNid, sb);
         }
         return sb.toString();
@@ -693,5 +638,64 @@ public class ViewMenuTask extends TrackingCallable<List<MenuItem>> {
             return propertyWithOverride.getOverrideName(viewCalculator);
         }
         return viewCalculator.toPreferredEntityStringOrInputString(baseProperty.getName());
+    }
+
+    @Override
+    protected List<MenuItem> compute() throws Exception {
+        List<MenuItem> menuItems = new ArrayList<>();
+        makeCoordinateDisplayMenu(viewCalculator,
+                menuItems,
+                observableCoordinate);
+        updateTitle("Updated View Menu");
+        updateMessage("In " + durationString());
+        return menuItems;
+    }
+
+    /**
+     * The
+     *
+     * @param viewCalculator       Used to get preferred concept names
+     * @param observableCoordinate The coordinate to make an display menu for.
+     */
+    private void makeCoordinateDisplayMenu(ViewCalculator viewCalculator,
+                                           List<MenuItem> menuItems,
+                                           ObservableCoordinate observableCoordinate) {
+
+        makeRecursiveOverrideMenu(viewCalculator, menuItems,
+                observableCoordinate);
+
+        for (Property<?> baseProperty : observableCoordinate.getBaseProperties()) {
+            menuItems.add(new MenuItem(getNameAndValueString(viewCalculator, baseProperty)));
+        }
+
+        updateMessage("Making composite coordinate menu");
+        for (ObservableCoordinate<?> compositeCoordinate : observableCoordinate.getCompositeCoordinates()) {
+            String propertyName = getPropertyNameWithOverride(viewCalculator, compositeCoordinate);
+            Menu compositeMenu = new Menu(propertyName);
+            menuItems.add(compositeMenu);
+            makeCoordinateDisplayMenu(viewCalculator, compositeMenu.getItems(), compositeCoordinate);
+        }
+
+        if (observableCoordinate instanceof ObservableView observableView) {
+            addSeparator(menuItems);
+            //addRemoveOverrides(menuItems, observableCoordinate);
+            addChangeItemsForView(viewCalculator, menuItems, observableView);
+        } else if (observableCoordinate instanceof ObservableLanguageCoordinate observableLanguageCoordinate) {
+            addSeparator(menuItems);
+            updateMessage("Making change language menu");
+            addChangeItemsForLanguage(viewCalculator, menuItems, observableLanguageCoordinate);
+        } else if (observableCoordinate instanceof ObservableLogicCoordinate observableLogicCoordinate) {
+            //menuItems.add(new SeparatorMenuItem());
+            updateMessage("Making change logic menu");
+            addChangeItemsForLogic(viewCalculator, menuItems, observableLogicCoordinate);
+        } else if (observableCoordinate instanceof ObservableNavigationCoordinate observableNavigationCoordinate) {
+            addSeparator(menuItems);
+            updateMessage("Making change navigation menu");
+            addChangeItemsForNavigation(viewCalculator, menuItems, observableNavigationCoordinate);
+        } else if (observableCoordinate instanceof ObservableStampCoordinate observableStampCoordinate) {
+            addSeparator(menuItems);
+            updateMessage("Making change stamp filter menu");
+            addChangeItemsForFilter(viewCalculator, menuItems, observableStampCoordinate);
+        }
     }
 }

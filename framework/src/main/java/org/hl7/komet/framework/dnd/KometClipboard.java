@@ -1,23 +1,21 @@
 package org.hl7.komet.framework.dnd;
 
 //~--- JDK imports ------------------------------------------------------------
-import java.nio.ByteBuffer;
-import java.util.*;
 
-import java.util.function.Function;
-
-//~--- non-JDK imports --------------------------------------------------------
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
-import org.hl7.tinkar.component.*;
-import org.hl7.tinkar.dto.*;
+import org.hl7.tinkar.component.Component;
+import org.hl7.tinkar.component.Version;
 import org.hl7.tinkar.entity.*;
 import org.hl7.tinkar.terms.EntityFacade;
 import org.hl7.tinkar.terms.EntityProxy;
 
+import java.util.*;
+import java.util.function.Function;
+
 //~--- classes ----------------------------------------------------------------
+
 /**
- *
  * @author kec
  */
 public class KometClipboard
@@ -34,13 +32,6 @@ public class KometClipboard
     public static final Set<DataFormat> CONCEPT_TYPES = new HashSet<>(Arrays.asList(KOMET_CONCEPT_VERSION_PROXY, KOMET_CONCEPT_PROXY));
     public static final Set<DataFormat> PATTERN_TYPES = new HashSet<>(Arrays.asList(KOMET_PATTERN_VERSION_PROXY, KOMET_PATTERN_PROXY));
     public static final Set<DataFormat> SEMANTIC_TYPES = new HashSet<>(Arrays.asList(KOMET_SEMANTIC_VERSION_PROXY, KOMET_SEMANTIC_PROXY));
-
-    public static boolean containsAny(Collection<?> c1,
-                                      Collection<?> c2) {
-        return !Collections.disjoint(c1, c2);
-    }
-
-
     private static final HashMap<DataFormat, Function<? super Component, ? extends Object>> GENERATOR_MAP
             = new HashMap<>();
 
@@ -73,6 +64,16 @@ public class KometClipboard
 
     }
 
+    public KometClipboard(List<EntityProxy> entityProxyList) {
+        this.put(KOMET_PROXY_LIST, entityProxyList);
+        this.put(DataFormat.PLAIN_TEXT, entityProxyList.toString());
+    }
+
+    public static boolean containsAny(Collection<?> c1,
+                                      Collection<?> c2) {
+        return !Collections.disjoint(c1, c2);
+    }
+
     private void addEntity(EntityFacade entityFacade) {
         if (entityFacade instanceof ConceptEntity conceptEntity) {
             this.put(KOMET_CONCEPT_PROXY, conceptEntity.toXmlFragment());
@@ -84,11 +85,6 @@ public class KometClipboard
             Entity<?> entity = Entity.getFast(entityFacade);
             addEntity(entity);
         }
-    }
-
-    public KometClipboard(List<EntityProxy> entityProxyList) {
-        this.put(KOMET_PROXY_LIST, entityProxyList);
-        this.put(DataFormat.PLAIN_TEXT, entityProxyList.toString());
     }
 
     //~--- methods -------------------------------------------------------------

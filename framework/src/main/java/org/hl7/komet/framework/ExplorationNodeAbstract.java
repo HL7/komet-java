@@ -76,7 +76,6 @@ public abstract class ExplorationNodeAbstract implements KometNode, Flow.Subscri
                 ACTIVITY_STREAM_OPTION_KEY, ActivityStreamOption.PUBLISH.keyForOption());
         this.optionForActivityStreamKeyProperty.setValue(activityStreamOptionKey);
 
-
         updateActivityStream();
 
         this.optionForActivityStreamKeyProperty.addListener((observable, oldValue, newValue) -> {
@@ -108,7 +107,7 @@ public abstract class ExplorationNodeAbstract implements KometNode, Flow.Subscri
     }
 
     @Override
-    public ViewCalculator viewCalculator() {
+    public final ViewCalculator viewCalculator() {
         return viewProperties.calculator();
     }
 

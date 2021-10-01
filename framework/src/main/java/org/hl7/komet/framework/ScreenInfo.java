@@ -39,9 +39,9 @@ public class ScreenInfo {
         return mouseIsPressed.get();
     }
 
-    public static double getMouseX() {
+    public static Point2D getMouseLocation() {
         validateState();
-        return robot.getMouseX();
+        return new Point2D(robot.getMouseX(), robot.getMouseY());
     }
 
     private static void validateState() {
@@ -52,6 +52,11 @@ public class ScreenInfo {
         } else {
             throw new IllegalStateException("Trying to access mouse info without using the applicaton thread");
         }
+    }
+
+    public static double getMouseX() {
+        validateState();
+        return robot.getMouseX();
     }
 
     public static double getMouseY() {

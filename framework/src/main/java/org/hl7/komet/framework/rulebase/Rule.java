@@ -1,6 +1,7 @@
 package org.hl7.komet.framework.rulebase;
 
 import org.eclipse.collections.api.list.ImmutableList;
+import org.hl7.tinkar.coordinate.view.calculator.ViewCalculator;
 
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
@@ -16,5 +17,5 @@ public interface Rule {
 
     ImmutableList<Topic> topicsToProcess();
 
-    ImmutableList<Consequence<?>> execute(ObservationStore observations);
+    ImmutableList<Consequence<?>> execute(ObservationStore observations, ViewCalculator viewCalculator);
 }

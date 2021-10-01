@@ -127,6 +127,7 @@
                 <configuration>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
+                    <compilerArgs>--enable-preview</compilerArgs>
                     <fork>true</fork>
                     <annotationProcessorPaths>
                         <annotationProcessorPath>

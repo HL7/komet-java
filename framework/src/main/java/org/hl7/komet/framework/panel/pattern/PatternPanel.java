@@ -8,7 +8,7 @@ import org.hl7.tinkar.entity.PatternEntity;
 import org.hl7.tinkar.entity.PatternEntityVersion;
 import org.hl7.tinkar.terms.EntityFacade;
 
-public class PatternPanel<T extends PatternEntity> extends ComponentIsFinalPanel<T, PatternEntityVersion> {
+public class PatternPanel<T extends PatternEntity<PatternEntityVersion>> extends ComponentIsFinalPanel<T, PatternEntityVersion> {
 
     public PatternPanel(T patternEntity, ViewProperties viewProperties, SimpleObjectProperty<EntityFacade> topEnclosingComponentProperty) {
         super(patternEntity, viewProperties, topEnclosingComponentProperty);

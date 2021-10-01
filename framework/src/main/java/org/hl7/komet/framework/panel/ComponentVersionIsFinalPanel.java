@@ -51,7 +51,7 @@ public abstract class ComponentVersionIsFinalPanel<V extends EntityVersion> {
         this.collapsiblePane.getStyleClass().add(COMPONENT_VERSION_PANEL.toString());
         ObservationRecord observation = new ObservationRecord(Topic.COMPONENT_FOCUSED, version, Measures.present());
         ObservationStore observationStore = ObservationStore.make(observation);
-        ImmutableList<Consequence<?>> consequences = RuleBase.execute(observationStore);
+        ImmutableList<Consequence<?>> consequences = RuleBase.execute(observationStore, viewProperties.calculator());
         if (!consequences.isEmpty()) {
             MenuButton menuButton = new MenuButton("", Icon.EDIT_PENCIL.makeIcon());
             menuButton.getStyleClass().add(EDIT_COMPONENT_BUTTON.toString());

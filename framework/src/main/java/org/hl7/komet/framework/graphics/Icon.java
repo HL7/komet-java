@@ -79,6 +79,11 @@ public enum Icon {
     PATTERN("pattern", "mdi2m-math-compass", MaterialDesign2),
 
     SEMANTIC_TABLE("semantic-table", "mdi2t-table", MaterialDesign2),
+
+    PANEL_PREFERENCE_SLIDERS("panel-preference-sliders", "fa-sliders", Fontawesome),
+
+    CONCEPT_DETAILS("concept-details", "mdi2v-view-week", MaterialDesign2),
+
     ;
     String styleId;
     String iconCode;

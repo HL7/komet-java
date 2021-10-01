@@ -6,6 +6,7 @@ import io.github.classgraph.ScanResult;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
+import org.hl7.tinkar.coordinate.view.calculator.ViewCalculator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,13 +40,13 @@ public class RuleBase {
         }
     }
 
-    public static ImmutableList<Consequence<?>> execute(ObservationStore observations) {
+    public static ImmutableList<Consequence<?>> execute(ObservationStore observations, ViewCalculator viewCalculator) {
         if (RuleBase.singleton == null) {
             RuleBase.singleton = new RuleBase();
         }
         MutableList<Consequence<?>> consequences = Lists.mutable.empty();
         singleton.rules.forEach(rule -> {
-            consequences.addAll(rule.execute(observations).castToList());
+            consequences.addAll(rule.execute(observations, viewCalculator).castToList());
         });
         return consequences.toImmutable();
     }

@@ -15,7 +15,7 @@ import org.hl7.tinkar.entity.SemanticEntityVersion;
 import org.hl7.tinkar.terms.EntityFacade;
 import org.hl7.tinkar.terms.TinkarTerm;
 
-public class SemanticPanel<T extends SemanticEntity> extends ComponentIsFinalPanel<T, SemanticEntityVersion> {
+public class SemanticPanel<T extends SemanticEntity<SemanticEntityVersion>> extends ComponentIsFinalPanel<T, SemanticEntityVersion> {
 
     public SemanticPanel(T semanticEntity, ViewProperties viewProperties, SimpleObjectProperty<EntityFacade> topEnclosingComponentProperty) {
         super(semanticEntity, viewProperties, topEnclosingComponentProperty);
