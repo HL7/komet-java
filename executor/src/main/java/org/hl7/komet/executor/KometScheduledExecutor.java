@@ -1,10 +1,16 @@
 package org.hl7.komet.executor;
 
+import org.hl7.tinkar.common.alert.AlertObject;
+import org.hl7.tinkar.common.alert.AlertStreams;
 import org.hl7.tinkar.common.service.TrackingCallable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.*;
 
 public class KometScheduledExecutor extends ScheduledThreadPoolExecutor {
+    private static final Logger LOG = LoggerFactory.getLogger(KometScheduledExecutor.class);
+
     public KometScheduledExecutor(int corePoolSize) {
         super(corePoolSize);
     }
@@ -35,5 +41,13 @@ public class KometScheduledExecutor extends ScheduledThreadPoolExecutor {
 
         }
         return super.decorateTask(callable, task);
+    }
+
+    @Override
+    protected void afterExecute(Runnable r, Throwable t) {
+        super.afterExecute(r, t);
+        if (t != null) {
+            AlertStreams.getRoot().dispatch(AlertObject.makeError(t));
+        }
     }
 }

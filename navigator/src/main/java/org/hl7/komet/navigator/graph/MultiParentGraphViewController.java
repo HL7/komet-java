@@ -27,7 +27,6 @@ import org.eclipse.collections.api.list.primitive.MutableIntList;
 import org.eclipse.collections.api.set.primitive.MutableIntSet;
 import org.eclipse.collections.impl.factory.primitive.IntLists;
 import org.eclipse.collections.impl.factory.primitive.IntSets;
-import org.hl7.komet.executor.TaskWrapper;
 import org.hl7.komet.framework.Dialogs;
 import org.hl7.komet.framework.KometNode;
 import org.hl7.komet.framework.LayoutAnimator;
@@ -35,6 +34,7 @@ import org.hl7.komet.framework.RefreshListener;
 import org.hl7.komet.framework.activity.ActivityStream;
 import org.hl7.komet.framework.activity.ActivityStreams;
 import org.hl7.komet.framework.alerts.AlertPanel;
+import org.hl7.komet.framework.concurrent.TaskWrapper;
 import org.hl7.komet.framework.dnd.ClipboardHelper;
 import org.hl7.komet.framework.dnd.KometClipboard;
 import org.hl7.komet.framework.graphics.Icon;
@@ -134,7 +134,7 @@ public class MultiParentGraphViewController implements RefreshListener {
         if (rootTreeItem != null) {
             rootTreeItem.clearChildren();  // This recursively cancels any active lookups
         }
-    }    private ChangeListener<Scene> sceneChangedListener = this::sceneChanged;
+    }
 
     public ObservableView getObservableView() {
         return this.observableView;
@@ -195,7 +195,7 @@ public class MultiParentGraphViewController implements RefreshListener {
 
         this.navigationMenuButton.setGraphic(Icon.VIEW.makeIcon());
 
-    }
+    }    private ChangeListener<Scene> sceneChangedListener = this::sceneChanged;
 
     @FXML
     void copySelectedConcepts(ActionEvent event) {
@@ -317,8 +317,6 @@ public class MultiParentGraphViewController implements RefreshListener {
         return this.uuid;
     }
 
-    //~--- methods -------------------------------------------------------------
-
     @Override
     public void refresh() {
         Platform.runLater(() -> {
@@ -391,6 +389,8 @@ public class MultiParentGraphViewController implements RefreshListener {
 
         return found.get();
     }
+
+    //~--- methods -------------------------------------------------------------
 
     private void onChanged(ListChangeListener.Change<? extends AlertObject> change) {
         setupTopPane();
@@ -666,8 +666,6 @@ public class MultiParentGraphViewController implements RefreshListener {
         return getObservableView().calculator();
     }
 
-    //~--- get methods ---------------------------------------------------------
-
     public void dispatchAlert(AlertObject alertObject) {
         graphNavigatorNode.dispatchAlert(alertObject);
     }
@@ -708,6 +706,8 @@ public class MultiParentGraphViewController implements RefreshListener {
     }
 
 
+
+    //~--- get methods ---------------------------------------------------------
 
 
 }

@@ -1,4 +1,4 @@
-/* 
+/*
  * Licensed under the Apache License, Version 2.0 (the "License");
  *
  * You may not use this file except in compliance with the License.
@@ -14,27 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Contributions from 2013-2017 where performed either by US government 
- * employees, or under US Veterans Health Administration contracts. 
+ * Contributions from 2013-2017 where performed either by US government
+ * employees, or under US Veterans Health Administration contracts.
  *
  * US Veterans Health Administration contributions by government employees
  * are work of the U.S. Government and are not subject to copyright
- * protection in the United States. Portions contributed by government 
- * employees are USGovWork (17USC §105). Not subject to copyright. 
- * 
+ * protection in the United States. Portions contributed by government
+ * employees are USGovWork (17USC §105). Not subject to copyright.
+ *
  * Contribution by contractors to the US Veterans Health Administration
  * during this period are contractually contributed under the
  * Apache License, Version 2.0.
  *
  * See: https://www.usa.gov/government-works
- * 
+ *
  * Contributions prior to 2013:
  *
  * Copyright (C) International Health Terminology Standards Development Organisation.
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
 
 
 package org.hl7.komet.framework.uncertain;
@@ -44,8 +43,8 @@ package org.hl7.komet.framework.uncertain;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import org.hl7.komet.framework.view.ObservableCoordinate;
-import org.hl7.tinkar.coordinate.edit.EditCoordinateImmutable;
 import org.hl7.tinkar.coordinate.edit.EditCoordinateDelegate;
+import org.hl7.tinkar.coordinate.edit.EditCoordinateImmutable;
 import org.hl7.tinkar.terms.ConceptFacade;
 
 //~--- interfaces -------------------------------------------------------------
@@ -57,52 +56,59 @@ import org.hl7.tinkar.terms.ConceptFacade;
  */
 public interface ObservableEditCoordinate
         extends EditCoordinateDelegate, ObservableCoordinate<EditCoordinateImmutable> {
-   /**
-    * Author Nid property.
-    *
-    * @return the integer property
-    */
-   ObjectProperty<ConceptFacade> authorForChangesProperty();
+    @Override
+    default EditCoordinateImmutable toEditCoordinateImmutable() {
+        return this.getValue();
+    }
 
-   /**
-    * Module nid property.
-    *
-    * @return the integer property
-    */
-   ObjectProperty<ConceptFacade> defaultModuleProperty();
+    default Property<?>[] getBaseProperties() {
+        return new Property<?>[]{
+                authorForChangesProperty(),
+                defaultModuleProperty(),
+                destinationModuleProperty(),
+                defaultPathProperty(),
+                promotionPathProperty()
+        };
+    }
 
-   /**
-    * Module nid property.
-    *
-    * @return the integer property
-    */
-   ObjectProperty<ConceptFacade> destinationModuleProperty();
+    /**
+     * Author Nid property.
+     *
+     * @return the integer property
+     */
+    ObjectProperty<ConceptFacade> authorForChangesProperty();
 
-   /**
-    * Path nid property.
-    *
-    * @return the integer property
-    */
-   ObjectProperty<ConceptFacade> promotionPathProperty();
+    /**
+     * Module nid property.
+     *
+     * @return the integer property
+     */
+    ObjectProperty<ConceptFacade> defaultModuleProperty();
 
-   @Override
-   default EditCoordinateImmutable toEditCoordinateImmutable() {
-      return this.getValue();
-   }
+    /**
+     * Module nid property.
+     *
+     * @return the integer property
+     */
+    ObjectProperty<ConceptFacade> destinationModuleProperty();
 
+    /**
+     * Default path property.
+     *
+     * @return the integer property
+     */
+    ObjectProperty<ConceptFacade> defaultPathProperty();
 
-   default Property<?>[] getBaseProperties() {
-      return new Property<?>[] {
-              authorForChangesProperty(),
-              defaultModuleProperty(),
-              destinationModuleProperty(),
-              promotionPathProperty()
-      };
-   }
+    /**
+     * Path nid property.
+     *
+     * @return the integer property
+     */
+    ObjectProperty<ConceptFacade> promotionPathProperty();
 
-   default ObservableCoordinate<?>[] getCompositeCoordinates() {
-      return new ObservableCoordinate<?>[]{};
-   }
+    default ObservableCoordinate<?>[] getCompositeCoordinates() {
+        return new ObservableCoordinate<?>[]{};
+    }
 
 }
 

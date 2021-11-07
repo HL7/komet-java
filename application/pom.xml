@@ -51,12 +51,12 @@
         </dependency>
         <dependency>
             <groupId>org.hl7.komet</groupId>
-            <artifactId>tabs</artifactId>
+            <artifactId>executor</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>org.hl7.komet</groupId>
-            <artifactId>executor</artifactId>
+            <artifactId>tabs</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
@@ -168,6 +168,7 @@
                             <jlinkZipName>kometJlink</jlinkZipName>
                             <ignoreSigningInformation>true</ignoreSigningInformation>
                             <options>
+                                <option>--enable-preview</option>
                                 <option>--add-opens</option>
                                 <option>javafx.graphics/javafx.scene=org.controlsfx.controls</option>
                                 <option>--add-exports</option>
@@ -190,6 +191,7 @@
                             <jlinkZipName>kometJlink</jlinkZipName>
                             <ignoreSigningInformation>true</ignoreSigningInformation>
                             <options>
+                                <option>--enable-preview</option>
                                 <option>--add-opens</option>
                                 <option>javafx.graphics/javafx.scene=org.controlsfx.controls</option>
                                 <option>--add-exports</option>

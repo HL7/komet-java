@@ -19,6 +19,8 @@ import org.hl7.komet.framework.controls.EntityLabelWithDragAndDrop;
 import org.hl7.komet.framework.panel.axiom.AxiomView;
 import org.hl7.komet.framework.propsheet.editor.ListEditor;
 import org.hl7.komet.framework.view.ViewProperties;
+import org.hl7.tinkar.common.alert.AlertObject;
+import org.hl7.tinkar.common.alert.AlertStreams;
 import org.hl7.tinkar.component.graph.DiTree;
 import org.hl7.tinkar.coordinate.logic.PremiseType;
 import org.hl7.tinkar.entity.SemanticEntityVersion;
@@ -93,42 +95,47 @@ public class KometPropertyEditorFactory implements Callback<PropertySheet.Item, 
     }
 
     public static final Optional<PropertyEditor<?>> createCustomEditor(final PropertySheet.Item property, final ViewProperties viewProperties) {
-        if (property.getPropertyEditorClass().isPresent()) {
-            Class editorClass = property.getPropertyEditorClass().get();
-            if (editorClass == ListEditor.class) {
-                return Optional.of(new ListEditor(viewProperties, (SimpleObjectProperty<ObservableList<EntityFacade>>) property.getObservableValue().get()));
-            }
-            if (editorClass == EntityLabelWithDragAndDrop.class) {
-                return Optional.of(EntityLabelWithDragAndDrop.make(viewProperties, (ObjectProperty<EntityFacade>) property.getObservableValue().get()));
-            }
-            if (editorClass == AxiomView.class) {
-                //TODO add stated/inferred to root property?
-                DiTree<EntityVertex> axiomTree = (DiTree<EntityVertex>) property.getValue();
-                Optional<EntityProxy.Concept> optionalPremiseType = axiomTree.root().uncommittedProperty(TinkarTerm.PREMISE_TYPE_FOR_MANIFOLD.nid());
-                Optional<SemanticEntityVersion> optionalSemanticVersion = axiomTree.root().uncommittedProperty(TinkarTerm.LOGICAL_EXPRESSION_SEMANTIC.nid());
-                PremiseType premiseType = PremiseType.STATED;
-                if (optionalPremiseType.get().nid() == TinkarTerm.INFERRED_PREMISE_TYPE.nid()) {
-                    premiseType = PremiseType.INFERRED;
+        try {
+            if (property.getPropertyEditorClass().isPresent()) {
+                Class editorClass = property.getPropertyEditorClass().get();
+                if (editorClass == ListEditor.class) {
+                    return Optional.of(new ListEditor(viewProperties, (SimpleObjectProperty<ObservableList<EntityFacade>>) property.getObservableValue().get()));
                 }
-                AxiomView axiomView = AxiomView.create(optionalSemanticVersion.get(), premiseType, viewProperties);
-                return Optional.of(axiomView);
+                if (editorClass == EntityLabelWithDragAndDrop.class) {
+                    return Optional.of(EntityLabelWithDragAndDrop.make(viewProperties, (ObjectProperty<EntityFacade>) property.getObservableValue().get()));
+                }
+                if (editorClass == AxiomView.class) {
+                    //TODO add stated/inferred to root property?
+                    DiTree<EntityVertex> axiomTree = (DiTree<EntityVertex>) property.getValue();
+                    Optional<EntityProxy.Concept> optionalPremiseType = axiomTree.root().uncommittedProperty(TinkarTerm.PREMISE_TYPE_FOR_MANIFOLD.nid());
+                    Optional<SemanticEntityVersion> optionalSemanticVersion = axiomTree.root().uncommittedProperty(TinkarTerm.LOGICAL_EXPRESSION_SEMANTIC.nid());
+                    PremiseType premiseType = PremiseType.STATED;
+                    if (optionalPremiseType.get().nid() == TinkarTerm.INFERRED_PREMISE_TYPE.nid()) {
+                        premiseType = PremiseType.INFERRED;
+                    }
+                    AxiomView axiomView = AxiomView.create(optionalSemanticVersion.get(), premiseType, viewProperties);
+                    return Optional.of(axiomView);
+                }
             }
+            return property.getPropertyEditorClass().map(cls -> {
+                try {
+                    Constructor<?> cn = cls.getConstructor(PropertySheet.Item.class, ViewProperties.class);
+                    return (PropertyEditor<?>) cn.newInstance(property, viewProperties);
+                } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                    LOG.debug("No constructor(PropertySheet.Item.class, ViewProperties.class). Will try next pattern.");
+                }
+                try {
+                    Constructor<?> cn = cls.getConstructor(PropertySheet.Item.class);
+                    return (PropertyEditor<?>) cn.newInstance(property);
+                } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                    LOG.debug("No (PropertySheet.Item.class) constructor. Will return null.");
+                }
+                return null;
+            });
+        } catch (Exception e) {
+            AlertStreams.getRoot().dispatch(AlertObject.makeError(e));
+            return Optional.empty();
         }
-        return property.getPropertyEditorClass().map(cls -> {
-            try {
-                Constructor<?> cn = cls.getConstructor(PropertySheet.Item.class, ViewProperties.class);
-                return (PropertyEditor<?>) cn.newInstance(property, viewProperties);
-            } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                LOG.debug("No constructor(PropertySheet.Item.class, ViewProperties.class). Will try next pattern.");
-            }
-            try {
-                Constructor<?> cn = cls.getConstructor(PropertySheet.Item.class);
-                return (PropertyEditor<?>) cn.newInstance(property);
-            } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                LOG.debug("No (PropertySheet.Item.class) constructor. Will return null.");
-            }
-            return null;
-        });
     }
 
     private static void enableAutoSelectAll(final TextInputControl control) {

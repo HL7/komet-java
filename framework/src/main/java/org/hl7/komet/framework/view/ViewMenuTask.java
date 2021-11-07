@@ -14,7 +14,7 @@ import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.primitive.ImmutableLongList;
 import org.eclipse.collections.api.map.primitive.MutableIntObjectMap;
 import org.eclipse.collections.impl.factory.primitive.IntObjectMaps;
-import org.hl7.komet.executor.TaskWrapper;
+import org.hl7.komet.framework.concurrent.TaskWrapper;
 import org.hl7.komet.framework.temp.FxGet;
 import org.hl7.komet.framework.uncertain.ObservableEditCoordinate;
 import org.hl7.tinkar.common.id.IntIdSet;

@@ -6,6 +6,8 @@ import io.github.classgraph.ScanResult;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
+import org.hl7.komet.framework.performance.StatementStore;
+import org.hl7.tinkar.coordinate.edit.EditCoordinate;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +24,7 @@ public class RuleBase {
     private RuleBase() {
         try (ScanResult scanResult =                // Assign scanResult in try-with-resources
                      new ClassGraph()                    // Create a new ClassGraph instance
-                             .verbose()                      // If you want to enable logging to stderr
+                             //.verbose()                      // If you want to enable logging to stderr
                              .enableAllInfo()                // Scan classes, methods, fields, annotations
                              .acceptPackages("org.hl7.komet.framework.rulebase")      // Scan org.hl7.komet.framework.rulebase and subpackages
                              .scan()) {                      // Perform the scan and return a ScanResult
@@ -40,13 +42,13 @@ public class RuleBase {
         }
     }
 
-    public static ImmutableList<Consequence<?>> execute(ObservationStore observations, ViewCalculator viewCalculator) {
+    public static ImmutableList<Consequence<?>> execute(StatementStore statementStore, ViewCalculator viewCalculator, EditCoordinate editCoordinate) {
         if (RuleBase.singleton == null) {
             RuleBase.singleton = new RuleBase();
         }
         MutableList<Consequence<?>> consequences = Lists.mutable.empty();
         singleton.rules.forEach(rule -> {
-            consequences.addAll(rule.execute(observations, viewCalculator).castToList());
+            consequences.addAll(rule.execute(statementStore, viewCalculator, editCoordinate).castToList());
         });
         return consequences.toImmutable();
     }

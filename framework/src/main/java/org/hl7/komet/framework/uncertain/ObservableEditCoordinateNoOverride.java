@@ -1,4 +1,4 @@
-/* 
+/*
  * Licensed under the Apache License, Version 2.0 (the "License");
  *
  * You may not use this file except in compliance with the License.
@@ -14,27 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Contributions from 2013-2017 where performed either by US government 
- * employees, or under US Veterans Health Administration contracts. 
+ * Contributions from 2013-2017 where performed either by US government
+ * employees, or under US Veterans Health Administration contracts.
  *
  * US Veterans Health Administration contributions by government employees
  * are work of the U.S. Government and are not subject to copyright
- * protection in the United States. Portions contributed by government 
- * employees are USGovWork (17USC §105). Not subject to copyright. 
- * 
+ * protection in the United States. Portions contributed by government
+ * employees are USGovWork (17USC §105). Not subject to copyright.
+ *
  * Contribution by contractors to the US Veterans Health Administration
  * during this period are contractually contributed under the
  * Apache License, Version 2.0.
  *
  * See: https://www.usa.gov/government-works
- * 
+ *
  * Contributions prior to 2013:
  *
  * Copyright (C) International Health Terminology Standards Development Organisation.
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
 
 
 package org.hl7.komet.framework.uncertain;
@@ -58,16 +57,20 @@ import org.hl7.tinkar.terms.TinkarTerm;
 public class ObservableEditCoordinateNoOverride
         extends ObservableEditCoordinateBase {
 
-   //~--- constructors --------------------------------------------------------
+    //~--- constructors --------------------------------------------------------
 
-   /**
-    * Instantiates a new observable edit coordinate impl.
-    *
-    * @param editCoordinate the edit coordinate
-    */
-   public ObservableEditCoordinateNoOverride(EditCoordinate editCoordinate, String coordinateName) {
-       super(editCoordinate.toEditCoordinateImmutable(), coordinateName);
-   }
+    /**
+     * Instantiates a new observable edit coordinate impl.
+     *
+     * @param editCoordinate the edit coordinate
+     */
+    public ObservableEditCoordinateNoOverride(EditCoordinate editCoordinate, String coordinateName) {
+        super(editCoordinate.toEditCoordinateImmutable(), coordinateName);
+    }
+
+    public ObservableEditCoordinateNoOverride(EditCoordinate editCoordinate) {
+        super(editCoordinate.toEditCoordinateImmutable(), "Edit coordinate");
+    }
 
     @Override
     protected EditCoordinateImmutable baseCoordinateChangedListenersRemoved(ObservableValue<? extends EditCoordinateImmutable> observable, EditCoordinateImmutable oldValue, EditCoordinateImmutable newValue) {
@@ -83,22 +86,9 @@ public class ObservableEditCoordinateNoOverride
         setValue(updatedCoordinate);
     }
 
-    public ObservableEditCoordinateNoOverride(EditCoordinate editCoordinate) {
-        super(editCoordinate.toEditCoordinateImmutable(), "Edit coordinate");
-    }
-
     @Override
-    protected SimpleEqualityBasedObjectProperty<ConceptFacade> makePromotionPathProperty(EditCoordinate editCoordinate) {
-        return new SimpleEqualityBasedObjectProperty(this,
-                TinkarTerm.PROMOTION_PATH_FOR_EDIT_CORDINATE.toXmlFragment(),
-                editCoordinate.getPromotionPath());
-    }
-
-    @Override
-    protected SimpleEqualityBasedObjectProperty<ConceptFacade> makeDefaultModuleProperty(EditCoordinate editCoordinate) {
-        return new SimpleEqualityBasedObjectProperty(this,
-                TinkarTerm.DEFAULT_MODULE_FOR_EDIT_COORDINATE.toXmlFragment(),
-                editCoordinate.getDefaultModule());
+    public EditCoordinateImmutable getOriginalValue() {
+        return getValue();
     }
 
     @Override
@@ -109,6 +99,13 @@ public class ObservableEditCoordinateNoOverride
     }
 
     @Override
+    protected SimpleEqualityBasedObjectProperty<ConceptFacade> makeDefaultModuleProperty(EditCoordinate editCoordinate) {
+        return new SimpleEqualityBasedObjectProperty(this,
+                TinkarTerm.DEFAULT_MODULE_FOR_EDIT_COORDINATE.toXmlFragment(),
+                editCoordinate.getDefaultModule());
+    }
+
+    @Override
     protected SimpleEqualityBasedObjectProperty<ConceptFacade> makeDestinationModuleProperty(EditCoordinate editCoordinate) {
         return new SimpleEqualityBasedObjectProperty<>(this,
                 TinkarTerm.DESTINATION_MODULE_FOR_EDIT_COORDINATE.toXmlFragment(),
@@ -116,8 +113,18 @@ public class ObservableEditCoordinateNoOverride
     }
 
     @Override
-    public EditCoordinateImmutable getOriginalValue() {
-        return getValue();
+    protected SimpleEqualityBasedObjectProperty<ConceptFacade> makeDefaultPathProperty(EditCoordinate editCoordinate) {
+        return new SimpleEqualityBasedObjectProperty<>(this,
+                //TODO make concept for PATH_FOR_EDIT_COORDINATE
+                TinkarTerm.PATH_FOR_PATH_COORDINATE.toXmlFragment(),
+                editCoordinate.getAuthorForChanges());
+    }
+
+    @Override
+    protected SimpleEqualityBasedObjectProperty<ConceptFacade> makePromotionPathProperty(EditCoordinate editCoordinate) {
+        return new SimpleEqualityBasedObjectProperty(this,
+                TinkarTerm.PROMOTION_PATH_FOR_EDIT_CORDINATE.toXmlFragment(),
+                editCoordinate.getPromotionPath());
     }
 }
 

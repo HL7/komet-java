@@ -13,9 +13,10 @@
     <artifactId>framework</artifactId>
     <dependencies>
         <dependency>
-            <groupId>org.hl7.komet</groupId>
-            <artifactId>executor</artifactId>
-            <version>${project.parent.version}</version>
+            <groupId>org.hl7.tinkar</groupId>
+            <artifactId>record-builder-core</artifactId>
+            <scope>provided</scope>
+            <version>${tinkar-jpms-deps.version}</version>
         </dependency>
         <dependency>
             <groupId>org.hl7.komet</groupId>

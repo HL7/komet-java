@@ -11,10 +11,16 @@ import org.controlsfx.control.action.ActionUtils;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.hl7.komet.framework.PseudoClasses;
 import org.hl7.komet.framework.graphics.Icon;
-import org.hl7.komet.framework.rulebase.*;
-import org.hl7.komet.framework.rulebase.statement.ObservationRecord;
+import org.hl7.komet.framework.performance.Measures;
+import org.hl7.komet.framework.performance.StatementStore;
+import org.hl7.komet.framework.performance.Topic;
+import org.hl7.komet.framework.performance.impl.ObservationRecord;
+import org.hl7.komet.framework.rulebase.Consequence;
+import org.hl7.komet.framework.rulebase.ConsequenceAction;
+import org.hl7.komet.framework.rulebase.RuleBase;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.tinkar.common.util.time.DateTimeUtil;
+import org.hl7.tinkar.coordinate.Coordinates;
 import org.hl7.tinkar.entity.EntityVersion;
 import org.hl7.tinkar.entity.StampEntity;
 import org.slf4j.Logger;
@@ -50,17 +56,17 @@ public abstract class ComponentVersionIsFinalPanel<V extends EntityVersion> {
         this.collapsiblePane.pseudoClassStateChanged(PseudoClasses.INACTIVE_PSEUDO_CLASS, !version.isActive());
         this.collapsiblePane.getStyleClass().add(COMPONENT_VERSION_PANEL.toString());
         ObservationRecord observation = new ObservationRecord(Topic.COMPONENT_FOCUSED, version, Measures.present());
-        ObservationStore observationStore = ObservationStore.make(observation);
-        ImmutableList<Consequence<?>> consequences = RuleBase.execute(observationStore, viewProperties.calculator());
+        StatementStore statementStore = StatementStore.make(observation);
+        ImmutableList<Consequence<?>> consequences = RuleBase.execute(statementStore, viewProperties.calculator(), Coordinates.Edit.Default());
         if (!consequences.isEmpty()) {
             MenuButton menuButton = new MenuButton("", Icon.EDIT_PENCIL.makeIcon());
             menuButton.getStyleClass().add(EDIT_COMPONENT_BUTTON.toString());
             for (Consequence<?> consequence : consequences) {
                 if (consequence instanceof ConsequenceAction consequenceAction) {
-                    if (consequenceAction.suggestedAction() instanceof Action action) {
+                    if (consequenceAction.generatedAction() instanceof Action action) {
                         menuButton.getItems().add(ActionUtils.createMenuItem(action));
                     } else {
-                        LOG.error("Can't handle action of type: " + consequenceAction.suggestedAction().getClass().getName() + "\n\n" + consequenceAction.suggestedAction());
+                        LOG.error("Can't handle action of type: " + consequenceAction.generatedAction().getClass().getName() + "\n\n" + consequenceAction.generatedAction());
                     }
                 }
             }

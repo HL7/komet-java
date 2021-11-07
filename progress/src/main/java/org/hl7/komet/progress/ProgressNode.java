@@ -11,15 +11,12 @@ import javafx.scene.transform.Rotate;
 import javafx.util.Duration;
 import org.controlsfx.control.TaskProgressView;
 import org.eclipse.collections.api.list.ImmutableList;
-import org.hl7.komet.executor.TaskLists;
 import org.hl7.komet.framework.ExplorationNodeAbstract;
+import org.hl7.komet.framework.concurrent.TaskListsService;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.tinkar.terms.EntityFacade;
 import org.kordamp.ikonli.javafx.FontIcon;
-
-import java.util.Optional;
-import java.util.ServiceLoader;
 
 public class ProgressNode extends ExplorationNodeAbstract {
     protected static final String STYLE_ID = "activity-node";
@@ -27,6 +24,9 @@ public class ProgressNode extends ExplorationNodeAbstract {
 
     final Node activityGraphic = getTitleGraphic();
     final RotateTransition rotation = new RotateTransition(Duration.seconds(1.5), activityGraphic);
+    TaskProgressView<Task<?>> progressView = new TaskProgressView<>();
+    TaskListsService taskLists = TaskListsService.get();
+
     {
         rotation.setCycleCount(Animation.INDEFINITE);
         rotation.setByAngle(360);
@@ -35,26 +35,25 @@ public class ProgressNode extends ExplorationNodeAbstract {
         activityGraphic.setRotationAxis(Rotate.Z_AXIS);
     }
 
-    @Override
-    public void handleActivity(ImmutableList<EntityFacade> entities) {
-        throw new UnsupportedOperationException();
-    }
-
-    TaskProgressView<Task<?>> progressView = new TaskProgressView<>();
-    Optional<TaskLists> optionalTaskLists = ServiceLoader.load(TaskLists.class).findFirst();
     {
         progressView.setRetainTasks(true);
-        optionalTaskLists.ifPresent(taskLists -> {
-            ProgressViewSkin skin = new ProgressViewSkin<>(progressView);
-            progressView.setSkin(skin);
-            Bindings.bindContent(progressView.getTasks(), taskLists.executingTasks());
-        });
+        ProgressViewSkin skin = new ProgressViewSkin<>(progressView);
+        progressView.setSkin(skin);
+        Bindings.bindContent(progressView.getTasks(), taskLists.executingTasks());
         progressView.getTasks().addListener(this::listInvalidated);
         if (progressView.getTasks().isEmpty()) {
             rotation.stop();
         } else {
             rotation.play();
         }
+    }
+
+    public ProgressNode(ViewProperties viewProperties, KometPreferences nodePreferences) {
+        super(viewProperties, nodePreferences);
+    }
+
+    public ProgressNode() {
+        super();
     }
 
     private static Node getTitleGraphic() {
@@ -72,22 +71,19 @@ public class ProgressNode extends ExplorationNodeAbstract {
         }
     }
 
-    public ProgressNode(ViewProperties viewProperties, KometPreferences nodePreferences) {
-        super(viewProperties, nodePreferences);
+    @Override
+    public String getDefaultTitle() {
+        return TITLE;
     }
 
-    public ProgressNode() {
-        super();
+    @Override
+    public void handleActivity(ImmutableList<EntityFacade> entities) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public String getStyleId() {
         return STYLE_ID;
-    }
-
-    @Override
-    public String getDefaultTitle() {
-        return TITLE;
     }
 
     @Override

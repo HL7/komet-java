@@ -1,9 +1,12 @@
-package org.hl7.komet.framework.alerts;
+package org.hl7.komet.executor;
 
+import com.google.auto.service.AutoService;
+import javafx.application.Platform;
 import org.hl7.komet.framework.Dialogs;
-import org.hl7.tinkar.common.alert.AlertCategory;
-import org.hl7.tinkar.common.alert.AlertObject;
-import org.hl7.tinkar.common.alert.AlertType;
+import org.hl7.tinkar.common.alert.*;
+import org.hl7.tinkar.common.id.PublicIdStringKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.Flow;
@@ -11,20 +14,30 @@ import java.util.concurrent.Flow;
 /**
  * Presents dialogs for alerts
  */
-public class AlertDialogSubscriber implements Flow.Subscriber<AlertObject> {
+@AutoService(AlertReportingService.class)
+public class AlertDialogSubscriber implements AlertReportingService {
+    private static final Logger LOG = LoggerFactory.getLogger(AlertDialogSubscriber.class);
     Flow.Subscription subscription;
+
+    public AlertDialogSubscriber() {
+        this(AlertStreams.ROOT_ALERT_STREAM_KEY);
+    }
+
+    public AlertDialogSubscriber(PublicIdStringKey<AlertStream> alertStreamKey) {
+        LOG.info("Constructing AlertDialogSubscriber");
+        AlertStreams.get(alertStreamKey).subscribe(this);
+    }
 
     @Override
     public void onSubscribe(Flow.Subscription subscription) {
         this.subscription = subscription;
         this.subscription.request(1);
-
     }
 
     @Override
     public void onNext(AlertObject item) {
-        Dialogs.showDialogForAlert(item);
         this.subscription.request(1);
+        Platform.runLater(() -> Dialogs.showDialogForAlert(item));
     }
 
     @Override

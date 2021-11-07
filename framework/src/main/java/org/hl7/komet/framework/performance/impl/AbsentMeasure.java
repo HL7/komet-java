@@ -1,11 +1,11 @@
-package org.hl7.komet.framework.rulebase.statement;
+package org.hl7.komet.framework.performance.impl;
 
-import org.hl7.komet.framework.rulebase.Measure;
+import org.hl7.komet.framework.performance.Measure;
 import org.hl7.tinkar.terms.ConceptFacade;
 
 import java.util.Optional;
 
-public class PresentMeasure implements Measure {
+public class AbsentMeasure implements Measure {
     @Override
     public float getLowerBound() {
         return 0;
@@ -13,12 +13,12 @@ public class PresentMeasure implements Measure {
 
     @Override
     public boolean includeLowerBound() {
-        return false;
+        return true;
     }
 
     @Override
     public float getUpperBound() {
-        return Float.POSITIVE_INFINITY;
+        return 0;
     }
 
     @Override

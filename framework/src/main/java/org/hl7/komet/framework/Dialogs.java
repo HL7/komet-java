@@ -91,6 +91,10 @@ public class Dialogs {
         showDialog(AlertType.WARNING, title, message, parentWindow);
     }
 
+    public static void showErrorDialog(String title, String message, Throwable throwable) {
+        showErrorDialog(title, message, throwable, null);
+    }
+
     public static void showErrorDialog(String title, String message, Throwable throwable, Window parentWindow) {
         LOG.error(message, throwable);
         Runnable showDialog = () -> {

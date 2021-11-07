@@ -1,8 +1,6 @@
 package org.hl7.komet.executor;
 
 import com.google.auto.service.AutoService;
-import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 import org.hl7.tinkar.common.service.CachingService;
 import org.hl7.tinkar.common.service.ExecutorController;
 import org.slf4j.Logger;
@@ -10,34 +8,11 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-@AutoService({ExecutorController.class, CachingService.class, TaskLists.class})
-public class KometExecutorController implements ExecutorController, CachingService, TaskLists {
+@AutoService({ExecutorController.class, CachingService.class})
+public class KometExecutorController implements ExecutorController, CachingService {
     private static final Logger LOG = LoggerFactory.getLogger(KometExecutorController.class);
-    private AtomicReference<KometExecutor> providerReference = new AtomicReference<>();
-
-    @Override
-    public ObservableList<Task<?>> pendingTasks() {
-        if (providerReference.get() == null) {
-            return KometExecutor.pendingTasks;
-        }
-        return null;
-    }
-
-    @Override
-    public ObservableList<Task<?>> executingTasks() {
-        if (providerReference.get() == null) {
-            return KometExecutor.executingTasks;
-        }
-        return null;
-    }
-
-    @Override
-    public ObservableList<Task<?>> completedTasks() {
-        if (providerReference.get() == null) {
-            return KometExecutor.completedTasks;
-        }
-        return null;
-    }
+    private static AlertDialogSubscriber alertDialogSubscriber;
+    private AtomicReference<KometExecutorProvider> providerReference = new AtomicReference<>();
 
     @Override
     public void reset() {
@@ -45,13 +20,14 @@ public class KometExecutorController implements ExecutorController, CachingServi
     }
 
     @Override
-    public KometExecutor create() {
+    public KometExecutorProvider create() {
         if (providerReference.get() == null) {
             providerReference.updateAndGet(executorProvider -> {
                 if (executorProvider != null) {
                     return executorProvider;
                 }
-                return new KometExecutor();
+                KometExecutorController.alertDialogSubscriber = new AlertDialogSubscriber();
+                return new KometExecutorProvider();
             });
             providerReference.get().start();
         }

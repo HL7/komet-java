@@ -1,12 +1,12 @@
 package org.hl7.komet.framework.rulebase.rules;
 
-import org.eclipse.collections.api.factory.Lists;
-import org.eclipse.collections.api.list.ImmutableList;
-import org.hl7.komet.framework.rulebase.Observation;
+import org.hl7.komet.framework.performance.Observation;
+import org.hl7.komet.framework.performance.Statement;
+import org.hl7.komet.framework.performance.Topic;
 import org.hl7.komet.framework.rulebase.RuntimeRule;
-import org.hl7.komet.framework.rulebase.Topic;
-import org.hl7.komet.framework.rulebase.actions.AbstractAction;
-import org.hl7.komet.framework.rulebase.actions.ActivateComponentAction;
+import org.hl7.komet.framework.rulebase.actions.AbstractActionGenerated;
+import org.hl7.komet.framework.rulebase.actions.ActivateComponentActionGenerated;
+import org.hl7.tinkar.coordinate.edit.EditCoordinate;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculator;
 import org.hl7.tinkar.entity.EntityVersion;
 
@@ -16,8 +16,8 @@ import java.util.Optional;
 public class ActivateComponentRule extends AbstractComponentRule {
 
     @Override
-    boolean conditionsMet(Observation observation, ViewCalculator viewCalculator) {
-        if (observation.subject() instanceof EntityVersion entityVersion) {
+    boolean conditionsMet(Statement statement, ViewCalculator viewCalculator) {
+        if (statement.subject() instanceof EntityVersion entityVersion) {
             if (!entityVersion.isActive()) {
                 return true;
             }
@@ -26,9 +26,9 @@ public class ActivateComponentRule extends AbstractComponentRule {
     }
 
     @Override
-    Optional<AbstractAction> makeAction(Observation observation, ViewCalculator viewCalculator) {
-        if (observation.isPresent() && observation.subject() instanceof EntityVersion entityVersion) {
-            return Optional.of(new ActivateComponentAction(entityVersion));
+    Optional<AbstractActionGenerated> makeAction(Statement statement, ViewCalculator viewCalculator, EditCoordinate editCoordinate) {
+        if (statement instanceof Observation observation && observation.isPresent() && statement.subject() instanceof EntityVersion entityVersion) {
+            return Optional.of(new ActivateComponentActionGenerated(entityVersion, viewCalculator, editCoordinate));
         }
         return Optional.empty();
     }
@@ -44,7 +44,7 @@ public class ActivateComponentRule extends AbstractComponentRule {
     }
 
     @Override
-    public ImmutableList<Topic> topicsToProcess() {
-        return Lists.immutable.of(Topic.COMPONENT_FOCUSED);
+    public Topic topicToProcess() {
+        return Topic.COMPONENT_FOCUSED;
     }
 }

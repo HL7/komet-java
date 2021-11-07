@@ -115,7 +115,6 @@ public class App extends Application {
                 ScreenInfo.mouseWasDragged(true);
 
             });
-
             stage.show();
             state.set(AppState.SELECT_DATA_SOURCE);
             state.addListener(this::appStateChangeListener);

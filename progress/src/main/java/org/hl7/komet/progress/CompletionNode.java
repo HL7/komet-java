@@ -6,15 +6,12 @@ import javafx.concurrent.Task;
 import javafx.scene.Node;
 import org.controlsfx.control.TaskProgressView;
 import org.eclipse.collections.api.list.ImmutableList;
-import org.hl7.komet.executor.TaskLists;
 import org.hl7.komet.framework.ExplorationNodeAbstract;
-import org.hl7.komet.preferences.KometPreferences;
+import org.hl7.komet.framework.concurrent.TaskListsService;
 import org.hl7.komet.framework.view.ViewProperties;
+import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.tinkar.terms.EntityFacade;
 import org.kordamp.ikonli.javafx.FontIcon;
-
-import java.util.Optional;
-import java.util.ServiceLoader;
 
 public class CompletionNode extends ExplorationNodeAbstract {
 
@@ -22,18 +19,22 @@ public class CompletionNode extends ExplorationNodeAbstract {
     protected static final String TITLE = "Completions";
 
     TaskProgressView<Task<?>> progressView = new TaskProgressView<>();
-    Optional<TaskLists> optionalTaskLists = ServiceLoader.load(TaskLists.class).findFirst();
+    TaskListsService taskLists = TaskListsService.get();
+
     {
         progressView.setRetainTasks(true);
-        optionalTaskLists.ifPresent(taskLists -> {
-            CompletionViewSkin skin = new CompletionViewSkin<>(progressView, taskLists.completedTasks());
-            progressView.setSkin(skin);
-            Bindings.bindContent(progressView.getTasks(), taskLists.completedTasks());
-        });
+        CompletionViewSkin skin = new CompletionViewSkin<>(progressView, taskLists.completedTasks());
+        progressView.setSkin(skin);
+        Bindings.bindContent(progressView.getTasks(), taskLists.completedTasks());
     }
 
     public CompletionNode(ViewProperties viewProperties, KometPreferences nodePreferences) {
         super(viewProperties, nodePreferences);
+    }
+
+    @Override
+    public String getDefaultTitle() {
+        return TITLE;
     }
 
     @Override
@@ -46,11 +47,6 @@ public class CompletionNode extends ExplorationNodeAbstract {
         return STYLE_ID;
     }
 
-    @Override
-    public String getDefaultTitle() {
-        return TITLE;
-    }
-
     private Node getTitleGraphic() {
         FontIcon icon = new FontIcon();
         icon.setIconLiteral("mdi2f-flag-checkered:16:white");
@@ -59,7 +55,7 @@ public class CompletionNode extends ExplorationNodeAbstract {
     }
 
     public void removeTask(Task<?> task) {
-        Platform.runLater(() -> optionalTaskLists.get().completedTasks().remove(task));
+        Platform.runLater(() -> taskLists.completedTasks().remove(task));
     }
 
 

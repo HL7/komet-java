@@ -1,6 +1,7 @@
 package org.hl7.komet.framework;
 
 
+import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -93,6 +94,7 @@ public abstract class ExplorationNodeAbstract implements KometNode, Flow.Subscri
         if (this.optionForActivityStreamKeyProperty.get().equals(ActivityStreamOption.SUBSCRIBE.keyForOption()) ||
                 this.optionForActivityStreamKeyProperty.get().equals(ActivityStreamOption.SYNCHRONIZE.keyForOption())) {
             this.getActivityStream().subscribe(this);
+            this.flowSubscriptionReference.get().request(1);
         }
 
         if (this.optionForActivityStreamKeyProperty.get().equals(ActivityStreamOption.PUBLISH.keyForOption()) ||
@@ -145,13 +147,12 @@ public abstract class ExplorationNodeAbstract implements KometNode, Flow.Subscri
             }
             return subscription;
         });
-        subscription.request(1);
     }
 
     @Override
     public void onNext(ImmutableList<EntityFacade> items) {
-        handleActivity(items);
         flowSubscriptionReference.get().request(1);
+        Platform.runLater(() -> handleActivity(items));
     }
 
     @Override

@@ -1,4 +1,4 @@
-package org.hl7.komet.framework.rulebase;
+package org.hl7.komet.framework.performance;
 
 import org.hl7.tinkar.terms.ConceptFacade;
 

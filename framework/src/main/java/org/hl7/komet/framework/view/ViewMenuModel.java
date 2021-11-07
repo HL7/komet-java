@@ -5,10 +5,13 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.MapChangeListener;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Control;
+import javafx.scene.control.Labeled;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Shape;
-import org.hl7.komet.executor.TaskWrapper;
+import org.hl7.komet.framework.concurrent.TaskWrapper;
 import org.hl7.komet.framework.graphics.Icon;
 import org.hl7.komet.framework.temp.FxGet;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
@@ -20,22 +23,17 @@ import org.hl7.tinkar.coordinate.view.calculator.ViewCalculatorWithCache;
 import java.util.List;
 
 public class ViewMenuModel {
-    private final ChangeListener<ViewCoordinateRecord> viewChangedListener = this::viewCoordinateChanged;
     private final ViewProperties viewProperties;
     private final Control baseControlToShowOverride;
     private final Shape baseControlGraphic;
-    private String oldFill = null;
-
-    public Menu getCoordinateMenu() {
-        return coordinateMenu;
-    }
-
     private final Menu coordinateMenu;
-
+    private String oldFill = null;
+    private final ChangeListener<ViewCoordinateRecord> viewChangedListener = this::viewCoordinateChanged;
 
     public ViewMenuModel(ViewProperties viewProperties, Control baseControlToShowOverride) {
         this(viewProperties, baseControlToShowOverride, new Menu("Coordinates", Icon.VIEW.makeIcon()));
     }
+
 
     public ViewMenuModel(ViewProperties viewProperties, Control baseControlToShowOverride, Menu coordinateMenu) {
         this.viewProperties = viewProperties;
@@ -46,7 +44,7 @@ public class ViewMenuModel {
 
         this.baseControlToShowOverride = baseControlToShowOverride;
         if (baseControlToShowOverride instanceof Labeled) {
-            Node graphic = ((Labeled)this.baseControlToShowOverride).getGraphic();
+            Node graphic = ((Labeled) this.baseControlToShowOverride).getGraphic();
             if (graphic instanceof AnchorPane) {
                 Node childZero = ((AnchorPane) graphic).getChildren().get(0);
                 this.baseControlGraphic = (Shape) childZero;
@@ -56,14 +54,6 @@ public class ViewMenuModel {
         } else {
             this.baseControlGraphic = null;
         }
-        updateManifoldMenu();
-
-    }
-
-
-    private void viewCoordinateChanged(ObservableValue<? extends ViewCoordinateRecord> observable,
-                                       ViewCoordinateRecord oldValue,
-                                       ViewCoordinateRecord newValue) {
         updateManifoldMenu();
 
     }
@@ -96,6 +86,17 @@ public class ViewMenuModel {
                     (List<MenuItem> result) ->
                             this.coordinateMenu.getItems().addAll(result)));
         });
+    }
+
+    public Menu getCoordinateMenu() {
+        return coordinateMenu;
+    }
+
+    private void viewCoordinateChanged(ObservableValue<? extends ViewCoordinateRecord> observable,
+                                       ViewCoordinateRecord oldValue,
+                                       ViewCoordinateRecord newValue) {
+        updateManifoldMenu();
+
     }
 
 

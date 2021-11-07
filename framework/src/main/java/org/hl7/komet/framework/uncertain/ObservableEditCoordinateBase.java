@@ -12,16 +12,29 @@ import org.hl7.tinkar.terms.ConceptFacade;
 
 public abstract class ObservableEditCoordinateBase extends ObservableCoordinateAbstract<EditCoordinateImmutable>
         implements ObservableEditCoordinate {
-    /** The author property. */
+    /**
+     * The author property.
+     */
     private final SimpleEqualityBasedObjectProperty<ConceptFacade> authorForChangesProperty;
 
-    /** The default module property. */
+    /**
+     * The default module property.
+     */
     private final SimpleEqualityBasedObjectProperty<ConceptFacade> defaultModuleProperty;
 
-    /** The promotion module property. */
+    /**
+     * The promotion module property.
+     */
     private final SimpleEqualityBasedObjectProperty<ConceptFacade> destinationModuleProperty;
 
-    /** The path property. */
+    /**
+     * The path property.
+     */
+    private final SimpleEqualityBasedObjectProperty<ConceptFacade> defaultPathProperty;
+
+    /**
+     * The path property.
+     */
     private final SimpleEqualityBasedObjectProperty<ConceptFacade> promotionPathProperty;
 
     /**
@@ -33,6 +46,7 @@ public abstract class ObservableEditCoordinateBase extends ObservableCoordinateA
     private final ChangeListener<ConceptFacade> authorForChangesListener = this::authorForChangesConceptChanged;
     private final ChangeListener<ConceptFacade> defaultModuleListener = this::defaultModuleConceptChanged;
     private final ChangeListener<ConceptFacade> destinationModuleListener = this::destinationModuleConceptChanged;
+    private final ChangeListener<ConceptFacade> defaultPathListener = this::defaultPathConceptChanged;
     private final ChangeListener<ConceptFacade> promotionPathListener = this::promotionPathConceptChanged;
 
     //~--- constructors --------------------------------------------------------
@@ -47,22 +61,26 @@ public abstract class ObservableEditCoordinateBase extends ObservableCoordinateA
         this.authorForChangesProperty = makeAuthorForChangesProperty(editCoordinate);
         this.defaultModuleProperty = makeDefaultModuleProperty(editCoordinate);
         this.destinationModuleProperty = makeDestinationModuleProperty(editCoordinate);
+        this.defaultPathProperty = makeDefaultPathProperty(editCoordinate);
         this.promotionPathProperty = makePromotionPathProperty(editCoordinate);
         addListeners();
     }
 
-    protected abstract SimpleEqualityBasedObjectProperty<ConceptFacade> makePromotionPathProperty(EditCoordinate editCoordinate);
+    protected abstract SimpleEqualityBasedObjectProperty<ConceptFacade> makeAuthorForChangesProperty(EditCoordinate editCoordinate);
 
     protected abstract SimpleEqualityBasedObjectProperty<ConceptFacade> makeDefaultModuleProperty(EditCoordinate editCoordinate);
 
     protected abstract SimpleEqualityBasedObjectProperty<ConceptFacade> makeDestinationModuleProperty(EditCoordinate editCoordinate);
 
-    protected abstract SimpleEqualityBasedObjectProperty<ConceptFacade> makeAuthorForChangesProperty(EditCoordinate editCoordinate);
+    protected abstract SimpleEqualityBasedObjectProperty<ConceptFacade> makeDefaultPathProperty(EditCoordinate editCoordinate);
+
+    protected abstract SimpleEqualityBasedObjectProperty<ConceptFacade> makePromotionPathProperty(EditCoordinate editCoordinate);
 
     protected void removeListeners() {
         this.authorForChangesProperty.removeListener(this.authorForChangesListener);
         this.defaultModuleProperty.removeListener(this.defaultModuleListener);
         this.destinationModuleProperty.removeListener(this.destinationModuleListener);
+        this.defaultPathProperty.removeListener(this.defaultPathListener);
         this.promotionPathProperty.removeListener(this.promotionPathListener);
     }
 
@@ -70,7 +88,18 @@ public abstract class ObservableEditCoordinateBase extends ObservableCoordinateA
         this.authorForChangesProperty.addListener(this.authorForChangesListener);
         this.defaultModuleProperty.addListener(this.defaultModuleListener);
         this.destinationModuleProperty.addListener(this.destinationModuleListener);
+        this.defaultPathProperty.addListener(this.defaultPathListener);
         this.promotionPathProperty.addListener(this.promotionPathListener);
+    }
+
+    /**
+     * To string.
+     *
+     * @return the string
+     */
+    @Override
+    public String toString() {
+        return "ObservableEditCoordinateImpl{" + this.getValue().toString() + '}';
     }
 
     private void promotionPathConceptChanged(ObservableValue<? extends ConceptFacade> observable,
@@ -78,32 +107,55 @@ public abstract class ObservableEditCoordinateBase extends ObservableCoordinateA
                                              ConceptFacade newPathConcept) {
         this.setValue(EditCoordinateImmutable.make(getAuthorNidForChanges(),
                 getDefaultModuleNid(),
+                getDestinationModuleNid(),
+                getDefaultPathNid(),
+                newPathConcept.nid()
+        ));
+    }
+
+
+    private void defaultPathConceptChanged(ObservableValue<? extends ConceptFacade> observable,
+                                           ConceptFacade old,
+                                           ConceptFacade newPathConcept) {
+        this.setValue(EditCoordinateImmutable.make(getAuthorNidForChanges(),
+                getDefaultModuleNid(),
+                getDestinationModuleNid(),
                 newPathConcept.nid(),
-                getDestinationModuleNid()));
+                getPromotionPathNid()
+        ));
     }
 
     private void authorForChangesConceptChanged(ObservableValue<? extends ConceptFacade> observable,
                                                 ConceptFacade oldAuthorConcept,
                                                 ConceptFacade newAuthorConcept) {
-        this.setValue(EditCoordinateImmutable.make(newAuthorConcept.nid(), getDefaultModuleNid(),
-                getPromotionPath().nid(),
-                getDestinationModuleNid()));
+        this.setValue(EditCoordinateImmutable.make(newAuthorConcept.nid(),
+                getDefaultModuleNid(),
+                getDestinationModuleNid(),
+                getDefaultModuleNid(),
+                getPromotionPathNid()
+        ));
     }
 
     private void defaultModuleConceptChanged(ObservableValue<? extends ConceptFacade> observable,
                                              ConceptFacade old,
                                              ConceptFacade newModuleConcept) {
-        this.setValue(EditCoordinateImmutable.make(getAuthorNidForChanges(), newModuleConcept.nid(),
-                getPromotionPath().nid(),
-                getDestinationModuleNid()));
+        this.setValue(EditCoordinateImmutable.make(getAuthorNidForChanges(),
+                newModuleConcept.nid(),
+                getDestinationModuleNid(),
+                getDefaultModuleNid(),
+                getPromotionPathNid()
+        ));
     }
 
     private void destinationModuleConceptChanged(ObservableValue<? extends ConceptFacade> observable,
-                                             ConceptFacade old,
-                                             ConceptFacade newModuleConcept) {
-        this.setValue(EditCoordinateImmutable.make(getAuthorNidForChanges(), getDefaultModule().nid(),
-                getPromotionPath().nid(),
-                newModuleConcept.nid()));
+                                                 ConceptFacade old,
+                                                 ConceptFacade newModuleConcept) {
+        this.setValue(EditCoordinateImmutable.make(getAuthorNidForChanges(),
+                getDefaultModuleNid(),
+                newModuleConcept.nid(),
+                getDefaultModuleNid(),
+                getPromotionPathNid()
+        ));
     }
 
     @Override
@@ -117,28 +169,23 @@ public abstract class ObservableEditCoordinateBase extends ObservableCoordinateA
     }
 
     @Override
-    public ObjectProperty<ConceptFacade> promotionPathProperty() {
-        return this.promotionPathProperty;
-    }
-
-    @Override
     public ObjectProperty<ConceptFacade> destinationModuleProperty() {
         return this.destinationModuleProperty;
     }
 
     @Override
-    public EditCoordinate getEditCoordinate() {
-        return this.getValue();
+    public ObjectProperty<ConceptFacade> defaultPathProperty() {
+        return this.defaultPathProperty;
     }
 
-    /**
-     * To string.
-     *
-     * @return the string
-     */
     @Override
-    public String toString() {
-        return "ObservableEditCoordinateImpl{" + this.getValue().toString() + '}';
+    public ObjectProperty<ConceptFacade> promotionPathProperty() {
+        return this.promotionPathProperty;
+    }
+
+    @Override
+    public EditCoordinate getEditCoordinate() {
+        return this.getValue();
     }
 
 }

@@ -1,8 +1,5 @@
 package org.hl7.komet.executor;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 import org.hl7.tinkar.common.service.ExecutorService;
 import org.hl7.tinkar.common.util.thread.NamedThreadFactory;
 import org.slf4j.Logger;
@@ -34,39 +31,30 @@ import java.util.concurrent.*;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 
-public class KometExecutor implements ExecutorService {
+public class KometExecutorProvider implements ExecutorService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(KometExecutor.class);
-
-    public static ObservableList<Task<?>> pendingTasks = FXCollections.observableArrayList();
-    public static ObservableList<Task<?>> executingTasks = FXCollections.observableArrayList();
-    public static ObservableList<Task<?>> completedTasks = FXCollections.observableArrayList();
-
-
+    private static final Logger LOG = LoggerFactory.getLogger(KometExecutorProvider.class);
     /**
      * The fork join executor.
      */
     private KometForkJoinPool forkJoinExecutor;
-
     /**
      * The blocking thread pool executor.
      */
     private KometThreadPoolExecutor blockingThreadPoolExecutor;
-
     /**
      * The thread pool executor.
      */
     private KometThreadPoolExecutor threadPoolExecutor;
-
     /**
      * The io thread pool executor.
      */
     private KometThreadPoolExecutor ioThreadPoolExecutor;
-
     /**
      * The scheduled executor.
      */
     private KometScheduledExecutor scheduledExecutor;
+
 
     /**
      * Start me.
@@ -229,5 +217,6 @@ public class KometExecutor implements ExecutorService {
     public ScheduledExecutorService scheduled() {
         return this.scheduledExecutor;
     }
+
 }
 

@@ -1,8 +1,8 @@
-package org.hl7.komet.framework.rulebase;
+package org.hl7.komet.framework.performance;
 
-import org.hl7.komet.framework.rulebase.statement.AbsentMeasure;
-import org.hl7.komet.framework.rulebase.statement.MeasureRecord;
-import org.hl7.komet.framework.rulebase.statement.PresentMeasure;
+import org.hl7.komet.framework.performance.impl.AbsentMeasure;
+import org.hl7.komet.framework.performance.impl.MeasureRecord;
+import org.hl7.komet.framework.performance.impl.PresentMeasure;
 import org.hl7.tinkar.terms.ConceptFacade;
 
 /**

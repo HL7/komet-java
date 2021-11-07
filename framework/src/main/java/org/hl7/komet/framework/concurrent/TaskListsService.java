@@ -1,10 +1,16 @@
-package org.hl7.komet.executor;
+package org.hl7.komet.framework.concurrent;
 
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 
-public interface TaskLists {
+public interface TaskListsService {
+    static TaskListsService get() {
+        return TaskListsProviderFinder.INSTANCE.get();
+    }
+
     ObservableList<Task<?>> pendingTasks();
+
     ObservableList<Task<?>> executingTasks();
+
     ObservableList<Task<?>> completedTasks();
 }

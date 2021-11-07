@@ -6,7 +6,6 @@ module org.hl7.komet.navigator {
 
     requires transitive org.hl7.komet.framework;
     requires static org.hl7.tinkar.autoservice;
-    requires org.hl7.komet.executor;
 
     opens org.hl7.komet.navigator.graph;
     opens org.hl7.komet.navigator.pattern;

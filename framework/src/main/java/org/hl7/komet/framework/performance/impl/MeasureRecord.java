@@ -1,6 +1,6 @@
-package org.hl7.komet.framework.rulebase.statement;
+package org.hl7.komet.framework.performance.impl;
 
-import org.hl7.komet.framework.rulebase.Measure;
+import org.hl7.komet.framework.performance.Measure;
 import org.hl7.tinkar.terms.ConceptFacade;
 
 import java.util.Optional;

@@ -1,14 +1,6 @@
-package org.hl7.komet.framework.rulebase;
+package org.hl7.komet.framework.performance;
 
-public interface Observation {
-
-    Topic topic();
-
-    /**
-     * @return the subject of this observation.
-     */
-    Object subject();
-
+public interface Observation extends Statement {
     default boolean isPresent() {
         return value().isPresent();
     }

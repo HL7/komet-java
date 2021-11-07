@@ -4,9 +4,9 @@ import java.util.UUID;
 
 public record ConsequenceAction(UUID consequenceUUID,
                                 UUID ruleUUID,
-                                SuggestedAction suggestedAction) implements Consequence<SuggestedAction> {
+                                GeneratedAction generatedAction) implements Consequence<GeneratedAction> {
     @Override
-    public SuggestedAction get() {
-        return suggestedAction;
+    public GeneratedAction get() {
+        return generatedAction;
     }
 }
