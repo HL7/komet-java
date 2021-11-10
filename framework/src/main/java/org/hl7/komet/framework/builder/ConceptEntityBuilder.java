@@ -6,6 +6,7 @@ import org.eclipse.collections.api.list.MutableList;
 import org.hl7.tinkar.entity.*;
 import org.hl7.tinkar.entity.graph.DiTreeEntity;
 import org.hl7.tinkar.entity.graph.EntityVertex;
+import org.hl7.tinkar.entity.transaction.Transaction;
 import org.hl7.tinkar.terms.EntityFacade;
 import org.hl7.tinkar.terms.TinkarTerm;
 
@@ -16,9 +17,13 @@ public class ConceptEntityBuilder {
     private final StampEntity stampEntity;
     MutableList<DescriptionBuilderRecord> descriptionsToBuild = Lists.mutable.empty();
     AxiomBuilderRecord axiomBuilder;
+    Transaction transaction;
 
     public ConceptEntityBuilder(StampEntity stampEntity) {
         this.stampEntity = stampEntity;
+        Transaction.forStamp(stampEntity).ifPresentOrElse(transaction1 -> transaction = transaction1, () -> {
+            throw new IllegalStateException("No transaction for stamp: " + stampEntity);
+        });
     }
 
     public static ConceptEntityBuilder builder(StampEntity stampEntity) {
@@ -116,6 +121,7 @@ Field 1: ‹US English: Preferred›
     }
 
     private void processEntity(MutableList<EntityFacade> entities, Entity<? extends EntityVersion> entity) {
+        this.transaction.addComponent(entity);
         Entity.provider().putEntity(entity);
         entities.add(entity);
     }

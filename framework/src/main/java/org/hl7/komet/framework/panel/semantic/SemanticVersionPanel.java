@@ -3,6 +3,7 @@ package org.hl7.komet.framework.panel.semantic;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.Node;
 import org.eclipse.collections.api.list.ImmutableList;
+import org.hl7.komet.framework.PseudoClasses;
 import org.hl7.komet.framework.panel.ComponentVersionIsFinalPanel;
 import org.hl7.komet.framework.propsheet.KometPropertySheet;
 import org.hl7.komet.framework.propsheet.SheetItem;
@@ -28,6 +29,7 @@ public class SemanticVersionPanel extends ComponentVersionIsFinalPanel<SemanticE
     @Override
     protected Node makeCenterNode(SemanticEntityVersion version, ViewProperties viewProperties) {
         KometPropertySheet propertySheet = new KometPropertySheet(viewProperties);
+        propertySheet.pseudoClassStateChanged(PseudoClasses.UNCOMMITTED_PSEUDO_CLASS, version.uncommitted());
         Latest<PatternEntityVersion> latestPatternEntityVersion = viewProperties.calculator().latestPatternEntityVersion(version.patternNid());
         latestPatternEntityVersion.ifPresent(patternEntityVersion -> {
             ImmutableList<Field> fields = version.fields(patternEntityVersion);

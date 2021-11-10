@@ -10,7 +10,7 @@ import org.hl7.tinkar.coordinate.stamp.calculator.Latest;
 import org.hl7.tinkar.coordinate.view.ViewCoordinateRecord;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculator;
 import org.hl7.tinkar.entity.*;
-import org.hl7.tinkar.entity.transaction.CommitTask;
+import org.hl7.tinkar.entity.transaction.CommitTransactionTask;
 import org.hl7.tinkar.entity.transaction.Transaction;
 import org.hl7.tinkar.terms.State;
 
@@ -52,8 +52,8 @@ public class RemoveFromTinkarBaseModelActionGenerated extends AbstractActionSugg
         }, () -> {
             throw new IllegalStateException("No latest pattern version for: " + Entity.getFast(TINKAR_BASE_MODEL_COMPONENT_PATTERN));
         });
-        CommitTask commitTask = new CommitTask(transaction);
-        Executor.threadPool().submit(commitTask);
+        CommitTransactionTask commitTransactionTask = new CommitTransactionTask(transaction);
+        Executor.threadPool().submit(commitTransactionTask);
         return semanticEntity;
     }
 

@@ -998,7 +998,6 @@ modena.css is the default css.
     -fx-border-color: -komet-inactive-background;
 }
 
-
 .version-panel:inactive .text-area,
 .version-panel:inactive .viewport,
 .version-panel:inactive .scroll-pane,
@@ -1112,6 +1111,16 @@ modena.css is the default css.
 .component-collapsible-panel .component-collapsible-panel {
     -fx-border-width: 0;
     -fx-padding: 0 0 0 5;
+}
+
+.property-sheet:uncommitted {
+    -fx-background-color: -komet-uncommitted-fill;
+    -fx-border-color: -komet-uncommitted-fill;
+}
+
+.component-version-border-panel:uncommitted {
+    -fx-background-color: -komet-uncommitted-fill;
+    -fx-border-color: -komet-uncommitted-fill;
 }
 
 .component-version-panel {

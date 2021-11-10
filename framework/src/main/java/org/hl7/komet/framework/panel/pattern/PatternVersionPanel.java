@@ -2,6 +2,7 @@ package org.hl7.komet.framework.panel.pattern;
 
 import javafx.scene.Node;
 import org.controlsfx.control.PropertySheet;
+import org.hl7.komet.framework.PseudoClasses;
 import org.hl7.komet.framework.panel.ComponentVersionIsFinalPanel;
 import org.hl7.komet.framework.propsheet.FieldDefinitionRecord;
 import org.hl7.komet.framework.propsheet.KometPropertySheet;
@@ -23,6 +24,7 @@ public class PatternVersionPanel extends ComponentVersionIsFinalPanel<PatternEnt
     @Override
     protected Node makeCenterNode(PatternEntityVersion version, ViewProperties viewProperties) {
         KometPropertySheet propertySheet = new KometPropertySheet(viewProperties);
+        propertySheet.pseudoClassStateChanged(PseudoClasses.UNCOMMITTED_PSEUDO_CLASS, version.uncommitted());
         // Referenced component meaning:
         // TODO Referenced component meaning concept & definition.
         FieldDefinitionRecord semanticMeaningField = new FieldDefinitionRecord(EntityProxy.Concept.make(version.semanticMeaningNid()),

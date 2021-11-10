@@ -7,23 +7,18 @@ import org.hl7.komet.framework.builder.AxiomBuilderRecord;
 import org.hl7.komet.framework.builder.ConceptEntityBuilder;
 import org.hl7.komet.framework.performance.impl.RequestRecord;
 import org.hl7.komet.framework.rulebase.GeneratedActionImmediate;
-import org.hl7.tinkar.common.alert.AlertObject;
-import org.hl7.tinkar.common.alert.AlertStreams;
 import org.hl7.tinkar.common.service.Executor;
 import org.hl7.tinkar.coordinate.edit.EditCoordinate;
 import org.hl7.tinkar.coordinate.edit.EditCoordinateImmutable;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculator;
 import org.hl7.tinkar.entity.Entity;
 import org.hl7.tinkar.entity.StampEntity;
-import org.hl7.tinkar.entity.transaction.CommitTask;
 import org.hl7.tinkar.entity.transaction.Transaction;
 import org.hl7.tinkar.terms.EntityFacade;
 import org.hl7.tinkar.terms.State;
 import org.hl7.tinkar.terms.TinkarTerm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.Future;
 
 import static org.hl7.komet.framework.activity.ActivityStreams.BUILDER;
 
@@ -76,6 +71,7 @@ public class NewConceptFromTextActionGenerated extends AbstractActionImmediate i
             LOG.info("Built: " + builtEntities);
             // focus the panel on the new concept somehow... ?
             // Associate the transaction with the action event somehow... ?
+            /*
             CommitTask commitTask = new CommitTask(transaction);
             Future<Void> future = Executor.threadPool().submit(commitTask);
             try {
@@ -83,6 +79,7 @@ public class NewConceptFromTextActionGenerated extends AbstractActionImmediate i
             } catch (Exception e) {
                 AlertStreams.getRoot().dispatch(AlertObject.makeError(e));
             }
+            */
             ActivityStreams.get(BUILDER).dispatch(builtEntities);
             //AlertStreams.getRoot().dispatch(AlertObject.makeError(new UnsupportedOperationException("NewConceptFromTextActionGenerated is not completely validated yet. ")));
         });
