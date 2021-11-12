@@ -33,7 +33,7 @@ public class InactivateComponentRule extends AbstractComponentRule {
     @Override
     boolean conditionsMet(Statement statement, ViewCalculator viewCalculator) {
         if (statement instanceof Observation observation && observation.isPresent() && statement.subject() instanceof EntityVersion entityVersion) {
-            if (entityVersion.isActive()) {
+            if (entityVersion.active()) {
                 return true;
             }
         }

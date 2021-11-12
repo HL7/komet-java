@@ -52,6 +52,7 @@ import static org.hl7.komet.framework.PseudoClasses.INACTIVE_PSEUDO_CLASS;
 import static org.hl7.komet.framework.panel.axiom.AxiomView.*;
 import static org.hl7.komet.framework.panel.axiom.LogicalOperatorsForVertex.*;
 import static org.hl7.tinkar.coordinate.logic.PremiseType.STATED;
+import static org.hl7.tinkar.terms.TinkarTerm.CONCEPT_REFERENCE;
 
 /**
  * Each clause in an axiom is presented with the ClauseView.
@@ -154,13 +155,8 @@ public class ClauseView {
         }
 
         childClauses.sort(new AxiomComparator(this.axiomTree(), this.viewProperties()));
-        if (vertexLogicalOperator == ROLE
-                || vertexLogicalOperator == FEATURE) {
-            expanded.set(false);
-        } else {
-            for (ClauseView childClause : childClauses) {
-                childBox.getChildren().add(childClause.rootBorderPane);
-            }
+        for (ClauseView childClause : childClauses) {
+            childBox.getChildren().add(childClause.rootBorderPane);
         }
         rootBorderPane.setCenter(childBox);
         rootBorderPane.setUserData(logicVertex);
@@ -274,9 +270,9 @@ public class ClauseView {
         if (latest.isPresent()) {
             titleLabel.setGraphic(computeGraphic(axiomTreeSemanticVersion().referencedComponentNid(), false,
                     latest.get().stamp().state(), viewProperties(), this.axiomView.premiseType));
-            rootBorderPane.pseudoClassStateChanged(INACTIVE_PSEUDO_CLASS, !latest.get().isActive());
-            titleLabel.pseudoClassStateChanged(INACTIVE_PSEUDO_CLASS, !latest.get().isActive());
-            rootGridPane.pseudoClassStateChanged(INACTIVE_PSEUDO_CLASS, !latest.get().isActive());
+            rootBorderPane.pseudoClassStateChanged(INACTIVE_PSEUDO_CLASS, !latest.get().active());
+            titleLabel.pseudoClassStateChanged(INACTIVE_PSEUDO_CLASS, !latest.get().active());
+            rootGridPane.pseudoClassStateChanged(INACTIVE_PSEUDO_CLASS, !latest.get().active());
         } else {
             titleLabel.setGraphic(computeGraphic(axiomTreeSemanticVersion().referencedComponentNid(), false,
                     State.PRIMORDIAL, viewProperties(), this.axiomView.premiseType));
@@ -331,14 +327,15 @@ public class ClauseView {
         int column = 0;
         ConceptFacade roleType = ROLE.getPropertyFast(logicVertex);
         if (roleType.nid() == TinkarTerm.ROLE_GROUP.nid()) {
+            expanded.set(true);
             rootBorderPane.getStyleClass().add(StyleClasses.DEF_ROLE_GROUP.toString());
             titleLabel.setGraphic(Icon.ROLE_GROUP.makeIcon());
-            ImmutableList<EntityVertex> descendents = axiomTree().successors(logicVertex);
+            ImmutableList<EntityVertex> descendents = axiomTree().descendents(logicVertex);
             // apply sort here for particular cases...
 
             MutableList<String> descendentConceptDescriptions = Lists.mutable.ofInitialCapacity(descendents.size());
             for (EntityVertex descendentNode : descendents) {
-                if (CONCEPT.semanticallyEqual(descendentNode.getMeaningNid())) {
+                if (CONCEPT_REFERENCE.nid() == descendentNode.getMeaningNid()) {
                     ConceptFacade vertexConcept = CONCEPT.getPropertyFast(descendentNode);
                     descendentConceptDescriptions.add("[" + calculator().getPreferredDescriptionTextWithFallbackOrNid(vertexConcept) +
                             "] ");

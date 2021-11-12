@@ -44,7 +44,7 @@ public class RemoveFromTinkarBaseModelRule extends AbstractComponentRule {
             }
             // case 2: a member, and maybe active.
             Latest<EntityVersion> latestSemanticVersion = viewCalculator.latest(semanticNidsForComponent[0]);
-            if (latestSemanticVersion.isPresent() && latestSemanticVersion.get().isActive()) {
+            if (latestSemanticVersion.isPresent() && latestSemanticVersion.get().active()) {
                 return true;
             }
         }

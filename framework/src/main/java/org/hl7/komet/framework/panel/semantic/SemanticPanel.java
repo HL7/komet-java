@@ -1,6 +1,7 @@
 package org.hl7.komet.framework.panel.semantic;
 
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.ObservableSet;
 import javafx.geometry.Pos;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
@@ -17,8 +18,8 @@ import org.hl7.tinkar.terms.TinkarTerm;
 
 public class SemanticPanel<T extends SemanticEntity<SemanticEntityVersion>> extends ComponentIsFinalPanel<T, SemanticEntityVersion> {
 
-    public SemanticPanel(T semanticEntity, ViewProperties viewProperties, SimpleObjectProperty<EntityFacade> topEnclosingComponentProperty) {
-        super(semanticEntity, viewProperties, topEnclosingComponentProperty);
+    public SemanticPanel(T semanticEntity, ViewProperties viewProperties, SimpleObjectProperty<EntityFacade> topEnclosingComponentProperty, ObservableSet<Integer> referencedNids) {
+        super(semanticEntity, viewProperties, topEnclosingComponentProperty, referencedNids);
         Latest<PatternEntityVersion> latestPatternVersion = viewProperties.calculator().latestPatternEntityVersion(semanticEntity.patternNid());
 
         latestPatternVersion.ifPresent(patternEntityVersion -> {

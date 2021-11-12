@@ -50,7 +50,7 @@ public abstract class ComponentVersionIsFinalPanel<V extends EntityVersion> {
         Node versionNode = makeCenterNode(version, viewProperties);
         if (versionNode != null) {
             BorderPane.setAlignment(versionNode, Pos.TOP_LEFT);
-            versionNode.pseudoClassStateChanged(PseudoClasses.INACTIVE_PSEUDO_CLASS, !version.isActive());
+            versionNode.pseudoClassStateChanged(PseudoClasses.INACTIVE_PSEUDO_CLASS, !version.active());
         }
         this.versionDetailsPane.getStyleClass().add(COMPONENT_VERSION_BORDER_PANEL.toString());
         this.versionDetailsPane.pseudoClassStateChanged(PseudoClasses.UNCOMMITTED_PSEUDO_CLASS, version.uncommitted());
@@ -63,7 +63,7 @@ public abstract class ComponentVersionIsFinalPanel<V extends EntityVersion> {
                 " by " + viewProperties.calculator().getPreferredDescriptionTextWithFallbackOrNid(stampEntity.authorNid()));
         stampLabel.getStyleClass().add(STAMP_LABEL.toString());
         this.collapsiblePane.setText("");
-        this.collapsiblePane.pseudoClassStateChanged(PseudoClasses.INACTIVE_PSEUDO_CLASS, !version.isActive());
+        this.collapsiblePane.pseudoClassStateChanged(PseudoClasses.INACTIVE_PSEUDO_CLASS, !version.active());
         this.collapsiblePane.getStyleClass().add(COMPONENT_VERSION_PANEL.toString());
         ObservationRecord observation = new ObservationRecord(Topic.COMPONENT_FOCUSED, version, Measures.present());
         StatementStore statementStore = StatementStore.make(observation);

@@ -91,7 +91,7 @@ public class SearchResultCell extends TreeCell<Object> {
                 HBox hBox = new HBox(textFlow);
                 setGraphic(hBox);
                 latestVersionSearchResult.latestVersion().ifPresent(semanticEntityVersion -> {
-                    pseudoClassStateChanged(INACTIVE_PSEUDO_CLASS, !semanticEntityVersion.isActive());
+                    pseudoClassStateChanged(INACTIVE_PSEUDO_CLASS, !semanticEntityVersion.active());
                 });
 
             } else if (item instanceof String itemString) {

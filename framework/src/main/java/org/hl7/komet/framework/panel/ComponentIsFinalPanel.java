@@ -2,6 +2,7 @@ package org.hl7.komet.framework.panel;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.ObservableSet;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ContentDisplay;
@@ -34,13 +35,14 @@ public class ComponentIsFinalPanel<C extends Entity<V>, V extends EntityVersion>
         collapsiblePane.getStyleClass().add(COMPONENT_COLLAPSIBLE_PANEL.toString());
     }
 
-    public ComponentIsFinalPanel(C component, ViewProperties viewProperties, SimpleObjectProperty<EntityFacade> topEnclosingComponentProperty) {
-        super(viewProperties);
+    public ComponentIsFinalPanel(C component, ViewProperties viewProperties, SimpleObjectProperty<EntityFacade> topEnclosingComponentProperty, ObservableSet<Integer> referencedNids) {
+        super(viewProperties, referencedNids);
         if (component == null) {
             throw new NullPointerException();
         }
         this.component = component;
         this.collapsiblePane.setContentDisplay(ContentDisplay.LEFT);
+        Platform.runLater(() -> referencedNids.add(component.nid()));
         // TODO finish good identicon graphic.
         //this.collapsiblePane.setGraphic(Identicon.generateIdenticon(component.publicId(), 24, 24));
         Executor.threadPool().execute(() -> {

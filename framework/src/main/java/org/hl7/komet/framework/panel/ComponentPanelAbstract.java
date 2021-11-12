@@ -2,6 +2,8 @@ package org.hl7.komet.framework.panel;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableSet;
 import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
@@ -18,13 +20,19 @@ import org.hl7.tinkar.entity.Entity;
 import org.hl7.tinkar.entity.PatternEntity;
 import org.hl7.tinkar.entity.SemanticEntity;
 import org.hl7.tinkar.terms.EntityFacade;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.HashSet;
 import java.util.Optional;
 
 public abstract class ComponentPanelAbstract {
+    private static final Logger LOG = LoggerFactory.getLogger(ComponentPanelAbstract.class);
+    protected final ObservableSet<Integer> referencedNids;
     protected final BorderPane componentDetailPane = new BorderPane();
     protected final VBox componentPanelBox = new VBox(8);
     protected final ViewProperties viewProperties;
+
 
     {
         this.componentDetailPane.setCenter(this.componentPanelBox);
@@ -32,7 +40,16 @@ public abstract class ComponentPanelAbstract {
     }
 
     protected ComponentPanelAbstract(ViewProperties viewProperties) {
+        this(viewProperties, FXCollections.observableSet(new HashSet<>()));
+    }
+
+    protected ComponentPanelAbstract(ViewProperties viewProperties, ObservableSet<Integer> referencedNids) {
         this.viewProperties = viewProperties;
+        this.referencedNids = referencedNids;
+    }
+
+    public final ObservableSet<Integer> getReferencedNids() {
+        return referencedNids;
     }
 
     public abstract <C extends EntityFacade> Optional<C> getComponent();
@@ -49,9 +66,12 @@ public abstract class ComponentPanelAbstract {
         if (entity != null) {
             Executor.threadPool().execute(() -> {
                 PrimitiveData.get().forEachSemanticNidForComponent(entity.nid(), semanticNid -> {
+                    Platform.runLater(() -> referencedNids.add(semanticNid));
                     SemanticEntity semanticEntity = Entity.getFast(semanticNid);
-                    ComponentPanelAbstract semanticPanel = makeComponentPanel(semanticEntity, topEnclosingComponentProperty);
-                    Platform.runLater(() -> ComponentPanelAbstract.this.componentPanelBox.getChildren().add(semanticPanel.getComponentDetailPane()));
+                    if (!semanticEntity.canceled()) {
+                        ComponentPanelAbstract semanticPanel = makeComponentPanel(semanticEntity, topEnclosingComponentProperty);
+                        Platform.runLater(() -> ComponentPanelAbstract.this.componentPanelBox.getChildren().add(semanticPanel.getComponentDetailPane()));
+                    }
                 });
             });
         }
@@ -60,11 +80,11 @@ public abstract class ComponentPanelAbstract {
     public ComponentPanelAbstract makeComponentPanel(EntityFacade facade, SimpleObjectProperty<EntityFacade> topEnclosingComponentProperty) {
         Entity<?> entity = Entity.getFast(facade);
         if (entity instanceof ConceptEntity conceptEntity) {
-            return new ConceptPanel(conceptEntity, viewProperties, topEnclosingComponentProperty);
+            return new ConceptPanel(conceptEntity, viewProperties, topEnclosingComponentProperty, referencedNids);
         } else if (entity instanceof SemanticEntity semanticEntity) {
-            return new SemanticPanel(semanticEntity, viewProperties, topEnclosingComponentProperty);
+            return new SemanticPanel(semanticEntity, viewProperties, topEnclosingComponentProperty, referencedNids);
         } else if (entity instanceof PatternEntity patternEntity) {
-            return new PatternPanel(patternEntity, viewProperties, topEnclosingComponentProperty);
+            return new PatternPanel(patternEntity, viewProperties, topEnclosingComponentProperty, referencedNids);
         } else {
             throw new IllegalStateException("Can't handle: " + entity);
         }

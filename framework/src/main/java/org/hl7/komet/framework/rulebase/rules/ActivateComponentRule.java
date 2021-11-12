@@ -18,7 +18,7 @@ public class ActivateComponentRule extends AbstractComponentRule {
     @Override
     boolean conditionsMet(Statement statement, ViewCalculator viewCalculator) {
         if (statement.subject() instanceof EntityVersion entityVersion) {
-            if (!entityVersion.isActive()) {
+            if (!entityVersion.active()) {
                 return true;
             }
         }

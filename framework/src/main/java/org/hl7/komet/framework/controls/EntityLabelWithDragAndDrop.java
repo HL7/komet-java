@@ -124,7 +124,7 @@ public class EntityLabelWithDragAndDrop
         EntityLabelWithDragAndDrop entityLabel = new EntityLabelWithDragAndDrop(viewProperties, entityFocusProperty,
                 descriptionTextUpdater, selectionIndexProperty, unlink, contextMenuProviders);
         viewProperties.calculator().latest(entityFocusProperty.get()).ifPresentOrElse(entityVersion ->
-                        entityLabel.pseudoClassStateChanged(INACTIVE_PSEUDO_CLASS, !entityVersion.isActive()),
+                        entityLabel.pseudoClassStateChanged(INACTIVE_PSEUDO_CLASS, !entityVersion.active()),
                 () -> entityLabel.pseudoClassStateChanged(INACTIVE_PSEUDO_CLASS, true));
         entityLabel.getStyleClass().remove(CONCEPT_LABEL.toString());
         entityLabel.getStyleClass().add(PROP_SHEET_ENTITY_LABEL.toString());

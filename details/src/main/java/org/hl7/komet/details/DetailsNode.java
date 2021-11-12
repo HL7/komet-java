@@ -12,6 +12,8 @@ import org.hl7.komet.framework.controls.EntityLabelWithDragAndDrop;
 import org.hl7.komet.framework.panel.ComponentPanel;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.komet.preferences.KometPreferences;
+import org.hl7.tinkar.common.flow.FlowSubscriber;
+import org.hl7.tinkar.entity.Entity;
 import org.hl7.tinkar.terms.EntityFacade;
 
 public class DetailsNode extends ExplorationNodeAbstract {
@@ -20,6 +22,7 @@ public class DetailsNode extends ExplorationNodeAbstract {
     final SimpleObjectProperty<EntityFacade> entityFocusProperty = new SimpleObjectProperty<>();
     private final BorderPane detailsPane = new BorderPane();
     private final ComponentPanel componentPanel;
+    private final FlowSubscriber<Integer> invalidationSubscriber;
 
     {
         entityFocusProperty.addListener((observable, oldValue, newValue) -> {
@@ -36,6 +39,19 @@ public class DetailsNode extends ExplorationNodeAbstract {
     public DetailsNode(ViewProperties viewProperties, KometPreferences nodePreferences) {
         super(viewProperties, nodePreferences);
         this.componentPanel = new ComponentPanel(entityFocusProperty, viewProperties);
+        this.invalidationSubscriber = new FlowSubscriber<>(nid -> {
+            if (entityFocusProperty.get() != null && entityFocusProperty.get().nid() == nid) {
+                // component has changed, need to update.
+                Platform.runLater(() -> entityFocusProperty.set(null));
+                Platform.runLater(() -> entityFocusProperty.set(Entity.provider().getEntityFast(nid)));
+            }
+        });
+        this.detailsPane.sceneProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue == null) {
+                invalidationSubscriber.cancel();
+            }
+        });
+        Entity.provider().subscribe(this.invalidationSubscriber);
 
         this.viewProperties.nodeView().addListener((observable, oldValue, newValue) -> {
             setupTopPanel(viewProperties);
