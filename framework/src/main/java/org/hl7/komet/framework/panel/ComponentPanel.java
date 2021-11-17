@@ -7,6 +7,8 @@ import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WeakChangeListener;
 import javafx.scene.control.ScrollPane;
 import org.hl7.komet.framework.flow.FlowSubscriberForNode;
+import org.hl7.komet.framework.observable.ObservableEntity;
+import org.hl7.komet.framework.observable.ObservableEntitySnapshot;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.tinkar.entity.Entity;
 import org.hl7.tinkar.terms.EntityFacade;
@@ -57,6 +59,9 @@ public class ComponentPanel
         referencedNids.clear();
         if (newValue != null) {
             referencedNids.add(newValue.nid());
+            ObservableEntitySnapshot entitySnapshot = ObservableEntity.getSnapshot(newValue.nid(), viewProperties.calculator());
+
+
             getComponentPanelBox().getChildren().add(makeComponentPanel(newValue, componentProperty).getComponentDetailPane());
         }
     }

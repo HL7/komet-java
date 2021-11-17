@@ -1,7 +1,7 @@
 package org.hl7.komet.framework.observable;
 
-import javafx.beans.property.ListProperty;
-import javafx.beans.property.SimpleListProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.set.primitive.IntSet;
@@ -18,7 +18,7 @@ public abstract class ObservableEntity<O extends ObservableVersion<V>, V extends
             new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.WEAK,
                     ConcurrentReferenceHashMap.ReferenceType.WEAK);
     final Entity<V> entity;
-    final SimpleListProperty<O> versionProperty = new SimpleListProperty();
+    final ObservableList<O> versionProperty = FXCollections.observableArrayList();
 
     ObservableEntity(Entity<V> entity) {
         this.entity = entity;
@@ -28,6 +28,12 @@ public abstract class ObservableEntity<O extends ObservableVersion<V>, V extends
     }
 
     protected abstract O wrap(V version);
+
+    public static <OE extends ObservableEntity> ObservableEntitySnapshot getSnapshot(int nid, ViewCalculator calculator) {
+        return get(Entity.getFast(nid)).getSnapshot(calculator);
+    }
+
+    public abstract ObservableEntitySnapshot getSnapshot(ViewCalculator calculator);
 
     public static <OE extends ObservableEntity> OE get(Entity<? extends EntityVersion> entity) {
         if (entity instanceof ObservableEntity) {
@@ -55,7 +61,11 @@ public abstract class ObservableEntity<O extends ObservableVersion<V>, V extends
         return (OE) observableEntity;
     }
 
-    ListProperty<O> versionProperty() {
+    public static <OE extends ObservableEntity> OE get(int nid) {
+        return get(Entity.getFast(nid));
+    }
+
+    ObservableList<O> versionProperty() {
         return versionProperty;
     }
 
@@ -98,8 +108,6 @@ public abstract class ObservableEntity<O extends ObservableVersion<V>, V extends
     public long[] additionalUuidLongs() {
         return entity.additionalUuidLongs();
     }
-
-    public abstract ObservableEntitySnapshot getSnapshot(ViewCalculator calculator);
 
     public Iterable<ObservableSemantic> getObservableSemanticList() {
         throw new UnsupportedOperationException();

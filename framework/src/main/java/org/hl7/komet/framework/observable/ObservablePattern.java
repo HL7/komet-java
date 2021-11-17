@@ -16,7 +16,6 @@ public class ObservablePattern
         return new ObservablePatternVersion(version);
     }
 
-
     @Override
     public ObservablePatternSnapshot getSnapshot(ViewCalculator calculator) {
         return new ObservablePatternSnapshot(calculator, this);

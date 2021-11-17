@@ -83,6 +83,7 @@ public class KometExecutorProvider implements ExecutorService {
                     timeUnit,
                     new SynchronousQueue<>(),
                     new NamedThreadFactory("Tinkar-B-work-thread", true));
+            
             this.blockingThreadPoolExecutor.setRejectedExecutionHandler((runnable, executor) -> {
                 try {
                     executor.getQueue()

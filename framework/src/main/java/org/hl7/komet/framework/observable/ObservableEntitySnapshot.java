@@ -80,10 +80,11 @@ public class ObservableEntitySnapshot<OE extends ObservableEntity<OV, EV>,
 
     @Override
     public String toString() {
-        return "CategorizedObservableVersions{" + "uncommittedVersions=\n" + uncommittedVersions + "historicVersions=\n" +
-                historicVersions + ", latestVersion=\n" + latestVersion +
-                ", latestStampSequences=\n" + latestStampIds +
-                ", allStampSequences=\n" + allStampIds + '}';
+        return "Observable Snapshot{\n   latest: " + latestVersion +
+                "\n   uncommitted: " + uncommittedVersions + "" +
+                "\n   historic: " + historicVersions +
+                "\n   latest stamps: " + latestStampIds +
+                "\n   all stamps: " + allStampIds + '}';
     }
 
     public ImmutableList<OV> getUncommittedVersions() {

@@ -17,6 +17,7 @@ import org.hl7.komet.framework.view.ObservableViewNoOverride;
 import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.komet.preferences.KometPreferencesImpl;
 import org.hl7.komet.preferences.Preferences;
+import org.hl7.tinkar.common.alert.AlertObject;
 import org.hl7.tinkar.common.alert.AlertStream;
 import org.hl7.tinkar.common.alert.AlertStreams;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
@@ -87,6 +88,7 @@ public class App extends Application {
 
         try {
             App.primaryStage = stage;
+            Thread.currentThread().setUncaughtExceptionHandler((t, e) -> AlertStreams.getRoot().dispatch(AlertObject.makeError(e)));
             // Add menu toolkit for Mac?
             // https://github.com/0x4a616e/NSMenuFX
 

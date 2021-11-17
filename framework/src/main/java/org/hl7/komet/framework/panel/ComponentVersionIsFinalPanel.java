@@ -26,7 +26,9 @@ import org.hl7.tinkar.common.alert.AlertStreams;
 import org.hl7.tinkar.common.service.Executor;
 import org.hl7.tinkar.common.util.time.DateTimeUtil;
 import org.hl7.tinkar.coordinate.Coordinates;
+import org.hl7.tinkar.coordinate.stamp.calculator.Latest;
 import org.hl7.tinkar.entity.EntityVersion;
+import org.hl7.tinkar.entity.SemanticEntityVersion;
 import org.hl7.tinkar.entity.StampEntity;
 import org.hl7.tinkar.entity.transaction.*;
 import org.slf4j.Logger;
@@ -64,6 +66,7 @@ public abstract class ComponentVersionIsFinalPanel<V extends EntityVersion> {
         stampLabel.getStyleClass().add(STAMP_LABEL.toString());
         this.collapsiblePane.setText("");
         this.collapsiblePane.pseudoClassStateChanged(PseudoClasses.INACTIVE_PSEUDO_CLASS, !version.active());
+        this.collapsiblePane.pseudoClassStateChanged(PseudoClasses.UNCOMMITTED_PSEUDO_CLASS, version.uncommitted());
         this.collapsiblePane.getStyleClass().add(COMPONENT_VERSION_PANEL.toString());
         ObservationRecord observation = new ObservationRecord(Topic.COMPONENT_FOCUSED, version, Measures.present());
         StatementStore statementStore = StatementStore.make(observation);
@@ -87,7 +90,14 @@ public abstract class ComponentVersionIsFinalPanel<V extends EntityVersion> {
         }
         if (version.uncommitted()) {
             buttonList.add(newCancelComponentButton(version));
-            buttonList.add(newCommitVersionButton(version));
+            if (version instanceof SemanticEntityVersion semanticEntityVersion) {
+                Latest<EntityVersion> latestReferencedEntity = viewProperties.calculator().latest(semanticEntityVersion.referencedComponentNid());
+                if (latestReferencedEntity.isPresentAnd(entityVersion -> entityVersion.committed())) {
+                    buttonList.add(newCommitVersionButton(version));
+                }
+            } else {
+                buttonList.add(newCommitVersionButton(version));
+            }
             buttonList.add(newCancelTransactionButton(version));
             buttonList.add(newCommitTransactionButton(version));
         }
