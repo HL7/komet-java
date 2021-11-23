@@ -13,6 +13,7 @@ import org.controlsfx.control.action.ActionUtils;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.hl7.komet.framework.PseudoClasses;
 import org.hl7.komet.framework.graphics.Icon;
+import org.hl7.komet.framework.observable.ObservableVersion;
 import org.hl7.komet.framework.performance.Measures;
 import org.hl7.komet.framework.performance.StatementStore;
 import org.hl7.komet.framework.performance.Topic;
@@ -39,14 +40,14 @@ import java.util.concurrent.Future;
 
 import static org.hl7.komet.framework.StyleClasses.*;
 
-public abstract class ComponentVersionIsFinalPanel<V extends EntityVersion> {
+public abstract class ComponentVersionIsFinalPanel<OV extends ObservableVersion> {
     private static final Logger LOG = LoggerFactory.getLogger(ComponentVersionIsFinalPanel.class);
     protected final BorderPane versionDetailsPane = new BorderPane();
     protected final TitledPane collapsiblePane = new TitledPane("version", versionDetailsPane);
-    private final V version;
+    private final OV version;
     private final ViewProperties viewProperties;
 
-    public ComponentVersionIsFinalPanel(V version, ViewProperties viewProperties) {
+    public ComponentVersionIsFinalPanel(OV version, ViewProperties viewProperties) {
         this.version = version;
         this.viewProperties = viewProperties;
         Node versionNode = makeCenterNode(version, viewProperties);
@@ -115,9 +116,9 @@ public abstract class ComponentVersionIsFinalPanel<V extends EntityVersion> {
         LOG.info(consequences.toString());
     }
 
-    protected abstract Node makeCenterNode(V version, ViewProperties viewProperties);
+    protected abstract Node makeCenterNode(OV version, ViewProperties viewProperties);
 
-    private Button newCancelComponentButton(V version) {
+    private Button newCancelComponentButton(OV version) {
         Button button = new Button("cancel version");
         button.setOnAction(event -> {
             Transaction.forVersion(version).ifPresentOrElse(transaction -> {
@@ -137,7 +138,7 @@ public abstract class ComponentVersionIsFinalPanel<V extends EntityVersion> {
         return button;
     }
 
-    private Button newCommitVersionButton(V version) {
+    private Button newCommitVersionButton(OV version) {
         Button button = new Button("commit version");
         button.setOnAction(event -> {
             Transaction.forVersion(version).ifPresentOrElse(transaction -> {
@@ -157,7 +158,7 @@ public abstract class ComponentVersionIsFinalPanel<V extends EntityVersion> {
         return button;
     }
 
-    private Button newCancelTransactionButton(V version) {
+    private Button newCancelTransactionButton(OV version) {
         Button button = new Button("cancel transaction");
         button.setOnAction(event -> {
             Transaction.forVersion(version).ifPresentOrElse(transaction -> {
@@ -177,7 +178,7 @@ public abstract class ComponentVersionIsFinalPanel<V extends EntityVersion> {
         return button;
     }
 
-    private Button newCommitTransactionButton(V version) {
+    private Button newCommitTransactionButton(OV version) {
         Button button = new Button("commit transaction");
         button.setOnAction(event -> {
             Transaction.forVersion(version).ifPresentOrElse(transaction -> {

@@ -10,7 +10,7 @@ module org.hl7.komet.executor {
 
     exports org.hl7.komet.executor;
     provides AlertReportingService with AlertDialogSubscriber;
-    provides CachingService with KometExecutorController;
+    provides CachingService with KometExecutorController.CacheProvider;
     provides ExecutorController with KometExecutorController;
     provides TaskListsService with TaskListsProvider;
     requires transitive javafx.base;

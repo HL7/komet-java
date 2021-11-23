@@ -411,7 +411,7 @@ public enum ObservableFields implements ConceptFacade {
      */
     private static final UUID namespace = UUID.fromString("cbbd1e22-0cac-11e5-a6c0-1697f925ec7b");
 
-    //~--- fields --------------------------------------------------------------
+    //~--- fieldValues --------------------------------------------------------------
 
     /**
      * The description.
@@ -423,7 +423,7 @@ public enum ObservableFields implements ConceptFacade {
     //~--- constructors --------------------------------------------------------
 
     /**
-     * Instantiates a new observable fields.
+     * Instantiates a new observable fieldValues.
      *
      * @param fullyQualifiedDescription the description
      */

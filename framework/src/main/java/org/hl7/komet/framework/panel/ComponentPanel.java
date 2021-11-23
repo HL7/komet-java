@@ -62,7 +62,7 @@ public class ComponentPanel
             ObservableEntitySnapshot entitySnapshot = ObservableEntity.getSnapshot(newValue.nid(), viewProperties.calculator());
 
 
-            getComponentPanelBox().getChildren().add(makeComponentPanel(newValue, componentProperty).getComponentDetailPane());
+            getComponentPanelBox().getChildren().add(makeComponentPanel(entitySnapshot, componentProperty).getComponentDetailPane());
         }
     }
 

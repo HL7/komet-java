@@ -32,7 +32,7 @@ public class KometPropertySheetSkin extends SkinBase<PropertySheet> {
 
     /**************************************************************************
      *
-     * Static fields
+     * Static fieldValues
      *
      **************************************************************************/
 
@@ -40,7 +40,7 @@ public class KometPropertySheetSkin extends SkinBase<PropertySheet> {
 
     /**************************************************************************
      *
-     * fields
+     * fieldValues
      *
      **************************************************************************/
 

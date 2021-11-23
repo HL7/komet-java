@@ -25,7 +25,7 @@ public class RuleBase {
         try (ScanResult scanResult =                // Assign scanResult in try-with-resources
                      new ClassGraph()                    // Create a new ClassGraph instance
                              //.verbose()                      // If you want to enable logging to stderr
-                             .enableAllInfo()                // Scan classes, methods, fields, annotations
+                             .enableAllInfo()                // Scan classes, methods, fieldValues, annotations
                              .acceptPackages("org.hl7.komet.framework.rulebase")      // Scan org.hl7.komet.framework.rulebase and subpackages
                              .scan()) {                      // Perform the scan and return a ScanResult
             // Use the ScanResult within the try block, e.g.

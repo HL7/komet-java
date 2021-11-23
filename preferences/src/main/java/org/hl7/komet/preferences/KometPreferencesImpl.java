@@ -31,7 +31,7 @@ public class KometPreferencesImpl
     public static final KometPreferencesWrapper preferencesWrapper = new KometPreferencesWrapper(preferencesImpl);
     private static final Logger LOG = LoggerFactory.getLogger(KometPreferencesImpl.class);
 
-    //~--- fields --------------------------------------------------------------
+    //~--- fieldValues --------------------------------------------------------------
     private final ConcurrentSkipListMap<String, String> preferencesTree = new ConcurrentSkipListMap<>();
     private final File directory;
     private final File preferencesFile;

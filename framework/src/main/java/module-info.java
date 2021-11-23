@@ -1,8 +1,8 @@
 import org.hl7.komet.framework.concurrent.TaskListsService;
+import org.hl7.komet.framework.dnd.DragRegistry;
+import org.hl7.tinkar.common.service.CachingService;
 
 open module org.hl7.komet.framework {
-
-
     exports org.hl7.komet.framework.activity;
     exports org.hl7.komet.framework.alerts;
     exports org.hl7.komet.framework.concurrent;
@@ -22,7 +22,7 @@ open module org.hl7.komet.framework {
     exports org.hl7.komet.framework.uncertain;
     exports org.hl7.komet.framework.view;
     exports org.hl7.komet.framework;
-
+    provides CachingService with DragRegistry.CacheProvider;
     requires io.github.classgraph;
     requires org.hl7.tinkar.collection;
     requires org.kordamp.ikonli.fontawesome5;
@@ -38,10 +38,8 @@ open module org.hl7.komet.framework {
     requires org.kordamp.ikonli.runestroicons;
     requires org.kordamp.ikonli.unicons;
     requires org.reactivestreams;
-
     requires static java.compiler;
     requires static org.hl7.tinkar.record.builder;
-
     requires transitive javafx.base;
     requires transitive javafx.controls;
     requires transitive javafx.fxml;
@@ -58,6 +56,5 @@ open module org.hl7.komet.framework {
     requires transitive org.hl7.tinkar.terms;
     requires transitive org.kordamp.ikonli.javafx;
     requires transitive org.slf4j;
-
     uses TaskListsService;
 }

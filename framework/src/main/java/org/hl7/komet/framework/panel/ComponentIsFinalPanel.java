@@ -8,34 +8,38 @@ import javafx.scene.Node;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.BorderPane;
+import org.hl7.komet.framework.observable.*;
 import org.hl7.komet.framework.panel.concept.ConceptVersionPanel;
 import org.hl7.komet.framework.panel.pattern.PatternVersionPanel;
 import org.hl7.komet.framework.panel.semantic.SemanticVersionPanel;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.tinkar.common.service.Executor;
-import org.hl7.tinkar.component.graph.DiTree;
 import org.hl7.tinkar.coordinate.stamp.calculator.Latest;
-import org.hl7.tinkar.entity.*;
-import org.hl7.tinkar.entity.graph.VersionVertex;
+import org.hl7.tinkar.entity.EntityVersion;
 import org.hl7.tinkar.terms.EntityFacade;
 
-import java.util.List;
 import java.util.Optional;
 
 import static org.hl7.komet.framework.StyleClasses.COMPONENT_COLLAPSIBLE_PANEL;
 
 /**
- * @param <C>
+ * @param <ES>
+ * @param <OE>
+ * @param <OV>
+ * @param <EV>
  */
-public class ComponentIsFinalPanel<C extends Entity<V>, V extends EntityVersion> extends ComponentPanelAbstract {
+public class ComponentIsFinalPanel<ES extends ObservableEntitySnapshot<OE, OV, EV>,
+        OE extends ObservableEntity<OV, EV>,
+        OV extends ObservableVersion<EV>,
+        EV extends EntityVersion> extends ComponentPanelAbstract {
     protected final TitledPane collapsiblePane = new TitledPane("Component", componentDetailPane);
-    private final C component;
+    private final ES component;
 
     {
         collapsiblePane.getStyleClass().add(COMPONENT_COLLAPSIBLE_PANEL.toString());
     }
 
-    public ComponentIsFinalPanel(C component, ViewProperties viewProperties, SimpleObjectProperty<EntityFacade> topEnclosingComponentProperty, ObservableSet<Integer> referencedNids) {
+    public ComponentIsFinalPanel(ES component, ViewProperties viewProperties, SimpleObjectProperty<EntityFacade> topEnclosingComponentProperty, ObservableSet<Integer> referencedNids) {
         super(viewProperties, referencedNids);
         if (component == null) {
             throw new NullPointerException();
@@ -44,58 +48,45 @@ public class ComponentIsFinalPanel<C extends Entity<V>, V extends EntityVersion>
         this.collapsiblePane.setContentDisplay(ContentDisplay.LEFT);
         Platform.runLater(() -> referencedNids.add(component.nid()));
         // TODO finish good identicon graphic.
-        //this.collapsiblePane.setGraphic(Identicon.generateIdenticon(component.publicId(), 24, 24));
+        // this.collapsiblePane.setGraphic(Identicon.generateIdenticon(component.publicId(), 24, 24));
         Executor.threadPool().execute(() -> {
-            List<DiTree<VersionVertex<V>>> versionGraph = viewProperties.calculator().getVersionGraphList(component);
-            Latest<V> latestVersion = viewProperties.calculator().latest(component);
-            latestVersion.ifPresent(version -> {
-                for (DiTree<VersionVertex<V>> diTree : versionGraph) {
-                    for (VersionVertex<V> vertex : diTree.vertexMap()) {
-                        if (vertex.version().stampNid() == version.stampNid()) {
-                            addVersionAndPredecessors(vertex, diTree, true);
-                            break;
-                        }
-                    }
-                }
+            for (OV uncommittedVersion : component.getUncommittedVersions()) {
+                addVersionPanel(uncommittedVersion, true);
+            }
+            Latest<OV> latestComponent = component.getLatestVersion();
+            latestComponent.ifPresent(latestVersion -> {
+                addVersionPanel(latestVersion, true);
             });
+            for (OV contradictedVersion : latestComponent.contradictions()) {
+                addVersionPanel(contradictedVersion, true);
+            }
+            for (OV historicVersion : component.getHistoricVersions()) {
+                addVersionPanel(historicVersion, false);
+            }
             addSemanticReferences(component, topEnclosingComponentProperty);
         });
     }
 
-    private void addVersionAndPredecessors(VersionVertex<V> versionVertex, DiTree<VersionVertex<V>> versionGraph, boolean expanded) {
-        if (versionVertex != null) {
-            ComponentVersionIsFinalPanel<V> versionPanel = makeVersionPanel(versionVertex.version());
-            BorderPane.setAlignment(versionPanel.versionDetailsPane, Pos.TOP_LEFT);
-            versionPanel.collapsiblePane.setExpanded(expanded);
-            Platform.runLater(() -> ComponentIsFinalPanel.this.componentPanelBox.getChildren().add(versionPanel.getVersionDetailsPane()));
-            versionGraph.predecessor(versionVertex).ifPresent(predecessorVertex -> {
-                addVersionAndPredecessors(predecessorVertex, versionGraph, false);
-            });
-        }
-    }
-
-    private void dfsAddVersion(VersionVertex<V> versionVertex, DiTree<VersionVertex<V>> versionGraph) {
-        ComponentVersionIsFinalPanel<V> versionPanel = makeVersionPanel(versionVertex.version());
+    private void addVersionPanel(OV version, boolean expanded) {
+        ComponentVersionIsFinalPanel<OV> versionPanel = makeVersionPanel(version);
         BorderPane.setAlignment(versionPanel.versionDetailsPane, Pos.TOP_LEFT);
+        versionPanel.collapsiblePane.setExpanded(expanded);
         Platform.runLater(() -> ComponentIsFinalPanel.this.componentPanelBox.getChildren().add(versionPanel.getVersionDetailsPane()));
-        for (VersionVertex<V> childVertex : versionGraph.successors(versionVertex)) {
-            dfsAddVersion(childVertex, versionGraph);
-        }
     }
 
-    private ComponentVersionIsFinalPanel<V> makeVersionPanel(V version) {
-        if (version instanceof SemanticEntityVersion semanticEntityVersion) {
-            return (ComponentVersionIsFinalPanel<V>) new SemanticVersionPanel(semanticEntityVersion, viewProperties);
-        } else if (version instanceof ConceptEntityVersion conceptEntityVersion) {
-            return (ComponentVersionIsFinalPanel<V>) new ConceptVersionPanel(conceptEntityVersion, viewProperties);
-        } else if (version instanceof PatternEntityVersion patternEntityVersion) {
-            return (ComponentVersionIsFinalPanel<V>) new PatternVersionPanel(patternEntityVersion, viewProperties);
+    private ComponentVersionIsFinalPanel makeVersionPanel(OV version) {
+        if (version instanceof ObservableSemanticVersion semanticVersion) {
+            return new SemanticVersionPanel(semanticVersion, viewProperties);
+        } else if (version instanceof ObservableConceptVersion conceptVersion) {
+            return new ConceptVersionPanel(conceptVersion, viewProperties);
+        } else if (version instanceof ObservablePatternVersion patternVersion) {
+            return new PatternVersionPanel(patternVersion, viewProperties);
         }
         throw new UnsupportedOperationException("Can't handle version type: " + version.toString());
     }
 
     @Override
-    public final Optional<C> getComponent() {
+    public final Optional<ES> getComponent() {
         return Optional.of(component);
     }
 

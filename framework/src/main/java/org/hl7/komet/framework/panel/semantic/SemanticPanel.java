@@ -7,20 +7,26 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.HBox;
 import org.hl7.komet.framework.PseudoClasses;
+import org.hl7.komet.framework.observable.ObservableSemantic;
+import org.hl7.komet.framework.observable.ObservableSemanticSnapshot;
+import org.hl7.komet.framework.observable.ObservableSemanticVersion;
 import org.hl7.komet.framework.panel.ComponentIsFinalPanel;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.tinkar.coordinate.stamp.calculator.Latest;
 import org.hl7.tinkar.entity.PatternEntityVersion;
-import org.hl7.tinkar.entity.SemanticEntity;
-import org.hl7.tinkar.entity.SemanticEntityVersion;
+import org.hl7.tinkar.entity.SemanticVersionRecord;
 import org.hl7.tinkar.terms.EntityFacade;
 import org.hl7.tinkar.terms.TinkarTerm;
 
-public class SemanticPanel<T extends SemanticEntity<SemanticEntityVersion>> extends ComponentIsFinalPanel<T, SemanticEntityVersion> {
+public class SemanticPanel extends ComponentIsFinalPanel<
+        ObservableSemanticSnapshot,
+        ObservableSemantic,
+        ObservableSemanticVersion,
+        SemanticVersionRecord> {
 
-    public SemanticPanel(T semanticEntity, ViewProperties viewProperties, SimpleObjectProperty<EntityFacade> topEnclosingComponentProperty, ObservableSet<Integer> referencedNids) {
-        super(semanticEntity, viewProperties, topEnclosingComponentProperty, referencedNids);
-        Latest<PatternEntityVersion> latestPatternVersion = viewProperties.calculator().latestPatternEntityVersion(semanticEntity.patternNid());
+    public SemanticPanel(ObservableSemanticSnapshot semanticSnapshot, ViewProperties viewProperties, SimpleObjectProperty<EntityFacade> topEnclosingComponentProperty, ObservableSet<Integer> referencedNids) {
+        super(semanticSnapshot, viewProperties, topEnclosingComponentProperty, referencedNids);
+        Latest<PatternEntityVersion> latestPatternVersion = viewProperties.calculator().latestPatternEntityVersion(semanticSnapshot.patternNid());
 
         latestPatternVersion.ifPresent(patternEntityVersion -> {
             StringBuilder sb = new StringBuilder("[");
@@ -46,20 +52,20 @@ public class SemanticPanel<T extends SemanticEntity<SemanticEntityVersion>> exte
             contextMenu.getItems().add(patternMenuItem);
 
             MenuItem topEnclosingComponentMenuItem = new MenuItem("Focus on top enclosing component: " +
-                    viewProperties.calculator().getPreferredDescriptionTextWithFallbackOrNid(semanticEntity.topEnclosingComponentNid()));
+                    viewProperties.calculator().getPreferredDescriptionTextWithFallbackOrNid(semanticSnapshot.observableEntity().topEnclosingComponentNid()));
             topEnclosingComponentMenuItem.setOnAction(event -> {
-                topEnclosingComponentProperty.setValue(semanticEntity.topEnclosingComponent());
+                topEnclosingComponentProperty.setValue(semanticSnapshot.observableEntity().topEnclosingComponent());
             });
             contextMenu.getItems().add(topEnclosingComponentMenuItem);
 
         });
 
 
-        if (semanticEntity.patternNid() == TinkarTerm.EL_PLUS_PLUS_STATED_AXIOMS_PATTERN.nid() ||
-                semanticEntity.patternNid() == TinkarTerm.EL_PLUS_PLUS_INFERRED_AXIOMS_PATTERN.nid()) {
+        if (semanticSnapshot.patternNid() == TinkarTerm.EL_PLUS_PLUS_STATED_AXIOMS_PATTERN.nid() ||
+                semanticSnapshot.patternNid() == TinkarTerm.EL_PLUS_PLUS_INFERRED_AXIOMS_PATTERN.nid()) {
             this.getComponentPanelBox().pseudoClassStateChanged(PseudoClasses.LOGICAL_DEFINITION_PSEUDO_CLASS, true);
             this.getComponentDetailPane().pseudoClassStateChanged(PseudoClasses.LOGICAL_DEFINITION_PSEUDO_CLASS, true);
-        } else if (semanticEntity.patternNid() == TinkarTerm.DESCRIPTION_PATTERN.nid()) {
+        } else if (semanticSnapshot.patternNid() == TinkarTerm.DESCRIPTION_PATTERN.nid()) {
             this.getComponentPanelBox().pseudoClassStateChanged(PseudoClasses.DESCRIPTION_PSEUDO_CLASS, true);
             this.getComponentDetailPane().pseudoClassStateChanged(PseudoClasses.DESCRIPTION_PSEUDO_CLASS, true);
         } else {

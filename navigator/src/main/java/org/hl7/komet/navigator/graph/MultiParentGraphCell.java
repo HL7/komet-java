@@ -87,7 +87,7 @@ final public class MultiParentGraphCell
      */
     private static final Logger LOG = LoggerFactory.getLogger(MultiParentGraphCell.class);
 
-    //~--- fields --------------------------------------------------------------
+    //~--- fieldValues --------------------------------------------------------------
 
     private double dragOffset = 0;
     private TilePane graphicTilePane;

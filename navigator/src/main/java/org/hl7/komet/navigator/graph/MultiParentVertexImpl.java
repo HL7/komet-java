@@ -84,7 +84,7 @@ public class MultiParentVertexImpl
      * The Constant LOG.
      */
     private static final Logger LOG = LoggerFactory.getLogger(MultiParentVertexImpl.class);
-    //~--- fields --------------------------------------------------------------
+    //~--- fieldValues --------------------------------------------------------------
     private final List<MultiParentVertexImpl> extraParents = new ArrayList<>();
     private final int nid;
     private final IntIdSet typeNids;
@@ -98,6 +98,7 @@ public class MultiParentVertexImpl
     private String conceptDescriptionText;  // Cached to speed up comparisons with toString method.
     private ImmutableCollection<Edge> childLinks;
     private LeafStatus leafStatus = LeafStatus.UNKNOWN;
+
     //~--- constructors --------------------------------------------------------
     MultiParentVertexImpl(MultiParentGraphViewController graphController) {
         super();

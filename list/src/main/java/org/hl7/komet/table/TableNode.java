@@ -101,7 +101,7 @@ public class TableNode extends ExplorationNodeAbstract {
 
                 this.treeTableView.getColumns().add(column);
             }
-            ImmutableList<FieldDefinitionForEntity> fieldDefinitions = patternEntityVersion.fieldDefinitions();
+            ImmutableList<? extends FieldDefinitionForEntity> fieldDefinitions = patternEntityVersion.fieldDefinitions();
             for (int i = 0; i < fieldDefinitions.size(); i++) {
                 FieldDefinitionForEntity fieldDef = fieldDefinitions.get(i);
                 String meaningText = viewCalculator().getPreferredDescriptionTextWithFallbackOrNid(fieldDef.meaningNid());
@@ -161,7 +161,7 @@ public class TableNode extends ExplorationNodeAbstract {
         fieldColumn.setCellValueFactory(param -> {
             Component component = param.getValue().getValue();
             if (component instanceof SemanticEntityVersion entityVersion) {
-                Object obj = entityVersion.fields().get(fieldIndex);
+                Object obj = entityVersion.fieldValues().get(fieldIndex);
                 if (obj instanceof EntityFacade entityFacade) {
                     return new SimpleObjectProperty(languageCalculator().getPreferredDescriptionTextWithFallbackOrNid(entityFacade));
                 } else if (obj instanceof Instant instant) {

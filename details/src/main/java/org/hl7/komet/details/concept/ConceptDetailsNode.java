@@ -84,7 +84,7 @@ public class ConceptDetailsNode extends ExplorationNodeAbstract {
             ObservableFields.WILDCARD_FOR_ORDER
     };
     final SimpleObjectProperty<EntityFacade> entityFocusProperty = new SimpleObjectProperty<>();
-    //~--- fields --------------------------------------------------------------
+    //~--- fieldValues --------------------------------------------------------------
     private final SimpleIntegerProperty selectionIndexProperty = new SimpleIntegerProperty(0);
     private final HashMap<String, AtomicBoolean> disclosureStateMap = new HashMap<>();
     private final BorderPane detailsPane = new BorderPane();

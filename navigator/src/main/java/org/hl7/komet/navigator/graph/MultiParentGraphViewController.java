@@ -94,7 +94,7 @@ public class MultiParentGraphViewController implements RefreshListener {
     private ToolBar toolBar;
     @FXML
     private MenuButton navigationMenuButton;
-    //~--- fields --------------------------------------------------------------
+    //~--- fieldValues --------------------------------------------------------------
     private NavigatorDisplayPolicies displayPolicies;
     private OptionalInt selectedItemNidOptional = OptionalInt.empty();
     private KometPreferences nodePreferences;
@@ -195,7 +195,9 @@ public class MultiParentGraphViewController implements RefreshListener {
 
         this.navigationMenuButton.setGraphic(Icon.VIEW.makeIcon());
 
-    }    private ChangeListener<Scene> sceneChangedListener = this::sceneChanged;
+    }
+
+    private ChangeListener<Scene> sceneChangedListener = this::sceneChanged;
 
     @FXML
     void copySelectedConcepts(ActionEvent event) {
@@ -704,7 +706,6 @@ public class MultiParentGraphViewController implements RefreshListener {
         }
 
     }
-
 
 
     //~--- get methods ---------------------------------------------------------

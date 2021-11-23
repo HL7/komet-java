@@ -119,8 +119,8 @@ public class SearchPanelController implements ListChangeListener<TreeItem<Object
                         }
                         case MATCHED_SEMANTIC_NATURAL_ORDER -> {
                             results = results.toSortedList((o1, o2) -> {
-                                String string1 = (String) o1.latestVersion().get().fields().get(o1.fieldIndex());
-                                String string2 = (String) o2.latestVersion().get().fields().get(o2.fieldIndex());
+                                String string1 = (String) o1.latestVersion().get().fieldValues().get(o1.fieldIndex());
+                                String string2 = (String) o2.latestVersion().get().fieldValues().get(o2.fieldIndex());
                                 return NaturalOrder.compareStrings(string1, string2);
                             }).toImmutable();
                             for (LatestVersionSearchResult result : results) {

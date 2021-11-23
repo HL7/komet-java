@@ -3,26 +3,26 @@ package org.hl7.komet.framework.panel.pattern;
 import javafx.scene.Node;
 import org.controlsfx.control.PropertySheet;
 import org.hl7.komet.framework.PseudoClasses;
+import org.hl7.komet.framework.observable.ObservableFieldDefinition;
+import org.hl7.komet.framework.observable.ObservablePatternVersion;
 import org.hl7.komet.framework.panel.ComponentVersionIsFinalPanel;
 import org.hl7.komet.framework.propsheet.FieldDefinitionRecord;
 import org.hl7.komet.framework.propsheet.KometPropertySheet;
 import org.hl7.komet.framework.propsheet.SheetItem;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.tinkar.common.util.text.NaturalOrder;
-import org.hl7.tinkar.entity.FieldDefinitionForEntity;
-import org.hl7.tinkar.entity.PatternEntityVersion;
 import org.hl7.tinkar.terms.EntityProxy;
 
-public class PatternVersionPanel extends ComponentVersionIsFinalPanel<PatternEntityVersion> {
+public class PatternVersionPanel extends ComponentVersionIsFinalPanel<ObservablePatternVersion> {
 
     public static final String SEMANTIC_INFO = "Semantic info";
 
-    public PatternVersionPanel(PatternEntityVersion version, ViewProperties viewProperties) {
+    public PatternVersionPanel(ObservablePatternVersion version, ViewProperties viewProperties) {
         super(version, viewProperties);
     }
 
     @Override
-    protected Node makeCenterNode(PatternEntityVersion version, ViewProperties viewProperties) {
+    protected Node makeCenterNode(ObservablePatternVersion version, ViewProperties viewProperties) {
         KometPropertySheet propertySheet = new KometPropertySheet(viewProperties);
         propertySheet.pseudoClassStateChanged(PseudoClasses.UNCOMMITTED_PSEUDO_CLASS, version.uncommitted());
         // Referenced component meaning:
@@ -40,7 +40,7 @@ public class PatternVersionPanel extends ComponentVersionIsFinalPanel<PatternEnt
         // Add the field definitions.
 
         int i = 1;
-        for (FieldDefinitionForEntity fieldDef : version.fieldDefinitions()) {
+        for (ObservableFieldDefinition fieldDef : version.fieldDefinitions()) {
             String categoryName = "Field " + i + ": " + viewProperties.calculator().getPreferredDescriptionTextWithFallbackOrNid(fieldDef.meaning());
 
             FieldDefinitionRecord fieldDataTypeField = new FieldDefinitionRecord(EntityProxy.Concept.make(fieldDef.dataTypeNid()),

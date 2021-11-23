@@ -1,5 +1,6 @@
 package org.hl7.komet.framework.observable;
 
+import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.eclipse.collections.api.factory.Lists;
@@ -12,13 +13,19 @@ import org.hl7.tinkar.component.FieldDataType;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculator;
 import org.hl7.tinkar.entity.*;
 
+/**
+ * TODO: should be a way of listening for changes to the versions of the entity?
+ *
+ * @param <O>
+ * @param <V>
+ */
 public abstract class ObservableEntity<O extends ObservableVersion<V>, V extends EntityVersion> implements Entity<O> {
 
     protected static final ConcurrentReferenceHashMap<PublicId, ObservableEntity> SINGLETONS =
             new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.WEAK,
                     ConcurrentReferenceHashMap.ReferenceType.WEAK);
     final Entity<V> entity;
-    final ObservableList<O> versionProperty = FXCollections.observableArrayList();
+    final SimpleListProperty<O> versionProperty = new SimpleListProperty<>(FXCollections.observableArrayList());
 
     ObservableEntity(Entity<V> entity) {
         this.entity = entity;

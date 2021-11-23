@@ -8,16 +8,11 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-@AutoService({ExecutorController.class, CachingService.class})
-public class KometExecutorController implements ExecutorController, CachingService {
+@AutoService({ExecutorController.class})
+public class KometExecutorController implements ExecutorController {
     private static final Logger LOG = LoggerFactory.getLogger(KometExecutorController.class);
     private static AlertDialogSubscriber alertDialogSubscriber;
-    private AtomicReference<KometExecutorProvider> providerReference = new AtomicReference<>();
-
-    @Override
-    public void reset() {
-        stop();
-    }
+    private static AtomicReference<KometExecutorProvider> providerReference = new AtomicReference<>();
 
     @Override
     public KometExecutorProvider create() {
@@ -43,4 +38,19 @@ public class KometExecutorController implements ExecutorController, CachingServi
             return null;
         });
     }
+
+
+    @AutoService(CachingService.class)
+    public static class CacheProvider implements CachingService {
+        @Override
+        public void reset() {
+            providerReference.updateAndGet(executorProvider -> {
+                if (executorProvider != null) {
+                    executorProvider.stop();
+                }
+                return null;
+            });
+        }
+    }
+
 }
