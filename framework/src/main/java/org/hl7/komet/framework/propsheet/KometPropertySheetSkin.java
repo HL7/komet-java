@@ -19,6 +19,8 @@ import org.controlsfx.property.editor.AbstractPropertyEditor;
 import org.controlsfx.property.editor.PropertyEditor;
 import org.hl7.komet.framework.graphics.Icon;
 import org.hl7.komet.framework.panel.axiom.AxiomView;
+import org.hl7.komet.framework.propsheet.editor.IntIdListEditor;
+import org.hl7.komet.framework.propsheet.editor.IntIdSetEditor;
 import org.hl7.komet.framework.propsheet.editor.ListEditor;
 
 import java.util.ArrayList;
@@ -238,7 +240,9 @@ public class KometPropertySheetSkin extends SkinBase<PropertySheet> {
                 GridPane.setHalignment(label, HPos.RIGHT);
                 item.getPropertyEditorClass().ifPresent((Class aClass) -> {
                     if (aClass == AxiomView.class ||
-                            aClass == ListEditor.class) {
+                            aClass == ListEditor.class ||
+                            aClass == IntIdListEditor.class ||
+                            aClass == IntIdSetEditor.class) {
                         label.setMaxWidth(100);
                         GridPane.setValignment(label, VPos.TOP);
                     }

@@ -38,7 +38,7 @@ public class ObservableSemanticVersion
             Object value = fieldValues().get(i);
             FieldDefinitionForEntity fieldDef = patternVersion.fieldDefinitions().get(i);
             FieldDefinitionRecord fieldDefinitionRecord = new FieldDefinitionRecord(fieldDef.dataTypeNid(),
-                    fieldDef.purposeNid(), fieldDef.meaningNid(), patternVersion.stampNid());
+                    fieldDef.purposeNid(), fieldDef.meaningNid(), patternVersion.stampNid(), patternVersion.nid());
             fieldArray[i] = new ObservableField(new FieldRecord(value, this.stampNid(), fieldDefinitionRecord));
         }
         return Lists.immutable.of(fieldArray);

@@ -17,10 +17,14 @@ import org.controlsfx.property.editor.DefaultPropertyEditorFactory;
 import org.controlsfx.property.editor.PropertyEditor;
 import org.hl7.komet.framework.controls.EntityLabelWithDragAndDrop;
 import org.hl7.komet.framework.panel.axiom.AxiomView;
+import org.hl7.komet.framework.propsheet.editor.IntIdListEditor;
+import org.hl7.komet.framework.propsheet.editor.IntIdSetEditor;
 import org.hl7.komet.framework.propsheet.editor.ListEditor;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.tinkar.common.alert.AlertObject;
 import org.hl7.tinkar.common.alert.AlertStreams;
+import org.hl7.tinkar.common.id.IntIdList;
+import org.hl7.tinkar.common.id.IntIdSet;
 import org.hl7.tinkar.component.graph.DiTree;
 import org.hl7.tinkar.coordinate.logic.PremiseType;
 import org.hl7.tinkar.entity.SemanticEntityVersion;
@@ -54,13 +58,18 @@ public class KometPropertyEditorFactory implements Callback<PropertySheet.Item, 
             propertyEditor = createTextAreaEditor(item);
         } else if (item.getPropertyEditorClass().isPresent()) {
             Optional<PropertyEditor<?>> ed = createCustomEditor(item, viewProperties);
-            propertyEditor = ed.get();
+            if (ed.isPresent()) {
+                propertyEditor = ed.get();
+            } else {
+                propertyEditor = null;
+                AlertStreams.getRoot().dispatch(AlertObject.makeWarning("No editor for item " + item.getName(), item.toString()));
+            }
         } else {
             return null;
         }
 
         if (item instanceof SheetItem sheetItem) {
-            if (propertyEditor.getEditor() instanceof Control control) {
+            if (propertyEditor != null && propertyEditor.getEditor() instanceof Control control) {
                 sheetItem.addValidation(control);
             }
         }
@@ -100,6 +109,12 @@ public class KometPropertyEditorFactory implements Callback<PropertySheet.Item, 
                 Class editorClass = property.getPropertyEditorClass().get();
                 if (editorClass == ListEditor.class) {
                     return Optional.of(new ListEditor(viewProperties, (SimpleObjectProperty<ObservableList<EntityFacade>>) property.getObservableValue().get()));
+                }
+                if (editorClass == IntIdSetEditor.class) {
+                    return Optional.of(new IntIdSetEditor(viewProperties, (SimpleObjectProperty<IntIdSet>) property.getObservableValue().get()));
+                }
+                if (editorClass == IntIdListEditor.class) {
+                    return Optional.of(new IntIdListEditor(viewProperties, (SimpleObjectProperty<IntIdList>) property.getObservableValue().get()));
                 }
                 if (editorClass == EntityLabelWithDragAndDrop.class) {
                     return Optional.of(EntityLabelWithDragAndDrop.make(viewProperties, (ObjectProperty<EntityFacade>) property.getObservableValue().get()));

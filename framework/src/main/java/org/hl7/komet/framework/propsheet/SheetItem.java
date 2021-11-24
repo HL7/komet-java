@@ -1,33 +1,30 @@
 package org.hl7.komet.framework.propsheet;
 
-import javafx.application.Platform;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.scene.control.Control;
 import org.controlsfx.control.PropertySheet;
 import org.controlsfx.property.editor.PropertyEditor;
 import org.controlsfx.validation.ValidationSupport;
 import org.controlsfx.validation.Validator;
 import org.hl7.komet.framework.controls.EntityLabelWithDragAndDrop;
+import org.hl7.komet.framework.observable.ObservableField;
 import org.hl7.komet.framework.panel.axiom.AxiomView;
-import org.hl7.komet.framework.propsheet.editor.ListEditor;
+import org.hl7.komet.framework.propsheet.editor.IntIdListEditor;
+import org.hl7.komet.framework.propsheet.editor.IntIdSetEditor;
 import org.hl7.komet.framework.propsheet.editor.PasswordEditor;
 import org.hl7.komet.framework.view.ViewProperties;
-import org.hl7.tinkar.common.id.IntIdCollection;
-import org.hl7.tinkar.common.service.Executor;
-import org.hl7.tinkar.common.util.text.NaturalOrder;
+import org.hl7.tinkar.common.id.IntIdList;
+import org.hl7.tinkar.common.id.IntIdSet;
 import org.hl7.tinkar.component.graph.DiTree;
-import org.hl7.tinkar.entity.Field;
 import org.hl7.tinkar.entity.SemanticEntityVersion;
 import org.hl7.tinkar.entity.graph.EntityVertex;
 import org.hl7.tinkar.terms.EntityFacade;
 import org.hl7.tinkar.terms.TinkarTerm;
 
-import java.util.Arrays;
 import java.util.Optional;
 
 public class SheetItem<T> implements PropertySheet.Item {
@@ -62,17 +59,17 @@ public class SheetItem<T> implements PropertySheet.Item {
                 null, property, KometPropertyEditorFactory.TextFieldEditor.class, validationSupport, validator);
     }
 
-    public static <T> SheetItem<T> make(Field field, SemanticEntityVersion version, ViewProperties viewProperties) {
+    public static <T> SheetItem<T> make(ObservableField field, SemanticEntityVersion version, ViewProperties viewProperties) {
         return make(field, null, version, viewProperties);
     }
 
-    public static <T> SheetItem<T> make(Field field, String category, SemanticEntityVersion version, ViewProperties viewProperties) {
+    public static <T> SheetItem<T> make(ObservableField field, String category, SemanticEntityVersion version, ViewProperties viewProperties) {
         Class<?> classType;
         // meaning
         String name = viewProperties.calculator().getDescriptionTextOrNid(field.meaningNid());
         // Purpose
         String description = viewProperties.calculator().getDescriptionTextOrNid(field.purposeNid());
-        SimpleObjectProperty property = new SimpleObjectProperty(field.value());
+        ObjectProperty property = field.valueProperty();
 
         Class propertyEditorClass = null;
         switch (field.fieldDataType()) {
@@ -95,29 +92,13 @@ public class SheetItem<T> implements PropertySheet.Item {
                 break;
             case COMPONENT_ID_LIST:
                 // leave list in same order...
-                classType = ObservableList.class;
-                propertyEditorClass = ListEditor.class;
-                if (property.getValue() instanceof IntIdCollection intIdCollection) {
-                    property.setValue(FXCollections.observableArrayList(intIdCollection.mapToList(nid -> EntityFacade.make(nid))));
-                }
+                classType = IntIdList.class;
+                propertyEditorClass = IntIdListEditor.class;
                 break;
             case COMPONENT_ID_SET:
                 // sort set for presentation, order does not matter in set.
-                classType = ObservableList.class;
-                propertyEditorClass = ListEditor.class;
-                if (property.getValue() instanceof IntIdCollection intIdCollection) {
-                    ObservableList facadeList = FXCollections.observableArrayList();
-                    property.setValue(facadeList);
-                    Executor.threadPool().execute(() -> {
-                        EntityFacade[] facades = intIdCollection.mapToArray(nid -> EntityFacade.make(nid), EntityFacade.class);
-                        Arrays.parallelSort(facades, (o1, o2) -> NaturalOrder.compareStrings(viewProperties.calculator().getDescriptionTextOrNid(o1),
-                                viewProperties.calculator().getDescriptionTextOrNid(o2)));
-                        Platform.runLater(() -> {
-                            facadeList.addAll(facades);
-                        });
-
-                    });
-                }
+                classType = IntIdSet.class;
+                propertyEditorClass = IntIdSetEditor.class;
                 break;
             case DITREE: {
                 classType = DiTree.class;
@@ -146,11 +127,11 @@ public class SheetItem<T> implements PropertySheet.Item {
                 validationSupport, validator);
     }
 
-    public static <T> SheetItem<T> make(Field field, ViewProperties viewProperties) {
+    public static <T> SheetItem<T> make(ObservableField field, ViewProperties viewProperties) {
         return make(field, null, null, viewProperties);
     }
 
-    public static <T> SheetItem<T> make(Field field, String category, ViewProperties viewProperties) {
+    public static <T> SheetItem<T> make(ObservableField field, String category, ViewProperties viewProperties) {
         return make(field, category, null, viewProperties);
     }
 
