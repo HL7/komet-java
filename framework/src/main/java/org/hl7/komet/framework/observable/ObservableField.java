@@ -2,13 +2,17 @@ package org.hl7.komet.framework.observable;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import org.eclipse.collections.api.factory.Lists;
+import org.eclipse.collections.api.list.MutableList;
 import org.hl7.tinkar.common.alert.AlertObject;
 import org.hl7.tinkar.common.alert.AlertStreams;
+import org.hl7.tinkar.common.service.PrimitiveData;
 import org.hl7.tinkar.component.FieldDataType;
-import org.hl7.tinkar.entity.Entity;
-import org.hl7.tinkar.entity.Field;
-import org.hl7.tinkar.entity.FieldRecord;
-import org.hl7.tinkar.entity.StampRecord;
+import org.hl7.tinkar.entity.*;
+import org.hl7.tinkar.entity.transaction.Transaction;
+import org.hl7.tinkar.terms.EntityFacade;
+
+import java.util.Optional;
 
 public class ObservableField<T> implements Field<T> {
 
@@ -19,16 +23,40 @@ public class ObservableField<T> implements Field<T> {
         fieldProperty.set(fieldRecord);
         valueProperty.set(fieldRecord.value());
         valueProperty.addListener((observable, oldValue, newValue) -> {
-            alertIllegalChange(newValue);
+            handleValueChange(newValue);
             fieldProperty.set(field().withValue(newValue));
         });
     }
 
-    private void alertIllegalChange(Object newValue) {
+    private void handleValueChange(Object newValue) {
         StampRecord stamp = Entity.getStamp(fieldProperty.get().semanticVersionStampNid());
         if (stamp.lastVersion().committed()) {
-            AlertStreams.getRoot().dispatch(AlertObject.makeWarning("Changing committed version",
-                    "Changing value to " + newValue + " for " + fieldProperty.get().toString()));
+            // Get current version
+            SemanticVersionRecord version = Entity.getVersionFast(field().semanticNid(), field().semanticVersionStampNid());
+            Optional<SemanticVersionRecord> optionalVersion = Entity.getVersion(field().semanticNid(), field().semanticVersionStampNid());
+
+            MutableList fieldsForNewVersion = Lists.mutable.of(version.fieldValues().toArray());
+            fieldsForNewVersion.set(fieldIndex(), newValue);
+
+            // Create transaction
+            Transaction t = Transaction.make();
+            // newStamp already written to the entity store.
+            StampEntity newStamp = t.getStampForEntities(stamp.state(), stamp.authorNid(), stamp.moduleNid(), stamp.pathNid(), version.entity());
+
+            // Create new version...
+            SemanticVersionRecord newVersion = version.with().fieldValues(fieldsForNewVersion.toImmutable()).stampNid(newStamp.nid()).build();
+            newVersion.chronology().versionRecords().add(newVersion);
+
+            // Entity provider will broadcast the identity of the changed entity.
+            Entity.provider().putEntity(newVersion.chronology());
+
+            if (newValue instanceof EntityFacade entityFacade) {
+                AlertStreams.getRoot().dispatch(AlertObject.makeWarning("Changing committed version",
+                        "Changing value to " + PrimitiveData.textWithNid(entityFacade.nid()) + " for " + fieldProperty.get().toString()));
+            } else {
+                AlertStreams.getRoot().dispatch(AlertObject.makeWarning("Changing committed version",
+                        "Changing value to " + newValue + " for " + fieldProperty.get().toString()));
+            }
         }
     }
 
@@ -59,6 +87,11 @@ public class ObservableField<T> implements Field<T> {
     @Override
     public int dataTypeNid() {
         return field().dataTypeNid();
+    }
+
+    @Override
+    public int fieldIndex() {
+        return field().fieldIndex();
     }
 
     public ObjectProperty<T> valueProperty() {

@@ -50,9 +50,6 @@ public class ComponentIsFinalPanel<ES extends ObservableEntitySnapshot<OE, OV, E
         // TODO finish good identicon graphic.
         // this.collapsiblePane.setGraphic(Identicon.generateIdenticon(component.publicId(), 24, 24));
         Executor.threadPool().execute(() -> {
-            for (OV uncommittedVersion : component.getUncommittedVersions()) {
-                addVersionPanel(uncommittedVersion, true);
-            }
             Latest<OV> latestComponent = component.getLatestVersion();
             latestComponent.ifPresent(latestVersion -> {
                 addVersionPanel(latestVersion, true);

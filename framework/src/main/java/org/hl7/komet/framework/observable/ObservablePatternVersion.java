@@ -7,8 +7,8 @@ import org.hl7.tinkar.entity.FieldDefinitionRecord;
 import org.hl7.tinkar.entity.PatternEntityVersion;
 import org.hl7.tinkar.entity.PatternVersionRecord;
 
-public class ObservablePatternVersion
-        extends ObservableNonStampVersion<PatternVersionRecord>
+public final class ObservablePatternVersion
+        extends ObservableVersion<PatternVersionRecord>
         implements PatternEntityVersion {
     ImmutableList<ObservableFieldDefinition> observableFieldDefinitions;
 
@@ -24,6 +24,11 @@ public class ObservablePatternVersion
     @Override
     protected PatternVersionRecord withStampNid(int stampNid) {
         return version().withStampNid(stampNid);
+    }
+
+    @Override
+    public PatternVersionRecord getVersionRecord() {
+        return version();
     }
 
     @Override

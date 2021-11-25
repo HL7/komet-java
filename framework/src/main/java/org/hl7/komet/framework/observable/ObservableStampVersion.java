@@ -2,7 +2,7 @@ package org.hl7.komet.framework.observable;
 
 import org.hl7.tinkar.entity.StampVersionRecord;
 
-public class ObservableStampVersion
+public final class ObservableStampVersion
         extends ObservableVersion<StampVersionRecord> {
 
     ObservableStampVersion(StampVersionRecord stampVersion) {
@@ -30,5 +30,15 @@ public class ObservableStampVersion
         pathProperty.addListener((observable, oldValue, newValue) -> {
             versionProperty.set(version().withPathNid(newValue.nid()));
         });
+    }
+
+    @Override
+    protected StampVersionRecord withStampNid(int stampNid) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public StampVersionRecord getVersionRecord() {
+        return version();
     }
 }

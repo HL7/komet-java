@@ -4,11 +4,21 @@ import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.hl7.tinkar.entity.*;
 
-public class ObservableSemanticVersion
-        extends ObservableNonStampVersion<SemanticVersionRecord>
+public final class ObservableSemanticVersion
+        extends ObservableVersion<SemanticVersionRecord>
         implements SemanticEntityVersion {
     ObservableSemanticVersion(SemanticVersionRecord semanticVersionRecord) {
         super(semanticVersionRecord);
+    }
+
+    @Override
+    protected SemanticVersionRecord withStampNid(int stampNid) {
+        return version().withStampNid(stampNid);
+    }
+
+    @Override
+    public SemanticVersionRecord getVersionRecord() {
+        return version();
     }
 
     @Override
@@ -19,11 +29,6 @@ public class ObservableSemanticVersion
     @Override
     public SemanticEntity chronology() {
         return version().chronology();
-    }
-
-    @Override
-    protected SemanticVersionRecord withStampNid(int stampNid) {
-        return version().withStampNid(stampNid);
     }
 
     @Override
@@ -39,8 +44,10 @@ public class ObservableSemanticVersion
             FieldDefinitionForEntity fieldDef = patternVersion.fieldDefinitions().get(i);
             FieldDefinitionRecord fieldDefinitionRecord = new FieldDefinitionRecord(fieldDef.dataTypeNid(),
                     fieldDef.purposeNid(), fieldDef.meaningNid(), patternVersion.stampNid(), patternVersion.nid());
-            fieldArray[i] = new ObservableField(new FieldRecord(value, this.stampNid(), fieldDefinitionRecord));
+            fieldArray[i] = new ObservableField(new FieldRecord(value, this.nid(), this.stampNid(), i, fieldDefinitionRecord));
         }
         return Lists.immutable.of(fieldArray);
     }
+
+
 }

@@ -13,7 +13,7 @@ import org.controlsfx.control.action.ActionUtils;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.hl7.komet.framework.PseudoClasses;
 import org.hl7.komet.framework.graphics.Icon;
-import org.hl7.komet.framework.observable.ObservableVersion;
+import org.hl7.komet.framework.observable.*;
 import org.hl7.komet.framework.performance.Measures;
 import org.hl7.komet.framework.performance.StatementStore;
 import org.hl7.komet.framework.performance.Topic;
@@ -44,32 +44,32 @@ public abstract class ComponentVersionIsFinalPanel<OV extends ObservableVersion>
     private static final Logger LOG = LoggerFactory.getLogger(ComponentVersionIsFinalPanel.class);
     protected final BorderPane versionDetailsPane = new BorderPane();
     protected final TitledPane collapsiblePane = new TitledPane("version", versionDetailsPane);
-    private final OV version;
+    private final OV observableVersion;
     private final ViewProperties viewProperties;
 
-    public ComponentVersionIsFinalPanel(OV version, ViewProperties viewProperties) {
-        this.version = version;
+    public ComponentVersionIsFinalPanel(OV observableVersion, ViewProperties viewProperties) {
+        this.observableVersion = observableVersion;
         this.viewProperties = viewProperties;
-        Node versionNode = makeCenterNode(version, viewProperties);
+        Node versionNode = makeCenterNode(observableVersion, viewProperties);
         if (versionNode != null) {
             BorderPane.setAlignment(versionNode, Pos.TOP_LEFT);
-            versionNode.pseudoClassStateChanged(PseudoClasses.INACTIVE_PSEUDO_CLASS, !version.active());
+            versionNode.pseudoClassStateChanged(PseudoClasses.INACTIVE_PSEUDO_CLASS, !observableVersion.active());
         }
         this.versionDetailsPane.getStyleClass().add(COMPONENT_VERSION_BORDER_PANEL.toString());
-        this.versionDetailsPane.pseudoClassStateChanged(PseudoClasses.UNCOMMITTED_PSEUDO_CLASS, version.uncommitted());
+        this.versionDetailsPane.pseudoClassStateChanged(PseudoClasses.UNCOMMITTED_PSEUDO_CLASS, observableVersion.uncommitted());
         this.versionDetailsPane.setCenter(versionNode);
         //this.versionDetailsPane.setBottom(new StampPanel<V>(version, viewProperties));
-        StampEntity stampEntity = version.stamp();
+        StampEntity stampEntity = observableVersion.stamp();
         Label stampLabel = new Label(stampEntity.state() + " as of " + DateTimeUtil.format(stampEntity.time()) +
                 " on " + viewProperties.calculator().getPreferredDescriptionTextWithFallbackOrNid(stampEntity.pathNid()) +
                 " in " + viewProperties.calculator().getPreferredDescriptionTextWithFallbackOrNid(stampEntity.moduleNid()) +
                 " by " + viewProperties.calculator().getPreferredDescriptionTextWithFallbackOrNid(stampEntity.authorNid()));
         stampLabel.getStyleClass().add(STAMP_LABEL.toString());
         this.collapsiblePane.setText("");
-        this.collapsiblePane.pseudoClassStateChanged(PseudoClasses.INACTIVE_PSEUDO_CLASS, !version.active());
-        this.collapsiblePane.pseudoClassStateChanged(PseudoClasses.UNCOMMITTED_PSEUDO_CLASS, version.uncommitted());
+        this.collapsiblePane.pseudoClassStateChanged(PseudoClasses.INACTIVE_PSEUDO_CLASS, !observableVersion.active());
+        this.collapsiblePane.pseudoClassStateChanged(PseudoClasses.UNCOMMITTED_PSEUDO_CLASS, observableVersion.uncommitted());
         this.collapsiblePane.getStyleClass().add(COMPONENT_VERSION_PANEL.toString());
-        ObservationRecord observation = new ObservationRecord(Topic.COMPONENT_FOCUSED, version, Measures.present());
+        ObservationRecord observation = new ObservationRecord(Topic.COMPONENT_FOCUSED, observableVersion, Measures.present());
         StatementStore statementStore = StatementStore.make(observation);
         ImmutableList<Consequence<?>> consequences = RuleBase.execute(statementStore, viewProperties.calculator(), Coordinates.Edit.Default());
         ArrayList<Node> buttonList = new ArrayList<>(3);
@@ -89,18 +89,18 @@ public abstract class ComponentVersionIsFinalPanel<OV extends ObservableVersion>
                 buttonList.add(menuButton);
             }
         }
-        if (version.uncommitted()) {
-            buttonList.add(newCancelComponentButton(version));
-            if (version instanceof SemanticEntityVersion semanticEntityVersion) {
+        if (observableVersion.uncommitted()) {
+            buttonList.add(newCancelComponentButton(observableVersion));
+            if (observableVersion instanceof SemanticEntityVersion semanticEntityVersion) {
                 Latest<EntityVersion> latestReferencedEntity = viewProperties.calculator().latest(semanticEntityVersion.referencedComponentNid());
                 if (latestReferencedEntity.isPresentAnd(entityVersion -> entityVersion.committed())) {
-                    buttonList.add(newCommitVersionButton(version));
+                    buttonList.add(newCommitVersionButton(observableVersion));
                 }
             } else {
-                buttonList.add(newCommitVersionButton(version));
+                buttonList.add(newCommitVersionButton(observableVersion));
             }
-            buttonList.add(newCancelTransactionButton(version));
-            buttonList.add(newCommitTransactionButton(version));
+            buttonList.add(newCancelTransactionButton(observableVersion));
+            buttonList.add(newCommitTransactionButton(observableVersion));
         }
         if (!buttonList.isEmpty()) {
             if (buttonList.size() == 1) {
@@ -122,7 +122,13 @@ public abstract class ComponentVersionIsFinalPanel<OV extends ObservableVersion>
         Button button = new Button("cancel version");
         button.setOnAction(event -> {
             Transaction.forVersion(version).ifPresentOrElse(transaction -> {
-                CancelVersionTask cancelVersionTask = new CancelVersionTask(version);
+                CancelVersionTask cancelVersionTask = switch (version) {
+                    case ObservableConceptVersion observableConceptVersion -> new CancelVersionTask(observableConceptVersion.getVersionRecord());
+                    case ObservablePatternVersion observablePatternVersion -> new CancelVersionTask(observablePatternVersion.getVersionRecord());
+                    case ObservableSemanticVersion observableSemanticVersion -> new CancelVersionTask(observableSemanticVersion.getVersionRecord());
+                    case ObservableStampVersion observableStampVersion -> new CancelVersionTask(observableStampVersion.getVersionRecord());
+                    default -> throw new IllegalStateException("Unexpected value: " + version);
+                };
                 Future<Void> future = Executor.threadPool().submit(cancelVersionTask);
                 Executor.threadPool().execute(() -> {
                     try {
@@ -142,7 +148,13 @@ public abstract class ComponentVersionIsFinalPanel<OV extends ObservableVersion>
         Button button = new Button("commit version");
         button.setOnAction(event -> {
             Transaction.forVersion(version).ifPresentOrElse(transaction -> {
-                CommitVersionTask commitVersionTask = new CommitVersionTask(version);
+                CommitVersionTask commitVersionTask = switch (version) {
+                    case ObservableConceptVersion observableConceptVersion -> new CommitVersionTask(observableConceptVersion.getVersionRecord());
+                    case ObservablePatternVersion observablePatternVersion -> new CommitVersionTask(observablePatternVersion.getVersionRecord());
+                    case ObservableSemanticVersion observableSemanticVersion -> new CommitVersionTask(observableSemanticVersion.getVersionRecord());
+                    case ObservableStampVersion observableStampVersion -> new CommitVersionTask(observableStampVersion.getVersionRecord());
+                    default -> throw new IllegalStateException("Unexpected value: " + version);
+                };
                 Future<Void> future = Executor.threadPool().submit(commitVersionTask);
                 Executor.threadPool().execute(() -> {
                     try {
