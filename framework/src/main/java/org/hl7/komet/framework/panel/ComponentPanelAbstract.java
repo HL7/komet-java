@@ -68,9 +68,11 @@ public abstract class ComponentPanelAbstract {
                     Platform.runLater(() -> referencedNids.add(semanticNid));
                     SemanticEntity semanticEntity = Entity.getFast(semanticNid);
                     if (!semanticEntity.canceled()) {
-                        ObservableSemanticSnapshot semanticSnapshot = (ObservableSemanticSnapshot) ObservableEntity.get(semanticEntity).getSnapshot(this.viewProperties.calculator());
-                        ComponentPanelAbstract semanticPanel = makeComponentPanel(semanticSnapshot, topEnclosingComponentProperty);
-                        Platform.runLater(() -> ComponentPanelAbstract.this.componentPanelBox.getChildren().add(semanticPanel.getComponentDetailPane()));
+                        Platform.runLater(() -> {
+                            ObservableSemanticSnapshot semanticSnapshot = (ObservableSemanticSnapshot) ObservableEntity.get(semanticEntity).getSnapshot(this.viewProperties.calculator());
+                            ComponentPanelAbstract semanticPanel = makeComponentPanel(semanticSnapshot, topEnclosingComponentProperty);
+                            ComponentPanelAbstract.this.componentPanelBox.getChildren().add(semanticPanel.getComponentDetailPane());
+                        });
                     }
                 });
             });

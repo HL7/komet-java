@@ -23,12 +23,12 @@ public class ObservableSemantic
 
     @Override
     public int referencedComponentNid() {
-        return ((SemanticEntity) entity).referencedComponentNid();
+        return ((SemanticEntity) entityReference.get()).referencedComponentNid();
     }
 
     @Override
     public int patternNid() {
-        return ((SemanticEntity) entity).patternNid();
+        return ((SemanticEntity) entityReference.get()).patternNid();
     }
 
 }

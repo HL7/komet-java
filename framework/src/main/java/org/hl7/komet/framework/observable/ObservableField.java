@@ -4,13 +4,9 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.MutableList;
-import org.hl7.tinkar.common.alert.AlertObject;
-import org.hl7.tinkar.common.alert.AlertStreams;
-import org.hl7.tinkar.common.service.PrimitiveData;
 import org.hl7.tinkar.component.FieldDataType;
 import org.hl7.tinkar.entity.*;
 import org.hl7.tinkar.entity.transaction.Transaction;
-import org.hl7.tinkar.terms.EntityFacade;
 
 import java.util.Optional;
 
@@ -50,13 +46,13 @@ public class ObservableField<T> implements Field<T> {
             // Entity provider will broadcast the identity of the changed entity.
             Entity.provider().putEntity(newVersion.chronology());
 
-            if (newValue instanceof EntityFacade entityFacade) {
-                AlertStreams.getRoot().dispatch(AlertObject.makeWarning("Changing committed version",
-                        "Changing value to " + PrimitiveData.textWithNid(entityFacade.nid()) + " for " + fieldProperty.get().toString()));
-            } else {
-                AlertStreams.getRoot().dispatch(AlertObject.makeWarning("Changing committed version",
-                        "Changing value to " + newValue + " for " + fieldProperty.get().toString()));
-            }
+//            if (newValue instanceof EntityFacade entityFacade) {
+//                AlertStreams.getRoot().dispatch(AlertObject.makeWarning("Changing committed version",
+//                        "Changing value to " + PrimitiveData.textWithNid(entityFacade.nid()) + " for " + fieldProperty.get().toString()));
+//            } else {
+//                AlertStreams.getRoot().dispatch(AlertObject.makeWarning("Changing committed version",
+//                        "Changing value to " + newValue + " for " + fieldProperty.get().toString()));
+//            }
         }
     }
 
