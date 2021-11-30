@@ -1,8 +1,9 @@
 package org.hl7.komet.framework.propsheet;
 
+import javafx.beans.property.SimpleObjectProperty;
 import org.hl7.tinkar.entity.PatternEntityVersion;
-import org.hl7.tinkar.terms.ConceptFacade;
 
-public record FieldDefinitionRecord(ConceptFacade value, String propertyDescription, String propertyName,
+public record FieldDefinitionRecord(SimpleObjectProperty valueProperty, String propertyDescription,
+                                    String propertyName,
                                     PatternEntityVersion enclosingPatternVersion) {
 }

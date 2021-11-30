@@ -17,11 +17,6 @@ public final class ObservableSemanticVersion
     }
 
     @Override
-    public SemanticVersionRecord getVersionRecord() {
-        return version();
-    }
-
-    @Override
     public SemanticEntity entity() {
         return version().entity();
     }
@@ -32,6 +27,11 @@ public final class ObservableSemanticVersion
     }
 
     @Override
+    public SemanticVersionRecord getVersionRecord() {
+        return version();
+    }
+
+    @Override
     public ImmutableList<Object> fieldValues() {
         return version().fieldValues();
     }
@@ -39,12 +39,12 @@ public final class ObservableSemanticVersion
     @Override
     public ImmutableList<ObservableField> fields(PatternEntityVersion patternVersion) {
         ObservableField[] fieldArray = new ObservableField[fieldValues().size()];
-        for (int i = 0; i < fieldArray.length; i++) {
-            Object value = fieldValues().get(i);
-            FieldDefinitionForEntity fieldDef = patternVersion.fieldDefinitions().get(i);
+        for (int indexInPattern = 0; indexInPattern < fieldArray.length; indexInPattern++) {
+            Object value = fieldValues().get(indexInPattern);
+            FieldDefinitionForEntity fieldDef = patternVersion.fieldDefinitions().get(indexInPattern);
             FieldDefinitionRecord fieldDefinitionRecord = new FieldDefinitionRecord(fieldDef.dataTypeNid(),
-                    fieldDef.purposeNid(), fieldDef.meaningNid(), patternVersion.stampNid(), patternVersion.nid());
-            fieldArray[i] = new ObservableField(new FieldRecord(value, this.nid(), this.stampNid(), i, fieldDefinitionRecord));
+                    fieldDef.purposeNid(), fieldDef.meaningNid(), patternVersion.stampNid(), patternVersion.nid(), indexInPattern);
+            fieldArray[indexInPattern] = new ObservableField(new FieldRecord(value, this.nid(), this.stampNid(), fieldDefinitionRecord));
         }
         return Lists.immutable.of(fieldArray);
     }

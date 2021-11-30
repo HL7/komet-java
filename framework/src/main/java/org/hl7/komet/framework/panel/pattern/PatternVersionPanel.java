@@ -11,7 +11,6 @@ import org.hl7.komet.framework.propsheet.KometPropertySheet;
 import org.hl7.komet.framework.propsheet.SheetItem;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.tinkar.common.util.text.NaturalOrder;
-import org.hl7.tinkar.terms.EntityProxy;
 
 public class PatternVersionPanel extends ComponentVersionIsFinalPanel<ObservablePatternVersion> {
 
@@ -26,14 +25,12 @@ public class PatternVersionPanel extends ComponentVersionIsFinalPanel<Observable
         KometPropertySheet propertySheet = new KometPropertySheet(viewProperties);
         propertySheet.pseudoClassStateChanged(PseudoClasses.UNCOMMITTED_PSEUDO_CLASS, version.uncommitted());
         // Referenced component meaning:
-        // TODO Referenced component meaning concept & definition.
-        FieldDefinitionRecord semanticMeaningField = new FieldDefinitionRecord(EntityProxy.Concept.make(version.semanticMeaningNid()),
+        FieldDefinitionRecord semanticMeaningField = new FieldDefinitionRecord(version.meaningProperty(),
                 "The meaning of a semantic with this pattern",
                 "Semantic meaning", version);
         propertySheet.getItems().add(SheetItem.make(semanticMeaningField, SEMANTIC_INFO, viewProperties));
         // Referenced component purpose:
-        // TODO Referenced component purpose concept & definition.
-        FieldDefinitionRecord semanticPurposeField = new FieldDefinitionRecord(EntityProxy.Concept.make(version.semanticPurposeNid()),
+        FieldDefinitionRecord semanticPurposeField = new FieldDefinitionRecord(version.purposeProperty(),
                 "The purpose of a semantic with this pattern",
                 "Semantic purpose ", version);
         propertySheet.getItems().add(SheetItem.make(semanticPurposeField, SEMANTIC_INFO, viewProperties));
@@ -43,15 +40,15 @@ public class PatternVersionPanel extends ComponentVersionIsFinalPanel<Observable
         for (ObservableFieldDefinition fieldDef : version.fieldDefinitions()) {
             String categoryName = "Field " + i + ": " + viewProperties.calculator().getPreferredDescriptionTextWithFallbackOrNid(fieldDef.meaning());
 
-            FieldDefinitionRecord fieldDataTypeField = new FieldDefinitionRecord(EntityProxy.Concept.make(fieldDef.dataTypeNid()),
+            FieldDefinitionRecord fieldDataTypeField = new FieldDefinitionRecord(fieldDef.dataTypeProperty(),
                     "Specify the data type of this field for semantics of this pattern",
                     "Data type", version);
             propertySheet.getItems().add(SheetItem.make(fieldDataTypeField, categoryName, viewProperties));
-            FieldDefinitionRecord fieldPurposeField = new FieldDefinitionRecord(EntityProxy.Concept.make(fieldDef.purposeNid()),
+            FieldDefinitionRecord fieldPurposeField = new FieldDefinitionRecord(fieldDef.purposeProperty(),
                     "Specify the purpose of this field for semantics of this pattern",
                     "Purpose", version);
             propertySheet.getItems().add(SheetItem.make(fieldPurposeField, categoryName, viewProperties));
-            FieldDefinitionRecord fieldMeaningField = new FieldDefinitionRecord(EntityProxy.Concept.make(fieldDef.meaningNid()),
+            FieldDefinitionRecord fieldMeaningField = new FieldDefinitionRecord(fieldDef.meaningProperty(),
                     "Specify the meaning of this field for semantics of this pattern",
                     "Meaning", version);
             propertySheet.getItems().add(SheetItem.make(fieldMeaningField, categoryName, viewProperties));

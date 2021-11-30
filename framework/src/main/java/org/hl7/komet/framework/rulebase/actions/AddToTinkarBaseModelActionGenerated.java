@@ -41,7 +41,8 @@ public class AddToTinkarBaseModelActionGenerated extends AbstractActionSuggested
 
     private SemanticRecord createSemantic(EditCoordinateImmutable editCoordinateImmutable) {
         PublicId newSemanticId = PublicIds.singleSemanticId(TINKAR_BASE_MODEL_COMPONENT_PATTERN, conceptVersion.publicId());
-        SemanticRecord newSemantic = SemanticRecord.makeNew(newSemanticId, TINKAR_BASE_MODEL_COMPONENT_PATTERN, conceptVersion.nid());
+        RecordListBuilder versionListBuilder = new RecordListBuilder();
+        SemanticRecord newSemantic = SemanticRecord.makeNew(newSemanticId, TINKAR_BASE_MODEL_COMPONENT_PATTERN, conceptVersion.nid(), versionListBuilder);
         Transaction transaction = Transaction.make();
         ViewCoordinateRecord viewRecord = viewCalculator.viewCoordinateRecord();
 
@@ -50,7 +51,9 @@ public class AddToTinkarBaseModelActionGenerated extends AbstractActionSuggested
             StampEntity stampEntity = transaction.getStamp(State.ACTIVE, Long.MAX_VALUE, editCoordinateImmutable.getAuthorNidForChanges(),
                     patternEntityVersion.moduleNid(), viewRecord.stampCoordinate().pathNidForFilter());
             SemanticVersionRecord newSemanticVersion = new SemanticVersionRecord(newSemantic, stampEntity.nid(), Lists.immutable.empty());
-            newSemantic.versionRecords().add(newSemanticVersion);
+
+            versionListBuilder.add(newSemanticVersion);
+            versionListBuilder.build();
             transaction.addComponent(newSemantic);
             Entity.provider().putEntity(newSemantic);
         }, () -> {
@@ -61,7 +64,7 @@ public class AddToTinkarBaseModelActionGenerated extends AbstractActionSuggested
         return newSemantic;
     }
 
-    private SemanticRecord updateSemantic(int semanticNid, EditCoordinateImmutable editCoordinateImmutable) {
+    private void updateSemantic(int semanticNid, EditCoordinateImmutable editCoordinateImmutable) {
         SemanticRecord semanticEntity = Entity.getFast(semanticNid);
         Transaction transaction = Transaction.make();
         ViewCoordinateRecord viewRecord = viewCalculator.viewCoordinateRecord();
@@ -71,14 +74,13 @@ public class AddToTinkarBaseModelActionGenerated extends AbstractActionSuggested
             StampEntity stampEntity = transaction.getStamp(State.ACTIVE, Long.MAX_VALUE, editCoordinateImmutable.getAuthorNidForChanges(),
                     patternEntityVersion.moduleNid(), viewRecord.stampCoordinate().pathNidForFilter());
             SemanticVersionRecord newSemanticVersion = new SemanticVersionRecord(semanticEntity, stampEntity.nid(), Lists.immutable.empty());
-            semanticEntity.versionRecords().add(newSemanticVersion);
-            transaction.addComponent(semanticEntity);
-            Entity.provider().putEntity(semanticEntity);
+            SemanticRecord analogue = semanticEntity.with(newSemanticVersion).build();
+            transaction.addComponent(analogue);
+            Entity.provider().putEntity(analogue);
         }, () -> {
             throw new IllegalStateException("No latest pattern version for: " + Entity.getFast(TINKAR_BASE_MODEL_COMPONENT_PATTERN));
         });
         CommitTransactionTask commitTransactionTask = new CommitTransactionTask(transaction);
         Executor.threadPool().submit(commitTransactionTask);
-        return semanticEntity;
     }
 }

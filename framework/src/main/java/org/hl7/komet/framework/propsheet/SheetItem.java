@@ -2,7 +2,6 @@ package org.hl7.komet.framework.propsheet;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Control;
@@ -139,14 +138,13 @@ public class SheetItem<T> implements PropertySheet.Item {
         Class<?> classType;
         String name = fieldDefinition.propertyName();
         String description = fieldDefinition.propertyDescription();
-        SimpleObjectProperty property = new SimpleObjectProperty(fieldDefinition.value());
         classType = EntityFacade.class;
         Class propertyEditorClass = EntityLabelWithDragAndDrop.class;
         ValidationSupport validationSupport = null;
         Validator<T> validator = null;
 
         return new SheetItem<>(classType, category, name,
-                description, property, propertyEditorClass,
+                description, fieldDefinition.valueProperty(), propertyEditorClass,
                 validationSupport, validator);
     }
 

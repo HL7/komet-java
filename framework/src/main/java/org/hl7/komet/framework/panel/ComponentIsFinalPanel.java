@@ -39,7 +39,9 @@ public class ComponentIsFinalPanel<ES extends ObservableEntitySnapshot<OE, OV, E
         collapsiblePane.getStyleClass().add(COMPONENT_COLLAPSIBLE_PANEL.toString());
     }
 
-    public ComponentIsFinalPanel(ES component, ViewProperties viewProperties, SimpleObjectProperty<EntityFacade> topEnclosingComponentProperty, ObservableSet<Integer> referencedNids) {
+    public ComponentIsFinalPanel(ES component, ViewProperties viewProperties,
+                                 SimpleObjectProperty<EntityFacade> topEnclosingComponentProperty,
+                                 ObservableSet<Integer> referencedNids) {
         super(viewProperties, referencedNids);
         if (component == null) {
             throw new NullPointerException();

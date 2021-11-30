@@ -41,10 +41,11 @@ public class ObservableField<T> implements Field<T> {
 
             // Create new version...
             SemanticVersionRecord newVersion = version.with().fieldValues(fieldsForNewVersion.toImmutable()).stampNid(newStamp.nid()).build();
-            newVersion.chronology().versionRecords().add(newVersion);
 
-            // Entity provider will broadcast the identity of the changed entity.
-            Entity.provider().putEntity(newVersion.chronology());
+            SemanticRecord analogue = newVersion.chronology().with(newVersion).build();
+            
+            // Entity provider will broadcast the nid of the changed entity.
+            Entity.provider().putEntity(analogue);
 
 //            if (newValue instanceof EntityFacade entityFacade) {
 //                AlertStreams.getRoot().dispatch(AlertObject.makeWarning("Changing committed version",
@@ -54,6 +55,8 @@ public class ObservableField<T> implements Field<T> {
 //                        "Changing value to " + newValue + " for " + fieldProperty.get().toString()));
 //            }
         }
+        // TODO handle updates to uncommitted version...
+
     }
 
     public FieldRecord<T> field() {

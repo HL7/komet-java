@@ -55,14 +55,14 @@ public class ComponentPanel
 
     @Override
     public void changed(ObservableValue<? extends EntityFacade> observable, EntityFacade oldValue, EntityFacade newValue) {
-        getComponentPanelBox().getChildren().clear();
         referencedNids.clear();
         if (newValue != null) {
             referencedNids.add(newValue.nid());
-            ObservableEntitySnapshot entitySnapshot = ObservableEntity.getSnapshot(newValue.nid(), viewProperties.calculator());
-
-
-            getComponentPanelBox().getChildren().add(makeComponentPanel(entitySnapshot, componentProperty).getComponentDetailPane());
+            Platform.runLater(() -> {
+                getComponentPanelBox().getChildren().clear();
+                ObservableEntitySnapshot entitySnapshot = ObservableEntity.getSnapshot(newValue.nid(), viewProperties.calculator());
+                getComponentPanelBox().getChildren().add(makeComponentPanel(entitySnapshot, componentProperty).getComponentDetailPane());
+            });
         }
     }
 

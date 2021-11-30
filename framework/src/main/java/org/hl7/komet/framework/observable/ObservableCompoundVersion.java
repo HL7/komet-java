@@ -47,7 +47,7 @@ public class ObservableCompoundVersion {
     }
 
     public boolean uncommitted() {
-        StampEntity stampEntity = (StampEntity) stamp.entityReference.get();
+        StampEntity stampEntity = (StampEntity) stamp.entity();
         if (stampEntity.time() == Long.MAX_VALUE) {
             return true;
         }

@@ -9,6 +9,8 @@ import org.eclipse.collections.api.list.ImmutableList;
 import org.hl7.tinkar.collection.ConcurrentReferenceHashMap;
 import org.hl7.tinkar.common.alert.AlertObject;
 import org.hl7.tinkar.common.alert.AlertStreams;
+import org.hl7.tinkar.common.id.PublicId;
+import org.hl7.tinkar.common.service.PrimitiveData;
 import org.hl7.tinkar.component.FieldDataType;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculator;
 import org.hl7.tinkar.entity.*;
@@ -24,7 +26,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public abstract class ObservableEntity<O extends ObservableVersion<V>, V extends EntityVersion> implements Entity<O> {
 
-    protected static final ConcurrentReferenceHashMap<Integer, ObservableEntity> SINGLETONS =
+    protected static final ConcurrentReferenceHashMap<PublicId, ObservableEntity> SINGLETONS =
             new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.WEAK,
                     ConcurrentReferenceHashMap.ReferenceType.WEAK);
     private static final EntityChangeSubscriber ENTITY_CHANGE_SUBSCRIBER = new EntityChangeSubscriber();
@@ -33,12 +35,25 @@ public abstract class ObservableEntity<O extends ObservableVersion<V>, V extends
         Entity.provider().subscribe(ENTITY_CHANGE_SUBSCRIBER);
     }
 
-    final AtomicReference<Entity<V>> entityReference;
     final SimpleListProperty<O> versionProperty = new SimpleListProperty<>(FXCollections.observableArrayList());
+
+    final private AtomicReference<Entity<V>> entityReference;
 
 
     ObservableEntity(Entity<V> entity) {
-        this.entityReference = new AtomicReference<>(entity);
+        Entity<V> entityClone = switch (entity) {
+            case ConceptRecord conceptEntity -> (Entity<V>) conceptEntity.analogueBuilder().build();
+
+            case PatternRecord patternEntity -> (Entity<V>) patternEntity.analogueBuilder().build();
+
+            case SemanticRecord semanticEntity -> (Entity<V>) semanticEntity.analogueBuilder().build();
+
+            case StampRecord stampEntity -> (Entity<V>) stampEntity.analogueBuilder().build();
+
+            default -> throw new UnsupportedOperationException("Can't handle: " + entity);
+        };
+
+        this.entityReference = new AtomicReference<>(entityClone);
         for (V version : entity.versions()) {
             versionProperty.add(wrap(version));
         }
@@ -56,7 +71,7 @@ public abstract class ObservableEntity<O extends ObservableVersion<V>, V extends
         if (entity instanceof ObservableEntity) {
             return (OE) entity;
         }
-        ObservableEntity observableEntity = SINGLETONS.computeIfAbsent(entity.nid(), publicId ->
+        ObservableEntity observableEntity = SINGLETONS.computeIfAbsent(entity.publicId(), publicId ->
                 switch (entity) {
                     case ConceptEntity conceptEntity -> new ObservableConcept(conceptEntity);
                     case PatternEntity patternEntity -> new ObservablePattern(patternEntity);
@@ -74,10 +89,11 @@ public abstract class ObservableEntity<O extends ObservableVersion<V>, V extends
     }
 
     private static void updateVersions(Entity<? extends EntityVersion> entity, ObservableEntity observableEntity) {
-        if (!observableEntity.entityReference.get().equals(entity)) {
+        if (!((Entity) observableEntity.entityReference.get()).versions().equals(entity.versions())) {
             observableEntity.entityReference.set(entity);
             observableEntity.versionProperty.clear();
-            for (EntityVersion version : entity.versions()) {
+            for (EntityVersion version : entity.versions().stream().sorted((v1, v2) ->
+                    Long.compare(v1.stamp().time(), v2.stamp().time())).toList()) {
                 observableEntity.versionProperty.add(observableEntity.wrap(version));
             }
         }
@@ -85,6 +101,10 @@ public abstract class ObservableEntity<O extends ObservableVersion<V>, V extends
 
     public static <OE extends ObservableEntity> OE get(int nid) {
         return get(Entity.getFast(nid));
+    }
+
+    protected Entity<V> entity() {
+        return entityReference.get();
     }
 
     ObservableList<O> versionProperty() {
@@ -154,7 +174,7 @@ public abstract class ObservableEntity<O extends ObservableVersion<V>, V extends
             // Do nothing with item, but request another...
             this.subscription.request(1);
 
-            if (SINGLETONS.contains(nid)) {
+            if (SINGLETONS.containsKey(PrimitiveData.publicId(nid))) {
                 Platform.runLater(() -> {
                     get(Entity.getFast(nid));
                 });
