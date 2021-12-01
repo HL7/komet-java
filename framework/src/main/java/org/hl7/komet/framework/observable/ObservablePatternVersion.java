@@ -30,17 +30,17 @@ public final class ObservablePatternVersion
     }
 
     private void purposeChanged(ObservableValue<? extends EntityFacade> observableValue, EntityFacade oldValue, EntityFacade newValue) {
-        checkUncommitted(observableValue, newValue);
+        handleChange(FIELDS.PURPOSE, observableValue, newValue);
     }
 
     private void meaningChanged(ObservableValue<? extends EntityFacade> observableValue, EntityFacade oldValue, EntityFacade newValue) {
-        checkUncommitted(observableValue, newValue);
+        handleChange(FIELDS.MEANING, observableValue, newValue);
     }
 
-    private void checkUncommitted(ObservableValue<? extends EntityFacade> observableValue, EntityFacade newValue) {
+    private void handleChange(FIELDS field, ObservableValue<? extends EntityFacade> observableValue, EntityFacade newValue) {
         StampRecord stamp = Entity.getStamp(getVersionRecord().stampNid());
+        PatternVersionRecord version = getVersionRecord();
         if (stamp.lastVersion().committed()) {
-            PatternVersionRecord version = getVersionRecord();
 
             // Create transaction
             Transaction t = Transaction.make();
@@ -48,18 +48,30 @@ public final class ObservablePatternVersion
             StampEntity newStamp = t.getStampForEntities(stamp.state(), stamp.authorNid(), stamp.moduleNid(), stamp.pathNid(), version.entity());
 
             // Create new version...
-            PatternVersionRecord newVersion = version.with()
-                    .semanticPurposeNid(purposeProperty.get().nid())
-                    .semanticMeaningNid(meaningProperty.get().nid())
-                    .stampNid(newStamp.nid()).build();
+            PatternVersionRecord newVersion = switch (field) {
+                case MEANING -> version.with()
+                        .semanticMeaningNid(meaningProperty.get().nid())
+                        .stampNid(newStamp.nid()).build();
+                case PURPOSE -> version.with()
+                        .semanticPurposeNid(purposeProperty.get().nid())
+                        .stampNid(newStamp.nid()).build();
+            };
 
+            PatternRecord analogue = newVersion.chronology().with(newVersion).build();
+
+            // Entity provider will broadcast the nid of the changed entity.
+            Entity.provider().putEntity(analogue);
+        } else {
+            PatternVersionRecord newVersion = switch (field) {
+                case MEANING -> version.withSemanticMeaningNid(meaningProperty.get().nid());
+                case PURPOSE -> version.withSemanticPurposeNid(purposeProperty.get().nid());
+            };
 
             PatternRecord analogue = newVersion.chronology().with(newVersion).build();
 
             // Entity provider will broadcast the nid of the changed entity.
             Entity.provider().putEntity(analogue);
         }
-        // TODO handle updates to uncommitted version...
     }
 
     public SimpleObjectProperty<EntityFacade> purposeProperty() {
@@ -94,4 +106,6 @@ public final class ObservablePatternVersion
     public int semanticMeaningNid() {
         return version().semanticMeaningNid();
     }
+
+    enum FIELDS {PURPOSE, MEANING}
 }

@@ -8,8 +8,6 @@ import org.hl7.tinkar.component.FieldDataType;
 import org.hl7.tinkar.entity.*;
 import org.hl7.tinkar.entity.transaction.Transaction;
 
-import java.util.Optional;
-
 public class ObservableField<T> implements Field<T> {
 
     SimpleObjectProperty<FieldRecord<T>> fieldProperty = new SimpleObjectProperty<>();
@@ -26,13 +24,13 @@ public class ObservableField<T> implements Field<T> {
 
     private void handleValueChange(Object newValue) {
         StampRecord stamp = Entity.getStamp(fieldProperty.get().semanticVersionStampNid());
-        if (stamp.lastVersion().committed()) {
-            // Get current version
-            SemanticVersionRecord version = Entity.getVersionFast(field().semanticNid(), field().semanticVersionStampNid());
-            Optional<SemanticVersionRecord> optionalVersion = Entity.getVersion(field().semanticNid(), field().semanticVersionStampNid());
+        // Get current version
+        SemanticVersionRecord version = Entity.getVersionFast(field().semanticNid(), field().semanticVersionStampNid());
+        SemanticRecord semantic = Entity.getFast(field().semanticNid());
+        MutableList fieldsForNewVersion = Lists.mutable.of(version.fieldValues().toArray());
+        fieldsForNewVersion.set(fieldIndex(), newValue);
 
-            MutableList fieldsForNewVersion = Lists.mutable.of(version.fieldValues().toArray());
-            fieldsForNewVersion.set(fieldIndex(), newValue);
+        if (stamp.lastVersion().committed()) {
 
             // Create transaction
             Transaction t = Transaction.make();
@@ -42,21 +40,18 @@ public class ObservableField<T> implements Field<T> {
             // Create new version...
             SemanticVersionRecord newVersion = version.with().fieldValues(fieldsForNewVersion.toImmutable()).stampNid(newStamp.nid()).build();
 
-            SemanticRecord analogue = newVersion.chronology().with(newVersion).build();
-            
+            SemanticRecord analogue = semantic.with(newVersion).build();
+
             // Entity provider will broadcast the nid of the changed entity.
             Entity.provider().putEntity(analogue);
-
-//            if (newValue instanceof EntityFacade entityFacade) {
-//                AlertStreams.getRoot().dispatch(AlertObject.makeWarning("Changing committed version",
-//                        "Changing value to " + PrimitiveData.textWithNid(entityFacade.nid()) + " for " + fieldProperty.get().toString()));
-//            } else {
-//                AlertStreams.getRoot().dispatch(AlertObject.makeWarning("Changing committed version",
-//                        "Changing value to " + newValue + " for " + fieldProperty.get().toString()));
-//            }
+        } else {
+            SemanticVersionRecord newVersion = version.withFieldValues(fieldsForNewVersion.toImmutable());
+            // if a version with the same stamp as newVersion exists, that version will be removed
+            // prior to adding the new version so you don't get duplicate versions with the same stamp.
+            SemanticRecord analogue = semantic.with(newVersion).build();
+            // Entity provider will broadcast the nid of the changed entity.
+            Entity.provider().putEntity(analogue);
         }
-        // TODO handle updates to uncommitted version...
-
     }
 
     public FieldRecord<T> field() {
