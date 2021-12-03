@@ -19,6 +19,7 @@ public class PreferencesProvider
 
     public static final PreferencesProvider singleton = new PreferencesProvider();
     private static final Logger LOG = LoggerFactory.getLogger(PreferencesProvider.class);
+    ;
 
     //~--- methods -------------------------------------------------------------
 

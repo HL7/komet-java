@@ -1,18 +1,31 @@
 package sh.komet.app;
 
+import de.jangassen.MenuToolkit;
+import de.jangassen.model.AppearanceMode;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import org.hl7.komet.framework.ScreenInfo;
 import org.hl7.komet.framework.activity.ActivityStream;
 import org.hl7.komet.framework.activity.ActivityStreams;
+import org.hl7.komet.framework.graphics.Icon;
 import org.hl7.komet.framework.graphics.LoadFonts;
+import org.hl7.komet.framework.preferences.KometPreferencesStage;
 import org.hl7.komet.framework.view.ObservableViewNoOverride;
 import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.komet.preferences.KometPreferencesImpl;
@@ -42,8 +55,12 @@ public class App extends Application {
     private static final Logger LOG = LoggerFactory.getLogger(App.class);
     private static Stage primaryStage;
     private static Module graphicsModule;
+    private static long windowCount = 1;
+    private static KometPreferencesStage kometPreferencesStage;
 
     public static void main(String[] args) {
+        System.setProperty("apple.laf.useScreenMenuBar", "true");
+        System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Komet");
         // https://stackoverflow.com/questions/42598097/using-javafx-application-stop-method-over-shutdownhook
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             LOG.info("Starting shutdown hook");
@@ -52,6 +69,13 @@ public class App extends Application {
             LOG.info("Finished shutdown hook");
         }));
         launch();
+    }
+
+    private static void createNewStage() {
+        Stage stage = new Stage();
+        stage.setScene(new Scene(new StackPane()));
+        stage.setTitle("New stage" + " " + (windowCount++));
+        stage.show();
     }
 
     public void init() throws Exception {
@@ -89,8 +113,46 @@ public class App extends Application {
         try {
             App.primaryStage = stage;
             Thread.currentThread().setUncaughtExceptionHandler((t, e) -> AlertStreams.getRoot().dispatch(AlertObject.makeError(e)));
-            // Add menu toolkit for Mac?
-            // https://github.com/0x4a616e/NSMenuFX
+            // Get the toolkit
+            MenuToolkit tk = MenuToolkit.toolkit();
+            Menu kometAppMenu = tk.createDefaultApplicationMenu("Komet");
+            MenuItem prefsItem = new MenuItem("Komet preferences...");
+            prefsItem.setAccelerator(new KeyCodeCombination(KeyCode.COMMA, KeyCombination.META_DOWN));
+            prefsItem.setOnAction(event -> App.kometPreferencesStage.showPreferences());
+
+            kometAppMenu.getItems().add(2, prefsItem);
+            kometAppMenu.getItems().add(3, new SeparatorMenuItem());
+            tk.setApplicationMenu(kometAppMenu);
+            //tk.setGlobalMenuBar();
+            // File Menu
+            Menu fileMenu = new Menu("File");
+            MenuItem newItem = new MenuItem("New...");
+            fileMenu.getItems().addAll(newItem, new SeparatorMenuItem(), tk.createCloseWindowMenuItem(),
+                    new SeparatorMenuItem(), new MenuItem("TBD"));
+
+            // Edit
+            Menu editMenu = new Menu("Edit");
+            editMenu.getItems().addAll(createMenuItem("Undo"), createMenuItem("Redo"), new SeparatorMenuItem(),
+                    createMenuItem("Cut"), createMenuItem("Copy"), createMenuItem("Paste"), createMenuItem("Select All"));
+
+
+            // Window Menu
+            Menu windowMenu = new Menu("Window");
+            windowMenu.getItems().addAll(tk.createMinimizeMenuItem(), tk.createZoomMenuItem(), tk.createCycleWindowsItem(),
+                    new SeparatorMenuItem(), tk.createBringAllToFrontItem());
+
+            // Help Menu
+            Menu helpMenu = new Menu("Help");
+            helpMenu.getItems().addAll(new MenuItem("Getting started"));
+
+            MenuBar bar = new MenuBar();
+            bar.getMenus().addAll(kometAppMenu, fileMenu, editMenu, windowMenu, helpMenu);
+            tk.setAppearanceMode(AppearanceMode.AUTO);
+            tk.setDockIconMenu(createDockMenu());
+            tk.autoAddWindowMenuItems(windowMenu);
+            tk.setGlobalMenuBar(bar);
+            tk.setTrayMenu(createSampleMenu());
+
 
             FXMLLoader sourceLoader = new FXMLLoader(getClass().getResource("SelectDataSource.fxml"));
             BorderPane sourceRoot = sourceLoader.load();
@@ -127,6 +189,48 @@ public class App extends Application {
         }
     }
 
+    @Override
+    public void stop() {
+        LOG.info("Stopping application\n\n###############\n\n");
+    }
+
+    private MenuItem createMenuItem(String title) {
+        MenuItem menuItem = new MenuItem(title);
+        menuItem.setOnAction(this::handleEvent);
+        return menuItem;
+    }
+
+    private Menu createDockMenu() {
+        Menu dockMenu = createSampleMenu();
+        MenuItem open = new MenuItem("New Window");
+        open.setGraphic(Icon.OPEN.makeIcon());
+        open.setOnAction(e -> createNewStage());
+        dockMenu.getItems().addAll(new SeparatorMenuItem(), open);
+        return dockMenu;
+    }
+
+    private Menu createSampleMenu() {
+        Menu trayMenu = new Menu();
+        trayMenu.setGraphic(Icon.TEMPORARY_FIX.makeIcon());
+        MenuItem reload = new MenuItem("Reload");
+        reload.setGraphic(Icon.SYNCHRONIZE_WITH_STREAM.makeIcon());
+        reload.setOnAction(this::handleEvent);
+        MenuItem print = new MenuItem("Print");
+        print.setOnAction(this::handleEvent);
+
+        Menu share = new Menu("Share");
+        MenuItem mail = new MenuItem("Mail");
+        mail.setOnAction(this::handleEvent);
+        share.getItems().add(mail);
+
+        trayMenu.getItems().addAll(reload, print, new SeparatorMenuItem(), share);
+        return trayMenu;
+    }
+
+    private void handleEvent(ActionEvent actionEvent) {
+        System.out.println("clicked " + actionEvent.getSource());  // NOSONAR
+    }
+
     private void appStateChangeListener(ObservableValue<? extends AppState> observable, AppState oldValue, AppState newValue) {
         try {
             switch (newValue) {
@@ -158,6 +262,8 @@ public class App extends Application {
 
                     //ScenicView.show(kometRoot);
 
+                    App.kometPreferencesStage = new KometPreferencesStage(windowView.makeOverridableViewProperties());
+
                 }
                 case SHUTDOWN -> {
                     // Fork join pool tasks?
@@ -172,11 +278,6 @@ public class App extends Application {
             e.printStackTrace();
             Platform.exit();
         }
-    }
-
-    @Override
-    public void stop() {
-        LOG.info("Stopping application\n\n###############\n\n");
     }
 
 }

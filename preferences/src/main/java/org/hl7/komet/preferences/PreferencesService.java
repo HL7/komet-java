@@ -1,15 +1,33 @@
 package org.hl7.komet.preferences;
 
 public interface PreferencesService {
-    /**
-     * Reload the configuration preferences from disk. For example, used when git fetches updates to the
-     * configuration preferences, and the preferences should be reloaded to to reflect the newly downloaded preferences.
-     */
-    void reloadConfigurationPreferences();
+
+    static KometPreferences configurationPreferences() {
+        return get().getConfigurationPreferences();
+    }
+
     /**
      * @return a database specific preferences store which is stored within the data store folder.
      */
     KometPreferences getConfigurationPreferences();
+
+    static PreferencesService get() {
+        return PreferencesServiceFinder.INSTANCE.get();
+    }
+
+    static KometPreferences userPreferences() {
+        return get().getUserPreferences();
+    }
+
+    /**
+     * @return a preference store that is stored within a user profile folder of the current OS user, so it will apply
+     * to any database a user opens on this computer.
+     */
+    KometPreferences getUserPreferences();
+
+    static KometPreferences systemPreferences() {
+        return get().getSystemPreferences();
+    }
 
     /**
      * @return a preference store that is stored globally within an OS store, for any user that runs the application
@@ -18,10 +36,10 @@ public interface PreferencesService {
     KometPreferences getSystemPreferences();
 
     /**
-     * @return a preference store that is stored within a user profile folder of the current OS user, so it will apply
-     * to any database a user opens on this computer.
+     * Reload the configuration preferences from disk. For example, used when git fetches updates to the
+     * configuration preferences, and the preferences should be reloaded to reflect the newly downloaded preferences.
      */
-    KometPreferences getUserPreferences();
+    void reloadConfigurationPreferences();
 
     /**
      * Remove any and all application preferences stored data store folder

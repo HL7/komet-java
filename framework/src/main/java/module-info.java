@@ -1,5 +1,6 @@
 import org.hl7.komet.framework.concurrent.TaskListsService;
 import org.hl7.komet.framework.dnd.DragRegistry;
+import org.hl7.komet.preferences.PreferencesService;
 import org.hl7.tinkar.common.service.CachingService;
 
 open module org.hl7.komet.framework {
@@ -15,6 +16,7 @@ open module org.hl7.komet.framework {
     exports org.hl7.komet.framework.panel;
     exports org.hl7.komet.framework.performance.impl;
     exports org.hl7.komet.framework.performance;
+    exports org.hl7.komet.framework.preferences;
     exports org.hl7.komet.framework.propsheet.editor to org.controlsfx.controls;
     exports org.hl7.komet.framework.propsheet;
     exports org.hl7.komet.framework.rulebase;
@@ -57,4 +59,5 @@ open module org.hl7.komet.framework {
     requires transitive org.kordamp.ikonli.javafx;
     requires transitive org.slf4j;
     uses TaskListsService;
+    uses PreferencesService;
 }

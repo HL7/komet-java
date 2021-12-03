@@ -10,6 +10,11 @@
     <artifactId>application</artifactId>
     <dependencies>
         <dependency>
+            <groupId>de.jangassen</groupId>
+            <artifactId>nsmenufx</artifactId>
+            <version>${nsmenufx.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.hl7.komet</groupId>
             <artifactId>artifact</artifactId>
             <version>${project.parent.version}</version>
@@ -152,7 +157,7 @@
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
-                <version>0.0.6</version>
+                <version>0.0.8</version>
                 <executions>
                     <execution>
                         <!-- Default configuration for running -->

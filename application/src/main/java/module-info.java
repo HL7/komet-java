@@ -13,6 +13,7 @@ module org.hl7.komet.application {
 
     requires javafx.controls;
     requires javafx.fxml;
+    requires nsmenufx;
     requires org.controlsfx.controls;
     requires org.hl7.komet.details;
     requires org.hl7.komet.executor;

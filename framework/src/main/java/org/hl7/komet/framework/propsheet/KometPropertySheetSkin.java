@@ -10,6 +10,7 @@ import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.scene.text.TextAlignment;
 import org.controlsfx.control.PropertySheet;
 import org.controlsfx.control.SegmentedButton;
 import org.controlsfx.control.action.Action;
@@ -22,15 +23,15 @@ import org.hl7.komet.framework.panel.axiom.AxiomView;
 import org.hl7.komet.framework.propsheet.editor.IntIdListEditor;
 import org.hl7.komet.framework.propsheet.editor.IntIdSetEditor;
 import org.hl7.komet.framework.propsheet.editor.ListEditor;
+import org.hl7.komet.framework.view.ViewProperties;
+import org.hl7.tinkar.terms.EntityProxy;
+import org.hl7.tinkar.terms.ProxyFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 import static org.hl7.komet.framework.StyleClasses.PROP_SHEET_PROPERTY_NAME;
 
-public class KometPropertySheetSkin extends SkinBase<PropertySheet> {
+public class KometPropertySheetSkin extends SkinBase<KometPropertySheet> {
 
     /**************************************************************************
      *
@@ -61,7 +62,7 @@ public class KometPropertySheetSkin extends SkinBase<PropertySheet> {
      *
      **************************************************************************/
 
-    public KometPropertySheetSkin(final PropertySheet control) {
+    public KometPropertySheetSkin(final KometPropertySheet control) {
         super(control);
 
         toolbar = new ToolBar();
@@ -153,6 +154,10 @@ public class KometPropertySheetSkin extends SkinBase<PropertySheet> {
 
     }
 
+    public ViewProperties viewProperties() {
+        return getSkinnable().viewProperties;
+    }
+
     /**************************************************************************
      *
      * Overriding public API
@@ -223,10 +228,19 @@ public class KometPropertySheetSkin extends SkinBase<PropertySheet> {
                 String title = item.getName();
 
                 if (!filter.isEmpty() && title.toLowerCase().indexOf(filter) < 0) continue;
+                Optional<EntityProxy> optionalProxy = Optional.empty();
+                if (title.startsWith("<")) {
+                    optionalProxy = ProxyFactory.fromXmlFragmentOptional(title);
+                    if (optionalProxy.isPresent()) {
+                        title = viewProperties().calculator().getPreferredDescriptionTextWithFallbackOrNid(optionalProxy.get());
+                    }
+
+                }
 
                 // setup property label
                 Label label = new Label(title + ": ");
                 label.setAlignment(Pos.CENTER_RIGHT);
+                label.setTextAlignment(TextAlignment.RIGHT);
                 label.setWrapText(true);
                 label.setMinWidth(MIN_COLUMN_WIDTH);
                 label.getStyleClass().add(PROP_SHEET_PROPERTY_NAME.toString());
@@ -235,6 +249,9 @@ public class KometPropertySheetSkin extends SkinBase<PropertySheet> {
                 String description = item.getDescription();
                 if (description != null && !description.trim().isEmpty()) {
                     label.setTooltip(new Tooltip(description));
+                } else if (optionalProxy.isPresent()) {
+                    String fullyQualifiedName = viewProperties().calculator().getFullyQualifiedDescriptionTextWithFallbackOrNid(optionalProxy.get());
+                    label.setTooltip(new Tooltip(fullyQualifiedName));
                 }
 
                 GridPane.setHalignment(label, HPos.RIGHT);

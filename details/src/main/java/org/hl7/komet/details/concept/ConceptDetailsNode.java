@@ -39,6 +39,7 @@ import org.hl7.komet.framework.controls.EntityLabelWithDragAndDrop;
 import org.hl7.komet.framework.graphics.Icon;
 import org.hl7.komet.framework.observable.*;
 import org.hl7.komet.framework.propsheet.KometPropertyEditorFactory;
+import org.hl7.komet.framework.propsheet.KometPropertySheet;
 import org.hl7.komet.framework.view.SimpleEqualityBasedListProperty;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.komet.preferences.KometPreferences;
@@ -352,7 +353,7 @@ public class ConceptDetailsNode extends ExplorationNodeAbstract {
         EventHandler<ActionEvent> changeSettingsHandler = new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                PropertySheet propertySheet = new PropertySheet();
+                KometPropertySheet propertySheet = new KometPropertySheet(viewProperties);
                 propertySheet.setMode(PropertySheet.Mode.NAME);
                 propertySheet.setSearchBoxVisible(false);
                 propertySheet.setModeSwitcherVisible(false);

@@ -1,5 +1,6 @@
 package org.hl7.komet.framework.propsheet;
 
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.StringProperty;
@@ -164,6 +165,13 @@ public class SheetItem<T> implements PropertySheet.Item {
 
         return new SheetItem(String.class, null, property.getName(),
                 null, property, PasswordEditor.class, validationSupport, validator);
+    }
+
+    public static PropertySheet.Item make(BooleanProperty booleanProperty) {
+
+        return new SheetItem(Boolean.class, null, booleanProperty.getName(),
+                null, booleanProperty, null, null, null);
+
     }
 
     @Override
