@@ -7,9 +7,9 @@ import org.hl7.tinkar.entity.EntityService;
 import org.hl7.tinkar.entity.StampService;
 
 module org.hl7.komet.application {
-    exports sh.komet.app to javafx.graphics;
 
-    opens sh.komet.app to javafx.fxml;
+    exports org.hl7.komet.app to javafx.graphics;
+    opens org.hl7.komet.app to javafx.fxml;
 
     requires javafx.controls;
     requires javafx.fxml;

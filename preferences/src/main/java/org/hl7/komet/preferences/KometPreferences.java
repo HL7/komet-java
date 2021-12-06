@@ -37,7 +37,21 @@ public interface KometPreferences {
 
     default String enumToGeneralKey(Enum key) {
         UUID uuidSuffix = UUID.nameUUIDFromBytes(key.getDeclaringClass().getName().getBytes());
-        String prefix = key.getDeclaringClass().getSimpleName() + "." + key.name();
+        StringBuilder sb = new StringBuilder();
+        String nameToSplit;
+        if (key.getDeclaringClass().getEnclosingClass() != null) {
+            nameToSplit = key.getDeclaringClass().getEnclosingClass().getCanonicalName();
+        } else {
+            nameToSplit = key.getDeclaringClass().getPackageName();
+        }
+        String[] classParts = nameToSplit.split("\\.");
+        for (String part : classParts) {
+            sb.append(part.charAt(0));
+        }
+        sb.append(".").append(key.getDeclaringClass().getSimpleName());
+        sb.append(".").append(key.name());
+
+        String prefix = sb.toString();
         if (prefix.length() > Preferences.MAX_KEY_LENGTH) {
             throw new IllegalStateException("MAX_KEY_LENGTH exceeded by " + prefix);
         }

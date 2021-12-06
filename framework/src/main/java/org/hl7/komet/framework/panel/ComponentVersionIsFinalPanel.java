@@ -28,10 +28,9 @@ import org.hl7.tinkar.common.service.Executor;
 import org.hl7.tinkar.common.util.time.DateTimeUtil;
 import org.hl7.tinkar.coordinate.Coordinates;
 import org.hl7.tinkar.coordinate.stamp.calculator.Latest;
-import org.hl7.tinkar.entity.EntityVersion;
-import org.hl7.tinkar.entity.SemanticEntityVersion;
-import org.hl7.tinkar.entity.StampEntity;
+import org.hl7.tinkar.entity.*;
 import org.hl7.tinkar.entity.transaction.*;
+import org.hl7.tinkar.terms.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -138,7 +137,11 @@ public abstract class ComponentVersionIsFinalPanel<OV extends ObservableVersion>
                     }
                 });
             }, () -> {
-                AlertStreams.getRoot().dispatch(AlertObject.makeError(new IllegalStateException("No transaction for version: " + version)));
+                AlertStreams.getRoot().dispatch(AlertObject.makeError("No transaction found. ", "Canceling Stamp",
+                        new IllegalStateException("No transaction for version: " + version)));
+                StampRecord stampRecord = (StampRecord) version.getVersionRecord().stamp();
+                StampRecord canceledStamp = stampRecord.withAndBuild(stampRecord.lastVersion().withStateNid(State.CANCELED.nid()));
+                Entity.provider().putEntity(canceledStamp);
             });
         });
         return button;
@@ -164,7 +167,11 @@ public abstract class ComponentVersionIsFinalPanel<OV extends ObservableVersion>
                     }
                 });
             }, () -> {
-                AlertStreams.getRoot().dispatch(AlertObject.makeError(new IllegalStateException("No transaction for version: " + version)));
+                AlertStreams.getRoot().dispatch(AlertObject.makeError("No transaction found. ", "Canceling Stamp",
+                        new IllegalStateException("No transaction for version: " + version)));
+                StampRecord stampRecord = (StampRecord) version.getVersionRecord().stamp();
+                StampRecord canceledStamp = stampRecord.withAndBuild(stampRecord.lastVersion().withStateNid(State.CANCELED.nid()));
+                Entity.provider().putEntity(canceledStamp);
             });
         });
         return button;
@@ -184,7 +191,11 @@ public abstract class ComponentVersionIsFinalPanel<OV extends ObservableVersion>
                     }
                 });
             }, () -> {
-                AlertStreams.getRoot().dispatch(AlertObject.makeError(new IllegalStateException("No transaction for version: " + version)));
+                AlertStreams.getRoot().dispatch(AlertObject.makeError("No transaction found. ", "Canceling Stamp",
+                        new IllegalStateException("No transaction for version: " + version)));
+                StampRecord stampRecord = (StampRecord) version.getVersionRecord().stamp();
+                StampRecord canceledStamp = stampRecord.withAndBuild(stampRecord.lastVersion().with().stateNid(State.CANCELED.nid()).time(Long.MIN_VALUE).build());
+                Entity.provider().putEntity(canceledStamp);
             });
         });
         return button;
@@ -204,7 +215,11 @@ public abstract class ComponentVersionIsFinalPanel<OV extends ObservableVersion>
                     }
                 });
             }, () -> {
-                AlertStreams.getRoot().dispatch(AlertObject.makeError(new IllegalStateException("No transaction for version: " + version)));
+                AlertStreams.getRoot().dispatch(AlertObject.makeError("No transaction found. ", "Canceling Stamp",
+                        new IllegalStateException("No transaction for version: " + version)));
+                StampRecord stampRecord = (StampRecord) version.getVersionRecord().stamp();
+                StampRecord canceledStamp = stampRecord.withAndBuild(stampRecord.lastVersion().withStateNid(State.CANCELED.nid()));
+                Entity.provider().putEntity(canceledStamp);
             });
         });
         return button;

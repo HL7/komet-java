@@ -1,4 +1,4 @@
-package sh.komet.app;
+package org.hl7.komet.app;
 
 import de.jangassen.MenuToolkit;
 import de.jangassen.model.AppearanceMode;
@@ -43,16 +43,16 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 
-import static sh.komet.app.AppState.LOADING_DATA_SOURCE;
-import static sh.komet.app.AppState.STARTING;
+import static org.hl7.komet.app.AppState.LOADING_DATA_SOURCE;
+import static org.hl7.komet.app.AppState.STARTING;
 
 /**
  * JavaFX App
  */
 public class App extends Application {
+    private static final Logger LOG = LoggerFactory.getLogger(App.class);
     public static final String CSS_LOCATION = "org/hl7/komet/framework/graphics/komet.css";
     public static final SimpleObjectProperty<AppState> state = new SimpleObjectProperty<>(STARTING);
-    private static final Logger LOG = LoggerFactory.getLogger(App.class);
     private static Stage primaryStage;
     private static Module graphicsModule;
     private static long windowCount = 1;
@@ -241,6 +241,14 @@ public class App extends Application {
                 }
 
                 case RUNNING -> {
+                    Preferences.start();
+                    KometPreferences nodePreferences = KometPreferencesImpl.getConfigurationRootPreferences();
+                    if (nodePreferences.hasKey(Keys.INITIALIZED)) {
+                        LOG.info("Restoring configuration preferences. ");
+                    } else {
+                        LOG.info("Creating new configuration preferences. ");
+                    }
+
                     FXMLLoader kometStageLoader = new FXMLLoader(getClass().getResource("KometStageScene.fxml"));
                     BorderPane kometRoot = kometStageLoader.load();
                     KometStageController controller = kometStageLoader.getController();
@@ -251,7 +259,7 @@ public class App extends Application {
 
                     primaryStage.setScene(kometScene);
                     ObservableViewNoOverride windowView = new ObservableViewNoOverride(Coordinates.View.DefaultView());
-                    KometPreferences nodePreferences = KometPreferencesImpl.getConfigurationRootPreferences();
+
                     KometPreferences windowPreferences = nodePreferences.node("main-komet-window");
                     PublicIdStringKey<ActivityStream> activityStreamKey = ActivityStreams.UNLINKED;
                     AlertStream alertStream = AlertStreams.get(AlertStreams.ROOT_ALERT_STREAM_KEY);
@@ -280,4 +288,7 @@ public class App extends Application {
         }
     }
 
+    public enum Keys {
+        INITIALIZED
+    }
 }

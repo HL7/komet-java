@@ -1,20 +1,26 @@
-package org.hl7.komet.search;
+package org.hl7.komet.framework.search;
 
 import javafx.application.Platform;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Region;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.map.primitive.MutableIntObjectMap;
 import org.eclipse.collections.impl.factory.primitive.IntObjectMaps;
+import org.hl7.komet.framework.activity.ActivityStream;
+import org.hl7.komet.framework.activity.ActivityStreams;
 import org.hl7.komet.framework.graphics.Icon;
 import org.hl7.komet.framework.view.ViewMenuModel;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.komet.preferences.KometPreferences;
+import org.hl7.tinkar.common.id.PublicIdStringKey;
 import org.hl7.tinkar.common.id.PublicIds;
 import org.hl7.tinkar.common.service.Executor;
 import org.hl7.tinkar.common.service.PrimitiveData;
@@ -29,13 +35,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
+import java.util.List;
 import java.util.OptionalInt;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
 
 import static javafx.scene.layout.Region.USE_COMPUTED_SIZE;
 
 public class SearchPanelController implements ListChangeListener<TreeItem<Object>> {
     private static final Logger LOG = LoggerFactory.getLogger(SearchPanelController.class);
+    protected ReadOnlyObjectProperty<PublicIdStringKey<ActivityStream>> activityStreamKeyProperty = new SimpleObjectProperty<>();
     @FXML
     private ResourceBundle resources;
     @FXML
@@ -46,15 +55,12 @@ public class SearchPanelController implements ListChangeListener<TreeItem<Object
     private MenuButton navigationMenuButton;
     @FXML
     private Menu navigationCoordinateMenu;
-
     @FXML
     private BorderPane treeBorderPane;
-
     private SearchTreeView searchTreeView = new SearchTreeView();
-
     @FXML
     private ComboBox<RESULT_LAYOUT_OPTIONS> resultsLayoutCombo;
-    private SearchNode searchNode;
+    private Region parentNode;
     private ViewProperties viewProperties;
     private KometPreferences nodePreferences;
     private ViewMenuModel viewMenuModel;
@@ -112,7 +118,7 @@ public class SearchPanelController implements ListChangeListener<TreeItem<Object
                     LOG.info("Finished search. Hits: " + results.size());
                     switch (resultsLayoutCombo.getSelectionModel().getSelectedItem()) {
                         case MATCHED_SEMANTIC_SCORE -> {
-                            results = results.toSortedList((o1, o2) -> Float.compare(o1.score(), o2.score())).toImmutable();
+                            results = results.toSortedList((o1, o2) -> Float.compare(o2.score(), o1.score())).toImmutable();
                             for (LatestVersionSearchResult result : results) {
                                 tempRoot.getChildren().add(new TreeItem<>(result));
                             }
@@ -144,8 +150,8 @@ public class SearchPanelController implements ListChangeListener<TreeItem<Object
                                         Float.compare(((LatestVersionSearchResult) o1.getValue()).score(),
                                                 ((LatestVersionSearchResult) o2.getValue()).score()));
                             }
-                            tempRoot.getChildren().sort((o1, o2) -> Float.compare(((LatestVersionSearchResult) o1.getChildren().get(0).getValue()).score(),
-                                    ((LatestVersionSearchResult) o2.getChildren().get(0).getValue()).score()));
+                            tempRoot.getChildren().sort((o1, o2) -> Float.compare(((LatestVersionSearchResult) o2.getChildren().get(0).getValue()).score(),
+                                    ((LatestVersionSearchResult) o1.getChildren().get(0).getValue()).score()));
                         }
                     }
                     Platform.runLater(() -> {
@@ -202,8 +208,14 @@ public class SearchPanelController implements ListChangeListener<TreeItem<Object
         }
     }
 
-    public void setProperties(SearchNode searchNode, ViewProperties viewProperties, KometPreferences nodePreferences) {
-        this.searchNode = searchNode;
+    public List<Consumer<Object>> getDoubleCLickConsumers() {
+        return searchTreeView.getDoubleCLickConsumers();
+    }
+
+    public void setProperties(Region parentNode, ReadOnlyObjectProperty<PublicIdStringKey<ActivityStream>> activityStreamKeyProperty,
+                              ViewProperties viewProperties, KometPreferences nodePreferences) {
+        this.activityStreamKeyProperty = activityStreamKeyProperty;
+        this.parentNode = parentNode;
         this.viewProperties = viewProperties;
         this.nodePreferences = nodePreferences;
         this.navigationMenuButton.setGraphic(Icon.VIEW.makeIcon());
@@ -212,11 +224,11 @@ public class SearchPanelController implements ListChangeListener<TreeItem<Object
         this.viewProperties.nodeView().addListener((observable, oldValue, newValue) -> {
             menuUpdate();
         });
-        this.searchNode.widthProperty().addListener((observable, oldValue, newValue) -> {
+        this.parentNode.widthProperty().addListener((observable, oldValue, newValue) -> {
             setWidth(newValue.doubleValue());
             LOG.info("Width: " + newValue);
         });
-        this.setWidth(searchNode.widthProperty().get());
+        this.setWidth(parentNode.widthProperty().get());
     }
 
     private void menuUpdate() {
@@ -258,8 +270,22 @@ public class SearchPanelController implements ListChangeListener<TreeItem<Object
                     selectedItems.add(EntityProxy.make(nidTextRecord.nid));
                 }
             }
-            this.searchNode.getActivityStream().dispatch(selectedItems.toImmutable());
+            dispatch(selectedItems.toImmutable());
         }
+    }
+
+    private void dispatch(ImmutableList<EntityFacade> selectedItems) {
+        if (activityStreamKeyProperty != null && activityStreamKeyProperty.get() != null) {
+            ActivityStreams.get(activityStreamKeyProperty.get()).dispatch(selectedItems);
+        }
+    }
+
+    public String getQueryString() {
+        return queryString.getText();
+    }
+
+    public void setQueryString(String queryString) {
+        this.queryString.setText(queryString);
     }
 
     enum RESULT_LAYOUT_OPTIONS {

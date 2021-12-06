@@ -1,8 +1,7 @@
-package sh.komet.app;
+package org.hl7.komet.app;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
-import org.hl7.komet.preferences.Preferences;
 import org.hl7.tinkar.common.service.PrimitiveData;
 import org.hl7.tinkar.common.service.TrackingCallable;
 
@@ -21,7 +20,6 @@ public class LoadDataSourceTask extends TrackingCallable<Void> {
     protected Void compute() throws Exception {
         try {
             PrimitiveData.start();
-            Preferences.start();
             Platform.runLater(() -> state.set(AppState.RUNNING));
             return null;
         } finally {

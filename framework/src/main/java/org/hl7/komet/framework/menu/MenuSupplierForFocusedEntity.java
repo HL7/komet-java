@@ -5,6 +5,7 @@ import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Control;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.Clipboard;
@@ -21,6 +22,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
+/**
+ * See also AddToContextMenu TODO should they merge? Note LOG.warn("Port method from old project");
+ */
 public class MenuSupplierForFocusedEntity implements AddToContextMenu {
     private static final Logger LOG = LoggerFactory.getLogger(MenuSupplierForFocusedEntity.class);
     private static AddToContextMenu SINGLETON;
@@ -161,7 +165,7 @@ public class MenuSupplierForFocusedEntity implements AddToContextMenu {
     }
 
     @Override
-    public void addToContextMenu(ContextMenu contextMenu, ViewProperties viewProperties, ObservableValue<EntityFacade> conceptFocusProperty, SimpleIntegerProperty selectionIndexProperty, Runnable unlink) {
+    public void addToContextMenu(Control control, ContextMenu contextMenu, ViewProperties viewProperties, ObservableValue<EntityFacade> conceptFocusProperty, SimpleIntegerProperty selectionIndexProperty, Runnable unlink) {
         LOG.warn("Port method from old project");
     }
 

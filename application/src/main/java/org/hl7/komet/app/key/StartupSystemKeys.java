@@ -1,4 +1,4 @@
-package sh.komet.app.key;
+package org.hl7.komet.app.key;
 
 public enum StartupSystemKeys {
     DATA_SOURCE,

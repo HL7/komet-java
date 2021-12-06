@@ -1,4 +1,4 @@
-package org.hl7.komet.search;
+package org.hl7.komet.framework.search;
 
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;

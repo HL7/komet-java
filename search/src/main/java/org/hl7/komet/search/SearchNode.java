@@ -3,13 +3,14 @@ package org.hl7.komet.search;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.BorderPane;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.hl7.komet.framework.ExplorationNodeAbstract;
+import org.hl7.komet.framework.search.SearchControllerAndNode;
+import org.hl7.komet.framework.search.SearchPanelController;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.tinkar.terms.EntityFacade;
@@ -35,9 +36,9 @@ public class SearchNode extends ExplorationNodeAbstract {
         super(viewProperties, nodePreferences);
         // TODO makeOverridableViewProperties should accept node preferences, and accept saved overrides
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/hl7/komet/search/SearchPanel.fxml"));
-            this.searchPane.setCenter(loader.load());
-            this.controller = loader.getController();
+            SearchControllerAndNode searchControllerAndNode = new SearchControllerAndNode();
+            this.searchPane.setCenter(searchControllerAndNode.searchPanelPane());
+            this.controller = searchControllerAndNode.controller();
 
             Platform.runLater(() -> {
                 findTabPaneParent().ifPresent(tabPane -> {
@@ -48,7 +49,7 @@ public class SearchNode extends ExplorationNodeAbstract {
                         this.searchPane.setMaxWidth(newValue.doubleValue());
                     });
                 });
-                this.controller.setProperties(this, viewProperties, nodePreferences);
+                this.controller.setProperties(this.searchPane, this.activityStreamKeyProperty(), viewProperties, nodePreferences);
                 this.searchPane.setTop(null);
             });
         } catch (IOException e) {

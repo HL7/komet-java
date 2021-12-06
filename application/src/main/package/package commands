@@ -21,7 +21,7 @@ https://docs.oracle.com/en/java/javase/16/jpackage/packaging-tool-user-guide.pdf
           --win-console \
           --vendor "HL7, Inc." \
           --app-version "1.0.0" \
-          -m komet/sh.komet.App --runtime-image target/kometImage
+          -m komet/org.hl7.komet.App --runtime-image target/kometImage
 
  // Creates a .dmg
 
@@ -33,7 +33,7 @@ jpackage --type dmg -n hl7-komet \
           --verbose \
           --vendor "HL7, Inc." \
           --app-version "1.0.0" \
-          -m komet/sh.komet.App --runtime-image target/kometImage
+          -m komet/org.hl7.komet.App --runtime-image target/kometImage
 
 
 // Sign the output...

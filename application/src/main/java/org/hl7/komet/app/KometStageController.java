@@ -1,4 +1,4 @@
-package sh.komet.app;
+package org.hl7.komet.app;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;

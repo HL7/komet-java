@@ -2,7 +2,7 @@
  * Sample Skeleton for 'SelectDataSource.fxml' Controller Class
  */
 
-package sh.komet.app;
+package org.hl7.komet.app;
 
 
 import javafx.application.Platform;

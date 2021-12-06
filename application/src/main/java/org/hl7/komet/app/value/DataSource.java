@@ -1,4 +1,4 @@
-package sh.komet.app.value;
+package org.hl7.komet.app.value;
 
 public enum DataSource {
     FILESYSTEM("File system"),
@@ -6,6 +6,7 @@ public enum DataSource {
     WEBSOCKET("WebSocket");
 
     String nameForInterface;
+
     DataSource(String nameForInterface) {
         this.nameForInterface = nameForInterface;
     }

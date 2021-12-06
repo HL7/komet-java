@@ -1,6 +1,4 @@
-package sh.komet.app;
-
-import javafx.beans.property.SimpleObjectProperty;
+package org.hl7.komet.app;
 
 public enum AppState {
     STARTING,

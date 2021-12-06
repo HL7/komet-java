@@ -193,7 +193,7 @@ public class EntityLabelWithDragAndDrop
         ContextMenu contextMenu = (ContextMenu) event.getSource();
         contextMenu.getItems().clear();
         for (AddToContextMenu contextMenuProvider : contextMenuProviders) {
-            contextMenuProvider.addToContextMenu(contextMenu, this.viewProperties,
+            contextMenuProvider.addToContextMenu(this, contextMenu, this.viewProperties,
                     this.entityFocusProperty, this.selectionIndexProperty, this.unlink);
         }
 

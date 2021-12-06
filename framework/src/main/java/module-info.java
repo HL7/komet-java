@@ -20,6 +20,7 @@ open module org.hl7.komet.framework {
     exports org.hl7.komet.framework.propsheet.editor to org.controlsfx.controls;
     exports org.hl7.komet.framework.propsheet;
     exports org.hl7.komet.framework.rulebase;
+    exports org.hl7.komet.framework.search;
     exports org.hl7.komet.framework.temp;
     exports org.hl7.komet.framework.uncertain;
     exports org.hl7.komet.framework.view;

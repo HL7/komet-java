@@ -163,7 +163,7 @@
                         <!-- Default configuration for running -->
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>org.hl7.komet.application/sh.komet.app.App</mainClass>
+                            <mainClass>org.hl7.komet.application/org.hl7.komet.app.App</mainClass>
                             <stripDebug>false</stripDebug>
                             <compress>2</compress>
                             <noHeaderFiles>true</noHeaderFiles>
@@ -186,7 +186,7 @@
                         <!-- Configuration for debugging -->
                         <id>debug</id>
                         <configuration>
-                            <mainClass>org.hl7.komet.application/sh.komet.app.App</mainClass>
+                            <mainClass>org.hl7.komet.application/org.hl7.komet.app.App</mainClass>
                             <stripDebug>false</stripDebug>
                             <compress>2</compress>
                             <noHeaderFiles>true</noHeaderFiles>
@@ -210,7 +210,7 @@
                         <!-- Configuration for profiling -->
                         <id>profile</id>
                         <configuration>
-                            <mainClass>org.hl7.komet.application/sh.komet.app.App</mainClass>
+                            <mainClass>org.hl7.komet.application/org.hl7.komet.app.App</mainClass>
                             <stripDebug>false</stripDebug>
                             <compress>2</compress>
                             <noHeaderFiles>true</noHeaderFiles>
@@ -233,7 +233,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <mainClass>komet/sh.komet.app.App</mainClass>
+                    <mainClass>komet/org.hl7.komet.app.App</mainClass>
                     <stripDebug>false</stripDebug>
                     <compress>2</compress>
                     <noHeaderFiles>true</noHeaderFiles>
@@ -259,7 +259,7 @@
                     <appVersion>1.0.0</appVersion>
                     <vendor>HL7</vendor>
                     <destination>target/dist</destination>
-                    <module>komet/sh.komet.app.App</module>
+                    <module>komet/org.hl7.komet.app.App</module>
                     <runtimeImage>target/kometImage</runtimeImage>
                     <linuxShortcut>true</linuxShortcut>
                     <linuxPackageName>komet</linuxPackageName>

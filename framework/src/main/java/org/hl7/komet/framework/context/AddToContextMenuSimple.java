@@ -1,17 +1,37 @@
 package org.hl7.komet.framework.context;
 
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
+import javafx.geometry.Bounds;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Control;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
+import org.controlsfx.control.PopOver;
+import org.hl7.komet.framework.activity.ActivityStream;
+import org.hl7.komet.framework.activity.ActivityStreams;
+import org.hl7.komet.framework.controls.EntityLabelWithDragAndDrop;
+import org.hl7.komet.framework.search.SearchControllerAndNode;
 import org.hl7.komet.framework.view.ViewProperties;
+import org.hl7.tinkar.common.alert.AlertObject;
+import org.hl7.tinkar.common.alert.AlertStreams;
+import org.hl7.tinkar.common.id.PublicIdStringKey;
 import org.hl7.tinkar.common.service.PrimitiveData;
-import org.hl7.tinkar.entity.Entity;
+import org.hl7.tinkar.entity.*;
 import org.hl7.tinkar.terms.EntityFacade;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 public class AddToContextMenuSimple implements AddToContextMenu {
+    private static final Logger LOG = LoggerFactory.getLogger(AddToContextMenuSimple.class);
+
     private static String recursiveEntityToString(EntityFacade entityFacade) {
         return recursiveEntityToString(entityFacade.nid());
     }
@@ -32,9 +52,86 @@ public class AddToContextMenuSimple implements AddToContextMenu {
     }
 
     @Override
-    public void addToContextMenu(ContextMenu contextMenu, ViewProperties viewProperties,
+    public void addToContextMenu(Control control, ContextMenu contextMenu, ViewProperties viewProperties,
                                  ObservableValue<EntityFacade> entityFocusProperty,
                                  SimpleIntegerProperty selectionIndexProperty, Runnable unlink) {
+        MenuItem searchForAlternative = new MenuItem("Search for alternative concept");
+        searchForAlternative.setOnAction(event -> {
+            EntityFacade entityFacade = entityFocusProperty.getValue();
+            if (entityFacade != null) {
+                Entity entity = Entity.getFast(entityFacade.nid());
+                String seedText = viewProperties.calculator().getFullyQualifiedDescriptionTextWithFallbackOrNid(entityFacade);
+                seedText = "+" + seedText.replace(" ", " +");
+                seedText = seedText.replace("(", "");
+                seedText = seedText.replace(")", "");
+                PopOver popover = new PopOver(control);
+                try {
+                    SearchControllerAndNode searchControllerAndNode = new SearchControllerAndNode();
+                    ReadOnlyObjectProperty<PublicIdStringKey<ActivityStream>> activityStreamKeyProperty = new SimpleObjectProperty<>(ActivityStreams.UNLINKED);
+                    searchControllerAndNode.controller().setProperties(popover.getRoot(), activityStreamKeyProperty, viewProperties, null);
+                    searchControllerAndNode.controller().setQueryString(seedText);
+                    searchControllerAndNode.controller().getDoubleCLickConsumers().add(o -> {
+                        if (control instanceof EntityLabelWithDragAndDrop entityLabelWithDragAndDrop) {
+                            LOG.info("Double click on: " + o);
+                            switch (o) {
+                                case SemanticEntityVersion semanticVersion -> entityLabelWithDragAndDrop.setEntity(semanticVersion.referencedComponent());
+                                case ConceptEntityVersion conceptVersion -> entityLabelWithDragAndDrop.setEntity(conceptVersion.entity());
+                                default -> AlertStreams.getRoot().dispatch(AlertObject.makeWarning("Can't handle double click on class " + o.getClass(),
+                                        o.toString()));
+                            }
+                        }
+                        popover.hide();
+                    });
+                    popover.setContentNode(searchControllerAndNode.searchPanelPane());
+                    searchControllerAndNode.searchPanelPane().setMinSize(450, 400);
+                    searchControllerAndNode.searchPanelPane().setPrefSize(450, 400);
+                    searchControllerAndNode.searchPanelPane().setMaxSize(700, 1024);
+                    //popover.setCloseButtonEnabled(true);
+                    //popover.setHeaderAlwaysVisible(true);
+
+                    Object source = event.getSource();
+                    popover.setArrowLocation(PopOver.ArrowLocation.TOP_LEFT);
+                    popover.setDetachable(false);
+                    if (source instanceof MenuItem menuItem) {
+                        //popover.show(control, 10);
+                        //TODO relocate top or bottom based on location in window...
+                        Bounds controlBounds = control.localToScreen(control.getBoundsInLocal());
+                        popover.show(control, controlBounds.getMinX() + 25, controlBounds.getMaxY() - 5);
+                    } else {
+                        AlertStreams.getRoot().dispatch(AlertObject.makeError(
+                                new IllegalStateException("Event is not associated with a window: " + event)));
+                    }
+                } catch (IOException e) {
+                    AlertStreams.getRoot().dispatch(AlertObject.makeError(e));
+                }
+                event.consume();
+            }
+        });
+        contextMenu.getItems().add(searchForAlternative);
+
+        for (PublicIdStringKey<ActivityStream> activityStreamKey : ActivityStreams.KEYS) {
+            ObservableList<EntityFacade> streamHistory = ActivityStreams.get(activityStreamKey).getHistory();
+            if (!streamHistory.isEmpty()) {
+                if (control instanceof EntityLabelWithDragAndDrop entityLabelWithDragAndDrop) {
+                    Menu setFromHistory = new Menu("Set from " + activityStreamKey.getString() + " history");
+                    contextMenu.getItems().add(setFromHistory);
+                    for (EntityFacade entityFacade : streamHistory) {
+                        MenuItem historyItem = new MenuItem(viewProperties.calculator().getFullyQualifiedDescriptionTextWithFallbackOrNid(entityFacade));
+                        setFromHistory.getItems().add(historyItem);
+                        historyItem.setOnAction(event -> {
+                            Entity historicalEntity = Entity.getFast(entityFacade);
+                            switch (historicalEntity) {
+                                case SemanticEntity semanticEntity -> entityLabelWithDragAndDrop.setEntity(semanticEntity.topEnclosingComponent());
+                                case ConceptEntity conceptEntity -> entityLabelWithDragAndDrop.setEntity(conceptEntity);
+                                default -> AlertStreams.getRoot().dispatch(AlertObject.makeError(
+                                        new IllegalStateException("Unexpected value: " + historicalEntity)));
+                            }
+                        });
+                    }
+                }
+            }
+        }
+
 
         MenuItem copyEntityToString = new MenuItem("Copy entity toString()");
         copyEntityToString.setOnAction(event -> {

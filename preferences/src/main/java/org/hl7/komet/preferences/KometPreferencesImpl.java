@@ -26,11 +26,11 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
  */
 public class KometPreferencesImpl
         extends AbstractPreferences {
+    private static final Logger LOG = LoggerFactory.getLogger(KometPreferencesImpl.class);
+
     public static final String DB_PREFERENCES_FOLDER = "preferences";
     public static final KometPreferencesImpl preferencesImpl = new KometPreferencesImpl();
     public static final KometPreferencesWrapper preferencesWrapper = new KometPreferencesWrapper(preferencesImpl);
-    private static final Logger LOG = LoggerFactory.getLogger(KometPreferencesImpl.class);
-
     //~--- fieldValues --------------------------------------------------------------
     private final ConcurrentSkipListMap<String, String> preferencesTree = new ConcurrentSkipListMap<>();
     private final File directory;
@@ -40,10 +40,10 @@ public class KometPreferencesImpl
     //~--- constructors --------------------------------------------------------
 
     private KometPreferencesImpl() {
-        //For HK2
         super(null, "");
         File configuredRoot = ServiceProperties.get(ServiceKeys.DATA_STORE_ROOT, new File("target/IsaacPreferencesDefault"));
-        this.directory = new File(configuredRoot, "preferences");
+        this.directory = new File(configuredRoot, DB_PREFERENCES_FOLDER);
+        LOG.info("Opening configuration preferences from location: " + this.directory.getAbsolutePath());
         this.preferencesFile = new File(this.directory, "preferences.xml");
         this.temporaryFile = new File(this.directory, "preferences-tmp.xml");
         init();
@@ -192,6 +192,10 @@ public class KometPreferencesImpl
     @Override
     protected void syncSpi()
             throws BackingStoreException {
+        writeToDisk();
+    }
+
+    private void writeToDisk() throws BackingStoreException {
         try {
             if (!directory.exists() && !directory.mkdirs()) {
                 throw new BackingStoreException(directory + " create failed.");
@@ -220,7 +224,7 @@ public class KometPreferencesImpl
     @Override
     protected void flushSpi()
             throws BackingStoreException {
-        // nothing to do per the FileSystemPreferences implementation.
+        writeToDisk();
     }
 
     @Override
