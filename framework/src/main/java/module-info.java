@@ -1,3 +1,4 @@
+import org.hl7.komet.framework.KometNodeFactory;
 import org.hl7.komet.framework.concurrent.TaskListsService;
 import org.hl7.komet.framework.dnd.DragRegistry;
 import org.hl7.komet.preferences.PreferencesService;
@@ -25,6 +26,8 @@ open module org.hl7.komet.framework {
     exports org.hl7.komet.framework.uncertain;
     exports org.hl7.komet.framework.view;
     exports org.hl7.komet.framework;
+    exports org.hl7.komet.framework.window;
+    exports org.hl7.komet.framework.tabs;
     provides CachingService with DragRegistry.CacheProvider;
     requires io.github.classgraph;
     requires org.hl7.tinkar.collection;
@@ -61,4 +64,5 @@ open module org.hl7.komet.framework {
     requires transitive org.slf4j;
     uses TaskListsService;
     uses PreferencesService;
+    uses KometNodeFactory;
 }

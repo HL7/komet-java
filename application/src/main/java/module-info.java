@@ -23,7 +23,6 @@ module org.hl7.komet.application {
     requires org.hl7.komet.preferences;
     requires org.hl7.komet.progress;
     requires org.hl7.komet.search;
-    requires org.hl7.komet.tabs;
     requires org.hl7.tinkar.common;
     requires org.hl7.tinkar.entity;
     requires org.hl7.tinkar.provider.entity;

@@ -16,22 +16,21 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package org.hl7.komet.tabs;
+package org.hl7.komet.framework.tabs;
 
 import javafx.scene.shape.Path;
 
 /**
- *
  * @author amrullah
  */
 class DetachableTabPathModel {
 
+    private final Path path;
     private double tabPos;
     private double width;
     private double height;
     private double startX;
     private double startY;
-    private final Path path;
 
     public DetachableTabPathModel(Path path) {
         this.path = path;
@@ -39,7 +38,7 @@ class DetachableTabPathModel {
     }
 
     void refresh(double startX, double startY, double width, double height) {
-        boolean regenerate  = this.tabPos != -1
+        boolean regenerate = this.tabPos != -1
                 || this.width != width
                 || this.height != height
                 || this.startX != startX
@@ -55,7 +54,7 @@ class DetachableTabPathModel {
     }
 
     void refresh(double tabPos, double width, double height) {
-        boolean regenerate  = this.tabPos != tabPos
+        boolean regenerate = this.tabPos != tabPos
                 || this.width != width
                 || this.height != height;
         this.tabPos = tabPos;

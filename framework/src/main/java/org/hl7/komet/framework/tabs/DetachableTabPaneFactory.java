@@ -16,9 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package org.hl7.komet.tabs;
-
-import org.hl7.komet.preferences.KometPreferences;
+package org.hl7.komet.framework.tabs;
 
 /**
  * Factory responsible to Instantiate new DetachableTabPane when a Tab is

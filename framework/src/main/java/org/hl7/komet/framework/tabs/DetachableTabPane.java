@@ -2,7 +2,7 @@
  * License GNU LGPL
  * Copyright (C) 2013 Amrullah .
  */
-package org.hl7.komet.tabs;
+package org.hl7.komet.framework.tabs;
 
 
 import javafx.application.Platform;
@@ -17,7 +17,10 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.SplitPane;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.skin.TabPaneSkin;
 import javafx.scene.input.*;
 import javafx.scene.layout.BorderPane;
@@ -30,21 +33,27 @@ import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 import org.hl7.komet.framework.ScreenInfo;
-import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.komet.framework.view.ObservableViewNoOverride;
+import org.hl7.komet.preferences.KometPreferences;
+import org.hl7.tinkar.common.alert.AlertObject;
+import org.hl7.tinkar.common.alert.AlertStreams;
 import org.kordamp.ikonli.javafx.FontIcon;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Original version by amrullah. Extended and modified for Java 16 and Komet by KEC.
+ *
  * @author amrullah
  * @author KEC
  */
 public class DetachableTabPane extends TabPane {
-
+    private static final Logger LOG = LoggerFactory.getLogger(DetachableTabPane.class);
+    private static final Path path = new Path();
+    private static final DetachableTabPathModel pathModel = new DetachableTabPathModel(path);
+    private static final DataFormat DATA_FORMAT = new DataFormat("dragAwareTab");
     /**
      * hold reference to the source of drag event. We can't use
      * event.getGestureSource() because it is null when the target on a different
@@ -56,18 +65,46 @@ public class DetachableTabPane extends TabPane {
     private static double DRAG_TAB_WIDTH = 400;
     private static double DRAG_CONTENT_WIDTH = 400;
     private static double DRAG_CONTENT_HEIGHT = 700;
-    private StringProperty scope = new SimpleStringProperty("");
-    private static final Path path = new Path();
-    private static final DetachableTabPathModel pathModel = new DetachableTabPathModel(path);
-    private Pos pos = null;
-    private int dropIndex = 0;
-    private static final Logger logger = Logger.getLogger(DetachableTabPane.class.getName());
-    private List<Double> lstTabPoint = new ArrayList<>();
-    private boolean closeIfEmpty = false;
     private final ObservableViewNoOverride windowView;
     private final KometPreferences parentNodePreferences;
-
+    private StringProperty scope = new SimpleStringProperty("");
+    private Pos pos = null;
+    private int dropIndex = 0;
+    private List<Double> lstTabPoint = new ArrayList<>();
+    private boolean closeIfEmpty = false;
     private TabStack detachableStack = null;
+    private Button btnTop;
+    private Button btnRight;
+    private Button btnBottom;
+    private Button btnLeft;
+    private StackPane dockPosIndicator;
+    private GridPane posGrid;
+    private Callback<TabStack, Scene> sceneFactory = new Callback<TabStack, Scene>() {
+
+        @Override
+        public Scene call(TabStack p) {
+
+            return new Scene(new SplitPane(p), DetachableTabPane.DRAG_CONTENT_WIDTH, DetachableTabPane.DRAG_CONTENT_HEIGHT);
+        }
+    };
+    private DetachableTabPaneFactory detachableTabPaneFactory = new DetachableTabPaneFactory() {
+        @Override
+        protected void init(DetachableTabPane a) {
+            a.setMaxWidth(Double.MAX_VALUE);
+        }
+
+    };
+    private Callback<Stage, Window> stageOwnerFactory = new Callback<Stage, Window>() {
+
+        @Override
+        public Window call(Stage p) {
+            if (DetachableTabPane.this.getScene() == null) {
+                AlertStreams.getRoot().dispatch(AlertObject.makeWarning("Unable to get parent stage.", "DetachableTabPane.this.getScene() is null."));
+                return null;
+            }
+            return DetachableTabPane.this.getScene().getWindow();
+        }
+    };
 
     public DetachableTabPane(ObservableViewNoOverride windowView,
                              KometPreferences parentNodePreferences) {
@@ -90,13 +127,6 @@ public class DetachableTabPane extends TabPane {
     protected void setDetachableStack(TabStack detachableStack) {
         this.detachableStack = detachableStack;
     }
-
-    private Button btnTop;
-    private Button btnRight;
-    private Button btnBottom;
-    private Button btnLeft;
-    private StackPane dockPosIndicator;
-    private GridPane posGrid;
 
     private void initDropButton() {
         btnTop = new Button("", new FontIcon());
@@ -208,7 +238,7 @@ public class DetachableTabPane extends TabPane {
                     dockPosIndicator.setLayoutX(layoutX);
                     dockPosIndicator.setLayoutY(layoutY);
                     if (DetachableTabPane.this.getSkin() instanceof TabPaneSkin sp) {
-                         if (!sp.getChildren().contains(path)) {
+                        if (!sp.getChildren().contains(path)) {
                             if (!getTabs().isEmpty()) {
                                 sp.getChildren().add(dockPosIndicator);
                             }
@@ -244,7 +274,7 @@ public class DetachableTabPane extends TabPane {
                     event.consume();
                 }
             } catch (Exception ex) {
-                logger.log(Level.SEVERE, null, ex);
+                AlertStreams.getRoot().dispatch(AlertObject.makeError(ex));
             }
         });
 
@@ -294,7 +324,7 @@ public class DetachableTabPane extends TabPane {
         SplitPane parentSplitPane = null;
         for (Node node : lstSplitpane) {
             if (node instanceof SplitPane splitPane) {
-                for (Node child: splitPane.getItems()) {
+                for (Node child : splitPane.getItems()) {
                     if (child instanceof TabStack tabStack) {
                         if (tabStack.getTabPane() == control) {
                             parentSplitPane = splitPane;
@@ -423,7 +453,7 @@ public class DetachableTabPane extends TabPane {
         }
         Set<Node> tabs = tabheader.lookupAll(".tab");
         if (tabs.isEmpty() && !getTabs().isEmpty()) {
-            logger.warning("Failed to initiate drag gesture. There are no tabs.");
+            AlertStreams.getRoot().dispatch(AlertObject.makeWarning("Failed to initiate drag gesture.", "There are no tabs."));
         }
         for (Node node : tabs) {
             addGesture(this, node);
@@ -453,7 +483,7 @@ public class DetachableTabPane extends TabPane {
             Bounds bound = node.getLayoutBounds();
             lstTabPoint.add(point.getX() + bound.getWidth() - inset.getX());
         }
-//		logger.log(Level.INFO, "tab points " + Arrays.deepToString(lstTabPoint.toArray()));
+        //LOG.atInfo().log("tab points " + Arrays.deepToString(lstTabPoint.toArray()));
     }
 
     private void repaintPath(DragEvent event, int source) {
@@ -493,7 +523,7 @@ public class DetachableTabPane extends TabPane {
             if (tabpos < 35) {
                 tabpos = 35;
             }
-//			logger.info("drop index: " + dropIndex);
+//			LOG.atInfo().log("drop index: " + dropIndex);
             pathModel.refresh(tabpos, DetachableTabPane.this.getWidth(), DetachableTabPane.this.getHeight());
         }
     }
@@ -507,7 +537,6 @@ public class DetachableTabPane extends TabPane {
             node.setOnDragDone(null);
         }
     }
-    private static final DataFormat DATA_FORMAT = new DataFormat("dragAwareTab");
 
     private void addGesture(final TabPane tabPane, final Node node) {
         node.setOnDragDetected((MouseEvent e) -> {
@@ -535,7 +564,7 @@ public class DetachableTabPane extends TabPane {
             if (event.isAccepted()) {
                 if (DRAGGED_TAB != null && DRAGGED_TAB.getTabPane() == null) {
                     Tab tab = DRAGGED_TAB;
-                    new TabStage(tab, new Point2D(ScreenInfo.getMouseX() - 35, ScreenInfo.getMouseY() -50));
+                    new TabStage(tab, new Point2D(ScreenInfo.getMouseX() - 35, ScreenInfo.getMouseY() - 50));
                 }
                 if (DRAG_SOURCE.getScene() != null && DRAG_SOURCE.getScene().getWindow() instanceof TabStage) {
                     TabStage stage = (TabStage) DRAG_SOURCE.getScene().getWindow();
@@ -651,17 +680,6 @@ public class DetachableTabPane extends TabPane {
     }
 
     /**
-     * Set factory to generate the Scene. Default SceneFactory is provided and it
-     * will generate a scene with TabPane as root node. Call this method if you
-     * need to have a custom scene
-     * <p>
-     * @param sceneFactory
-     */
-    public void setSceneFactory(Callback<TabStack, Scene> sceneFactory) {
-        this.sceneFactory = sceneFactory;
-    }
-
-    /**
      * Getter for {@link #setSceneFactory(javafx.util.Callback)}
      *
      * @return
@@ -671,15 +689,15 @@ public class DetachableTabPane extends TabPane {
     }
 
     /**
-     * By default, the stage owner is the stage that own the first TabPane. For
-     * example, detaching a Tab will open a new Stage. The new stage owner is the
-     * stage of the TabPane. Detaching a tab from the new stage will open another
-     * stage. Their owner are the same which is the stage of the first TabPane.
+     * Set factory to generate the Scene. Default SceneFactory is provided and it
+     * will generate a scene with TabPane as root node. Call this method if you
+     * need to have a custom scene
      * <p>
-     * @param stageOwnerFactory
+     *
+     * @param sceneFactory
      */
-    public void setStageOwnerFactory(Callback<Stage, Window> stageOwnerFactory) {
-        this.stageOwnerFactory = stageOwnerFactory;
+    public void setSceneFactory(Callback<TabStack, Scene> sceneFactory) {
+        this.sceneFactory = sceneFactory;
     }
 
     /**
@@ -691,6 +709,19 @@ public class DetachableTabPane extends TabPane {
         return stageOwnerFactory;
     }
 
+    /**
+     * By default, the stage owner is the stage that own the first TabPane. For
+     * example, detaching a Tab will open a new Stage. The new stage owner is the
+     * stage of the TabPane. Detaching a tab from the new stage will open another
+     * stage. Their owner are the same which is the stage of the first TabPane.
+     * <p>
+     *
+     * @param stageOwnerFactory
+     */
+    public void setStageOwnerFactory(Callback<Stage, Window> stageOwnerFactory) {
+        this.stageOwnerFactory = stageOwnerFactory;
+    }
+
     public boolean isCloseIfEmpty() {
         return closeIfEmpty;
     }
@@ -698,23 +729,6 @@ public class DetachableTabPane extends TabPane {
     public void setCloseIfEmpty(boolean closeIfEmpty) {
         this.closeIfEmpty = closeIfEmpty;
     }
-
-    private Callback<TabStack, Scene> sceneFactory = new Callback<TabStack, Scene>() {
-
-        @Override
-        public Scene call(TabStack p) {
-
-            return new Scene(new SplitPane(p), DetachableTabPane.DRAG_CONTENT_WIDTH, DetachableTabPane.DRAG_CONTENT_HEIGHT);
-        }
-    };
-
-    private DetachableTabPaneFactory detachableTabPaneFactory = new DetachableTabPaneFactory(){
-        @Override
-        protected void init(DetachableTabPane a) {
-            a.setMaxWidth(Double.MAX_VALUE);
-        }
-
-    };
 
     public DetachableTabPaneFactory getDetachableTabPaneFactory() {
         return detachableTabPaneFactory;
@@ -735,18 +749,6 @@ public class DetachableTabPane extends TabPane {
         this.detachableTabPaneFactory = detachableTabPaneFactory;
     }
 
-    private Callback<Stage, Window> stageOwnerFactory = new Callback<Stage, Window>() {
-
-        @Override
-        public Window call(Stage p) {
-            if (DetachableTabPane.this.getScene() == null) {
-                logger.warning("unable to get parent stage");
-                return null;
-            }
-            return DetachableTabPane.this.getScene().getWindow();
-        }
-    };
-
     private class TabStage extends Stage {
 
         private final TabStack tabStack;
@@ -762,7 +764,7 @@ public class DetachableTabPane extends TabPane {
             scene.getStylesheets().addAll(DetachableTabPane.this.getScene().getStylesheets());
             setScene(scene);
 
-            setX(eventLocation.getX() - (DRAG_TAB_WIDTH /2));
+            setX(eventLocation.getX() - (DRAG_TAB_WIDTH / 2));
             setY(eventLocation.getY());
             if (getOwner() instanceof Stage owner) {
                 setTitle(owner.getTitle() + " sidecar");

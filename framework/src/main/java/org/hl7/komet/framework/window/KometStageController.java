@@ -1,4 +1,4 @@
-package org.hl7.komet.app;
+package org.hl7.komet.framework.window;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -14,27 +14,16 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import org.hl7.komet.details.DetailsNodeFactory;
-import org.hl7.komet.framework.KometNode;
+import org.eclipse.collections.api.list.ImmutableList;
 import org.hl7.komet.framework.SetupNode;
 import org.hl7.komet.framework.activity.ActivityStream;
-import org.hl7.komet.framework.activity.ActivityStreamOption;
-import org.hl7.komet.framework.activity.ActivityStreams;
 import org.hl7.komet.framework.concurrent.TaskWrapper;
+import org.hl7.komet.framework.tabs.DetachableTab;
+import org.hl7.komet.framework.tabs.TabStack;
 import org.hl7.komet.framework.view.ObservableViewNoOverride;
 import org.hl7.komet.framework.view.ViewMenuTask;
-import org.hl7.komet.list.ListNodeFactory;
-import org.hl7.komet.navigator.graph.GraphNavigatorNodeFactory;
-import org.hl7.komet.navigator.pattern.PatternNavigatorFactory;
 import org.hl7.komet.preferences.KometPreferences;
-import org.hl7.komet.progress.CompletionNodeFactory;
-import org.hl7.komet.progress.ProgressNodeFactory;
-import org.hl7.komet.search.SearchNodeFactory;
-import org.hl7.komet.table.TableNodeFactory;
-import org.hl7.komet.tabs.DetachableTab;
-import org.hl7.komet.tabs.TabStack;
 import org.hl7.tinkar.common.alert.AlertStream;
-import org.hl7.tinkar.common.alert.AlertStreams;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
 import org.hl7.tinkar.common.service.Executor;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculatorWithCache;
@@ -175,7 +164,7 @@ public class KometStageController implements SetupNode {
         classifierMenuButton.getItems().clear();
         classifierMenuButton.getItems().addAll(getTaskMenuItems());
 
-        Image image = new Image(KometStageController.class.getResourceAsStream("/images/viewer-logo-b@2.png"));
+        Image image = new Image(KometStageController.class.getResourceAsStream("/org/hl7/komet/framework/images/viewer-logo-b@2.png"));
         vanityImage.setImage(image);
         vanityImage.setFitHeight(36);
         vanityImage.setPreserveRatio(true);
@@ -224,12 +213,13 @@ public class KometStageController implements SetupNode {
                       AlertStream alertStream) {
         this.windowView = windowView;
         this.nodePreferences = nodePreferences;
+        setupWindow();
         ViewCalculatorWithCache viewCalculator = ViewCalculatorWithCache.getCalculator(windowView.toViewCoordinateRecord());
+
 
         Executor.threadPool().execute(TaskWrapper.make(new ViewMenuTask(viewCalculator, windowView),
                 (List<MenuItem> result) -> {
                     windowCoordinates.getItems().addAll(result);
-                    setupWindow();
                 }));
 
         windowView.addListener((observable, oldValue, newValue) -> {
@@ -248,96 +238,27 @@ public class KometStageController implements SetupNode {
         centerBorderPane.setCenter(this.centerDetachableTabPane);
         rightBorderPane.setCenter(this.rightDetachableTabPane);
 
+    }
 
-        GraphNavigatorNodeFactory navigatorNodeFactory = new GraphNavigatorNodeFactory();
+    public void setLeftTabs(ImmutableList<DetachableTab> tabs, int selectedIndexInTab) {
+        setupTabs(tabs, selectedIndexInTab, this.leftDetachableTabPane);
+    }
 
-        KometNode navigatorNode1 = navigatorNodeFactory.create(windowView, nodePreferences,
-                ActivityStreams.NAVIGATION, ActivityStreamOption.PUBLISH.keyForOption(), AlertStreams.ROOT_ALERT_STREAM_KEY);
+    private void setupTabs(ImmutableList<DetachableTab> tabs, int selectedIndexInTab, TabStack tabStack) {
+        for (DetachableTab tab : tabs) {
+            tabStack.getTabs().add(tab);
+        }
+        if (selectedIndexInTab > -1 || selectedIndexInTab < tabs.size()) {
+            tabStack.getSelectionModel().select(tabs.get(selectedIndexInTab));
+        }
+    }
 
-        DetachableTab navigatorNode1Tab = new DetachableTab(navigatorNode1.getTitle().getValue(), navigatorNode1.getNode());
-        navigatorNode1Tab.setGraphic(navigatorNode1.getTitleNode());
-        this.leftDetachableTabPane.getTabPane().getTabs().add(navigatorNode1Tab);
+    public void setCenterTabs(ImmutableList<DetachableTab> tabs, int selectedIndexInTab) {
+        setupTabs(tabs, selectedIndexInTab, this.centerDetachableTabPane);
+    }
 
-        PatternNavigatorFactory patternNavigatorNodeFactory = new PatternNavigatorFactory();
-
-        KometNode patternNavigatorNode2 = patternNavigatorNodeFactory.create(windowView, nodePreferences,
-                ActivityStreams.NAVIGATION, ActivityStreamOption.PUBLISH.keyForOption(), AlertStreams.ROOT_ALERT_STREAM_KEY);
-
-        DetachableTab patternNavigatorNode1Tab = new DetachableTab(patternNavigatorNode2.getTitle().getValue(), patternNavigatorNode2.getNode());
-        patternNavigatorNode1Tab.setGraphic(patternNavigatorNode2.getTitleNode());
-        this.leftDetachableTabPane.getTabPane().getTabs().add(patternNavigatorNode1Tab);
-
-        DetailsNodeFactory detailsNodeFactory = new DetailsNodeFactory();
-        KometNode detailsNode1 = detailsNodeFactory.create(windowView, nodePreferences,
-                ActivityStreams.NAVIGATION, ActivityStreamOption.SUBSCRIBE.keyForOption(), AlertStreams.ROOT_ALERT_STREAM_KEY);
-
-        DetachableTab detailsNode1Tab = new DetachableTab(detailsNode1.getTitle().getValue(), detailsNode1.getNode());
-        // TODO: setting up tab graphic, title, and tooltip needs to be standardized by the factory...
-        detailsNode1Tab.setGraphic(detailsNode1.getTitleNode());
-        detailsNode1Tab.textProperty().bind(detailsNode1.getTitle());
-        detailsNode1Tab.tooltipProperty().setValue(detailsNode1.makeToolTip());
-        this.centerDetachableTabPane.getTabs().add(detailsNode1Tab);
-
-        KometNode detailsNode2 = detailsNodeFactory.create(windowView, nodePreferences,
-                ActivityStreams.SEARCH, ActivityStreamOption.SUBSCRIBE.keyForOption(), AlertStreams.ROOT_ALERT_STREAM_KEY);
-        DetachableTab detailsNode2Tab = new DetachableTab(detailsNode2.getTitle().getValue(), detailsNode2.getNode());
-        // TODO: setting up tab graphic, title, and tooltip needs to be standardized by the factory...
-        detailsNode2Tab.setGraphic(detailsNode2.getTitleNode());
-        detailsNode2Tab.textProperty().bind(detailsNode2.getTitle());
-        detailsNode2Tab.tooltipProperty().setValue(detailsNode2.makeToolTip());
-        this.centerDetachableTabPane.getTabs().add(detailsNode2Tab);
-
-        KometNode detailsNode3 = detailsNodeFactory.create(windowView, nodePreferences,
-                ActivityStreams.UNLINKED, ActivityStreamOption.PUBLISH.keyForOption(), AlertStreams.ROOT_ALERT_STREAM_KEY);
-        DetachableTab detailsNode3Tab = new DetachableTab(detailsNode3.getTitle().getValue(), detailsNode3.getNode());
-        // TODO: setting up tab graphic, title, and tooltip needs to be standardized by the factory...
-        detailsNode3Tab.setGraphic(detailsNode3.getTitleNode());
-        detailsNode3Tab.textProperty().bind(detailsNode3.getTitle());
-        detailsNode3Tab.tooltipProperty().setValue(detailsNode3.makeToolTip());
-        this.centerDetachableTabPane.getTabs().add(detailsNode3Tab);
-
-        ListNodeFactory listNodeFactory = new ListNodeFactory();
-        KometNode listNode = listNodeFactory.create(windowView, nodePreferences,
-                ActivityStreams.LIST, ActivityStreamOption.PUBLISH.keyForOption(), AlertStreams.ROOT_ALERT_STREAM_KEY);
-        DetachableTab listNodeNodeTab = new DetachableTab(listNode.getTitle().getValue(), listNode.getNode());
-        // TODO: setting up tab graphic, title, and tooltip needs to be standardized by the factory...
-        listNodeNodeTab.setGraphic(listNode.getTitleNode());
-        listNodeNodeTab.textProperty().bind(listNode.getTitle());
-        listNodeNodeTab.tooltipProperty().setValue(listNode.makeToolTip());
-        this.centerDetachableTabPane.getTabs().add(listNodeNodeTab);
-
-        TableNodeFactory tableNodeFactory = new TableNodeFactory();
-        KometNode tableNode = tableNodeFactory.create(windowView, nodePreferences,
-                ActivityStreams.UNLINKED, ActivityStreamOption.PUBLISH.keyForOption(), AlertStreams.ROOT_ALERT_STREAM_KEY);
-        DetachableTab tableNodeTab = new DetachableTab(tableNode.getTitle().getValue(), tableNode.getNode());
-        // TODO: setting up tab graphic, title, and tooltip needs to be standardized by the factory...
-        tableNodeTab.setGraphic(tableNode.getTitleNode());
-        tableNodeTab.textProperty().bind(tableNode.getTitle());
-        tableNodeTab.tooltipProperty().setValue(tableNode.makeToolTip());
-        this.centerDetachableTabPane.getTabs().add(tableNodeTab);
-
-        SearchNodeFactory searchNodeFactory = new SearchNodeFactory();
-        KometNode searchNode = searchNodeFactory.create(windowView, nodePreferences,
-                ActivityStreams.SEARCH, ActivityStreamOption.PUBLISH.keyForOption(), AlertStreams.ROOT_ALERT_STREAM_KEY);
-        DetachableTab newSearchTab = new DetachableTab(searchNode.getTitle().getValue(), searchNode.getNode());
-        newSearchTab.setGraphic(searchNode.getTitleNode());
-        this.rightDetachableTabPane.getTabs().add(newSearchTab);
-
-        ProgressNodeFactory progressNodeFactory = new ProgressNodeFactory();
-        KometNode kometNode = progressNodeFactory.create(windowView, nodePreferences,
-                null, null, AlertStreams.ROOT_ALERT_STREAM_KEY);
-        DetachableTab progressTab = new DetachableTab(kometNode.getTitle().getValue(), kometNode.getNode());
-        progressTab.setGraphic(kometNode.getTitleNode());
-        this.rightDetachableTabPane.getTabs().add(progressTab);
-
-        CompletionNodeFactory completionNodeFactory = new CompletionNodeFactory();
-        KometNode completionNode = completionNodeFactory.create(windowView, nodePreferences,
-                null, null, AlertStreams.ROOT_ALERT_STREAM_KEY);
-        DetachableTab completionTab = new DetachableTab(completionNode.getTitle().getValue(), completionNode.getNode());
-        completionTab.setGraphic(completionNode.getTitleNode());
-        this.rightDetachableTabPane.getTabs().add(completionTab);
-
-        this.rightDetachableTabPane.getSelectionModel().select(progressTab);
+    public void setRightTabs(ImmutableList<DetachableTab> tabs, int selectedIndexInTab) {
+        setupTabs(tabs, selectedIndexInTab, this.rightDetachableTabPane);
     }
 
     public enum Keys {

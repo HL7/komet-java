@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package org.hl7.komet.tabs;
+package org.hl7.komet.framework.tabs;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -24,7 +24,6 @@ import javafx.scene.Node;
 import javafx.scene.control.Tab;
 
 /**
- *
  * @author amrullah
  */
 public class DetachableTab extends Tab {

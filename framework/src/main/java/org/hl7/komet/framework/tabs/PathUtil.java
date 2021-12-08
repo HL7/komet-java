@@ -16,16 +16,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package org.hl7.komet.tabs;
+package org.hl7.komet.framework.tabs;
 
-import javafx.scene.shape.HLineTo;
-import javafx.scene.shape.LineTo;
-import javafx.scene.shape.MoveTo;
-import javafx.scene.shape.Path;
-import javafx.scene.shape.VLineTo;
+import javafx.scene.shape.*;
 
 /**
- *
  * @author amrullah
  */
 class PathUtil {

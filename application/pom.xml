@@ -60,11 +60,6 @@
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.hl7.komet</groupId>
-            <artifactId>tabs</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.hl7.tinkar</groupId>
             <artifactId>auto-service</artifactId>
             <version>${tinkar-jpms-deps.version}</version>
@@ -266,7 +261,7 @@
                     <linuxAppCategory>Utilities</linuxAppCategory>
                     <linuxMenuGroup>Utilities</linuxMenuGroup>
                     <type>APP_IMAGE</type>
-                    <icon>${project.basedir}/src/main/resources/icons/KOMET.icns</icon>
+                    <icon>src/main/resources/icons/KOMET.icns</icon>
                     <javaOptions>
                         <option>-Dfile.encoding=UTF-8 --add-opens=javafx.graphics/javafx.scene=org.controlsfx.controls
                         </option>

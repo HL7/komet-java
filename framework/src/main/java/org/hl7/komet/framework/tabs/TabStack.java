@@ -1,4 +1,4 @@
-package org.hl7.komet.tabs;
+package org.hl7.komet.framework.tabs;
 
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
@@ -26,6 +26,7 @@ public class TabStack extends StackPane {
     final MenuButton newTabMenu;
     final REMOVAL allowRemoval;
     final KometPreferences parentNodePreferences;
+
     private TabStack(DetachableTabPane tabPane, MenuButton newTabMenu, REMOVAL allowRemoval,
                      KometPreferences parentNodePreferences) {
         super(tabPane, newTabMenu);

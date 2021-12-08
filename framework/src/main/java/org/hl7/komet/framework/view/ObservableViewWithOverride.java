@@ -22,24 +22,14 @@ public class ObservableViewWithOverride extends ObservableViewBase {
         });
     }
 
-    @Override
-    public ObservableLogicCoordinateWithOverride logicCoordinate() {
-        return (ObservableLogicCoordinateWithOverride) this.logicCoordinateObservable;
-    }
-
-    @Override
-    public ObservableNavigationCoordinateWithOverride navigationCoordinate() {
-        return (ObservableNavigationCoordinateWithOverride) this.navigationCoordinateObservable;
-    }
-
-    @Override
-    public ListPropertyWithOverride<ObservableLanguageCoordinateBase> languageCoordinates() {
-        return (ListPropertyWithOverride<ObservableLanguageCoordinateBase>) this.languageCoordinates;
-    }
-
-    @Override
-    public ObservableStampCoordinateWithOverride stampCoordinate() {
-        return (ObservableStampCoordinateWithOverride) this.stampCoordinateObservable;
+    private void overriddenBaseChanged(ObservableValue<? extends ViewCoordinateRecord> observableValue,
+                                       ViewCoordinateRecord oldValue,
+                                       ViewCoordinateRecord newValue) {
+        if (this.hasOverrides()) {
+            setExceptOverrides(newValue);
+        } else {
+            setValue(newValue);
+        }
     }
 
     @Override
@@ -63,26 +53,17 @@ public class ObservableViewWithOverride extends ObservableViewBase {
         }
     }
 
-    private void overriddenBaseChanged(ObservableValue<? extends ViewCoordinateRecord> observableValue,
-                                       ViewCoordinateRecord oldValue,
-                                       ViewCoordinateRecord newValue) {
-        if (this.hasOverrides()) {
-            setExceptOverrides(newValue);
-        } else {
-            setValue(newValue);
-        }
+    @Override
+    public ViewCoordinateRecord getOriginalValue() {
+        return ViewCoordinateRecord.make(
+                this.stampCoordinate().getOriginalValue(),
+                this.languageCoordinates().getOriginalValue(),
+                this.logicCoordinate().getOriginalValue(),
+                this.navigationCoordinate().getOriginalValue());
     }
 
-    @Override
-    protected ObservableLogicCoordinateBase makeLogicCoordinateObservable(ViewCoordinate viewRecord) {
-        ObservableView observableView = (ObservableView) viewRecord;
-        return new ObservableLogicCoordinateWithOverride(observableView.logicCoordinate());
-    }
-
-    @Override
-    protected ObservableNavigationCoordinateBase makeNavigationCoordinateObservable(ViewCoordinate viewRecord) {
-        ObservableView observableView = (ObservableView) viewRecord;
-        return new ObservableNavigationCoordinateWithOverride(observableView.navigationCoordinate());
+    public void setOverrides(ViewCoordinateRecord coordinateWithOverrides) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -92,18 +73,41 @@ public class ObservableViewWithOverride extends ObservableViewBase {
     }
 
     @Override
+    protected ObservableNavigationCoordinateBase makeNavigationCoordinateObservable(ViewCoordinate viewRecord) {
+        ObservableView observableView = (ObservableView) viewRecord;
+        return new ObservableNavigationCoordinateWithOverride(observableView.navigationCoordinate());
+    }
+
+    @Override
     protected ListPropertyWithOverride<ObservableLanguageCoordinateBase> makeLanguageCoordinateListProperty(ViewCoordinate viewRecord) {
         ObservableView observableView = (ObservableView) viewRecord;
         return new ListPropertyWithOverride(observableView.languageCoordinates(), this);
     }
 
     @Override
-    public ViewCoordinateRecord getOriginalValue() {
-        return ViewCoordinateRecord.make(
-                this.stampCoordinate().getOriginalValue(),
-                this.languageCoordinates().getOriginalValue(),
-                this.logicCoordinate().getOriginalValue(),
-                this.navigationCoordinate().getOriginalValue());
+    protected ObservableLogicCoordinateBase makeLogicCoordinateObservable(ViewCoordinate viewRecord) {
+        ObservableView observableView = (ObservableView) viewRecord;
+        return new ObservableLogicCoordinateWithOverride(observableView.logicCoordinate());
+    }
+
+    @Override
+    public ObservableLogicCoordinateWithOverride logicCoordinate() {
+        return (ObservableLogicCoordinateWithOverride) this.logicCoordinateObservable;
+    }
+
+    @Override
+    public ObservableNavigationCoordinateWithOverride navigationCoordinate() {
+        return (ObservableNavigationCoordinateWithOverride) this.navigationCoordinateObservable;
+    }
+
+    @Override
+    public ListPropertyWithOverride<ObservableLanguageCoordinateBase> languageCoordinates() {
+        return (ListPropertyWithOverride<ObservableLanguageCoordinateBase>) this.languageCoordinates;
+    }
+
+    @Override
+    public ObservableStampCoordinateWithOverride stampCoordinate() {
+        return (ObservableStampCoordinateWithOverride) this.stampCoordinateObservable;
     }
 
     @Override

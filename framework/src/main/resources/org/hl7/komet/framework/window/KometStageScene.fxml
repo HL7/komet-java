@@ -7,7 +7,7 @@
 <BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:id="topBorderPane" maxHeight="1.7976931348623157E308"
             maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="600" prefHeight="875.0"
             prefWidth="1400.0" xmlns="http://javafx.com/javafx/16"
-            fx:controller="org.hl7.komet.app.KometStageController">
+            fx:controller="org.hl7.komet.framework.window.KometStageController">
     <bottom>
         <HBox fx:id="bottomBorderBox" prefHeight="0.0" prefWidth="866.0" BorderPane.alignment="CENTER">
             <children>

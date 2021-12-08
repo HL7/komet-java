@@ -83,7 +83,6 @@
         <module>preferences</module>
         <module>progress</module>
         <module>search</module>
-        <module>tabs</module>
         <module>komet-terms</module>
     </modules>
 </project>
