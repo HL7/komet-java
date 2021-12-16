@@ -6,30 +6,29 @@ import javafx.collections.ObservableList;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import org.hl7.komet.framework.view.ObservableViewNoOverride;
-import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.tinkar.common.alert.AlertObject;
 import org.hl7.tinkar.common.alert.AlertStreams;
-import org.hl7.tinkar.common.binary.DecoderInput;
 import org.hl7.tinkar.common.service.PrimitiveData;
 import org.hl7.tinkar.coordinate.Coordinates;
-import org.hl7.tinkar.coordinate.view.ViewCoordinateRecord;
 import org.hl7.tinkar.terms.TinkarTerm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.prefs.BackingStoreException;
 
-public class WindowPreferences {
+public class WindowSettings {
+    private static final Logger LOG = LoggerFactory.getLogger(WindowSettings.class);
 
     private static final HashSet<String> windowIds = new HashSet<>();
 
 
-    private final SimpleBooleanProperty enableLeftPaneProperty = new SimpleBooleanProperty(this, TinkarTerm.ENABLE_LEFT_PANE.toXmlFragment(), false);
-    private final SimpleBooleanProperty enableCenterPaneProperty = new SimpleBooleanProperty(this, TinkarTerm.ENABLE_CENTER_PANE.toXmlFragment(), false);
-    private final SimpleBooleanProperty enableRightPaneProperty = new SimpleBooleanProperty(this, TinkarTerm.ENABLE_RIGHT_PANE.toXmlFragment(), false);
+    private final SimpleBooleanProperty enableLeftPaneProperty = new SimpleBooleanProperty(this, TinkarTerm.ENABLE_LEFT_PANE.toXmlFragment(), true);
+    private final SimpleBooleanProperty enableCenterPaneProperty = new SimpleBooleanProperty(this, TinkarTerm.ENABLE_CENTER_PANE.toXmlFragment(), true);
+    private final SimpleBooleanProperty enableRightPaneProperty = new SimpleBooleanProperty(this, TinkarTerm.ENABLE_RIGHT_PANE.toXmlFragment(), true);
 
     private final SimpleStringProperty windowNameProperty
             = new SimpleStringProperty(this, TinkarTerm.WINDOW_CONFIGURATION_NAME.toXmlFragment());
@@ -61,7 +60,7 @@ public class WindowPreferences {
     private final BooleanProperty changed = new SimpleBooleanProperty(this, "changed", false);
 
     private final SimpleObjectProperty<double[]> dividerPositionsProperty = new SimpleObjectProperty<>(this, "divider positions", new double[]{0.2504, 0.7504});
-    private final ObservableViewNoOverride observableViewForWindow;
+    private final ObservableViewNoOverride observableViewForWindow = new ObservableViewNoOverride(Coordinates.View.DefaultView());
     private final KometPreferences preferencesNode;
     private final BooleanProperty initialized = new SimpleBooleanProperty(this, Keys.INITIALIZED.toString());
 
@@ -69,15 +68,17 @@ public class WindowPreferences {
      * This constructor is called by reflection when reconstituting a window from the preferences.
      *
      * @param preferencesNode
-     * @param viewProperties  the view properties for the window.
      */
-    public WindowPreferences(KometPreferences preferencesNode,
-                             ViewProperties viewProperties) {
+    public WindowSettings(KometPreferences preferencesNode) {
         this.preferencesNode = preferencesNode;
-        windowIds.add(preferencesNode.name());
-        windowNameProperty.set(preferencesNode.get(Keys.WINDOW_NAME, "New window 1"));
-
-        this.observableViewForWindow = setupViewPropertiesForWindow(preferencesNode);
+        WindowSettings.windowIds.add(preferencesNode.name());
+        if (this.preferencesNode.hasKey(Keys.INITIALIZED)) {
+            revertFields();
+        } else {
+            // Set defaults.
+            this.windowNameProperty.set(preferencesNode.get(Keys.WINDOW_NAME, "New window 1"));
+            save();
+        }
 
         windowNameProperty.addListener((observable, oldValue, newValue) -> {
             for (Window window : Stage.getWindows()) {
@@ -90,35 +91,11 @@ public class WindowPreferences {
                 }
             }
         });
-        revertFields();
-        save();
-        this.leftTabSelectionProperty.addListener((observable, oldValue, newValue) -> {
-            save();
-        });
-        this.centerTabSelectionProperty.addListener((observable, oldValue, newValue) -> {
-            save();
-        });
-        this.rightTabSelectionProperty.addListener((observable, oldValue, newValue) -> {
-            save();
-        });
-    }
-
-    protected ObservableViewNoOverride setupViewPropertiesForWindow(KometPreferences preferencesNode) {
-        if (preferencesNode.hasKey(Keys.VIEW_COORDINATE_FOR_WINDOW)) {
-            Optional<byte[]> optionalCoordinateData = preferencesNode.getByteArray(Keys.VIEW_COORDINATE_FOR_WINDOW);
-            if (optionalCoordinateData.isPresent()) {
-                return new ObservableViewNoOverride(ViewCoordinateRecord.decode(new DecoderInput(optionalCoordinateData.get())));
-            }
-        }
-        ObservableViewNoOverride windowView = new ObservableViewNoOverride(Coordinates.View.DefaultView());
-        preferencesNode.putByteArray(Keys.VIEW_COORDINATE_FOR_WINDOW, windowView.getValue().toBytes());
-        return windowView;
     }
 
     protected void revertFields() {
         setDefaultLocationAndSize();
-        ObservableViewNoOverride revertViewProperties = setupViewPropertiesForWindow(this.preferencesNode);
-        this.observableViewForWindow.setValue(revertViewProperties.getValue());
+        this.observableViewForWindow.setValue(preferencesNode.getObject(Keys.VIEW_COORDINATE_FOR_WINDOW, Coordinates.View.DefaultView()));
 
         this.windowNameProperty.set(this.preferencesNode.get(Keys.WINDOW_NAME, windowNameProperty.getValue()));
         this.enableLeftPaneProperty.set(this.preferencesNode.getBoolean(Keys.ENABLE_LEFT_PANE, true));
@@ -146,6 +123,7 @@ public class WindowPreferences {
             saveFields();
             preferencesNode.sync();
             preferencesNode.flush();
+            LOG.info("Saved window settings: (" + xLocationProperty.get() + ", " + yLocationProperty.get() + ")");
         } catch (BackingStoreException ex) {
             throw new RuntimeException(ex);
         }
@@ -154,13 +132,14 @@ public class WindowPreferences {
     private void setDefaultLocationAndSize() {
         this.xLocationProperty.setValue(this.preferencesNode.getDouble(Keys.X_LOC, 40.0));
         this.yLocationProperty.setValue(this.preferencesNode.getDouble(Keys.Y_LOC, 40.0));
-        this.heightProperty.setValue(this.preferencesNode.getDouble(Keys.HEIGHT, 897));
-        this.widthProperty.setValue(this.preferencesNode.getDouble(Keys.WIDTH, 1400));
+        this.heightProperty.setValue(this.preferencesNode.getDouble(Keys.HEIGHT, 1024));
+        this.widthProperty.setValue(this.preferencesNode.getDouble(Keys.WIDTH, 1800));
         this.dividerPositionsProperty.setValue(new double[]{0.2504, 0.7504});
     }
 
     protected void saveFields() {
         saveLocationAndFocus();
+        this.preferencesNode.putObject(Keys.VIEW_COORDINATE_FOR_WINDOW, getView().getValue());
         this.preferencesNode.putList(Keys.LEFT_TAB_NODES, TabSpecification.toStringList(leftTabNodesProperty));
         this.preferencesNode.putList(Keys.CENTER_TAB_NODES, TabSpecification.toStringList(centerTabNodesProperty));
         this.preferencesNode.putList(Keys.RIGHT_TAB_NODES, TabSpecification.toStringList(rightTabNodesProperty));
@@ -185,6 +164,10 @@ public class WindowPreferences {
         }
     }
 
+    public ObservableViewNoOverride getView() {
+        return this.observableViewForWindow;
+    }
+
     public static String getWindowName(String prefix, String nodeName) {
         windowIds.add(nodeName);
         if (windowIds.size() > 1) {
@@ -202,10 +185,6 @@ public class WindowPreferences {
             }
         }
         return prefix;
-    }
-
-    public ObservableViewNoOverride getObservableViewForWindow() {
-        return this.observableViewForWindow;
     }
 
     public UUID getWindowUuid() {

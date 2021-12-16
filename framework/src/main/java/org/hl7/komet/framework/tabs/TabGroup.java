@@ -3,8 +3,15 @@ package org.hl7.komet.framework.tabs;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
+import javafx.stage.Window;
+import javafx.util.Callback;
+import org.eclipse.collections.api.factory.Lists;
+import org.eclipse.collections.api.list.ImmutableList;
+import org.eclipse.collections.api.list.MutableList;
 import org.hl7.komet.framework.KometNode;
 import org.hl7.komet.framework.KometNodeFactory;
 import org.hl7.komet.framework.activity.ActivityStream;
@@ -12,23 +19,31 @@ import org.hl7.komet.framework.activity.ActivityStreamOption;
 import org.hl7.komet.framework.activity.ActivityStreams;
 import org.hl7.komet.framework.graphics.Icon;
 import org.hl7.komet.framework.view.ObservableViewNoOverride;
+import org.hl7.komet.framework.window.WindowComponent;
 import org.hl7.komet.preferences.KometPreferences;
+import org.hl7.tinkar.common.alert.AlertObject;
 import org.hl7.tinkar.common.alert.AlertStreams;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
 import org.hl7.tinkar.common.util.text.NaturalOrder;
 import org.kordamp.ikonli.javafx.FontIcon;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ServiceLoader;
+import java.util.UUID;
 
-public class TabStack extends StackPane {
+public class TabGroup extends StackPane implements WindowComponent {
+    private static final Logger LOG = LoggerFactory.getLogger(TabGroup.class);
     private static ServiceLoader<KometNodeFactory> nodeFactoryLoader = ServiceLoader.load(KometNodeFactory.class);
     final DetachableTabPane tabPane;
     final MenuButton newTabMenu;
     final REMOVAL allowRemoval;
-    final KometPreferences parentNodePreferences;
+    final ObservableViewNoOverride windowView;
+    final KometPreferences nodePreferences;
 
-    private TabStack(DetachableTabPane tabPane, MenuButton newTabMenu, REMOVAL allowRemoval,
-                     KometPreferences parentNodePreferences) {
+    private TabGroup(DetachableTabPane tabPane, MenuButton newTabMenu, REMOVAL allowRemoval,
+                     ObservableViewNoOverride windowView,
+                     KometPreferences nodePreferences) {
         super(tabPane, newTabMenu);
         tabPane.setDetachableStack(this);
         setAlignment(tabPane, Pos.TOP_LEFT);
@@ -36,16 +51,20 @@ public class TabStack extends StackPane {
         this.tabPane = tabPane;
         this.newTabMenu = newTabMenu;
         this.allowRemoval = allowRemoval;
-        this.parentNodePreferences = parentNodePreferences;
+        this.windowView = windowView;
+        this.nodePreferences = nodePreferences;
     }
 
-    public static TabStack make(REMOVAL allowRemoval, ObservableViewNoOverride windowView,
-                                KometPreferences parentNodePreferences) {
-        return make(new DetachableTabPane(windowView, parentNodePreferences), allowRemoval, windowView, parentNodePreferences);
+    public static TabGroup create(ObservableViewNoOverride windowView, KometPreferences nodePreferences) {
+        if (nodePreferences.hasKey(Keys.INITIALIZED)) {
+            // Restore from preferences...
+            throw new UnsupportedOperationException();
+        }
+        return TabGroup.make(new DetachableTabPane(), REMOVAL.ALLOW, windowView, nodePreferences);
     }
 
-    public static TabStack make(DetachableTabPane tabPane, REMOVAL allowRemoval, ObservableViewNoOverride windowView,
-                                KometPreferences parentNodePreferences) {
+    private static TabGroup make(DetachableTabPane tabPane, REMOVAL allowRemoval, ObservableViewNoOverride windowView,
+                                 KometPreferences nodePreferences) {
         MenuButton menuButton = new MenuButton("+");
         menuButton.getStyleClass().add("add-tab-menu");
         menuButton.setGraphic(new FontIcon());
@@ -56,9 +75,9 @@ public class TabStack extends StackPane {
                 MenuItem newTabMenuItem = new MenuItem(factory.getMenuText(), factory.getMenuGraphic());
                 newTabMenuItem.getStyleClass().add("add-tab-menu-item");
                 newTabMenuItem.setOnAction(event -> {
-                    KometNode kometNode = factory.create(windowView, parentNodePreferences,
+                    KometNode kometNode = factory.create(windowView, nodePreferences,
                             null, null, AlertStreams.ROOT_ALERT_STREAM_KEY);
-                    DetachableTab newTab = new DetachableTab(kometNode.getTitle().getValue(), kometNode.getNode());
+                    DetachableTab newTab = new DetachableTab(kometNode);
                     newTab.setGraphic(kometNode.getTitleNode());
                     tabPane.getTabs().add(newTab);
                     tabPane.getSelectionModel().select(newTab);
@@ -73,9 +92,9 @@ public class TabStack extends StackPane {
                         MenuItem newTabMenuItem = new MenuItem(activityStreamOptionKey.getString());
                         newTabMenuItem.getStyleClass().add("add-tab-menu-item");
                         newTabMenuItem.setOnAction(event -> {
-                            KometNode kometNode = factory.create(windowView, parentNodePreferences,
+                            KometNode kometNode = factory.create(windowView, nodePreferences,
                                     activityStreamKey, activityStreamOptionKey, AlertStreams.ROOT_ALERT_STREAM_KEY);
-                            DetachableTab newTab = new DetachableTab(kometNode.getTitle().getValue(), kometNode.getNode());
+                            DetachableTab newTab = new DetachableTab(kometNode);
                             newTab.setGraphic(kometNode.getTitleNode());
                             tabPane.getTabs().add(newTab);
                             tabPane.getSelectionModel().select(newTab);
@@ -126,20 +145,72 @@ public class TabStack extends StackPane {
             });
             menuButton.getItems().add(removeTabArea);
         }
-        return new TabStack(tabPane, menuButton, allowRemoval, parentNodePreferences);
+        return new TabGroup(tabPane, menuButton, allowRemoval, windowView, makeNodePreferences(nodePreferences));
     }
 
-    public static TabStack make(DetachableTabPane tabPane, ObservableViewNoOverride windowView,
-                                KometPreferences parentNodePreferences) {
-        return make(tabPane, REMOVAL.ALLOW, windowView, parentNodePreferences);
+    public static KometPreferences makeNodePreferences(KometPreferences parentPreferencesNode) {
+        return parentPreferencesNode.node("tab-group-" + UUID.randomUUID());
+    }
+
+    public static TabGroup create(ObservableViewNoOverride windowView, KometPreferences nodePreferences, REMOVAL allowRemoval) {
+        if (nodePreferences.hasKey(Keys.INITIALIZED)) {
+            // Restore from preferences...
+            throw new UnsupportedOperationException("this create method is only for new nodes.");
+        }
+        return TabGroup.make(new DetachableTabPane(), allowRemoval, windowView, nodePreferences);
+    }
+
+    public DetachableTabPane tabPane() {
+        return tabPane;
+    }
+
+    @Override
+    public ObservableViewNoOverride windowView() {
+        return this.windowView;
+    }
+
+    @Override
+    public KometPreferences nodePreferences() {
+        return this.nodePreferences;
+    }
+
+    @Override
+    public ImmutableList<WindowComponent> children() {
+        MutableList<WindowComponent> children = Lists.mutable.empty();
+        for (Tab tab : tabPane.getTabs()) {
+            if (tab instanceof WindowComponent windowComponent) {
+                children.add(windowComponent);
+            }
+        }
+        return children.toImmutable();
+    }
+
+    @Override
+    public void saveConfiguration() {
+        try {
+            this.nodePreferences.flush();
+            try {
+                for (WindowComponent child : children()) {
+                    try {
+                        child.saveConfiguration();
+                    } catch (UnsupportedOperationException e) {
+                        LOG.warn("Save " + child.getClass().getName() + " is not supported. ");
+                    } catch (Throwable e) {
+                        AlertStreams.getRoot().dispatch(AlertObject.makeError(e));
+                    }
+                }
+            } catch (UnsupportedOperationException e) {
+                LOG.warn("children() is not supported for: " + this.getClass().getName());
+            } catch (Throwable e) {
+                AlertStreams.getRoot().dispatch(AlertObject.makeError(e));
+            }
+        } catch (Throwable e) {
+            AlertStreams.getRoot().dispatch(AlertObject.makeError(e));
+        }
     }
 
     public ObservableList<Tab> getTabs() {
         return tabPane.getTabs();
-    }
-
-    public DetachableTabPane getTabPane() {
-        return tabPane;
     }
 
     public SingleSelectionModel<Tab> getSelectionModel() {
@@ -148,6 +219,54 @@ public class TabStack extends StackPane {
 
     public MenuButton getNewTabMenu() {
         return newTabMenu;
+    }
+
+    public String getScope() {
+        return tabPane.getScope();
+    }
+
+    public void setScope(String scope) {
+        tabPane.setScope(scope);
+    }
+
+    public Callback<TabGroup, Scene> getSceneFactory() {
+        return tabPane.getSceneFactory();
+    }
+
+    public void setSceneFactory(Callback<TabGroup, Scene> sceneFactory) {
+        tabPane.setSceneFactory(sceneFactory);
+    }
+
+    public Callback<Stage, Window> getStageOwnerFactory() {
+        return tabPane.getStageOwnerFactory();
+    }
+
+    public void setStageOwnerFactory(Callback<Stage, Window> stageOwnerFactory) {
+        tabPane.setStageOwnerFactory(stageOwnerFactory);
+    }
+
+    public void setCloseIfEmpty(boolean closeIfEmpty) {
+        tabPane.setCloseIfEmpty(closeIfEmpty);
+    }
+
+    public TabGroupFactory getTabGroupFactory() {
+        return tabPane.getTabGroupFactory();
+    }
+
+    public void setTabGroupFactory(TabGroupFactory detachableTabPaneFactory) {
+        tabPane.setTabGroupFactory(detachableTabPaneFactory);
+    }
+
+    public TabPane.TabClosingPolicy getTabClosingPolicy() {
+        return tabPane.getTabClosingPolicy();
+    }
+
+    public void setTabClosingPolicy(TabPane.TabClosingPolicy value) {
+        tabPane.setTabClosingPolicy(value);
+    }
+
+    public KometPreferences getParentNodePreferences() {
+        return this.nodePreferences.parent();
     }
 
     public enum REMOVAL {ALLOW, DISALLOW}

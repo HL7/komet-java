@@ -12,20 +12,20 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.stage.Stage;
+import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import org.eclipse.collections.api.list.ImmutableList;
-import org.hl7.komet.framework.SetupNode;
-import org.hl7.komet.framework.activity.ActivityStream;
 import org.hl7.komet.framework.concurrent.TaskWrapper;
 import org.hl7.komet.framework.tabs.DetachableTab;
-import org.hl7.komet.framework.tabs.TabStack;
+import org.hl7.komet.framework.tabs.TabGroup;
 import org.hl7.komet.framework.view.ObservableViewNoOverride;
 import org.hl7.komet.framework.view.ViewMenuTask;
 import org.hl7.komet.preferences.KometPreferences;
-import org.hl7.tinkar.common.alert.AlertStream;
-import org.hl7.tinkar.common.id.PublicIdStringKey;
+import org.hl7.tinkar.common.alert.AlertObject;
+import org.hl7.tinkar.common.alert.AlertStreams;
 import org.hl7.tinkar.common.service.Executor;
+import org.hl7.tinkar.common.service.PrimitiveData;
+import org.hl7.tinkar.common.service.SaveState;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculatorWithCache;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.slf4j.Logger;
@@ -37,6 +37,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.prefs.BackingStoreException;
 
 
 /**
@@ -44,7 +45,7 @@ import java.util.ResourceBundle;
  *
  * @author kec
  */
-public class KometStageController implements SetupNode {
+public class KometStageController implements SaveState {
 
     private static final Logger LOG = LoggerFactory.getLogger(KometStageController.class);
     private final ImageView vanityImage = new ImageView();
@@ -86,14 +87,14 @@ public class KometStageController implements SetupNode {
     private MenuButton viewPropertiesButton;
 
     //private ChangeListener<Boolean> focusChangeListener = this::handleFocusEvents;
-    private Stage stage;
+    private Window window;
     private List<MenuButton> newTabMenuButtons = new ArrayList<>(5);
+    private WindowSettings windowSettings;
 
-    private ObservableViewNoOverride windowView;
     private KometPreferences nodePreferences;
-    private TabStack leftDetachableTabPane;
-    private TabStack centerDetachableTabPane;
-    private TabStack rightDetachableTabPane;
+    private TabGroup leftDetachableTabPane;
+    private TabGroup centerDetachableTabPane;
+    private TabGroup rightDetachableTabPane;
 
     private Node getTabPaneFromIndex(int index) {
         switch (index) {
@@ -201,55 +202,79 @@ public class KometStageController implements SetupNode {
         return items;
     }
 
+    @Override
+    public void save() {
+        try {
+            this.windowSettings.dividerPositionsProperty().set(this.windowSplitPane.getDividerPositions());
+            this.windowSettings.save();
+            this.leftDetachableTabPane.saveConfiguration();
+            this.centerDetachableTabPane.saveConfiguration();
+            this.rightDetachableTabPane.saveConfiguration();
+            this.nodePreferences.flush();
+        } catch (BackingStoreException e) {
+            AlertStreams.getRoot().dispatch(AlertObject.makeError(e));
+        }
+    }
+
     void handleCloseRequest(WindowEvent event) {
         //stage.focusedProperty().removeListener(this.focusChangeListener);
         //MenuProvider.handleCloseRequest(event);
     }
 
-    @Override
-    public void setup(ObservableViewNoOverride windowView,
-                      KometPreferences nodePreferences,
-                      PublicIdStringKey<ActivityStream> activityStreamKey,
-                      AlertStream alertStream) {
-        this.windowView = windowView;
+    public void setup(KometPreferences nodePreferences) {
         this.nodePreferences = nodePreferences;
-        setupWindow();
-        ViewCalculatorWithCache viewCalculator = ViewCalculatorWithCache.getCalculator(windowView.toViewCoordinateRecord());
+        this.window = topGridPane.getScene().getWindow();
+        this.windowSettings = new WindowSettings(nodePreferences);
 
+        ViewCalculatorWithCache viewCalculator = ViewCalculatorWithCache.getCalculator(windowSettings.getView().toViewCoordinateRecord());
 
-        Executor.threadPool().execute(TaskWrapper.make(new ViewMenuTask(viewCalculator, windowView),
-                (List<MenuItem> result) -> {
-                    windowCoordinates.getItems().addAll(result);
-                }));
-
-        windowView.addListener((observable, oldValue, newValue) -> {
-            windowCoordinates.getItems().clear();
-            Executor.threadPool().execute(TaskWrapper.make(new ViewMenuTask(viewCalculator, windowView),
-                    (List<MenuItem> result) -> windowCoordinates.getItems().addAll(result)));
-        });
-    }
-
-    private void setupWindow() {
-        this.leftDetachableTabPane = TabStack.make(TabStack.REMOVAL.DISALLOW, windowView, nodePreferences);
-        this.centerDetachableTabPane = TabStack.make(TabStack.REMOVAL.DISALLOW, windowView, nodePreferences);
-        this.rightDetachableTabPane = TabStack.make(TabStack.REMOVAL.DISALLOW, windowView, nodePreferences);
+        this.leftDetachableTabPane = TabGroup.create(windowSettings.getView(), TabGroup.makeNodePreferences(nodePreferences), TabGroup.REMOVAL.DISALLOW);
+        this.centerDetachableTabPane = TabGroup.create(windowSettings.getView(), TabGroup.makeNodePreferences(nodePreferences), TabGroup.REMOVAL.DISALLOW);
+        this.rightDetachableTabPane = TabGroup.create(windowSettings.getView(), TabGroup.makeNodePreferences(nodePreferences), TabGroup.REMOVAL.DISALLOW);
 
         leftBorderPane.setCenter(this.leftDetachableTabPane);
         centerBorderPane.setCenter(this.centerDetachableTabPane);
         rightBorderPane.setCenter(this.rightDetachableTabPane);
 
+        this.window.setX(this.windowSettings.xLocationProperty().getValue());
+        this.windowSettings.xLocationProperty().bind(this.window.xProperty());
+
+        this.window.setY(this.windowSettings.yLocationProperty().getValue());
+        this.windowSettings.yLocationProperty().bind(this.window.yProperty());
+
+        this.window.setHeight(this.windowSettings.heightProperty().getValue());
+        this.windowSettings.heightProperty().bind(this.window.heightProperty());
+
+        this.window.setWidth(this.windowSettings.widthProperty().getValue());
+        this.windowSettings.widthProperty().bind(this.window.widthProperty());
+
+        this.windowSplitPane.setDividerPositions(this.windowSettings.dividerPositionsProperty().getValue());
+
+
+        Executor.threadPool().execute(TaskWrapper.make(new ViewMenuTask(viewCalculator, windowSettings.getView()),
+                (List<MenuItem> result) -> {
+                    windowCoordinates.getItems().addAll(result);
+                }));
+
+        windowSettings.getView().addListener((observable, oldValue, newValue) -> {
+            windowCoordinates.getItems().clear();
+            Executor.threadPool().execute(TaskWrapper.make(new ViewMenuTask(viewCalculator, windowSettings.getView()),
+                    (List<MenuItem> result) -> windowCoordinates.getItems().addAll(result)));
+        });
+
+        PrimitiveData.getStatesToSave().add(this);
     }
 
     public void setLeftTabs(ImmutableList<DetachableTab> tabs, int selectedIndexInTab) {
         setupTabs(tabs, selectedIndexInTab, this.leftDetachableTabPane);
     }
 
-    private void setupTabs(ImmutableList<DetachableTab> tabs, int selectedIndexInTab, TabStack tabStack) {
+    private void setupTabs(ImmutableList<DetachableTab> tabs, int selectedIndexInTab, TabGroup tabGroup) {
         for (DetachableTab tab : tabs) {
-            tabStack.getTabs().add(tab);
+            tabGroup.getTabs().add(tab);
         }
         if (selectedIndexInTab > -1 || selectedIndexInTab < tabs.size()) {
-            tabStack.getSelectionModel().select(tabs.get(selectedIndexInTab));
+            tabGroup.getSelectionModel().select(tabs.get(selectedIndexInTab));
         }
     }
 
@@ -259,6 +284,10 @@ public class KometStageController implements SetupNode {
 
     public void setRightTabs(ImmutableList<DetachableTab> tabs, int selectedIndexInTab) {
         setupTabs(tabs, selectedIndexInTab, this.rightDetachableTabPane);
+    }
+
+    public ObservableViewNoOverride windowView() {
+        return this.windowSettings.getView();
     }
 
     public enum Keys {

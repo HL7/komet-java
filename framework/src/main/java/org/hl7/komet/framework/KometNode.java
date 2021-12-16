@@ -9,6 +9,7 @@ import javafx.scene.control.Tooltip;
 import org.hl7.komet.framework.activity.ActivityStream;
 import org.hl7.komet.framework.activity.ActivityStreamOption;
 import org.hl7.komet.framework.view.ViewProperties;
+import org.hl7.komet.framework.window.WindowComponent;
 import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.tinkar.common.alert.AlertObject;
 import org.hl7.tinkar.common.alert.AlertStream;
@@ -24,7 +25,7 @@ import org.hl7.tinkar.common.id.PublicIdStringKey;
  * @author kec
  */
 
-public interface KometNode {
+public interface KometNode extends WindowComponent {
     /**
      * A title as might be used to provide a title in a tab for a PanelNode.
      *

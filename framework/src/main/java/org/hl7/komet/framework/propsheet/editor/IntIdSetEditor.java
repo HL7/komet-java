@@ -6,6 +6,8 @@ import javafx.event.ActionEvent;
 import org.eclipse.collections.api.list.primitive.MutableIntList;
 import org.eclipse.collections.impl.factory.primitive.IntLists;
 import org.hl7.komet.framework.view.ViewProperties;
+import org.hl7.tinkar.common.alert.AlertObject;
+import org.hl7.tinkar.common.alert.AlertStreams;
 import org.hl7.tinkar.common.id.IntIdSet;
 import org.hl7.tinkar.common.service.Executor;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculator;
@@ -18,7 +20,7 @@ public class IntIdSetEditor extends IntIdCollectionEditor<IntIdSet> {
     }
 
     void newItem(ActionEvent actionEvent) {
-        throw new UnsupportedOperationException();
+        AlertStreams.getRoot().dispatch(AlertObject.makeWarning("Not yet implemented", "Adding items not yet supported"));
     }
 
     void updateList(IntIdSet newValue) {

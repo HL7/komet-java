@@ -20,25 +20,26 @@ package org.hl7.komet.framework.tabs;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.scene.Node;
 import javafx.scene.control.Tab;
+import org.eclipse.collections.api.list.ImmutableList;
+import org.hl7.komet.framework.KometNode;
+import org.hl7.komet.framework.view.ObservableViewNoOverride;
+import org.hl7.komet.framework.window.WindowComponent;
+import org.hl7.komet.preferences.KometPreferences;
 
 /**
  * @author amrullah
  */
-public class DetachableTab extends Tab {
+public class DetachableTab extends Tab implements WindowComponent {
+    final KometNode kometNode;
     private BooleanProperty detachable = new SimpleBooleanProperty(true);
-
-    public DetachableTab() {
-        super();
+    public DetachableTab(KometNode kometNode) {
+        super(kometNode.getTitle().getValue(), kometNode.getNode());
+        this.kometNode = kometNode;
     }
 
-    public DetachableTab(String string) {
-        super(string);
-    }
-
-    public DetachableTab(String text, Node content) {
-        super(text, content);
+    public KometNode getKometNode() {
+        return kometNode;
     }
 
     public boolean isDetachable() {
@@ -53,4 +54,23 @@ public class DetachableTab extends Tab {
         return detachable;
     }
 
+    @Override
+    public ObservableViewNoOverride windowView() {
+        return kometNode.windowView();
+    }
+
+    @Override
+    public KometPreferences nodePreferences() {
+        return kometNode.nodePreferences();
+    }
+
+    @Override
+    public ImmutableList<WindowComponent> children() {
+        return kometNode.children();
+    }
+
+    @Override
+    public void saveConfiguration() {
+        kometNode.saveConfiguration();
+    }
 }

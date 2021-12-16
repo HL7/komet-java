@@ -12,12 +12,15 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
+import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.hl7.komet.framework.activity.ActivityStream;
 import org.hl7.komet.framework.activity.ActivityStreamOption;
 import org.hl7.komet.framework.activity.ActivityStreams;
 import org.hl7.komet.framework.graphics.Icon;
+import org.hl7.komet.framework.view.ObservableViewNoOverride;
 import org.hl7.komet.framework.view.ViewProperties;
+import org.hl7.komet.framework.window.WindowComponent;
 import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.tinkar.common.alert.AlertObject;
 import org.hl7.tinkar.common.alert.AlertStreams;
@@ -245,5 +248,25 @@ public abstract class ExplorationNodeAbstract implements KometNode, Flow.Subscri
     @Override
     public final SimpleObjectProperty<Node> getMenuIconProperty() {
         return menuIconProperty;
+    }
+
+    @Override
+    public ObservableViewNoOverride windowView() {
+        return viewProperties.parentView();
+    }
+
+    @Override
+    public KometPreferences nodePreferences() {
+        return nodePreferences;
+    }
+
+    @Override
+    public ImmutableList<WindowComponent> children() {
+        return Lists.immutable.empty();
+    }
+
+    @Override
+    public void saveConfiguration() {
+        savePreferences();
     }
 }

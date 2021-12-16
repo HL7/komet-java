@@ -33,8 +33,6 @@ import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 import org.hl7.komet.framework.ScreenInfo;
-import org.hl7.komet.framework.view.ObservableViewNoOverride;
-import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.tinkar.common.alert.AlertObject;
 import org.hl7.tinkar.common.alert.AlertStreams;
 import org.kordamp.ikonli.javafx.FontIcon;
@@ -49,7 +47,7 @@ import java.util.*;
  * @author amrullah
  * @author KEC
  */
-public class DetachableTabPane extends TabPane {
+class DetachableTabPane extends TabPane {
     private static final Logger LOG = LoggerFactory.getLogger(DetachableTabPane.class);
     private static final Path path = new Path();
     private static final DetachableTabPathModel pathModel = new DetachableTabPathModel(path);
@@ -61,35 +59,33 @@ public class DetachableTabPane extends TabPane {
      */
     private static DetachableTabPane DRAG_SOURCE;
     private static int DRAG_SOURCE_INDEX = -1;
-    private static Tab DRAGGED_TAB;
+    private static DetachableTab DRAGGED_TAB;
     private static double DRAG_TAB_WIDTH = 400;
     private static double DRAG_CONTENT_WIDTH = 400;
     private static double DRAG_CONTENT_HEIGHT = 700;
-    private final ObservableViewNoOverride windowView;
-    private final KometPreferences parentNodePreferences;
     private StringProperty scope = new SimpleStringProperty("");
     private Pos pos = null;
     private int dropIndex = 0;
     private List<Double> lstTabPoint = new ArrayList<>();
     private boolean closeIfEmpty = false;
-    private TabStack detachableStack = null;
+    private TabGroup detachableStack = null;
     private Button btnTop;
     private Button btnRight;
     private Button btnBottom;
     private Button btnLeft;
     private StackPane dockPosIndicator;
     private GridPane posGrid;
-    private Callback<TabStack, Scene> sceneFactory = new Callback<TabStack, Scene>() {
+    private Callback<TabGroup, Scene> sceneFactory = new Callback<TabGroup, Scene>() {
 
         @Override
-        public Scene call(TabStack p) {
+        public Scene call(TabGroup p) {
 
             return new Scene(new SplitPane(p), DetachableTabPane.DRAG_CONTENT_WIDTH, DetachableTabPane.DRAG_CONTENT_HEIGHT);
         }
     };
-    private DetachableTabPaneFactory detachableTabPaneFactory = new DetachableTabPaneFactory() {
+    private TabGroupFactory tabGroupFactory = new TabGroupFactory() {
         @Override
-        protected void init(DetachableTabPane a) {
+        protected void init(TabGroup a) {
             a.setMaxWidth(Double.MAX_VALUE);
         }
 
@@ -106,25 +102,15 @@ public class DetachableTabPane extends TabPane {
         }
     };
 
-    public DetachableTabPane(ObservableViewNoOverride windowView,
-                             KometPreferences parentNodePreferences) {
+    DetachableTabPane() {
         super();
-        this.windowView = windowView;
-        this.parentNodePreferences = parentNodePreferences;
         getStyleClass().add("detachable-w-pane");
         setMaxWidth(Double.MAX_VALUE);
         attachListeners();
     }
 
-    public ObservableViewNoOverride getWindowView() {
-        return windowView;
-    }
 
-    public KometPreferences getParentNodePreferences() {
-        return parentNodePreferences;
-    }
-
-    protected void setDetachableStack(TabStack detachableStack) {
+    protected void setDetachableStack(TabGroup detachableStack) {
         this.detachableStack = detachableStack;
     }
 
@@ -158,7 +144,7 @@ public class DetachableTabPane extends TabPane {
      *
      * @return
      */
-    public String getScope() {
+    String getScope() {
         return scope.get();
     }
 
@@ -169,7 +155,7 @@ public class DetachableTabPane extends TabPane {
      *
      * @param scope
      */
-    public void setScope(String scope) {
+    void setScope(String scope) {
         this.scope.set(scope);
     }
 
@@ -179,7 +165,7 @@ public class DetachableTabPane extends TabPane {
      *
      * @return
      */
-    public StringProperty scopeProperty() {
+    StringProperty scopeProperty() {
         return scope;
     }
 
@@ -318,15 +304,15 @@ public class DetachableTabPane extends TabPane {
 
     }
 
-    private SplitPane findParentSplitPane(Node control) {
+    private Optional<SplitPane> findParentSplitPane(DetachableTabPane control) {
         if (control.getParent() == null) return null;
         Set<Node> lstSplitpane = control.getScene().getRoot().lookupAll(".split-pane");
         SplitPane parentSplitPane = null;
         for (Node node : lstSplitpane) {
             if (node instanceof SplitPane splitPane) {
                 for (Node child : splitPane.getItems()) {
-                    if (child instanceof TabStack tabStack) {
-                        if (tabStack.getTabPane() == control) {
+                    if (child instanceof TabGroup tabGroup) {
+                        if (tabGroup.tabPane() == control) {
                             parentSplitPane = splitPane;
                             break;
                         }
@@ -334,11 +320,10 @@ public class DetachableTabPane extends TabPane {
                 }
             }
         }
-        return parentSplitPane;
+        return Optional.ofNullable(parentSplitPane);
     }
 
     private void adjacent() {
-        SplitPane targetSplitPane = findParentSplitPane(DetachableTabPane.this);
         final Tab selectedtab = DRAGGED_TAB;
 
         if (getParent() == null) {
@@ -357,15 +342,16 @@ public class DetachableTabPane extends TabPane {
         }
 
         int requestedIndex = 0;
-        if (targetSplitPane != null && requestedOrientation == targetSplitPane.getOrientation()) {
-            requestedIndex = targetSplitPane.getItems().indexOf(DetachableTabPane.this.detachableStack);
+        Optional<SplitPane> optionalSplitPane = findParentSplitPane(DetachableTabPane.this);
+        if (optionalSplitPane.isPresent() && requestedOrientation == optionalSplitPane.get().getOrientation()) {
+            requestedIndex = optionalSplitPane.get().getItems().indexOf(DetachableTabPane.this.detachableStack);
         }
         if (pos == Pos.CENTER_RIGHT || pos == Pos.BOTTOM_CENTER) {
             requestedIndex++;
         }
 
-        if (targetSplitPane == null) {
-            targetSplitPane = new SplitPane();
+        if (optionalSplitPane.isEmpty()) {
+            SplitPane targetSplitPane = new SplitPane();
             targetSplitPane.setMaxWidth(Double.MAX_VALUE);
             targetSplitPane.setOrientation(requestedOrientation);
 
@@ -380,19 +366,20 @@ public class DetachableTabPane extends TabPane {
                     parentPane.getChildren().add(index, targetSplitPane);
                 }
                 targetSplitPane.getItems().add(DetachableTabPane.this.detachableStack);
-                TabStack tabStack = detachableTabPaneFactory.create(this);
-                tabStack.getTabs().add(selectedtab);
-                targetSplitPane.getItems().add(requestedIndex, tabStack);
+                TabGroup tabGroup = tabGroupFactory.create(this.detachableStack);
+                tabGroup.getTabs().add(selectedtab);
+                targetSplitPane.getItems().add(requestedIndex, tabGroup);
             }
 
         } else {
+            SplitPane targetSplitPane = optionalSplitPane.get();
             if (targetSplitPane.getItems().size() == 1) {
                 targetSplitPane.setOrientation(requestedOrientation);
             }
             if (targetSplitPane.getOrientation() == requestedOrientation) {
-                TabStack tabStack = detachableTabPaneFactory.create(this);
-                tabStack.getTabs().add(selectedtab);
-                targetSplitPane.getItems().add(requestedIndex, tabStack);
+                TabGroup tabGroup = tabGroupFactory.create(this.detachableStack);
+                tabGroup.getTabs().add(selectedtab);
+                targetSplitPane.getItems().add(requestedIndex, tabGroup);
                 int itemCount = targetSplitPane.getItems().size();
                 double[] dividerPos = new double[itemCount];
                 dividerPos[0] = 1d / itemCount;
@@ -408,9 +395,9 @@ public class DetachableTabPane extends TabPane {
                 targetSplitPane.getItems().add(indexTabPane, innerSplitpane);
                 innerSplitpane.setOrientation(requestedOrientation);
                 innerSplitpane.getItems().add(DetachableTabPane.this.detachableStack);
-                TabStack tabStack = detachableTabPaneFactory.create(this);
-                tabStack.getTabs().add(selectedtab);
-                innerSplitpane.getItems().add(requestedIndex, tabStack);
+                TabGroup tabGroup = tabGroupFactory.create(this.detachableStack);
+                tabGroup.getTabs().add(selectedtab);
+                innerSplitpane.getItems().add(requestedIndex, tabGroup);
             }
         }
     }
@@ -540,7 +527,7 @@ public class DetachableTabPane extends TabPane {
 
     private void addGesture(final TabPane tabPane, final Node node) {
         node.setOnDragDetected((MouseEvent e) -> {
-            Tab tab = tabPane.getSelectionModel().getSelectedItem();
+            DetachableTab tab = (DetachableTab) tabPane.getSelectionModel().getSelectedItem();
             if (tab instanceof DetachableTab && !((DetachableTab) tab).isDetachable()) {
                 return;
             }
@@ -563,7 +550,7 @@ public class DetachableTabPane extends TabPane {
         node.setOnDragDone((DragEvent event) -> {
             if (event.isAccepted()) {
                 if (DRAGGED_TAB != null && DRAGGED_TAB.getTabPane() == null) {
-                    Tab tab = DRAGGED_TAB;
+                    DetachableTab tab = DRAGGED_TAB;
                     new TabStage(tab, new Point2D(ScreenInfo.getMouseX() - 35, ScreenInfo.getMouseY() - 50));
                 }
                 if (DRAG_SOURCE.getScene() != null && DRAG_SOURCE.getScene().getWindow() instanceof TabStage) {
@@ -626,27 +613,26 @@ public class DetachableTabPane extends TabPane {
     }
 
     protected void removeFromParent(DetachableTabPane tabPaneToRemove) {
-        SplitPane sp = findParentSplitPane(tabPaneToRemove);
-        if (sp == null) {
-            return;
-        }
-        if (!tabPaneToRemove.isCloseIfEmpty()) {
-            DetachableTabPane sibling = findSibling(sp, tabPaneToRemove);
-            if (sibling == null) {
-                return;
+        Optional<SplitPane> optionalSplitPane = findParentSplitPane(tabPaneToRemove);
+        if (optionalSplitPane.isPresent()) {
+            SplitPane sp = optionalSplitPane.get();
+            if (!tabPaneToRemove.isCloseIfEmpty()) {
+                DetachableTabPane sibling = findSibling(sp, tabPaneToRemove);
+                if (sibling == null) {
+                    return;
+                }
+                List<Tab> lstTab = new ArrayList(sibling.getTabs());
+                sibling.getTabs().clear();
+                tabPaneToRemove.getTabs().setAll(lstTab);
+                tabPaneToRemove = sibling;
             }
-            List<Tab> lstTab = new ArrayList(sibling.getTabs());
-            sibling.getTabs().clear();
-            tabPaneToRemove.getTabs().setAll(lstTab);
-            tabPaneToRemove = sibling;
-        }
 
-        if (tabPaneToRemove.getParent() instanceof TabStack) {
-            sp.getItems().remove(tabPaneToRemove.getParent());
-        } else {
-            sp.getItems().remove(tabPaneToRemove);
+            if (tabPaneToRemove.getParent() instanceof TabGroup) {
+                sp.getItems().remove(tabPaneToRemove.getParent());
+            } else {
+                sp.getItems().remove(tabPaneToRemove);
+            }
         }
-        simplifySplitPane(sp);
     }
 
     private DetachableTabPane findSibling(SplitPane sp, DetachableTabPane tabPaneToRemove) {
@@ -665,26 +651,12 @@ public class DetachableTabPane extends TabPane {
         return null;
     }
 
-    private void simplifySplitPane(SplitPane sp) {
-        if (sp.getItems().size() != 1) {
-            return;
-        }
-        Node content = sp.getItems().get(0);
-        SplitPane parent = findParentSplitPane(sp);
-        if (parent != null) {
-            int index = parent.getItems().indexOf(sp);
-            parent.getItems().remove(sp);
-            parent.getItems().add(index, content);
-            simplifySplitPane(parent);
-        }
-    }
-
     /**
      * Getter for {@link #setSceneFactory(javafx.util.Callback)}
      *
      * @return
      */
-    public Callback<TabStack, Scene> getSceneFactory() {
+    Callback<TabGroup, Scene> getSceneFactory() {
         return this.sceneFactory;
     }
 
@@ -696,7 +668,7 @@ public class DetachableTabPane extends TabPane {
      *
      * @param sceneFactory
      */
-    public void setSceneFactory(Callback<TabStack, Scene> sceneFactory) {
+    void setSceneFactory(Callback<TabGroup, Scene> sceneFactory) {
         this.sceneFactory = sceneFactory;
     }
 
@@ -705,7 +677,7 @@ public class DetachableTabPane extends TabPane {
      *
      * @return
      */
-    public Callback<Stage, Window> getStageOwnerFactory() {
+    Callback<Stage, Window> getStageOwnerFactory() {
         return stageOwnerFactory;
     }
 
@@ -718,48 +690,48 @@ public class DetachableTabPane extends TabPane {
      *
      * @param stageOwnerFactory
      */
-    public void setStageOwnerFactory(Callback<Stage, Window> stageOwnerFactory) {
+    void setStageOwnerFactory(Callback<Stage, Window> stageOwnerFactory) {
         this.stageOwnerFactory = stageOwnerFactory;
     }
 
-    public boolean isCloseIfEmpty() {
+    boolean isCloseIfEmpty() {
         return closeIfEmpty;
     }
 
-    public void setCloseIfEmpty(boolean closeIfEmpty) {
+    void setCloseIfEmpty(boolean closeIfEmpty) {
         this.closeIfEmpty = closeIfEmpty;
     }
 
-    public DetachableTabPaneFactory getDetachableTabPaneFactory() {
-        return detachableTabPaneFactory;
+    TabGroupFactory getTabGroupFactory() {
+        return tabGroupFactory;
     }
 
     /**
      * Factory object to create new DetachableTabPane. We can extends
-     * {@link DetachableTabPaneFactory} and set it to this method when custom
+     * {@link TabGroupFactory} and set it to this method when custom
      * initialization is needed. For example when we want to set different
      * TabClosingPolicy.
      *
-     * @param detachableTabPaneFactory
+     * @param tabGroupFactory
      */
-    public void setDetachableTabPaneFactory(DetachableTabPaneFactory detachableTabPaneFactory) {
-        if (detachableTabPaneFactory == null) {
-            throw new IllegalArgumentException("detachableTabPaneFactory cannot null");
+    void setTabGroupFactory(TabGroupFactory tabGroupFactory) {
+        if (tabGroupFactory == null) {
+            throw new IllegalArgumentException("tabGroupFactory cannot null");
         }
-        this.detachableTabPaneFactory = detachableTabPaneFactory;
+        this.tabGroupFactory = tabGroupFactory;
     }
 
     private class TabStage extends Stage {
 
-        private final TabStack tabStack;
+        private final TabGroup tabGroup;
 
-        public TabStage(final Tab oldTab, Point2D eventLocation) {
+        public TabStage(final DetachableTab oldTab, Point2D eventLocation) {
             super();
-            DetachableTab newTab = new DetachableTab(oldTab.getText(), oldTab.getContent());
+            DetachableTab newTab = new DetachableTab(oldTab.kometNode);
 
-            tabStack = detachableTabPaneFactory.create(DetachableTabPane.this);
+            tabGroup = tabGroupFactory.create(DetachableTabPane.this.detachableStack);
             initOwner(stageOwnerFactory.call(this));
-            Scene scene = sceneFactory.call(tabStack);
+            Scene scene = sceneFactory.call(tabGroup);
 
             scene.getStylesheets().addAll(DetachableTabPane.this.getScene().getStylesheets());
             setScene(scene);
@@ -770,9 +742,9 @@ public class DetachableTabPane extends TabPane {
                 setTitle(owner.getTitle() + " sidecar");
             }
             show();
-            tabStack.getTabs().add(newTab);
+            tabGroup.getTabs().add(newTab);
 
-            tabStack.getSelectionModel().select(newTab);
+            tabGroup.getSelectionModel().select(newTab);
             if (newTab.getContent() instanceof Parent) {
                 ((Parent) newTab.getContent()).requestLayout();
             }
