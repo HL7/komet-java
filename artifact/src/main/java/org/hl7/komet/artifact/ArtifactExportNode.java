@@ -32,11 +32,6 @@ public class ArtifactExportNode extends ExplorationNodeAbstract {
     }
 
     @Override
-    public void savePreferences() {
-
-    }
-
-    @Override
     public void revertPreferences() {
 
     }
@@ -54,5 +49,15 @@ public class ArtifactExportNode extends ExplorationNodeAbstract {
     @Override
     public String getStyleId() {
         return STYLE_ID;
+    }
+
+    @Override
+    protected void saveAdditionalPreferences() {
+        // No additional fields.
+    }
+
+    @Override
+    public Class<ArtifactExportNodeFactory> factoryClass() {
+        return ArtifactExportNodeFactory.class;
     }
 }

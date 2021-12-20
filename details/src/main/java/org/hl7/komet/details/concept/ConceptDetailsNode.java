@@ -54,12 +54,11 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.prefs.BackingStoreException;
 
 public class ConceptDetailsNode extends ExplorationNodeAbstract {
+    private static final Logger LOG = LoggerFactory.getLogger(ConceptDetailsNode.class);
     protected static final String STYLE_ID = StyleClasses.CONCEPT_DETAIL_PANE.toString();
     protected static final String TITLE = "Concept Details Node";
-    private static final Logger LOG = LoggerFactory.getLogger(ConceptDetailsNode.class);
     private static final int TRANSITION_OFF_TIME = 250;
     private static final int TRANSITION_ON_TIME = 300;
     private static final ConceptFacade[] defaultDetailOrder = new ConceptFacade[]{
@@ -341,6 +340,27 @@ public class ConceptDetailsNode extends ExplorationNodeAbstract {
         return StyleClasses.CONCEPT_DETAIL_PANE.toString();
     }
 
+    @Override
+    protected void saveAdditionalPreferences() {
+        Optional<EntityFacade> optionalFocus = Optional.ofNullable(this.entityFocusProperty.get());
+        if (optionalFocus.isPresent()) {
+            this.nodePreferences.putInt(Keys.ACTIVITY_SELECTION_INDEX, this.selectionIndexProperty.getValue());
+        }
+        // TODO add activity feed to preferences...
+        //this.nodePreferences.put(Keys.ACTIVITY_FEED_NAME, this.getActivityFeed().getFullyQualifiedActivityFeedName());
+
+        this.nodePreferences.putConceptList(ConceptDetailNodeKeys.DETAIL_ORDER, this.detailOrderList);
+        this.nodePreferences.putConceptList(ConceptDetailNodeKeys.DESCRIPTION_TYPE_ORDER, this.descriptionTypeList);
+        this.nodePreferences.putComponentList(ConceptDetailNodeKeys.AXIOM_ORDER, this.axiomSourceList);
+        this.nodePreferences.putConceptList(ConceptDetailNodeKeys.CONCEPT_SEMANTICS_ORDER, this.semanticOrderForConceptDetails);
+        this.nodePreferences.putConceptList(ConceptDetailNodeKeys.DESCRIPTION_SEMANTIC_ORDER, this.semanticOrderForDescriptionDetails);
+        this.nodePreferences.putConceptList(ConceptDetailNodeKeys.AXIOM_SEMANTIC_ORDER, this.semanticOrderForAxiomDetails);
+        optionalFocus.ifPresentOrElse(identifiedObject -> {
+            this.nodePreferences.putConceptProxy(ConceptDetailNodeKeys.FOCUS_CONCEPT, Entity.provider().getEntityFast(identifiedObject.nid()));
+        }, () -> this.nodePreferences.remove(ConceptDetailNodeKeys.FOCUS_CONCEPT));
+
+    }
+
     private void handleSettingsChange(ListChangeListener.Change<? extends EntityFacade> c) {
         Platform.runLater(() -> {
             resetConceptFromFocus();
@@ -396,45 +416,18 @@ public class ConceptDetailsNode extends ExplorationNodeAbstract {
         return this.detailsPane;
     }
 
+    //~--- methods -------------------------------------------------------------
+
     @Override
     public void close() {
         // closing just the tab, not saving the window on quit. Nothing to do.
         // TODO Release any resources/listeners similar associated with node. ;
     }
 
-    //~--- methods -------------------------------------------------------------
-
     @Override
     public boolean canClose() {
         // TODO Maybe check for uncommitted changes in window. ;
         return true;
-    }
-
-    @Override
-    public void savePreferences() {
-        Optional<EntityFacade> optionalFocus = Optional.ofNullable(this.entityFocusProperty.get());
-        if (optionalFocus.isPresent()) {
-            this.nodePreferences.putInt(Keys.ACTIVITY_SELECTION_INDEX, this.selectionIndexProperty.getValue());
-        }
-        // TODO add activity feed to preferences...
-        //this.nodePreferences.put(Keys.ACTIVITY_FEED_NAME, this.getActivityFeed().getFullyQualifiedActivityFeedName());
-
-        this.nodePreferences.putConceptList(ConceptDetailNodeKeys.DETAIL_ORDER, this.detailOrderList);
-        this.nodePreferences.putConceptList(ConceptDetailNodeKeys.DESCRIPTION_TYPE_ORDER, this.descriptionTypeList);
-        this.nodePreferences.putComponentList(ConceptDetailNodeKeys.AXIOM_ORDER, this.axiomSourceList);
-        this.nodePreferences.putConceptList(ConceptDetailNodeKeys.CONCEPT_SEMANTICS_ORDER, this.semanticOrderForConceptDetails);
-        this.nodePreferences.putConceptList(ConceptDetailNodeKeys.DESCRIPTION_SEMANTIC_ORDER, this.semanticOrderForDescriptionDetails);
-        this.nodePreferences.putConceptList(ConceptDetailNodeKeys.AXIOM_SEMANTIC_ORDER, this.semanticOrderForAxiomDetails);
-        optionalFocus.ifPresentOrElse(identifiedObject -> {
-            this.nodePreferences.putConceptProxy(ConceptDetailNodeKeys.FOCUS_CONCEPT, Entity.provider().getEntityFast(identifiedObject.nid()));
-        }, () -> this.nodePreferences.remove(ConceptDetailNodeKeys.FOCUS_CONCEPT));
-
-
-        try {
-            this.nodePreferences.sync();
-        } catch (BackingStoreException e) {
-            Dialogs.showErrorDialog("Error saving preferences", e.getLocalizedMessage(), e, this.getNode().getScene().getWindow());
-        }
     }
 
     @Override
@@ -448,6 +441,11 @@ public class ConceptDetailsNode extends ExplorationNodeAbstract {
         revertConceptList(ConceptDetailNodeKeys.AXIOM_SEMANTIC_ORDER, this.semanticOrderForAxiomDetails);
         this.nodePreferences.getConceptProxy(ConceptDetailNodeKeys.FOCUS_CONCEPT).ifPresent(
                 conceptFacade -> this.entityFocusProperty.setValue(conceptFacade));
+    }
+
+    @Override
+    public Class factoryClass() {
+        return ConceptDetaisNodeFactory.class;
     }
 
     private void addCategorizedVersions(ObservableEntitySnapshot categorizedVersions,

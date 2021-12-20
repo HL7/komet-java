@@ -24,8 +24,9 @@ import org.hl7.komet.framework.KometNodeFactory;
 import org.hl7.komet.framework.activity.ActivityStream;
 import org.hl7.komet.framework.activity.ActivityStreamOption;
 import org.hl7.komet.framework.activity.ActivityStreams;
-import org.hl7.komet.preferences.KometPreferences;
+import org.hl7.komet.framework.preferences.Reconstructor;
 import org.hl7.komet.framework.view.ObservableViewNoOverride;
+import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,8 +43,23 @@ public class GraphNavigatorNodeFactory
     protected static final String TITLE = GraphNavigatorNode.TITLE;
 
     @Override
-    public KometNode create(ObservableViewNoOverride windowViewReference, KometPreferences nodePreferences) {
+    public void addDefaultNodePreferences(KometPreferences nodePreferences) {
+
+    }
+
+    @Override
+    public GraphNavigatorNode create(ObservableViewNoOverride windowViewReference, KometPreferences nodePreferences) {
+        return reconstructor(windowViewReference, nodePreferences);
+    }
+
+    @Reconstructor
+    public static GraphNavigatorNode reconstructor(ObservableViewNoOverride windowViewReference, KometPreferences nodePreferences) {
         return new GraphNavigatorNode(windowViewReference.makeOverridableViewProperties(), nodePreferences);
+    }
+
+    @Override
+    public Class<? extends KometNode> kometNodeClass() {
+        return GraphNavigatorNode.class;
     }
 
     @Override
@@ -67,15 +83,5 @@ public class GraphNavigatorNodeFactory
     @Override
     public String getStyleId() {
         return STYLE_ID;
-    }
-
-    @Override
-    public void addDefaultNodePreferences(KometPreferences nodePreferences) {
-
-    }
-
-    @Override
-    public Class<? extends KometNode> kometNodeClass() {
-        return GraphNavigatorNode.class;
     }
 }

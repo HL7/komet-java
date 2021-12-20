@@ -21,9 +21,9 @@ import java.io.IOException;
 import java.util.Optional;
 
 public class SearchNode extends ExplorationNodeAbstract {
+    private static final Logger LOG = LoggerFactory.getLogger(SearchNode.class);
     protected static final String STYLE_ID = "search-node";
     protected static final String TITLE = "Search";
-    private static final Logger LOG = LoggerFactory.getLogger(SearchNode.class);
     // TODO link entityFocus with list selection
     final SimpleObjectProperty<EntityFacade> entityFocusProperty = new SimpleObjectProperty<>();
     final SearchPanelController controller;
@@ -95,6 +95,11 @@ public class SearchNode extends ExplorationNodeAbstract {
     }
 
     @Override
+    protected void saveAdditionalPreferences() {
+
+    }
+
+    @Override
     public Node getNode() {
         return searchPane;
     }
@@ -110,12 +115,12 @@ public class SearchNode extends ExplorationNodeAbstract {
     }
 
     @Override
-    public void savePreferences() {
+    public void revertPreferences() {
 
     }
 
     @Override
-    public void revertPreferences() {
-
+    public Class factoryClass() {
+        return SearchNodeFactory.class;
     }
 }

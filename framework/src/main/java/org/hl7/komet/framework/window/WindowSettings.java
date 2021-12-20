@@ -1,8 +1,6 @@
 package org.hl7.komet.framework.window;
 
 import javafx.beans.property.*;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import org.hl7.komet.framework.view.ObservableViewNoOverride;
@@ -15,7 +13,6 @@ import org.hl7.tinkar.terms.TinkarTerm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.UUID;
 import java.util.prefs.BackingStoreException;
@@ -33,14 +30,14 @@ public class WindowSettings {
     private final SimpleStringProperty windowNameProperty
             = new SimpleStringProperty(this, TinkarTerm.WINDOW_CONFIGURATION_NAME.toXmlFragment());
 
-    private final SimpleListProperty<TabSpecification> leftTabNodesProperty =
-            new SimpleListProperty<>(this, TinkarTerm.LEFT_TAB_NODES.toXmlFragment(), FXCollections.observableArrayList());
+    private final SimpleStringProperty leftTabPreferencesProperty =
+            new SimpleStringProperty(this, TinkarTerm.LEFT_PANE_DAFAULTS.toXmlFragment());
 
-    private final SimpleListProperty<TabSpecification> centerTabNodesProperty =
-            new SimpleListProperty<>(this, TinkarTerm.CENTER_TAB_NODES.toXmlFragment(), FXCollections.observableArrayList());
+    private final SimpleStringProperty centerTabPreferencesProperty =
+            new SimpleStringProperty(this, TinkarTerm.CENTER_PANE_DEFAULTS.toXmlFragment());
 
-    private final SimpleListProperty<TabSpecification> rightTabNodesProperty =
-            new SimpleListProperty<>(this, TinkarTerm.RIGHT_TAB_NODES.toXmlFragment(), FXCollections.observableArrayList());
+    private final SimpleStringProperty rightTabPreferencesProperty =
+            new SimpleStringProperty(this, TinkarTerm.RIGHT_PANE_DEFAULTS.toXmlFragment());
 
     private final SimpleDoubleProperty xLocationProperty =
             new SimpleDoubleProperty(this, TinkarTerm.WINDOW_X_POSITION.toXmlFragment());
@@ -77,7 +74,7 @@ public class WindowSettings {
         } else {
             // Set defaults.
             this.windowNameProperty.set(preferencesNode.get(Keys.WINDOW_NAME, "New window 1"));
-            save();
+            setDefaultLocationAndSize();
         }
 
         windowNameProperty.addListener((observable, oldValue, newValue) -> {
@@ -102,17 +99,44 @@ public class WindowSettings {
         this.enableCenterPaneProperty.set(this.preferencesNode.getBoolean(Keys.ENABLE_CENTER_PANE, true));
         this.enableRightPaneProperty.set(this.preferencesNode.getBoolean(Keys.ENABLE_RIGHT_PANE, true));
 
-        this.leftTabNodesProperty.setAll(TabSpecification.fromStringList(this.preferencesNode.getList(Keys.LEFT_TAB_NODES, new ArrayList<>())));
+        this.leftTabPreferencesProperty.set(this.preferencesNode.get(Keys.LEFT_TAB_PREFERENCES, null));
 
-        this.centerTabNodesProperty.setAll(TabSpecification.fromStringList(this.preferencesNode.getList(Keys.CENTER_TAB_NODES, new ArrayList<>())));
+        this.centerTabPreferencesProperty.set(this.preferencesNode.get(Keys.CENTER_TAB_PREFERENCES, null));
 
-        this.rightTabNodesProperty.setAll(TabSpecification.fromStringList(this.preferencesNode.getList(Keys.RIGHT_TAB_NODES, new ArrayList<>())));
+        this.rightTabPreferencesProperty.set(this.preferencesNode.get(Keys.RIGHT_TAB_PREFERENCES, null));
 
         this.leftTabSelectionProperty.set(this.preferencesNode.getInt(Keys.LEFT_TAB_SELECTION, leftTabSelectionProperty.get()));
         this.centerTabSelectionProperty.set(this.preferencesNode.getInt(Keys.CENTER_TAB_SELECTION, centerTabSelectionProperty.get()));
         this.rightTabSelectionProperty.set(this.preferencesNode.getInt(Keys.RIGHT_TAB_SELECTION, rightTabSelectionProperty.get()));
 
         this.dividerPositionsProperty.set(this.preferencesNode.getDoubleArray(Keys.DIVIDER_POSITIONS, this.dividerPositionsProperty.get()));
+    }
+
+    private void setDefaultLocationAndSize() {
+        this.xLocationProperty.setValue(this.preferencesNode.getDouble(Keys.X_LOC, 40.0));
+        this.yLocationProperty.setValue(this.preferencesNode.getDouble(Keys.Y_LOC, 40.0));
+        this.heightProperty.setValue(this.preferencesNode.getDouble(Keys.HEIGHT, 1024));
+        this.widthProperty.setValue(this.preferencesNode.getDouble(Keys.WIDTH, 1800));
+        this.dividerPositionsProperty.setValue(new double[]{0.2504, 0.7504});
+    }
+
+    public static String getWindowName(String prefix, String nodeName) {
+        windowIds.add(nodeName);
+        if (windowIds.size() > 1) {
+            int foundCount = 0;
+            for (Window window : Window.getWindows()) {
+                if (window instanceof Stage) {
+                    Stage stage = (Stage) window;
+                    if (stage.getTitle() != null && stage.getTitle().startsWith(prefix)) {
+                        foundCount++;
+                    }
+                }
+            }
+            if (foundCount > 0) {
+                return prefix + " " + foundCount;
+            }
+        }
+        return prefix;
     }
 
     public final void save() {
@@ -129,20 +153,12 @@ public class WindowSettings {
         }
     }
 
-    private void setDefaultLocationAndSize() {
-        this.xLocationProperty.setValue(this.preferencesNode.getDouble(Keys.X_LOC, 40.0));
-        this.yLocationProperty.setValue(this.preferencesNode.getDouble(Keys.Y_LOC, 40.0));
-        this.heightProperty.setValue(this.preferencesNode.getDouble(Keys.HEIGHT, 1024));
-        this.widthProperty.setValue(this.preferencesNode.getDouble(Keys.WIDTH, 1800));
-        this.dividerPositionsProperty.setValue(new double[]{0.2504, 0.7504});
-    }
-
     protected void saveFields() {
         saveLocationAndFocus();
         this.preferencesNode.putObject(Keys.VIEW_COORDINATE_FOR_WINDOW, getView().getValue());
-        this.preferencesNode.putList(Keys.LEFT_TAB_NODES, TabSpecification.toStringList(leftTabNodesProperty));
-        this.preferencesNode.putList(Keys.CENTER_TAB_NODES, TabSpecification.toStringList(centerTabNodesProperty));
-        this.preferencesNode.putList(Keys.RIGHT_TAB_NODES, TabSpecification.toStringList(rightTabNodesProperty));
+        this.preferencesNode.put(Keys.LEFT_TAB_PREFERENCES, leftTabPreferencesProperty.getValue());
+        this.preferencesNode.put(Keys.CENTER_TAB_PREFERENCES, centerTabPreferencesProperty.getValue());
+        this.preferencesNode.put(Keys.RIGHT_TAB_PREFERENCES, rightTabPreferencesProperty.getValue());
         this.preferencesNode.putBoolean(Keys.ENABLE_LEFT_PANE, this.enableLeftPaneProperty.get());
         this.preferencesNode.putBoolean(Keys.ENABLE_CENTER_PANE, this.enableCenterPaneProperty.get());
         this.preferencesNode.putBoolean(Keys.ENABLE_RIGHT_PANE, this.enableRightPaneProperty.get());
@@ -168,41 +184,10 @@ public class WindowSettings {
         return this.observableViewForWindow;
     }
 
-    public static String getWindowName(String prefix, String nodeName) {
-        windowIds.add(nodeName);
-        if (windowIds.size() > 1) {
-            int foundCount = 0;
-            for (Window window : Window.getWindows()) {
-                if (window instanceof Stage) {
-                    Stage stage = (Stage) window;
-                    if (stage.getTitle() != null && stage.getTitle().startsWith(prefix)) {
-                        foundCount++;
-                    }
-                }
-            }
-            if (foundCount > 0) {
-                return prefix + " " + foundCount;
-            }
-        }
-        return prefix;
-    }
-
     public UUID getWindowUuid() {
         return UUID.fromString(this.preferencesNode.name());
     }
 
-    public ObservableList<TabSpecification> getNodesList(int paneIndex) {
-        switch (paneIndex) {
-            case 0:
-                return this.leftTabNodesProperty;
-            case 1:
-                return this.centerTabNodesProperty;
-            case 2:
-                return this.rightTabNodesProperty;
-            default:
-                return FXCollections.emptyObservableList();
-        }
-    }
 
     public SimpleObjectProperty<double[]> dividerPositionsProperty() {
         return dividerPositionsProperty;
@@ -277,6 +262,18 @@ public class WindowSettings {
         }
     }
 
+    public SimpleStringProperty leftTabPreferencesProperty() {
+        return leftTabPreferencesProperty;
+    }
+
+    public SimpleStringProperty centerTabPreferencesProperty() {
+        return centerTabPreferencesProperty;
+    }
+
+    public SimpleStringProperty rightTabPreferencesProperty() {
+        return rightTabPreferencesProperty;
+    }
+
     private void validateChange(Object oldValue, Object newValue) {
         if (oldValue != newValue) {
             if (newValue != null) {
@@ -291,9 +288,9 @@ public class WindowSettings {
 
     public enum Keys {
         INITIALIZED,
-        LEFT_TAB_NODES,
-        CENTER_TAB_NODES,
-        RIGHT_TAB_NODES,
+        LEFT_TAB_PREFERENCES,
+        CENTER_TAB_PREFERENCES,
+        RIGHT_TAB_PREFERENCES,
         X_LOC,
         Y_LOC,
         HEIGHT,

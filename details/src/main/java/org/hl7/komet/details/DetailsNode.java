@@ -95,6 +95,11 @@ public class DetailsNode extends ExplorationNodeAbstract {
     }
 
     @Override
+    protected void saveAdditionalPreferences() {
+
+    }
+
+    @Override
     public Node getNode() {
         return this.detailsPane;
     }
@@ -110,13 +115,13 @@ public class DetailsNode extends ExplorationNodeAbstract {
     }
 
     @Override
-    public void savePreferences() {
+    public void revertPreferences() {
 
     }
 
     @Override
-    public void revertPreferences() {
-
+    public Class factoryClass() {
+        return DetailsNodeFactory.class;
     }
 
     enum PreferenceKey {

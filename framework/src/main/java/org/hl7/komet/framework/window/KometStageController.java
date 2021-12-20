@@ -3,6 +3,7 @@ package org.hl7.komet.framework.window;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -206,19 +207,47 @@ public class KometStageController implements SaveState {
     public void save() {
         try {
             this.windowSettings.dividerPositionsProperty().set(this.windowSplitPane.getDividerPositions());
+            if (this.leftBorderPane.getCenter() != null && this.leftBorderPane.getCenter() instanceof WindowComponent windowComponent) {
+                this.windowSettings.leftTabPreferencesProperty().set(windowComponent.nodePreferences().name());
+            } else {
+                this.windowSettings.leftTabPreferencesProperty().set("null");
+            }
+            if (this.centerBorderPane.getCenter() != null && this.centerBorderPane.getCenter() instanceof WindowComponent windowComponent) {
+                this.windowSettings.centerTabPreferencesProperty().set(windowComponent.nodePreferences().name());
+            } else {
+                this.windowSettings.centerTabPreferencesProperty().set("null");
+            }
+            if (this.rightBorderPane.getCenter() != null && this.rightBorderPane.getCenter() instanceof WindowComponent windowComponent) {
+                this.windowSettings.rightTabPreferencesProperty().set(windowComponent.nodePreferences().name());
+            } else {
+                this.windowSettings.rightTabPreferencesProperty().set("null");
+            }
+
             this.windowSettings.save();
-            this.leftDetachableTabPane.saveConfiguration();
-            this.centerDetachableTabPane.saveConfiguration();
-            this.rightDetachableTabPane.saveConfiguration();
-            this.nodePreferences.flush();
+            saveChildren(this.leftBorderPane);
+            saveChildren(this.centerBorderPane);
+            saveChildren(this.rightBorderPane);
+            this.nodePreferences.sync();
         } catch (BackingStoreException e) {
             AlertStreams.getRoot().dispatch(AlertObject.makeError(e));
+        }
+    }
+
+    private static void saveChildren(Parent parent) {
+        for (Node child : parent.getChildrenUnmodifiable()) {
+            if (child instanceof WindowComponent windowComponent) {
+                windowComponent.saveConfiguration();
+            }
         }
     }
 
     void handleCloseRequest(WindowEvent event) {
         //stage.focusedProperty().removeListener(this.focusChangeListener);
         //MenuProvider.handleCloseRequest(event);
+    }
+
+    public WindowSettings windowSettings() {
+        return windowSettings;
     }
 
     public void setup(KometPreferences nodePreferences) {
@@ -228,9 +257,9 @@ public class KometStageController implements SaveState {
 
         ViewCalculatorWithCache viewCalculator = ViewCalculatorWithCache.getCalculator(windowSettings.getView().toViewCoordinateRecord());
 
-        this.leftDetachableTabPane = TabGroup.create(windowSettings.getView(), TabGroup.makeNodePreferences(nodePreferences), TabGroup.REMOVAL.DISALLOW);
-        this.centerDetachableTabPane = TabGroup.create(windowSettings.getView(), TabGroup.makeNodePreferences(nodePreferences), TabGroup.REMOVAL.DISALLOW);
-        this.rightDetachableTabPane = TabGroup.create(windowSettings.getView(), TabGroup.makeNodePreferences(nodePreferences), TabGroup.REMOVAL.DISALLOW);
+        this.leftDetachableTabPane = TabGroup.create(windowSettings.getView(), TabGroup.REMOVAL.DISALLOW);
+        this.centerDetachableTabPane = TabGroup.create(windowSettings.getView(), TabGroup.REMOVAL.DISALLOW);
+        this.rightDetachableTabPane = TabGroup.create(windowSettings.getView(), TabGroup.REMOVAL.DISALLOW);
 
         leftBorderPane.setCenter(this.leftDetachableTabPane);
         centerBorderPane.setCenter(this.centerDetachableTabPane);
@@ -249,7 +278,6 @@ public class KometStageController implements SaveState {
         this.windowSettings.widthProperty().bind(this.window.widthProperty());
 
         this.windowSplitPane.setDividerPositions(this.windowSettings.dividerPositionsProperty().getValue());
-
 
         Executor.threadPool().execute(TaskWrapper.make(new ViewMenuTask(viewCalculator, windowSettings.getView()),
                 (List<MenuItem> result) -> {
@@ -290,7 +318,20 @@ public class KometStageController implements SaveState {
         return this.windowSettings.getView();
     }
 
-    public enum Keys {
+    public void leftBorderPaneSetCenter(Node centerNode) {
+        this.leftBorderPane.setCenter(centerNode);
+    }
+
+    public void centerBorderPaneSetCenter(Node centerNode) {
+        this.centerBorderPane.setCenter(centerNode);
+    }
+
+    public void rightBorderPaneSetCenter(Node centerNode) {
+        this.rightBorderPane.setCenter(centerNode);
+    }
+
+    public enum WindowKeys {
+        WINDOW_INITIALIZED,
         FACTORY_CLASS,
         TAB_PANE_INDEX,
         INDEX_IN_TAB_PANE,

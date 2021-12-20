@@ -47,6 +47,11 @@ public class CompletionNode extends ExplorationNodeAbstract {
         return STYLE_ID;
     }
 
+    @Override
+    protected void saveAdditionalPreferences() {
+
+    }
+
     private Node getTitleGraphic() {
         FontIcon icon = new FontIcon();
         icon.setIconLiteral("mdi2f-flag-checkered:16:white");
@@ -57,7 +62,6 @@ public class CompletionNode extends ExplorationNodeAbstract {
     public void removeTask(Task<?> task) {
         Platform.runLater(() -> taskLists.completedTasks().remove(task));
     }
-
 
     @Override
     public Node getNode() {
@@ -75,12 +79,12 @@ public class CompletionNode extends ExplorationNodeAbstract {
     }
 
     @Override
-    public void savePreferences() {
+    public void revertPreferences() {
 
     }
 
     @Override
-    public void revertPreferences() {
-
+    public Class factoryClass() {
+        return CompletionNodeFactory.class;
     }
 }

@@ -1,5 +1,6 @@
 package org.hl7.komet.framework.window;
 
+import javafx.scene.Node;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.hl7.komet.framework.view.ObservableViewNoOverride;
 import org.hl7.komet.preferences.KometPreferences;
@@ -26,8 +27,22 @@ public interface WindowComponent {
 
     void saveConfiguration();
 
-    enum Keys {
+    /**
+     * @return The node to be displayed
+     */
+    Node getNode();
+
+    /**
+     * Class that has a static reconstructor method:
+     *
+     * @return class that has a static @Reconstructor method to recreate the object with its saved state.
+     * @Reconstructor public static Object create(ObservableViewNoOverride windowView, KometPreferences nodePreferences)
+     */
+    Class factoryClass();
+
+    enum WindowComponentKeys {
         INITIALIZED,
-        FACTORY_CLASS
+        FACTORY_CLASS,
+        CHILDREN
     }
 }

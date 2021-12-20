@@ -92,6 +92,11 @@ public class ProgressNode extends ExplorationNodeAbstract {
     }
 
     @Override
+    protected void saveAdditionalPreferences() {
+
+    }
+
+    @Override
     public Node getNode() {
         return progressView;
     }
@@ -106,14 +111,13 @@ public class ProgressNode extends ExplorationNodeAbstract {
         return false;
     }
 
-
     @Override
-    public void savePreferences() {
+    public void revertPreferences() {
 
     }
 
     @Override
-    public void revertPreferences() {
-
+    public Class factoryClass() {
+        return ProgressNodeFactory.class;
     }
 }

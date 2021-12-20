@@ -20,6 +20,7 @@ package org.hl7.komet.framework.tabs;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.scene.Node;
 import javafx.scene.control.Tab;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.hl7.komet.framework.KometNode;
@@ -33,6 +34,7 @@ import org.hl7.komet.preferences.KometPreferences;
 public class DetachableTab extends Tab implements WindowComponent {
     final KometNode kometNode;
     private BooleanProperty detachable = new SimpleBooleanProperty(true);
+
     public DetachableTab(KometNode kometNode) {
         super(kometNode.getTitle().getValue(), kometNode.getNode());
         this.kometNode = kometNode;
@@ -73,4 +75,16 @@ public class DetachableTab extends Tab implements WindowComponent {
     public void saveConfiguration() {
         kometNode.saveConfiguration();
     }
+
+    @Override
+    public Node getNode() {
+        return this.getContent();
+    }
+
+    @Override
+    public Class factoryClass() {
+        throw new UnsupportedOperationException("Should not be called. TabGroup Reconstructor handles creation of DetachableTabs");
+    }
+
+
 }

@@ -8,12 +8,13 @@ import org.hl7.komet.framework.KometNodeFactory;
 import org.hl7.komet.framework.activity.ActivityStream;
 import org.hl7.komet.framework.activity.ActivityStreamOption;
 import org.hl7.komet.framework.activity.ActivityStreams;
-import org.hl7.komet.preferences.KometPreferences;
+import org.hl7.komet.framework.preferences.Reconstructor;
 import org.hl7.komet.framework.view.ObservableViewNoOverride;
+import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
 
 @AutoService(KometNodeFactory.class)
-public class DetailsNodeFactory  implements KometNodeFactory {
+public class DetailsNodeFactory implements KometNodeFactory {
     protected static final String STYLE_ID = DetailsNode.STYLE_ID;
     protected static final String TITLE = DetailsNode.TITLE;
 
@@ -22,6 +23,20 @@ public class DetailsNodeFactory  implements KometNodeFactory {
         DetailsNode.addDefaultNodePreferences(nodePreferences);
     }
 
+    @Override
+    public DetailsNode create(ObservableViewNoOverride windowView, KometPreferences nodePreferences) {
+        return reconstructor(windowView, nodePreferences);
+    }
+
+    @Reconstructor
+    public static DetailsNode reconstructor(ObservableViewNoOverride windowView, KometPreferences nodePreferences) {
+        return new DetailsNode(windowView.makeOverridableViewProperties(), nodePreferences);
+    }
+
+    @Override
+    public Class<? extends KometNode> kometNodeClass() {
+        return DetailsNode.class;
+    }
 
     @Override
     public ImmutableList<PublicIdStringKey<ActivityStream>> defaultActivityStreamChoices() {
@@ -38,22 +53,12 @@ public class DetailsNodeFactory  implements KometNodeFactory {
     }
 
     @Override
-    public KometNode create(ObservableViewNoOverride windowView, KometPreferences nodePreferences) {
-        return new DetailsNode(windowView.makeOverridableViewProperties(), nodePreferences);
-    }
-
-    @Override
-    public Class<? extends KometNode> kometNodeClass() {
-        return DetailsNode.class;
+    public String getMenuText() {
+        return TITLE;
     }
 
     @Override
     public String getStyleId() {
         return STYLE_ID;
-    }
-
-    @Override
-    public String getMenuText() {
-        return TITLE;
     }
 }

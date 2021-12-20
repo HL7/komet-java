@@ -40,7 +40,7 @@ public class ActivityStream implements Flow.Publisher<ImmutableList<EntityFacade
         this.activityStreamKey = activityStreamKey;
         this.processor = BroadcastProcessor.create();
         this.entityListStream = processor.toHotStream();
-        this.preferences = Preferences.get().getConfigurationPreferences().node(activityStreamKey.getString());
+        this.preferences = Preferences.get().getConfigurationPreferences().node("/activity-streams/" + activityStreamKey.getString());
         if (preferences.hasKey(PreferenceKey.HISTORY)) {
             List<EntityFacade> savedHistory = preferences.getEntityList(PreferenceKey.HISTORY);
             history.addAll(savedHistory);

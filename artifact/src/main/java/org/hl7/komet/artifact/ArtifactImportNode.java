@@ -1,13 +1,12 @@
 package org.hl7.komet.artifact;
 
-import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.hl7.komet.framework.ExplorationNodeAbstract;
-import org.hl7.komet.framework.graphics.Icon;
-import org.hl7.komet.preferences.KometPreferences;
+import org.hl7.komet.framework.KometNodeFactory;
 import org.hl7.komet.framework.view.ViewProperties;
+import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.tinkar.terms.EntityFacade;
 
 public class ArtifactImportNode extends ExplorationNodeAbstract {
@@ -17,14 +16,25 @@ public class ArtifactImportNode extends ExplorationNodeAbstract {
     public ArtifactImportNode(ViewProperties viewProperties, KometPreferences nodePreferences) {
         super(viewProperties, nodePreferences);
     }
+
+    @Override
+    public String getDefaultTitle() {
+        return TITLE;
+    }
+
+    @Override
+    public void handleActivity(ImmutableList<EntityFacade> entities) {
+        // Nothing to do...
+    }
+
     @Override
     public String getStyleId() {
         return STYLE_ID;
     }
 
     @Override
-    public String getDefaultTitle() {
-        return TITLE;
+    protected void saveAdditionalPreferences() {
+        // No additional fields.
     }
 
     @Override
@@ -38,22 +48,17 @@ public class ArtifactImportNode extends ExplorationNodeAbstract {
     }
 
     @Override
-    public void handleActivity(ImmutableList<EntityFacade> entities) {
-        // Nothing to do...
-    }
-
-    @Override
     public boolean canClose() {
         return false;
     }
 
     @Override
-    public void savePreferences() {
+    public void revertPreferences() {
 
     }
 
     @Override
-    public void revertPreferences() {
-
+    public Class<? extends KometNodeFactory> factoryClass() {
+        return ArtifactImportNodeFactory.class;
     }
 }

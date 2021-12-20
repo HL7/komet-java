@@ -7,18 +7,21 @@ import org.hl7.komet.framework.activity.ActivityStreamOption;
 import org.hl7.komet.framework.graphics.Icon;
 import org.hl7.komet.framework.view.ObservableViewNoOverride;
 import org.hl7.komet.preferences.KometPreferences;
+import org.hl7.komet.preferences.KometPreferencesImpl;
 import org.hl7.tinkar.common.alert.AlertStream;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
 
 import java.util.UUID;
 
 public interface KometNodeFactory {
+
+    String KOMET_NODES = "/komet-nodes/";
+
     default KometNode create(ObservableViewNoOverride windowView,
-                             KometPreferences parentNodePreferences,
                              PublicIdStringKey<ActivityStream> activityStreamKey,
                              PublicIdStringKey<ActivityStreamOption> activityStreamOption,
                              PublicIdStringKey<AlertStream> parentAlertStreamKey) {
-        KometPreferences nodePreferences = parentNodePreferences.node(newPreferenceNodeName());
+        KometPreferences nodePreferences = KometPreferencesImpl.getConfigurationRootPreferences().node(newPreferenceNodeName());
         // Add activity stream key
         if (activityStreamKey != null) {
             nodePreferences.putObject(KometNode.PreferenceKey.ACTIVITY_STREAM_KEY, activityStreamKey);
@@ -33,7 +36,7 @@ public interface KometNodeFactory {
     }
 
     default String newPreferenceNodeName() {
-        return kometNodeClass().getSimpleName() + "_" + UUID.randomUUID();
+        return KOMET_NODES + kometNodeClass().getSimpleName() + "_" + UUID.randomUUID();
     }
 
     void addDefaultNodePreferences(KometPreferences nodePreferences);

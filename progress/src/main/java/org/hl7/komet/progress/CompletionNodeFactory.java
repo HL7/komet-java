@@ -7,9 +7,9 @@ import org.hl7.komet.framework.KometNode;
 import org.hl7.komet.framework.KometNodeFactory;
 import org.hl7.komet.framework.activity.ActivityStream;
 import org.hl7.komet.framework.activity.ActivityStreamOption;
-import org.hl7.komet.framework.activity.ActivityStreams;
-import org.hl7.komet.preferences.KometPreferences;
+import org.hl7.komet.framework.preferences.Reconstructor;
 import org.hl7.komet.framework.view.ObservableViewNoOverride;
+import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
 
 @AutoService(KometNodeFactory.class)
@@ -21,6 +21,21 @@ public class CompletionNodeFactory implements KometNodeFactory {
     }
 
     @Override
+    public CompletionNode create(ObservableViewNoOverride windowView, KometPreferences nodePreferences) {
+        return reconstructor(windowView, nodePreferences);
+    }
+
+    @Reconstructor
+    public static CompletionNode reconstructor(ObservableViewNoOverride windowView, KometPreferences nodePreferences) {
+        return new CompletionNode(windowView.makeOverridableViewProperties(), nodePreferences);
+    }
+
+    @Override
+    public Class<? extends KometNode> kometNodeClass() {
+        return CompletionNode.class;
+    }
+
+    @Override
     public ImmutableList<PublicIdStringKey<ActivityStream>> defaultActivityStreamChoices() {
         return Lists.immutable.empty();
     }
@@ -28,16 +43,6 @@ public class CompletionNodeFactory implements KometNodeFactory {
     @Override
     public ImmutableList<PublicIdStringKey<ActivityStreamOption>> defaultOptionsForActivityStream(PublicIdStringKey<ActivityStream> streamKey) {
         return Lists.immutable.empty();
-    }
-
-    @Override
-    public KometNode create(ObservableViewNoOverride windowView, KometPreferences nodePreferences) {
-        return new CompletionNode(windowView.makeOverridableViewProperties(), nodePreferences);
-    }
-
-    @Override
-    public Class<? extends KometNode> kometNodeClass() {
-        return CompletionNode.class;
     }
 
     @Override

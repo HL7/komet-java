@@ -21,9 +21,9 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 public class GraphNavigatorNode extends ExplorationNodeAbstract {
+    private static final Logger LOG = LoggerFactory.getLogger(GraphNavigatorNode.class);
     protected static final String STYLE_ID = "navigator-node";
     protected static final String TITLE = "Concept Navigator";
-    private static final Logger LOG = LoggerFactory.getLogger(GraphNavigatorNode.class);
     final AnchorPane root;
     final MultiParentGraphViewController controller;
 
@@ -70,6 +70,11 @@ public class GraphNavigatorNode extends ExplorationNodeAbstract {
     }
 
     @Override
+    protected void saveAdditionalPreferences() {
+
+    }
+
+    @Override
     public Node getNode() {
         return root;
     }
@@ -85,12 +90,12 @@ public class GraphNavigatorNode extends ExplorationNodeAbstract {
     }
 
     @Override
-    public void savePreferences() {
+    public void revertPreferences() {
 
     }
 
     @Override
-    public void revertPreferences() {
-
+    public Class factoryClass() {
+        return GraphNavigatorNodeFactory.class;
     }
 }

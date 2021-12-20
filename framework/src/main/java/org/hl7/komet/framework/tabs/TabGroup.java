@@ -3,6 +3,7 @@ package org.hl7.komet.framework.tabs;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
@@ -18,19 +19,26 @@ import org.hl7.komet.framework.activity.ActivityStream;
 import org.hl7.komet.framework.activity.ActivityStreamOption;
 import org.hl7.komet.framework.activity.ActivityStreams;
 import org.hl7.komet.framework.graphics.Icon;
+import org.hl7.komet.framework.preferences.Reconstructor;
 import org.hl7.komet.framework.view.ObservableViewNoOverride;
 import org.hl7.komet.framework.window.WindowComponent;
 import org.hl7.komet.preferences.KometPreferences;
+import org.hl7.komet.preferences.KometPreferencesImpl;
 import org.hl7.tinkar.common.alert.AlertObject;
 import org.hl7.tinkar.common.alert.AlertStreams;
+import org.hl7.tinkar.common.binary.Encodable;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
 import org.hl7.tinkar.common.util.text.NaturalOrder;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.annotation.Annotation;
+import java.util.List;
 import java.util.ServiceLoader;
 import java.util.UUID;
+
+import static org.hl7.komet.framework.KometNodeFactory.KOMET_NODES;
 
 public class TabGroup extends StackPane implements WindowComponent {
     private static final Logger LOG = LoggerFactory.getLogger(TabGroup.class);
@@ -42,8 +50,7 @@ public class TabGroup extends StackPane implements WindowComponent {
     final KometPreferences nodePreferences;
 
     private TabGroup(DetachableTabPane tabPane, MenuButton newTabMenu, REMOVAL allowRemoval,
-                     ObservableViewNoOverride windowView,
-                     KometPreferences nodePreferences) {
+                     ObservableViewNoOverride windowView, KometPreferences nodePreferences) {
         super(tabPane, newTabMenu);
         tabPane.setDetachableStack(this);
         setAlignment(tabPane, Pos.TOP_LEFT);
@@ -55,12 +62,30 @@ public class TabGroup extends StackPane implements WindowComponent {
         this.nodePreferences = nodePreferences;
     }
 
+    @Reconstructor
     public static TabGroup create(ObservableViewNoOverride windowView, KometPreferences nodePreferences) {
-        if (nodePreferences.hasKey(Keys.INITIALIZED)) {
+        if (nodePreferences.hasKey(WindowComponentKeys.INITIALIZED)) {
             // Restore from preferences...
-            throw new UnsupportedOperationException();
+            REMOVAL allowRemoval = REMOVAL.valueOf(nodePreferences.get(TabGroupKeys.ALLOW_REMOVAL, "ALLOW"));
+            DetachableTabPane detachableTabPane = new DetachableTabPane();
+            for (String preferencesNode : nodePreferences.getList(WindowComponentKeys.CHILDREN)) {
+                KometPreferences childPreferences = nodePreferences.node(KOMET_NODES + preferencesNode);
+                childPreferences.get(WindowComponentKeys.FACTORY_CLASS).ifPresent(factoryClassName -> {
+                    try {
+                        Class<?> objectClass = Class.forName(factoryClassName);
+                        Class<? extends Annotation> annotationClass = Reconstructor.class;
+                        Object[] parameters = new Object[]{windowView, childPreferences};
+                        KometNode kometNode = (KometNode) Encodable.decode(objectClass, annotationClass, parameters);
+                        DetachableTab componentTab = new DetachableTab(kometNode);
+                        detachableTabPane.getTabs().add(componentTab);
+                    } catch (Exception e) {
+                        AlertStreams.getRoot().dispatch(AlertObject.makeError(e));
+                    }
+                });
+            }
+            return make(detachableTabPane, allowRemoval, windowView, nodePreferences);
         }
-        return TabGroup.make(new DetachableTabPane(), REMOVAL.ALLOW, windowView, nodePreferences);
+        throw new UnsupportedOperationException("Should only be called on restore. ");
     }
 
     private static TabGroup make(DetachableTabPane tabPane, REMOVAL allowRemoval, ObservableViewNoOverride windowView,
@@ -75,7 +100,7 @@ public class TabGroup extends StackPane implements WindowComponent {
                 MenuItem newTabMenuItem = new MenuItem(factory.getMenuText(), factory.getMenuGraphic());
                 newTabMenuItem.getStyleClass().add("add-tab-menu-item");
                 newTabMenuItem.setOnAction(event -> {
-                    KometNode kometNode = factory.create(windowView, nodePreferences,
+                    KometNode kometNode = factory.create(windowView,
                             null, null, AlertStreams.ROOT_ALERT_STREAM_KEY);
                     DetachableTab newTab = new DetachableTab(kometNode);
                     newTab.setGraphic(kometNode.getTitleNode());
@@ -92,7 +117,7 @@ public class TabGroup extends StackPane implements WindowComponent {
                         MenuItem newTabMenuItem = new MenuItem(activityStreamOptionKey.getString());
                         newTabMenuItem.getStyleClass().add("add-tab-menu-item");
                         newTabMenuItem.setOnAction(event -> {
-                            KometNode kometNode = factory.create(windowView, nodePreferences,
+                            KometNode kometNode = factory.create(windowView,
                                     activityStreamKey, activityStreamOptionKey, AlertStreams.ROOT_ALERT_STREAM_KEY);
                             DetachableTab newTab = new DetachableTab(kometNode);
                             newTab.setGraphic(kometNode.getTitleNode());
@@ -145,19 +170,12 @@ public class TabGroup extends StackPane implements WindowComponent {
             });
             menuButton.getItems().add(removeTabArea);
         }
-        return new TabGroup(tabPane, menuButton, allowRemoval, windowView, makeNodePreferences(nodePreferences));
+        return new TabGroup(tabPane, menuButton, allowRemoval, windowView, nodePreferences);
     }
 
-    public static KometPreferences makeNodePreferences(KometPreferences parentPreferencesNode) {
-        return parentPreferencesNode.node("tab-group-" + UUID.randomUUID());
-    }
-
-    public static TabGroup create(ObservableViewNoOverride windowView, KometPreferences nodePreferences, REMOVAL allowRemoval) {
-        if (nodePreferences.hasKey(Keys.INITIALIZED)) {
-            // Restore from preferences...
-            throw new UnsupportedOperationException("this create method is only for new nodes.");
-        }
-        return TabGroup.make(new DetachableTabPane(), allowRemoval, windowView, nodePreferences);
+    public static TabGroup create(ObservableViewNoOverride windowView, REMOVAL allowRemoval) {
+        return TabGroup.make(new DetachableTabPane(), allowRemoval, windowView,
+                KometPreferencesImpl.getConfigurationRootPreferences().node(KOMET_NODES + "TabGroup_" + UUID.randomUUID()));
     }
 
     public DetachableTabPane tabPane() {
@@ -178,8 +196,8 @@ public class TabGroup extends StackPane implements WindowComponent {
     public ImmutableList<WindowComponent> children() {
         MutableList<WindowComponent> children = Lists.mutable.empty();
         for (Tab tab : tabPane.getTabs()) {
-            if (tab instanceof WindowComponent windowComponent) {
-                children.add(windowComponent);
+            if (tab instanceof DetachableTab detachableTab) {
+                children.add(detachableTab.getKometNode());
             }
         }
         return children.toImmutable();
@@ -188,7 +206,11 @@ public class TabGroup extends StackPane implements WindowComponent {
     @Override
     public void saveConfiguration() {
         try {
-            this.nodePreferences.flush();
+            nodePreferences.put(WindowComponentKeys.INITIALIZED, "true");
+            nodePreferences.put(WindowComponentKeys.FACTORY_CLASS, factoryClass().getName());
+            List<String> childrenPreferenceNodes = children().stream().map(windowComponent -> windowComponent.nodePreferences().name()).toList();
+            this.nodePreferences.putList(WindowComponentKeys.CHILDREN, childrenPreferenceNodes);
+            this.nodePreferences.sync();
             try {
                 for (WindowComponent child : children()) {
                     try {
@@ -207,6 +229,16 @@ public class TabGroup extends StackPane implements WindowComponent {
         } catch (Throwable e) {
             AlertStreams.getRoot().dispatch(AlertObject.makeError(e));
         }
+    }
+
+    @Override
+    public Node getNode() {
+        return this;
+    }
+
+    @Override
+    public Class factoryClass() {
+        return TabGroup.class;
     }
 
     public ObservableList<Tab> getTabs() {
@@ -270,4 +302,8 @@ public class TabGroup extends StackPane implements WindowComponent {
     }
 
     public enum REMOVAL {ALLOW, DISALLOW}
+
+    public enum TabGroupKeys {
+        ALLOW_REMOVAL
+    }
 }

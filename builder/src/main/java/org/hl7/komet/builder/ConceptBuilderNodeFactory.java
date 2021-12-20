@@ -8,8 +8,9 @@ import org.hl7.komet.framework.KometNodeFactory;
 import org.hl7.komet.framework.activity.ActivityStream;
 import org.hl7.komet.framework.activity.ActivityStreamOption;
 import org.hl7.komet.framework.activity.ActivityStreams;
-import org.hl7.komet.preferences.KometPreferences;
+import org.hl7.komet.framework.preferences.Reconstructor;
 import org.hl7.komet.framework.view.ObservableViewNoOverride;
+import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
 
 @AutoService(KometNodeFactory.class)
@@ -20,6 +21,21 @@ public class ConceptBuilderNodeFactory implements KometNodeFactory {
     @Override
     public void addDefaultNodePreferences(KometPreferences nodePreferences) {
 
+    }
+
+    @Override
+    public ConceptBuilderNode create(ObservableViewNoOverride windowView, KometPreferences nodePreferences) {
+        return reconstructor(windowView, nodePreferences);
+    }
+
+    @Reconstructor
+    public static ConceptBuilderNode reconstructor(ObservableViewNoOverride windowView, KometPreferences nodePreferences) {
+        return new ConceptBuilderNode(windowView.makeOverridableViewProperties(), nodePreferences);
+    }
+
+    @Override
+    public Class<? extends KometNode> kometNodeClass() {
+        return ConceptBuilderNode.class;
     }
 
     @Override
@@ -36,11 +52,6 @@ public class ConceptBuilderNodeFactory implements KometNodeFactory {
     }
 
     @Override
-    public KometNode create(ObservableViewNoOverride windowView, KometPreferences nodePreferences) {
-        return new ConceptBuilderNode(windowView.makeOverridableViewProperties(), nodePreferences);
-    }
-
-    @Override
     public String getMenuText() {
         return TITLE;
     }
@@ -48,10 +59,5 @@ public class ConceptBuilderNodeFactory implements KometNodeFactory {
     @Override
     public String getStyleId() {
         return STYLE_ID;
-    }
-
-    @Override
-    public Class<? extends KometNode> kometNodeClass() {
-        return ConceptBuilderNode.class;
     }
 }

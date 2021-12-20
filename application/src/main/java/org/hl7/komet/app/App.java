@@ -8,6 +8,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -30,10 +31,12 @@ import org.hl7.komet.framework.activity.ActivityStreams;
 import org.hl7.komet.framework.graphics.Icon;
 import org.hl7.komet.framework.graphics.LoadFonts;
 import org.hl7.komet.framework.preferences.KometPreferencesStage;
+import org.hl7.komet.framework.preferences.Reconstructor;
 import org.hl7.komet.framework.tabs.DetachableTab;
 import org.hl7.komet.framework.view.ObservableViewNoOverride;
 import org.hl7.komet.framework.window.KometStageController;
 import org.hl7.komet.framework.window.MainWindowRecord;
+import org.hl7.komet.framework.window.WindowComponent;
 import org.hl7.komet.list.ListNodeFactory;
 import org.hl7.komet.navigator.graph.GraphNavigatorNodeFactory;
 import org.hl7.komet.navigator.pattern.PatternNavigatorFactory;
@@ -46,6 +49,7 @@ import org.hl7.komet.search.SearchNodeFactory;
 import org.hl7.komet.table.TableNodeFactory;
 import org.hl7.tinkar.common.alert.AlertObject;
 import org.hl7.tinkar.common.alert.AlertStreams;
+import org.hl7.tinkar.common.binary.Encodable;
 import org.hl7.tinkar.common.service.Executor;
 import org.hl7.tinkar.common.service.PrimitiveData;
 import org.slf4j.Logger;
@@ -53,9 +57,13 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.util.function.Consumer;
 
 import static org.hl7.komet.app.AppState.LOADING_DATA_SOURCE;
 import static org.hl7.komet.app.AppState.STARTING;
+import static org.hl7.komet.framework.KometNodeFactory.KOMET_NODES;
+import static org.hl7.komet.framework.window.WindowSettings.Keys.*;
 
 /**
  * JavaFX App
@@ -89,11 +97,10 @@ public class App extends Application {
         stage.show();
     }
 
-    private static ImmutableList<DetachableTab> makeDefaultLeftTabs(ObservableViewNoOverride windowView,
-                                                                    KometPreferences nodePreferences) {
+    private static ImmutableList<DetachableTab> makeDefaultLeftTabs(ObservableViewNoOverride windowView) {
 
         GraphNavigatorNodeFactory navigatorNodeFactory = new GraphNavigatorNodeFactory();
-        KometNode navigatorNode1 = navigatorNodeFactory.create(windowView, nodePreferences,
+        KometNode navigatorNode1 = navigatorNodeFactory.create(windowView,
                 ActivityStreams.NAVIGATION, ActivityStreamOption.PUBLISH.keyForOption(), AlertStreams.ROOT_ALERT_STREAM_KEY);
         DetachableTab navigatorNode1Tab = new DetachableTab(navigatorNode1);
         navigatorNode1Tab.setGraphic(navigatorNode1.getTitleNode());
@@ -101,7 +108,7 @@ public class App extends Application {
 
         PatternNavigatorFactory patternNavigatorNodeFactory = new PatternNavigatorFactory();
 
-        KometNode patternNavigatorNode2 = patternNavigatorNodeFactory.create(windowView, nodePreferences,
+        KometNode patternNavigatorNode2 = patternNavigatorNodeFactory.create(windowView,
                 ActivityStreams.NAVIGATION, ActivityStreamOption.PUBLISH.keyForOption(), AlertStreams.ROOT_ALERT_STREAM_KEY);
 
         DetachableTab patternNavigatorNode1Tab = new DetachableTab(patternNavigatorNode2);
@@ -110,11 +117,10 @@ public class App extends Application {
         return Lists.immutable.of(navigatorNode1Tab, patternNavigatorNode1Tab);
     }
 
-    private static ImmutableList<DetachableTab> makeDefaultCenterTabs(ObservableViewNoOverride windowView,
-                                                                      KometPreferences nodePreferences) {
+    private static ImmutableList<DetachableTab> makeDefaultCenterTabs(ObservableViewNoOverride windowView) {
 
         DetailsNodeFactory detailsNodeFactory = new DetailsNodeFactory();
-        KometNode detailsNode1 = detailsNodeFactory.create(windowView, nodePreferences,
+        KometNode detailsNode1 = detailsNodeFactory.create(windowView,
                 ActivityStreams.NAVIGATION, ActivityStreamOption.SUBSCRIBE.keyForOption(), AlertStreams.ROOT_ALERT_STREAM_KEY);
 
         DetachableTab detailsNode1Tab = new DetachableTab(detailsNode1);
@@ -123,7 +129,7 @@ public class App extends Application {
         detailsNode1Tab.textProperty().bind(detailsNode1.getTitle());
         detailsNode1Tab.tooltipProperty().setValue(detailsNode1.makeToolTip());
 
-        KometNode detailsNode2 = detailsNodeFactory.create(windowView, nodePreferences,
+        KometNode detailsNode2 = detailsNodeFactory.create(windowView,
                 ActivityStreams.SEARCH, ActivityStreamOption.SUBSCRIBE.keyForOption(), AlertStreams.ROOT_ALERT_STREAM_KEY);
         DetachableTab detailsNode2Tab = new DetachableTab(detailsNode2);
         // TODO: setting up tab graphic, title, and tooltip needs to be standardized by the factory...
@@ -131,7 +137,7 @@ public class App extends Application {
         detailsNode2Tab.textProperty().bind(detailsNode2.getTitle());
         detailsNode2Tab.tooltipProperty().setValue(detailsNode2.makeToolTip());
 
-        KometNode detailsNode3 = detailsNodeFactory.create(windowView, nodePreferences,
+        KometNode detailsNode3 = detailsNodeFactory.create(windowView,
                 ActivityStreams.UNLINKED, ActivityStreamOption.PUBLISH.keyForOption(), AlertStreams.ROOT_ALERT_STREAM_KEY);
         DetachableTab detailsNode3Tab = new DetachableTab(detailsNode3);
         // TODO: setting up tab graphic, title, and tooltip needs to be standardized by the factory...
@@ -140,7 +146,7 @@ public class App extends Application {
         detailsNode3Tab.tooltipProperty().setValue(detailsNode3.makeToolTip());
 
         ListNodeFactory listNodeFactory = new ListNodeFactory();
-        KometNode listNode = listNodeFactory.create(windowView, nodePreferences,
+        KometNode listNode = listNodeFactory.create(windowView,
                 ActivityStreams.LIST, ActivityStreamOption.PUBLISH.keyForOption(), AlertStreams.ROOT_ALERT_STREAM_KEY);
         DetachableTab listNodeNodeTab = new DetachableTab(listNode);
         // TODO: setting up tab graphic, title, and tooltip needs to be standardized by the factory...
@@ -149,7 +155,7 @@ public class App extends Application {
         listNodeNodeTab.tooltipProperty().setValue(listNode.makeToolTip());
 
         TableNodeFactory tableNodeFactory = new TableNodeFactory();
-        KometNode tableNode = tableNodeFactory.create(windowView, nodePreferences,
+        KometNode tableNode = tableNodeFactory.create(windowView,
                 ActivityStreams.UNLINKED, ActivityStreamOption.PUBLISH.keyForOption(), AlertStreams.ROOT_ALERT_STREAM_KEY);
         DetachableTab tableNodeTab = new DetachableTab(tableNode);
         // TODO: setting up tab graphic, title, and tooltip needs to be standardized by the factory...
@@ -160,23 +166,22 @@ public class App extends Application {
         return Lists.immutable.of(detailsNode1Tab, detailsNode2Tab, detailsNode3Tab, listNodeNodeTab, tableNodeTab);
     }
 
-    private static ImmutableList<DetachableTab> makeDefaultRightTabs(ObservableViewNoOverride windowView,
-                                                                     KometPreferences nodePreferences) {
+    private static ImmutableList<DetachableTab> makeDefaultRightTabs(ObservableViewNoOverride windowView) {
 
         SearchNodeFactory searchNodeFactory = new SearchNodeFactory();
-        KometNode searchNode = searchNodeFactory.create(windowView, nodePreferences,
+        KometNode searchNode = searchNodeFactory.create(windowView,
                 ActivityStreams.SEARCH, ActivityStreamOption.PUBLISH.keyForOption(), AlertStreams.ROOT_ALERT_STREAM_KEY);
         DetachableTab newSearchTab = new DetachableTab(searchNode);
         newSearchTab.setGraphic(searchNode.getTitleNode());
 
         ProgressNodeFactory progressNodeFactory = new ProgressNodeFactory();
-        KometNode kometNode = progressNodeFactory.create(windowView, nodePreferences,
+        KometNode kometNode = progressNodeFactory.create(windowView,
                 null, null, AlertStreams.ROOT_ALERT_STREAM_KEY);
         DetachableTab progressTab = new DetachableTab(kometNode);
         progressTab.setGraphic(kometNode.getTitleNode());
 
         CompletionNodeFactory completionNodeFactory = new CompletionNodeFactory();
-        KometNode completionNode = completionNodeFactory.create(windowView, nodePreferences,
+        KometNode completionNode = completionNodeFactory.create(windowView,
                 null, null, AlertStreams.ROOT_ALERT_STREAM_KEY);
         DetachableTab completionTab = new DetachableTab(completionNode);
         completionTab.setGraphic(completionNode.getTitleNode());
@@ -349,8 +354,9 @@ public class App extends Application {
                 case RUNNING -> {
                     primaryStage.hide();
                     Preferences.start();
-                    KometPreferences nodePreferences = KometPreferencesImpl.getConfigurationRootPreferences();
-                    if (nodePreferences.hasKey(Keys.INITIALIZED)) {
+                    KometPreferences appPreferences = KometPreferencesImpl.getConfigurationRootPreferences();
+                    boolean appInitialized = appPreferences.getBoolean(AppKeys.APP_INITIALIZED, false);
+                    if (appInitialized) {
                         LOG.info("Restoring configuration preferences. ");
                     } else {
                         LOG.info("Creating new configuration preferences. ");
@@ -367,19 +373,41 @@ public class App extends Application {
 
                     primaryStage.setScene(kometScene);
 
-                    KometPreferences windowPreferences = nodePreferences.node("main-komet-window");
-
+                    KometPreferences windowPreferences = appPreferences.node("main-komet-window");
+                    boolean mainWindowInitialized = windowPreferences.getBoolean(KometStageController.WindowKeys.WINDOW_INITIALIZED, false);
                     controller.setup(windowPreferences);
                     primaryStage.setTitle("Komet");
                     //primaryStage.centerOnScreen();
 
-                    controller.setLeftTabs(makeDefaultLeftTabs(controller.windowView(), nodePreferences), 0);
-                    controller.setCenterTabs(makeDefaultCenterTabs(controller.windowView(), nodePreferences), 0);
-                    controller.setRightTabs(makeDefaultRightTabs(controller.windowView(), nodePreferences), 1);
+                    if (!mainWindowInitialized) {
+                        controller.setLeftTabs(makeDefaultLeftTabs(controller.windowView()), 0);
+                        controller.setCenterTabs(makeDefaultCenterTabs(controller.windowView()), 0);
+                        controller.setRightTabs(makeDefaultRightTabs(controller.windowView()), 1);
+                        windowPreferences.putBoolean(KometStageController.WindowKeys.WINDOW_INITIALIZED, true);
+                        appPreferences.putBoolean(AppKeys.APP_INITIALIZED, true);
+                    } else {
+                        // Restore nodes from preferences.
+                        windowPreferences.get(LEFT_TAB_PREFERENCES).ifPresent(leftTabPreferencesName -> {
+                            restoreTab(windowPreferences, leftTabPreferencesName, controller.windowView(), node -> controller.leftBorderPaneSetCenter(node));
+                        });
+                        windowPreferences.get(CENTER_TAB_PREFERENCES).ifPresent(centerTabPreferencesName -> {
+                            restoreTab(windowPreferences, centerTabPreferencesName, controller.windowView(), node -> controller.centerBorderPaneSetCenter(node));
+                        });
+                        windowPreferences.get(RIGHT_TAB_PREFERENCES).ifPresent(rightTabPreferencesName -> {
+                            restoreTab(windowPreferences, rightTabPreferencesName, controller.windowView(), node -> controller.rightBorderPaneSetCenter(node));
+                        });
+                    }
+                    primaryStage.setX(controller.windowSettings().xLocationProperty().get());
+                    primaryStage.setY(controller.windowSettings().yLocationProperty().get());
+                    primaryStage.setHeight(controller.windowSettings().heightProperty().get());
+                    primaryStage.setWidth(controller.windowSettings().widthProperty().get());
                     primaryStage.show();
                     //ScenicView.show(kometRoot);
 
                     App.kometPreferencesStage = new KometPreferencesStage(controller.windowView().makeOverridableViewProperties());
+
+                    windowPreferences.sync();
+                    appPreferences.sync();
 
                 }
                 case SHUTDOWN -> {
@@ -397,7 +425,24 @@ public class App extends Application {
         }
     }
 
-    public enum Keys {
-        INITIALIZED
+    private void restoreTab(KometPreferences windowPreferences, String tabPreferenceNodeName, ObservableViewNoOverride windowView, Consumer<Node> nodeConsumer) {
+        LOG.info("Restoring from: " + tabPreferenceNodeName);
+        KometPreferences itemPreferences = windowPreferences.node(KOMET_NODES + tabPreferenceNodeName);
+        itemPreferences.get(WindowComponent.WindowComponentKeys.FACTORY_CLASS).ifPresent(factoryClassName -> {
+            try {
+                Class<?> objectClass = Class.forName(factoryClassName);
+                Class<? extends Annotation> annotationClass = Reconstructor.class;
+                Object[] parameters = new Object[]{windowView, itemPreferences};
+                WindowComponent windowComponent = (WindowComponent) Encodable.decode(objectClass, annotationClass, parameters);
+                nodeConsumer.accept(windowComponent.getNode());
+
+            } catch (Exception e) {
+                AlertStreams.getRoot().dispatch(AlertObject.makeError(e));
+            }
+        });
+    }
+
+    public enum AppKeys {
+        APP_INITIALIZED
     }
 }

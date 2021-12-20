@@ -80,6 +80,11 @@ public class ConceptBuilderNode extends ExplorationNodeAbstract {
     }
 
     @Override
+    protected void saveAdditionalPreferences() {
+
+    }
+
+    @Override
     public Node getNode() {
         return builderPane;
     }
@@ -90,12 +95,12 @@ public class ConceptBuilderNode extends ExplorationNodeAbstract {
     }
 
     @Override
-    public void savePreferences() {
+    public void revertPreferences() {
 
     }
 
     @Override
-    public void revertPreferences() {
-
+    public Class factoryClass() {
+        return ConceptBuilderNodeFactory.class;
     }
 }

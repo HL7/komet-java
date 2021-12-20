@@ -35,6 +35,7 @@ import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.prefs.BackingStoreException;
 
 import static org.hl7.komet.framework.KometNode.PreferenceKey.ACTIVITY_STREAM_OPTION_KEY;
 
@@ -184,6 +185,18 @@ public abstract class ExplorationNodeAbstract implements KometNode, Flow.Subscri
     }
 
     @Override
+    public final void savePreferences() {
+        nodePreferences.put(WindowComponentKeys.INITIALIZED, "true");
+        nodePreferences.put(WindowComponentKeys.FACTORY_CLASS, factoryClass().getName());
+        saveAdditionalPreferences();
+        try {
+            nodePreferences.sync();
+        } catch (BackingStoreException e) {
+            AlertStreams.getRoot().dispatch(AlertObject.makeError(e));
+        }
+    }
+
+    @Override
     public Node getMenuIconGraphic() {
         Label menuIcon = new Label("", new FontIcon());
         menuIcon.setId(getStyleId());
@@ -266,7 +279,9 @@ public abstract class ExplorationNodeAbstract implements KometNode, Flow.Subscri
     }
 
     @Override
-    public void saveConfiguration() {
+    public final void saveConfiguration() {
         savePreferences();
     }
+
+    protected abstract void saveAdditionalPreferences();
 }

@@ -8,6 +8,7 @@ import org.hl7.komet.framework.KometNodeFactory;
 import org.hl7.komet.framework.activity.ActivityStream;
 import org.hl7.komet.framework.activity.ActivityStreamOption;
 import org.hl7.komet.framework.activity.ActivityStreams;
+import org.hl7.komet.framework.preferences.Reconstructor;
 import org.hl7.komet.framework.view.ObservableViewNoOverride;
 import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
@@ -23,7 +24,12 @@ public class ConceptDetaisNodeFactory implements KometNodeFactory {
     }
 
     @Override
-    public KometNode create(ObservableViewNoOverride windowView, KometPreferences nodePreferences) {
+    public ConceptDetailsNode create(ObservableViewNoOverride windowView, KometPreferences nodePreferences) {
+        return reconstructor(windowView, nodePreferences);
+    }
+
+    @Reconstructor
+    public static ConceptDetailsNode reconstructor(ObservableViewNoOverride windowView, KometPreferences nodePreferences) {
         return new ConceptDetailsNode(windowView.makeOverridableViewProperties(), nodePreferences);
     }
 
