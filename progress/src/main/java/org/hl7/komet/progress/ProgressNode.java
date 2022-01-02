@@ -82,6 +82,11 @@ public class ProgressNode extends ExplorationNodeAbstract {
     }
 
     @Override
+    public void revertAdditionalPreferences() {
+
+    }
+
+    @Override
     public String getStyleId() {
         return STYLE_ID;
     }
@@ -109,11 +114,6 @@ public class ProgressNode extends ExplorationNodeAbstract {
     @Override
     public boolean canClose() {
         return false;
-    }
-
-    @Override
-    public void revertPreferences() {
-
     }
 
     @Override

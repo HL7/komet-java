@@ -65,6 +65,11 @@ public class GraphNavigatorNode extends ExplorationNodeAbstract {
     }
 
     @Override
+    public void revertAdditionalPreferences() {
+
+    }
+
+    @Override
     public String getStyleId() {
         return STYLE_ID;
     }
@@ -90,12 +95,11 @@ public class GraphNavigatorNode extends ExplorationNodeAbstract {
     }
 
     @Override
-    public void revertPreferences() {
-
-    }
-
-    @Override
     public Class factoryClass() {
         return GraphNavigatorNodeFactory.class;
+    }
+
+    enum NavigatorKeys {
+        
     }
 }

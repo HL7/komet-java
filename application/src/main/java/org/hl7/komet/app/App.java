@@ -103,7 +103,6 @@ public class App extends Application {
         KometNode navigatorNode1 = navigatorNodeFactory.create(windowView,
                 ActivityStreams.NAVIGATION, ActivityStreamOption.PUBLISH.keyForOption(), AlertStreams.ROOT_ALERT_STREAM_KEY);
         DetachableTab navigatorNode1Tab = new DetachableTab(navigatorNode1);
-        navigatorNode1Tab.setGraphic(navigatorNode1.getTitleNode());
 
 
         PatternNavigatorFactory patternNavigatorNodeFactory = new PatternNavigatorFactory();
@@ -112,7 +111,6 @@ public class App extends Application {
                 ActivityStreams.NAVIGATION, ActivityStreamOption.PUBLISH.keyForOption(), AlertStreams.ROOT_ALERT_STREAM_KEY);
 
         DetachableTab patternNavigatorNode1Tab = new DetachableTab(patternNavigatorNode2);
-        patternNavigatorNode1Tab.setGraphic(patternNavigatorNode2.getTitleNode());
 
         return Lists.immutable.of(navigatorNode1Tab, patternNavigatorNode1Tab);
     }
@@ -125,43 +123,26 @@ public class App extends Application {
 
         DetachableTab detailsNode1Tab = new DetachableTab(detailsNode1);
         // TODO: setting up tab graphic, title, and tooltip needs to be standardized by the factory...
-        detailsNode1Tab.setGraphic(detailsNode1.getTitleNode());
         detailsNode1Tab.textProperty().bind(detailsNode1.getTitle());
         detailsNode1Tab.tooltipProperty().setValue(detailsNode1.makeToolTip());
 
         KometNode detailsNode2 = detailsNodeFactory.create(windowView,
                 ActivityStreams.SEARCH, ActivityStreamOption.SUBSCRIBE.keyForOption(), AlertStreams.ROOT_ALERT_STREAM_KEY);
         DetachableTab detailsNode2Tab = new DetachableTab(detailsNode2);
-        // TODO: setting up tab graphic, title, and tooltip needs to be standardized by the factory...
-        detailsNode2Tab.setGraphic(detailsNode2.getTitleNode());
-        detailsNode2Tab.textProperty().bind(detailsNode2.getTitle());
-        detailsNode2Tab.tooltipProperty().setValue(detailsNode2.makeToolTip());
 
         KometNode detailsNode3 = detailsNodeFactory.create(windowView,
                 ActivityStreams.UNLINKED, ActivityStreamOption.PUBLISH.keyForOption(), AlertStreams.ROOT_ALERT_STREAM_KEY);
         DetachableTab detailsNode3Tab = new DetachableTab(detailsNode3);
-        // TODO: setting up tab graphic, title, and tooltip needs to be standardized by the factory...
-        detailsNode3Tab.setGraphic(detailsNode3.getTitleNode());
-        detailsNode3Tab.textProperty().bind(detailsNode3.getTitle());
-        detailsNode3Tab.tooltipProperty().setValue(detailsNode3.makeToolTip());
 
         ListNodeFactory listNodeFactory = new ListNodeFactory();
         KometNode listNode = listNodeFactory.create(windowView,
                 ActivityStreams.LIST, ActivityStreamOption.PUBLISH.keyForOption(), AlertStreams.ROOT_ALERT_STREAM_KEY);
         DetachableTab listNodeNodeTab = new DetachableTab(listNode);
-        // TODO: setting up tab graphic, title, and tooltip needs to be standardized by the factory...
-        listNodeNodeTab.setGraphic(listNode.getTitleNode());
-        listNodeNodeTab.textProperty().bind(listNode.getTitle());
-        listNodeNodeTab.tooltipProperty().setValue(listNode.makeToolTip());
 
         TableNodeFactory tableNodeFactory = new TableNodeFactory();
         KometNode tableNode = tableNodeFactory.create(windowView,
                 ActivityStreams.UNLINKED, ActivityStreamOption.PUBLISH.keyForOption(), AlertStreams.ROOT_ALERT_STREAM_KEY);
         DetachableTab tableNodeTab = new DetachableTab(tableNode);
-        // TODO: setting up tab graphic, title, and tooltip needs to be standardized by the factory...
-        tableNodeTab.setGraphic(tableNode.getTitleNode());
-        tableNodeTab.textProperty().bind(tableNode.getTitle());
-        tableNodeTab.tooltipProperty().setValue(tableNode.makeToolTip());
 
         return Lists.immutable.of(detailsNode1Tab, detailsNode2Tab, detailsNode3Tab, listNodeNodeTab, tableNodeTab);
     }
@@ -172,19 +153,16 @@ public class App extends Application {
         KometNode searchNode = searchNodeFactory.create(windowView,
                 ActivityStreams.SEARCH, ActivityStreamOption.PUBLISH.keyForOption(), AlertStreams.ROOT_ALERT_STREAM_KEY);
         DetachableTab newSearchTab = new DetachableTab(searchNode);
-        newSearchTab.setGraphic(searchNode.getTitleNode());
 
         ProgressNodeFactory progressNodeFactory = new ProgressNodeFactory();
         KometNode kometNode = progressNodeFactory.create(windowView,
                 null, null, AlertStreams.ROOT_ALERT_STREAM_KEY);
         DetachableTab progressTab = new DetachableTab(kometNode);
-        progressTab.setGraphic(kometNode.getTitleNode());
 
         CompletionNodeFactory completionNodeFactory = new CompletionNodeFactory();
         KometNode completionNode = completionNodeFactory.create(windowView,
                 null, null, AlertStreams.ROOT_ALERT_STREAM_KEY);
         DetachableTab completionTab = new DetachableTab(completionNode);
-        completionTab.setGraphic(completionNode.getTitleNode());
 
         return Lists.immutable.of(newSearchTab, progressTab, completionTab);
     }

@@ -208,6 +208,14 @@ public class SearchPanelController implements ListChangeListener<TreeItem<Object
         }
     }
 
+    public void doSearch() {
+        doSearch(null);
+    }
+
+    public boolean hasResults() {
+        return !resultsRoot.getChildren().isEmpty();
+    }
+
     public List<Consumer<Object>> getDoubleCLickConsumers() {
         return searchTreeView.getDoubleCLickConsumers();
     }
@@ -280,6 +288,10 @@ public class SearchPanelController implements ListChangeListener<TreeItem<Object
         }
     }
 
+    public ComboBox<RESULT_LAYOUT_OPTIONS> getResultsLayoutCombo() {
+        return resultsLayoutCombo;
+    }
+
     public String getQueryString() {
         return queryString.getText();
     }
@@ -288,7 +300,7 @@ public class SearchPanelController implements ListChangeListener<TreeItem<Object
         this.queryString.setText(queryString);
     }
 
-    enum RESULT_LAYOUT_OPTIONS {
+    public enum RESULT_LAYOUT_OPTIONS {
         MATCHED_SEMANTIC_NATURAL_ORDER("Matched semantic with lexicographic order"),
         MATCHED_SEMANTIC_SCORE("Matched semantic with score order"),
         TOP_COMPONENT_NATURAL_ORDER("Top component with lexicographic order"),

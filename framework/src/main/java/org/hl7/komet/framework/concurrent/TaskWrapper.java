@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import org.hl7.tinkar.common.service.TrackingCallable;
 import org.hl7.tinkar.common.service.TrackingListener;
+import org.hl7.tinkar.common.util.time.DateTimeUtil;
 
 import java.util.function.Consumer;
 
@@ -62,7 +63,8 @@ public class TaskWrapper<V> extends Task<V> implements TrackingListener<V> {
 
     private void handleRetention() {
         if (this.trackingCallable.retainWhenComplete()) {
-            TaskListsService.get().completedTasks().add(this);
+            CompletedTask completedTask = new CompletedTask(this.getTitle(), this.getMessage(), DateTimeUtil.nowWithZone());
+            TaskListsService.get().completedTasks().add(completedTask);
             if (TaskListsService.get().completedTasks().size() > maxCompletedTaskListSize) {
                 TaskListsService.get().completedTasks().remove(0, 25);
             }

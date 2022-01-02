@@ -12,6 +12,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import org.controlsfx.control.TaskProgressView;
+import org.hl7.komet.framework.concurrent.CompletedTask;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 public class CompletionViewSkin<T extends Task<?>> extends
@@ -19,6 +20,7 @@ public class CompletionViewSkin<T extends Task<?>> extends
 
     final ListView<T> listView;
     final ObservableList<Task<?>> tasks;
+
     public CompletionViewSkin(TaskProgressView<T> monitor, ObservableList<Task<?>> tasks) {
         super(monitor);
         this.tasks = tasks;
@@ -41,6 +43,7 @@ public class CompletionViewSkin<T extends Task<?>> extends
     class TaskCell extends ListCell<T> {
         private Label titleText;
         private Label messageText;
+        private Label completionTime;
         private Button removeButton;
 
         private T task;
@@ -52,6 +55,9 @@ public class CompletionViewSkin<T extends Task<?>> extends
 
             messageText = new Label();
             messageText.getStyleClass().add("task-message");
+
+            completionTime = new Label();
+            completionTime.getStyleClass().add("task-message");
 
 
             FontIcon icon = new FontIcon();
@@ -70,6 +76,7 @@ public class CompletionViewSkin<T extends Task<?>> extends
             vbox.setSpacing(4);
             vbox.getChildren().add(titleText);
             vbox.getChildren().add(messageText);
+            vbox.getChildren().add(completionTime);
 
             BorderPane.setAlignment(removeButton, Pos.CENTER);
             BorderPane.setMargin(removeButton, new Insets(0, 0, 0, 4));
@@ -103,10 +110,22 @@ public class CompletionViewSkin<T extends Task<?>> extends
             if (empty || task == null) {
                 getStyleClass().setAll("task-list-cell-empty");
                 setGraphic(null);
+                titleText.textProperty().unbind();
+                messageText.textProperty().unbind();
+                completionTime.textProperty().unbind();
+                titleText.setText("");
+                messageText.setText("");
+                completionTime.setText("");
             } else if (task != null) {
                 getStyleClass().setAll("task-list-cell");
                 titleText.textProperty().bind(task.titleProperty());
                 messageText.textProperty().bind(task.messageProperty());
+                if (task instanceof CompletedTask completedTask) {
+                    completionTime.setText(completedTask.completionTime());
+                    completionTime.setVisible(true);
+                } else {
+                    completionTime.setVisible(false);
+                }
 
                 Callback<T, Node> factory = getSkinnable().getGraphicFactory();
                 if (factory != null) {

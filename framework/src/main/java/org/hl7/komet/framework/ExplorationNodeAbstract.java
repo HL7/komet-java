@@ -188,6 +188,9 @@ public abstract class ExplorationNodeAbstract implements KometNode, Flow.Subscri
     public final void savePreferences() {
         nodePreferences.put(WindowComponentKeys.INITIALIZED, "true");
         nodePreferences.put(WindowComponentKeys.FACTORY_CLASS, factoryClass().getName());
+        nodePreferences.putObject(KometNode.PreferenceKey.ACTIVITY_STREAM_KEY, this.activityStreamKeyProperty.get());
+        nodePreferences.putObject(KometNode.PreferenceKey.ACTIVITY_STREAM_OPTION_KEY, this.optionForActivityStreamKeyProperty.get());
+
         saveAdditionalPreferences();
         try {
             nodePreferences.sync();
@@ -195,6 +198,17 @@ public abstract class ExplorationNodeAbstract implements KometNode, Flow.Subscri
             AlertStreams.getRoot().dispatch(AlertObject.makeError(e));
         }
     }
+
+    @Override
+    public final void revertPreferences() {
+        this.activityStreamKeyProperty.set(nodePreferences.getObject(KometNode.PreferenceKey.ACTIVITY_STREAM_KEY,
+                ActivityStreams.UNLINKED));
+        this.optionForActivityStreamKeyProperty.set(nodePreferences.getObject(KometNode.PreferenceKey.ACTIVITY_STREAM_OPTION_KEY,
+                ActivityStreamOption.PUBLISH.keyForOption()));
+        revertAdditionalPreferences();
+    }
+
+    public abstract void revertAdditionalPreferences();
 
     @Override
     public Node getMenuIconGraphic() {

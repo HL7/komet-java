@@ -1,51 +1,27 @@
 package org.hl7.komet.details;
 
 import javafx.application.Platform;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
 import org.eclipse.collections.api.list.ImmutableList;
-import org.hl7.komet.framework.ExplorationNodeAbstract;
+import org.hl7.komet.framework.DetailNodeAbstract;
 import org.hl7.komet.framework.KometNode;
 import org.hl7.komet.framework.TopPanelFactory;
-import org.hl7.komet.framework.controls.EntityLabelWithDragAndDrop;
 import org.hl7.komet.framework.panel.ComponentPanel;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.komet.preferences.KometPreferences;
-import org.hl7.tinkar.common.flow.FlowSubscriber;
 import org.hl7.tinkar.entity.Entity;
 import org.hl7.tinkar.terms.EntityFacade;
 
-public class DetailsNode extends ExplorationNodeAbstract {
+public class DetailsNode extends DetailNodeAbstract {
     protected static final String STYLE_ID = "concept-details-node";
     protected static final String TITLE = "Generic Details";
-    final SimpleObjectProperty<EntityFacade> entityFocusProperty = new SimpleObjectProperty<>();
     private final BorderPane detailsPane = new BorderPane();
     private final ComponentPanel componentPanel;
-    private final FlowSubscriber<Integer> invalidationSubscriber;
-
-    {
-        entityFocusProperty.addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                titleProperty.set(viewProperties.calculator().getPreferredDescriptionTextWithFallbackOrNid(newValue));
-                toolTipTextProperty.set(viewProperties.calculator().getFullyQualifiedDescriptionTextWithFallbackOrNid(newValue));
-            } else {
-                titleProperty.set(EntityLabelWithDragAndDrop.EMPTY_TEXT);
-                toolTipTextProperty.set(EntityLabelWithDragAndDrop.EMPTY_TEXT);
-            }
-        });
-    }
 
     public DetailsNode(ViewProperties viewProperties, KometPreferences nodePreferences) {
         super(viewProperties, nodePreferences);
         this.componentPanel = new ComponentPanel(entityFocusProperty, viewProperties);
-        this.invalidationSubscriber = new FlowSubscriber<>(nid -> {
-            if (entityFocusProperty.get() != null && entityFocusProperty.get().nid() == nid) {
-                // component has changed, need to update.
-                Platform.runLater(() -> entityFocusProperty.set(null));
-                Platform.runLater(() -> entityFocusProperty.set(Entity.provider().getEntityFast(nid)));
-            }
-        });
         this.detailsPane.sceneProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue == null) {
                 invalidationSubscriber.cancel();
@@ -94,10 +70,6 @@ public class DetailsNode extends ExplorationNodeAbstract {
         return STYLE_ID;
     }
 
-    @Override
-    protected void saveAdditionalPreferences() {
-
-    }
 
     @Override
     public Node getNode() {
@@ -115,13 +87,18 @@ public class DetailsNode extends ExplorationNodeAbstract {
     }
 
     @Override
-    public void revertPreferences() {
+    public Class factoryClass() {
+        return DetailsNodeFactory.class;
+    }
+
+    @Override
+    protected void saveDetailsPreferences() {
 
     }
 
     @Override
-    public Class factoryClass() {
-        return DetailsNodeFactory.class;
+    protected void revertDetailsPreferences() {
+
     }
 
     enum PreferenceKey {

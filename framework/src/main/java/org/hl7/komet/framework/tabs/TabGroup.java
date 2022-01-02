@@ -67,6 +67,8 @@ public class TabGroup extends StackPane implements WindowComponent {
         if (nodePreferences.hasKey(WindowComponentKeys.INITIALIZED)) {
             // Restore from preferences...
             REMOVAL allowRemoval = REMOVAL.valueOf(nodePreferences.get(TabGroupKeys.ALLOW_REMOVAL, "ALLOW"));
+            int selectedIndex = nodePreferences.getInt(TabGroupKeys.SELECTED_INDEX, 0);
+
             DetachableTabPane detachableTabPane = new DetachableTabPane();
             for (String preferencesNode : nodePreferences.getList(WindowComponentKeys.CHILDREN)) {
                 KometPreferences childPreferences = nodePreferences.node(KOMET_NODES + preferencesNode);
@@ -83,6 +85,7 @@ public class TabGroup extends StackPane implements WindowComponent {
                     }
                 });
             }
+            detachableTabPane.getSelectionModel().select(selectedIndex);
             return make(detachableTabPane, allowRemoval, windowView, nodePreferences);
         }
         throw new UnsupportedOperationException("Should only be called on restore. ");
@@ -208,6 +211,8 @@ public class TabGroup extends StackPane implements WindowComponent {
         try {
             nodePreferences.put(WindowComponentKeys.INITIALIZED, "true");
             nodePreferences.put(WindowComponentKeys.FACTORY_CLASS, factoryClass().getName());
+            nodePreferences.put(TabGroupKeys.ALLOW_REMOVAL, allowRemoval.name());
+            nodePreferences.putInt(TabGroupKeys.SELECTED_INDEX, this.tabPane.getSelectionModel().getSelectedIndex());
             List<String> childrenPreferenceNodes = children().stream().map(windowComponent -> windowComponent.nodePreferences().name()).toList();
             this.nodePreferences.putList(WindowComponentKeys.CHILDREN, childrenPreferenceNodes);
             this.nodePreferences.sync();
@@ -219,6 +224,7 @@ public class TabGroup extends StackPane implements WindowComponent {
                         LOG.warn("Save " + child.getClass().getName() + " is not supported. ");
                     } catch (Throwable e) {
                         AlertStreams.getRoot().dispatch(AlertObject.makeError(e));
+                        LOG.error("Error during save", e);
                     }
                 }
             } catch (UnsupportedOperationException e) {
@@ -304,6 +310,7 @@ public class TabGroup extends StackPane implements WindowComponent {
     public enum REMOVAL {ALLOW, DISALLOW}
 
     public enum TabGroupKeys {
-        ALLOW_REMOVAL
+        ALLOW_REMOVAL,
+        SELECTED_INDEX
     }
 }

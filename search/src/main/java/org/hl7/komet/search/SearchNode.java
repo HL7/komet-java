@@ -52,6 +52,7 @@ public class SearchNode extends ExplorationNodeAbstract {
                 this.controller.setProperties(this.searchPane, this.activityStreamKeyProperty(), viewProperties, nodePreferences);
                 this.searchPane.setTop(null);
             });
+            revertPreferences();
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -90,13 +91,28 @@ public class SearchNode extends ExplorationNodeAbstract {
     }
 
     @Override
+    public void revertAdditionalPreferences() {
+        this.controller.setQueryString(getNodePreferences().get(SearchKeys.QUERY_TEXT, ""));
+        getNodePreferences().get(SearchKeys.RESULT_LAYOUT_OPTION).ifPresent(optionName -> {
+            this.controller.getResultsLayoutCombo().setValue(SearchPanelController.RESULT_LAYOUT_OPTIONS.valueOf(optionName));
+        });
+        getNodePreferences().getBoolean(SearchKeys.SHOW_RESULTS).ifPresent(showResults -> {
+            if (showResults) {
+                Platform.runLater(() -> this.controller.doSearch());
+            }
+        });
+    }
+
+    @Override
     public String getStyleId() {
         return STYLE_ID;
     }
 
     @Override
     protected void saveAdditionalPreferences() {
-
+        getNodePreferences().put(SearchKeys.QUERY_TEXT, this.controller.getQueryString());
+        getNodePreferences().put(SearchKeys.RESULT_LAYOUT_OPTION, this.controller.getResultsLayoutCombo().getValue().name());
+        getNodePreferences().putBoolean(SearchKeys.SHOW_RESULTS, this.controller.hasResults());
     }
 
     @Override
@@ -115,12 +131,13 @@ public class SearchNode extends ExplorationNodeAbstract {
     }
 
     @Override
-    public void revertPreferences() {
-
-    }
-
-    @Override
     public Class factoryClass() {
         return SearchNodeFactory.class;
+    }
+
+    enum SearchKeys {
+        QUERY_TEXT,
+        SHOW_RESULTS,
+        RESULT_LAYOUT_OPTION,
     }
 }

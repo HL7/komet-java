@@ -76,6 +76,11 @@ public class PatternNavigatorNode extends ExplorationNodeAbstract {
     }
 
     @Override
+    public void revertAdditionalPreferences() {
+
+    }
+
+    @Override
     public String getStyleId() {
         return STYLE_ID;
     }
@@ -98,11 +103,6 @@ public class PatternNavigatorNode extends ExplorationNodeAbstract {
     @Override
     public boolean canClose() {
         return true;
-    }
-
-    @Override
-    public void revertPreferences() {
-
     }
 
     @Override

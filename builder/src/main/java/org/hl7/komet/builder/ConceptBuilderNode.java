@@ -73,6 +73,10 @@ public class ConceptBuilderNode extends ExplorationNodeAbstract {
         // Nothing to do...
     }
 
+    @Override
+    public void revertAdditionalPreferences() {
+
+    }
 
     @Override
     public String getStyleId() {
@@ -91,11 +95,6 @@ public class ConceptBuilderNode extends ExplorationNodeAbstract {
 
     @Override
     public void close() {
-
-    }
-
-    @Override
-    public void revertPreferences() {
 
     }
 

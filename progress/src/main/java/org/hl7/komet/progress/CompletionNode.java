@@ -7,11 +7,16 @@ import javafx.scene.Node;
 import org.controlsfx.control.TaskProgressView;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.hl7.komet.framework.ExplorationNodeAbstract;
+import org.hl7.komet.framework.concurrent.CompletedTask;
 import org.hl7.komet.framework.concurrent.TaskListsService;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.tinkar.terms.EntityFacade;
 import org.kordamp.ikonli.javafx.FontIcon;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class CompletionNode extends ExplorationNodeAbstract {
 
@@ -30,6 +35,7 @@ public class CompletionNode extends ExplorationNodeAbstract {
 
     public CompletionNode(ViewProperties viewProperties, KometPreferences nodePreferences) {
         super(viewProperties, nodePreferences);
+        revertPreferences();
     }
 
     @Override
@@ -43,13 +49,38 @@ public class CompletionNode extends ExplorationNodeAbstract {
     }
 
     @Override
+    public void revertAdditionalPreferences() {
+        List<Task<?>> completedTasks = new ArrayList<>();
+        List<String> completedTaskStrings = nodePreferences.getList(CompletionKeys.COMPLETED_TASKS);
+        Iterator<String> completedTaskStringItr = completedTaskStrings.listIterator();
+        while (completedTaskStringItr.hasNext()) {
+            CompletedTask completedTask = new CompletedTask(completedTaskStringItr.next(),
+                    completedTaskStringItr.next(),
+                    completedTaskStringItr.next());
+            completedTasks.add(completedTask);
+        }
+        Platform.runLater(() -> progressView.getTasks().addAll(completedTasks));
+    }
+
+    @Override
     public String getStyleId() {
         return STYLE_ID;
     }
 
     @Override
     protected void saveAdditionalPreferences() {
+        List<String> completedTaskStrings = new ArrayList<>();
+        for (Task task : progressView.getTasks()) {
+            if (task instanceof CompletedTask completedTask) {
+                completedTaskStrings.add(completedTask.title());
+                completedTaskStrings.add(completedTask.message());
+                completedTaskStrings.add(completedTask.completionTime());
+            }
+        }
+        nodePreferences.putList(CompletionKeys.COMPLETED_TASKS, completedTaskStrings);
+    }
 
+    private void writeDataToArray(List<String> completedTaskStrings) {
     }
 
     private Node getTitleGraphic() {
@@ -79,12 +110,11 @@ public class CompletionNode extends ExplorationNodeAbstract {
     }
 
     @Override
-    public void revertPreferences() {
-
-    }
-
-    @Override
     public Class factoryClass() {
         return CompletionNodeFactory.class;
+    }
+
+    enum CompletionKeys {
+        COMPLETED_TASKS
     }
 }

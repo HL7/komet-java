@@ -31,6 +31,11 @@ public class ActivityStream implements Flow.Publisher<ImmutableList<EntityFacade
     final Multi<ImmutableList<EntityFacade>> entityListStream;
     final BroadcastProcessor<ImmutableList<EntityFacade>> processor;
     final PublicIdStringKey<ActivityStream> activityStreamKey;
+    /**
+     * Note that last dispatch is different from history. Last dispatch may contain a multi-select, while history is
+     * a list of single elements. If a dispatch is multiselect, each of the multi-select items are added individually to
+     * history.
+     */
     final AtomicReference<ImmutableList<EntityFacade>> lastDispatch = new AtomicReference<>(Lists.immutable.empty());
     final KometPreferences preferences;
     final ObservableList<EntityFacade> history = FXCollections.observableArrayList();
@@ -45,6 +50,12 @@ public class ActivityStream implements Flow.Publisher<ImmutableList<EntityFacade
             List<EntityFacade> savedHistory = preferences.getEntityList(PreferenceKey.HISTORY);
             history.addAll(savedHistory);
         }
+        if (preferences.hasKey(PreferenceKey.LAST_DISPATCH)) {
+            List<EntityFacade> lastDispatchList = preferences.getEntityList(PreferenceKey.LAST_DISPATCH);
+            lastDispatch.set(Lists.immutable.ofAll(lastDispatchList));
+        } else {
+            lastDispatch.set(Lists.immutable.empty());
+        }
         PrimitiveData.getStatesToSave().add(this);
     }
 
@@ -52,6 +63,7 @@ public class ActivityStream implements Flow.Publisher<ImmutableList<EntityFacade
     public void save() {
         try {
             preferences.putComponentList(PreferenceKey.HISTORY, history);
+            preferences.putComponentList(PreferenceKey.LAST_DISPATCH, lastDispatch.get().castToList());
             preferences.flush();
         } catch (BackingStoreException e) {
             AlertStreams.getRoot().dispatch(AlertObject.makeError(e));
@@ -113,6 +125,7 @@ public class ActivityStream implements Flow.Publisher<ImmutableList<EntityFacade
     }
 
     enum PreferenceKey {
+        LAST_DISPATCH,
         HISTORY;
     }
 }

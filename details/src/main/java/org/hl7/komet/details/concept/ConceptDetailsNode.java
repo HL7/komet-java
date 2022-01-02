@@ -331,6 +331,19 @@ public class ConceptDetailsNode extends ExplorationNodeAbstract {
     }
 
     @Override
+    public void revertAdditionalPreferences() {
+        this.selectionIndexProperty.setValue(this.nodePreferences.getInt(Keys.ACTIVITY_SELECTION_INDEX, this.selectionIndexProperty.getValue()));
+        revertConceptList(ConceptDetailNodeKeys.DETAIL_ORDER, this.detailOrderList);
+        revertConceptList(ConceptDetailNodeKeys.DESCRIPTION_TYPE_ORDER, this.descriptionTypeList);
+        revertPatternList(ConceptDetailNodeKeys.AXIOM_ORDER, this.axiomSourceList);
+        revertConceptList(ConceptDetailNodeKeys.CONCEPT_SEMANTICS_ORDER, this.semanticOrderForConceptDetails);
+        revertConceptList(ConceptDetailNodeKeys.DESCRIPTION_SEMANTIC_ORDER, this.semanticOrderForDescriptionDetails);
+        revertConceptList(ConceptDetailNodeKeys.AXIOM_SEMANTIC_ORDER, this.semanticOrderForAxiomDetails);
+        this.nodePreferences.getConceptProxy(ConceptDetailNodeKeys.FOCUS_CONCEPT).ifPresent(
+                conceptFacade -> this.entityFocusProperty.setValue(conceptFacade));
+    }
+
+    @Override
     public Node getMenuIconGraphic() {
         return Icon.CONCEPT_DETAILS.makeIcon();
     }
@@ -359,6 +372,18 @@ public class ConceptDetailsNode extends ExplorationNodeAbstract {
             this.nodePreferences.putConceptProxy(ConceptDetailNodeKeys.FOCUS_CONCEPT, Entity.provider().getEntityFast(identifiedObject.nid()));
         }, () -> this.nodePreferences.remove(ConceptDetailNodeKeys.FOCUS_CONCEPT));
 
+    }
+
+    private void revertConceptList(ConceptDetailNodeKeys detailOrder, SimpleEqualityBasedListProperty<ConceptFacade> detailOrderList) {
+        if (this.nodePreferences.hasKey(detailOrder)) {
+            detailOrderList.setAll(this.nodePreferences.getConceptList(detailOrder));
+        }
+    }
+
+    private void revertPatternList(ConceptDetailNodeKeys detailOrder, SimpleEqualityBasedListProperty<PatternFacade> detailOrderList) {
+        if (this.nodePreferences.hasKey(detailOrder)) {
+            detailOrderList.setAll(this.nodePreferences.getPatternList(detailOrder));
+        }
     }
 
     private void handleSettingsChange(ListChangeListener.Change<? extends EntityFacade> c) {
@@ -393,30 +418,18 @@ public class ConceptDetailsNode extends ExplorationNodeAbstract {
         return changeSettingsHandler;
     }
 
-    private void revertConceptList(ConceptDetailNodeKeys detailOrder, SimpleEqualityBasedListProperty<ConceptFacade> detailOrderList) {
-        if (this.nodePreferences.hasKey(detailOrder)) {
-            detailOrderList.setAll(this.nodePreferences.getConceptList(detailOrder));
-        }
-    }
-
-    private void revertPatternList(ConceptDetailNodeKeys detailOrder, SimpleEqualityBasedListProperty<PatternFacade> detailOrderList) {
-        if (this.nodePreferences.hasKey(detailOrder)) {
-            detailOrderList.setAll(this.nodePreferences.getPatternList(detailOrder));
-        }
-    }
-
     private void revertEntityList(ConceptDetailNodeKeys detailOrder, SimpleEqualityBasedListProperty<EntityFacade> detailOrderList) {
         if (this.nodePreferences.hasKey(detailOrder)) {
             detailOrderList.setAll(this.nodePreferences.getEntityList(detailOrder));
         }
     }
 
+    //~--- methods -------------------------------------------------------------
+
     @Override
     public Node getNode() {
         return this.detailsPane;
     }
-
-    //~--- methods -------------------------------------------------------------
 
     @Override
     public void close() {
@@ -428,19 +441,6 @@ public class ConceptDetailsNode extends ExplorationNodeAbstract {
     public boolean canClose() {
         // TODO Maybe check for uncommitted changes in window. ;
         return true;
-    }
-
-    @Override
-    public void revertPreferences() {
-        this.selectionIndexProperty.setValue(this.nodePreferences.getInt(Keys.ACTIVITY_SELECTION_INDEX, this.selectionIndexProperty.getValue()));
-        revertConceptList(ConceptDetailNodeKeys.DETAIL_ORDER, this.detailOrderList);
-        revertConceptList(ConceptDetailNodeKeys.DESCRIPTION_TYPE_ORDER, this.descriptionTypeList);
-        revertPatternList(ConceptDetailNodeKeys.AXIOM_ORDER, this.axiomSourceList);
-        revertConceptList(ConceptDetailNodeKeys.CONCEPT_SEMANTICS_ORDER, this.semanticOrderForConceptDetails);
-        revertConceptList(ConceptDetailNodeKeys.DESCRIPTION_SEMANTIC_ORDER, this.semanticOrderForDescriptionDetails);
-        revertConceptList(ConceptDetailNodeKeys.AXIOM_SEMANTIC_ORDER, this.semanticOrderForAxiomDetails);
-        this.nodePreferences.getConceptProxy(ConceptDetailNodeKeys.FOCUS_CONCEPT).ifPresent(
-                conceptFacade -> this.entityFocusProperty.setValue(conceptFacade));
     }
 
     @Override

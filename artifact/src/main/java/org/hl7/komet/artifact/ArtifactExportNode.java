@@ -32,11 +32,6 @@ public class ArtifactExportNode extends ExplorationNodeAbstract {
     }
 
     @Override
-    public void revertPreferences() {
-
-    }
-
-    @Override
     public String getDefaultTitle() {
         return TITLE;
     }
@@ -44,6 +39,11 @@ public class ArtifactExportNode extends ExplorationNodeAbstract {
     @Override
     public void handleActivity(ImmutableList<EntityFacade> entities) {
         // Nothing to do...
+    }
+
+    @Override
+    public void revertAdditionalPreferences() {
+
     }
 
     @Override

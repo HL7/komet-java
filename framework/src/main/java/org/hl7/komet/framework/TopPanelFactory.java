@@ -12,6 +12,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import org.eclipse.collections.api.list.ImmutableList;
 import org.hl7.komet.framework.activity.ActivityStream;
 import org.hl7.komet.framework.activity.ActivityStreamOption;
 import org.hl7.komet.framework.activity.ActivityStreams;
@@ -64,8 +65,20 @@ public class TopPanelFactory {
                 contextMenuProviders);
         Menu activityStreamMenu = new Menu("Activity stream", Icon.ACTIVITY.makeIcon());
 
-        updateGridPane(activityStreamKeyProperty, optionForActivityStreamKeyProperty, gridPane, viewPropertiesMenuButton, activityStreamMenu, focusOnActivityProperty, entityLabel);
-        activityStreamKeyProperty.addListener((observable, oldValue, newValue) -> {
+        updateGridPane(activityStreamKeyProperty, optionForActivityStreamKeyProperty, gridPane, viewPropertiesMenuButton,
+                activityStreamMenu, focusOnActivityProperty, entityLabel);
+        activityStreamKeyProperty.addListener((observable,
+                                               oldValue,
+                                               newValue) -> {
+            if (newValue != null) {
+                ActivityStream newActivityStream = ActivityStreams.get(newValue);
+                ImmutableList<EntityFacade> lastDispatch = newActivityStream.lastDispatch();
+                int selectionIndex = selectionIndexProperty.get();
+                if (selectionIndex > -1 && selectionIndex < lastDispatch.size()) {
+                    EntityFacade entityFacade = lastDispatch.get(selectionIndex);
+                    entityFocusProperty.set(entityFacade);
+                }
+            }
             Platform.runLater(() -> updateGridPane(activityStreamKeyProperty, optionForActivityStreamKeyProperty, gridPane,
                     viewPropertiesMenuButton, activityStreamMenu, focusOnActivityProperty, entityLabel));
         });

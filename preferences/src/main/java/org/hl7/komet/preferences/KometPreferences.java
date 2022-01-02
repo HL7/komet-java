@@ -1318,6 +1318,39 @@ public interface KometPreferences {
         put(enumToGeneralKey(key), conceptProxy.toXmlFragment());
     }
 
+    default void putEntity(Enum key, EntityFacade entityFacade) {
+        putEntity(enumToGeneralKey(key), entityFacade);
+    }
+
+    default void putEntity(String key, EntityFacade entityFacade) {
+        put(key, entityFacade.toXmlFragment());
+    }
+
+    default Optional<EntityFacade> getEntity(Enum key) {
+        return getEntity(enumToGeneralKey(key));
+    }
+
+    default Optional<EntityFacade> getEntity(String key) {
+        Optional<String> optionalXml = get(key);
+        if (optionalXml.isPresent()) {
+            return Optional.ofNullable(ProxyFactory.fromXmlFragment(optionalXml.get()));
+        }
+        return Optional.empty();
+    }
+
+
+    default EntityFacade getEntity(Enum key, EntityFacade defaultValue) {
+        return getEntity(enumToGeneralKey(key), defaultValue);
+    }
+
+    default EntityFacade getEntity(String key, EntityFacade defaultValue) {
+        Optional<String> optionalXml = get(key);
+        if (optionalXml.isPresent()) {
+            return ProxyFactory.fromXmlFragment(optionalXml.get());
+        }
+        return defaultValue;
+    }
+
     /**
      * @return Map of the preferences at this node level.
      * @throws java.util.prefs.BackingStoreException

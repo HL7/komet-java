@@ -215,6 +215,11 @@ public class TableNode extends ExplorationNodeAbstract {
     }
 
     @Override
+    public void revertAdditionalPreferences() {
+
+    }
+
+    @Override
     public String getStyleId() {
         return STYLE_ID;
     }
@@ -237,11 +242,6 @@ public class TableNode extends ExplorationNodeAbstract {
     @Override
     public boolean canClose() {
         return false;
-    }
-
-    @Override
-    public void revertPreferences() {
-
     }
 
     @Override
