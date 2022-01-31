@@ -2,6 +2,12 @@ package org.hl7.komet.framework.dnd;
 
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
+import org.hl7.tinkar.terms.EntityProxy;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.hl7.komet.framework.dnd.KometClipboard.*;
 
 public class ClipboardHelper {
 
@@ -11,5 +17,19 @@ public class ClipboardHelper {
         Clipboard.getSystemClipboard().setContent(clipboardContent);
     }
 
-
+    public static List<EntityProxy> getEntityProxyList() {
+        if (Clipboard.getSystemClipboard().hasContent(KOMET_PROXY_LIST)) {
+            return (List<EntityProxy>) Clipboard.getSystemClipboard().getContent(KOMET_PROXY_LIST);
+        }
+        if (Clipboard.getSystemClipboard().hasContent(KOMET_CONCEPT_PROXY)) {
+            return List.of((EntityProxy) Clipboard.getSystemClipboard().getContent(KOMET_CONCEPT_PROXY));
+        }
+        if (Clipboard.getSystemClipboard().hasContent(KOMET_PATTERN_PROXY)) {
+            return List.of((EntityProxy) Clipboard.getSystemClipboard().getContent(KOMET_PATTERN_PROXY));
+        }
+        if (Clipboard.getSystemClipboard().hasContent(KOMET_SEMANTIC_PROXY)) {
+            return List.of((EntityProxy) Clipboard.getSystemClipboard().getContent(KOMET_SEMANTIC_PROXY));
+        }
+        return new ArrayList<>();
+    }
 }

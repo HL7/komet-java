@@ -10,6 +10,8 @@ import javafx.scene.image.Image;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
+import org.hl7.komet.framework.search.SearchPanelController;
+import org.hl7.tinkar.coordinate.stamp.calculator.LatestVersionSearchResult;
 import org.hl7.tinkar.entity.Entity;
 import org.hl7.tinkar.entity.EntityService;
 import org.hl7.tinkar.terms.EntityFacade;
@@ -66,6 +68,11 @@ public class DragDetectedCellEventHandler
                 identifiedObject = Entity.getFast(nid);
             } else if (item instanceof EntityFacade entityFacade) {
                 identifiedObject = entityFacade;
+            } else if (item instanceof SearchPanelController.NidTextRecord nidTextRecord) {
+                identifiedObject = Entity.getFast(nidTextRecord.nid());
+            } else if (item instanceof LatestVersionSearchResult latestVersionSearchResult &&
+                    latestVersionSearchResult.latestVersion().isPresent()) {
+                identifiedObject = Entity.getFast(latestVersionSearchResult.latestVersion().get().nid());
             }
         } else if (event.getSource() instanceof TableCell) {
             eventNode = (TableCell) event.getSource();

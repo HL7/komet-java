@@ -1,55 +1,183 @@
 package org.hl7.komet.framework.propsheet.editor;
 
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.event.ActionEvent;
+import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.MultipleSelectionModel;
 import javafx.scene.control.ToolBar;
-import javafx.scene.input.DragEvent;
-import javafx.scene.input.Dragboard;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.input.TransferMode;
+import javafx.scene.input.*;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.paint.Color;
 import org.controlsfx.property.editor.PropertyEditor;
 import org.hl7.komet.framework.PseudoClasses;
 import org.hl7.komet.framework.dnd.DragImageMaker;
 import org.hl7.komet.framework.dnd.KometClipboard;
-import org.hl7.komet.framework.graphics.Icon;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.tinkar.common.id.IntIdCollection;
+import org.hl7.tinkar.common.id.IntIdList;
+import org.hl7.tinkar.common.id.IntIdSet;
+import org.hl7.tinkar.common.id.IntIds;
 import org.hl7.tinkar.coordinate.stamp.calculator.Latest;
 import org.hl7.tinkar.entity.Entity;
 import org.hl7.tinkar.entity.EntityVersion;
+import org.hl7.tinkar.entity.VersionProxy;
+import org.hl7.tinkar.entity.VersionProxyFactory;
+import org.hl7.tinkar.terms.EntityProxy;
+import org.hl7.tinkar.terms.ProxyFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.OptionalInt;
+import java.util.Set;
 
 public abstract class IntIdCollectionEditor<T extends IntIdCollection> implements PropertyEditor<T> {
     private static final Logger LOG = LoggerFactory.getLogger(IntIdCollectionEditor.class);
     protected final BorderPane editorPane = new BorderPane();
-    protected final Button newItem = new Button("", Icon.PLUS.makeIcon());
-    protected final ToolBar editorToolbar = new ToolBar(newItem);
+    protected final ToolBar editorToolbar = new ToolBar();
     protected final ListView<Integer> listView = new ListView();
     protected final ViewProperties viewProperties;
-    SimpleObjectProperty<T> entitiesListProperty;
+    SimpleObjectProperty<T> entitiesCollectionProperty;
+    TransferMode[] transferMode = null;
+    Background originalBackground;
 
-    public IntIdCollectionEditor(ViewProperties viewProperties, SimpleObjectProperty<T> entitiesListProperty) {
+    public IntIdCollectionEditor(ViewProperties viewProperties, SimpleObjectProperty<T> entitiesCollectionProperty) {
         this.editorPane.setCenter(listView);
-        this.entitiesListProperty = entitiesListProperty;
+        this.entitiesCollectionProperty = entitiesCollectionProperty;
         this.editorPane.setTop(editorToolbar);
-        this.newItem.setOnAction(this::newItem);
         this.viewProperties = viewProperties;
         listView.setCellFactory(param -> new IntIdCollectionEditor.EntityCell());
-        updateList(entitiesListProperty.getValue());
-        this.entitiesListProperty.addListener((observable, oldValue, newValue) -> {
-            updateList(newValue);
+        updateListView(entitiesCollectionProperty.getValue());
+        this.entitiesCollectionProperty.addListener((observable, oldValue, newValue) -> {
+            updateListView(newValue);
+        });
+
+        listView.setOnDragDetected(this::handleDragDetected);
+        listView.setOnDragDone(this::handleDragDone);
+        listView.setOnDragEntered(this::handleDragEntered);
+        listView.setOnDragExited(this::handleDragExited);
+        listView.setOnDragOver(this::handleDragOver);
+        listView.setOnDragDropped(this::dragDropped);
+
+        listView.setOnKeyReleased(event -> {
+            if (event.getCode() == KeyCode.DELETE ||
+                    event.getCode() == KeyCode.BACK_SPACE) {
+                deleteSelectedItems(listView.getSelectionModel());
+            }
         });
     }
 
-    abstract void newItem(ActionEvent actionEvent);
+    abstract void updateListView(T newValue);
 
-    abstract void updateList(T newValue);
+    private void handleDragDetected(MouseEvent event) {
+        LOG.debug("Drag detected: " + event);
+
+        if (!listView.getSelectionModel().getSelectedIndices().isEmpty()) {
+            int nid = listView.getSelectionModel().getSelectedIndices().get(0);
+            Dragboard db = listView.startDragAndDrop(TransferMode.COPY);
+            DragImageMaker dragImageMaker = new DragImageMaker(listView);
+            db.setDragView(dragImageMaker.getDragImage());
+            KometClipboard content = new KometClipboard((Entity) Entity.getFast(nid));
+            db.setContent(content);
+        }
+        event.consume();
+    }
+
+    private void handleDragDone(DragEvent event) {
+        LOG.debug("Dragging done: " + event);
+    }
+
+    private void handleDragEntered(DragEvent event) {
+        LOG.debug("Dragging entered: " + event);
+        this.originalBackground = listView.getBackground();
+
+        Color backgroundColor;
+        Set<DataFormat> contentTypes = event.getDragboard()
+                .getContentTypes();
+
+        if (KometClipboard.containsAny(contentTypes, KometClipboard.CONCEPT_TYPES)) {
+            backgroundColor = Color.AQUA;
+            this.transferMode = TransferMode.COPY_OR_MOVE;
+        } else if (KometClipboard.containsAny(contentTypes, KometClipboard.SEMANTIC_TYPES)) {
+            backgroundColor = Color.OLIVEDRAB;
+            this.transferMode = TransferMode.COPY_OR_MOVE;
+        } else {
+            backgroundColor = Color.RED;
+            this.transferMode = null;
+        }
+
+        BackgroundFill fill = new BackgroundFill(backgroundColor, CornerRadii.EMPTY, Insets.EMPTY);
+
+        listView.setBackground(new Background(fill));
+    }
+
+    private void handleDragExited(DragEvent event) {
+        LOG.debug("Dragging exited: " + event);
+        listView.setBackground(originalBackground);
+        this.transferMode = null;
+    }
+
+    private void handleDragOver(DragEvent event) {
+        // LOG.debug("Dragging over: " + event );
+        if (this.transferMode != null) {
+            event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+            event.consume();
+        }
+    }
+
+    private void dragDropped(DragEvent event) {
+        Dragboard db = event.getDragboard();
+        OptionalInt optionalNid = OptionalInt.empty();
+        if (db.hasContent(KometClipboard.KOMET_CONCEPT_PROXY)) {
+            EntityProxy.Concept conceptProxy = ProxyFactory.fromXmlFragment((String) db.getContent(KometClipboard.KOMET_CONCEPT_PROXY));
+            optionalNid = OptionalInt.of(conceptProxy.nid());
+        } else if (db.hasContent(KometClipboard.KOMET_SEMANTIC_PROXY)) {
+            EntityProxy.Semantic semanticProxy = ProxyFactory.fromXmlFragment((String) db.getContent(KometClipboard.KOMET_SEMANTIC_PROXY));
+            optionalNid = OptionalInt.of(semanticProxy.nid());
+        } else if (db.hasContent(KometClipboard.KOMET_PATTERN_PROXY)) {
+            EntityProxy.Pattern patternProxy = ProxyFactory.fromXmlFragment((String) db.getContent(KometClipboard.KOMET_PATTERN_PROXY));
+            optionalNid = OptionalInt.of(patternProxy.nid());
+        } else if (db.hasContent(KometClipboard.KOMET_CONCEPT_VERSION_PROXY)) {
+            VersionProxy.Concept conceptProxy = VersionProxyFactory.fromXmlFragment((String) db.getContent(KometClipboard.KOMET_CONCEPT_VERSION_PROXY));
+            optionalNid = OptionalInt.of(conceptProxy.nid());
+        } else if (db.hasContent(KometClipboard.KOMET_SEMANTIC_VERSION_PROXY)) {
+            VersionProxy.Semantic semanticProxy = VersionProxyFactory.fromXmlFragment((String) db.getContent(KometClipboard.KOMET_SEMANTIC_VERSION_PROXY));
+            optionalNid = OptionalInt.of(semanticProxy.nid());
+        } else if (db.hasContent(KometClipboard.KOMET_PATTERN_VERSION_PROXY)) {
+            VersionProxy.Pattern patternProxy = VersionProxyFactory.fromXmlFragment((String) db.getContent(KometClipboard.KOMET_PATTERN_VERSION_PROXY));
+            optionalNid = OptionalInt.of(patternProxy.nid());
+        }
+        /* let the source know if the dropped item was successfully
+         * transferred and used */
+        optionalNid.ifPresentOrElse(nid -> {
+            event.setDropCompleted(true);
+            T oldIds = entitiesCollectionProperty.getValue();
+            switch (oldIds) {
+                case IntIdList oldList -> {
+                    IntIdList newList = IntIds.list.of(oldList, nid);
+                    setValue((T) newList);
+                }
+                case IntIdSet oldSet -> {
+                    IntIdSet newSet = IntIds.set.of(oldSet, nid);
+                    setValue((T) newSet);
+                }
+                default -> throw new IllegalStateException("Unexpected value: " + oldIds);
+            }
+        }, () -> event.setDropCompleted(false));
+
+        event.consume();
+    }
+
+    abstract void deleteSelectedItems(MultipleSelectionModel<Integer> selectionModel);
+
+    public MultipleSelectionModel<Integer> getSelectionModel() {
+        return this.listView.getSelectionModel();
+    }
 
     @Override
     public Node getEditor() {
@@ -58,12 +186,16 @@ public abstract class IntIdCollectionEditor<T extends IntIdCollection> implement
 
     @Override
     public T getValue() {
-        return entitiesListProperty.getValue();
+        return entitiesCollectionProperty.getValue();
     }
 
     @Override
     public void setValue(T value) {
-        entitiesListProperty.setValue(value);
+        entitiesCollectionProperty.setValue(value);
+    }
+
+    public ObservableList<Integer> getItems() {
+        return this.listView.getItems();
     }
 
     class EntityCell extends ListCell<Integer> {

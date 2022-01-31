@@ -20,7 +20,7 @@ public class ActivityStreams {
     public static final PublicIdStringKey<ActivityStream> NAVIGATION = new PublicIdStringKey(PublicIds.of("9775b416-f6f9-469d-b14f-a1bced986fec"), "navigation");
     public static final PublicIdStringKey<ActivityStream> CLASSIFICATION = new PublicIdStringKey(PublicIds.of("9575ae84-c36a-4c7d-9b10-1c7e581ca9e1"), "classification");
     public static final PublicIdStringKey<ActivityStream> CORRELATION = new PublicIdStringKey(PublicIds.of("aef2bd4e-e270-4824-8d39-401b714d1a33"), "correlation");
-    public static final PublicIdStringKey<ActivityStream> LIST = new PublicIdStringKey(PublicIds.of("26b42c6d-b9ea-4a20-9446-c283a2d5383c"), "list");
+    public static final PublicIdStringKey<ActivityStream> LIST = new PublicIdStringKey(PublicIds.of("26b42c6d-b9ea-4a20-9446-c283a2d5383c"), "collection");
     public static final PublicIdStringKey<ActivityStream> BUILDER = new PublicIdStringKey(PublicIds.of("f1291277-abe8-465a-87f4-3434c51b6540"), "builder");
     public static final PublicIdStringKey<ActivityStream> FLWOR = new PublicIdStringKey(PublicIds.of("736ae53f-fbac-4fe8-97ea-44d77bda59d7"), "flwor");
     public static final PublicIdStringKey<ActivityStream> PREFERENCES = new PublicIdStringKey(PublicIds.of("6c4753f5-3abd-49f1-ada5-69aa021306da"), "preferences");

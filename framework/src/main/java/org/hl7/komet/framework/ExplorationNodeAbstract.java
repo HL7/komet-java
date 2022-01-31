@@ -17,7 +17,6 @@ import org.eclipse.collections.api.list.ImmutableList;
 import org.hl7.komet.framework.activity.ActivityStream;
 import org.hl7.komet.framework.activity.ActivityStreamOption;
 import org.hl7.komet.framework.activity.ActivityStreams;
-import org.hl7.komet.framework.graphics.Icon;
 import org.hl7.komet.framework.view.ObservableViewNoOverride;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.komet.framework.window.WindowComponent;
@@ -55,10 +54,10 @@ public abstract class ExplorationNodeAbstract implements KometNode, Flow.Subscri
 
     {
         titleNode.alignmentProperty().setValue(Pos.CENTER);
-        titleNode.getChildren().add(Icon.makeIcon(getStyleId()));
+        titleNode.getChildren().add(getMenuIconGraphic());
         activityStreamKeyProperty.addListener((observable, oldActivityStreamKey, newActivityStreamKey) -> {
             titleNode.getChildren().clear();
-            titleNode.getChildren().add(Icon.makeIcon(getStyleId()));
+            titleNode.getChildren().add(getMenuIconGraphic());
             if (newActivityStreamKey != null) {
                 if (showActivityStreamIcon()) {
                     if (!ActivityStreams.UNLINKED.equals(newActivityStreamKey)) {
@@ -258,13 +257,13 @@ public abstract class ExplorationNodeAbstract implements KometNode, Flow.Subscri
     }
 
     @Override
-    public final SimpleObjectProperty<PublicIdStringKey<ActivityStream>> activityStreamKeyProperty() {
-        return activityStreamKeyProperty;
+    public SimpleObjectProperty<PublicIdStringKey<ActivityStreamOption>> optionForActivityStreamKeyProperty() {
+        return optionForActivityStreamKeyProperty;
     }
 
     @Override
-    public SimpleObjectProperty<PublicIdStringKey<ActivityStreamOption>> optionForActivityStreamKeyProperty() {
-        return optionForActivityStreamKeyProperty;
+    public final SimpleObjectProperty<PublicIdStringKey<ActivityStream>> activityStreamKeyProperty() {
+        return activityStreamKeyProperty;
     }
 
     @Override

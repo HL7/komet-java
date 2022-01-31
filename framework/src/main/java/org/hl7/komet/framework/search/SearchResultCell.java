@@ -6,6 +6,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import org.hl7.komet.framework.StyleClasses;
+import org.hl7.komet.framework.dnd.DragDetectedCellEventHandler;
+import org.hl7.komet.framework.dnd.DragDoneEventHandler;
 import org.hl7.tinkar.coordinate.stamp.calculator.LatestVersionSearchResult;
 
 import static org.hl7.komet.framework.PseudoClasses.INACTIVE_PSEUDO_CLASS;
@@ -20,6 +22,9 @@ public class SearchResultCell extends TreeCell<Object> {
         this.setMinHeight(USE_COMPUTED_SIZE);
         this.setPrefHeight(USE_COMPUTED_SIZE);
         this.setMaxHeight(USE_COMPUTED_SIZE);
+
+        this.setOnDragDetected(new DragDetectedCellEventHandler());
+        this.setOnDragDone(new DragDoneEventHandler());
     }
 
     int depth() {

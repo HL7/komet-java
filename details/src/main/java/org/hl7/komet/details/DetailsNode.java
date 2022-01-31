@@ -15,7 +15,7 @@ import org.hl7.tinkar.terms.EntityFacade;
 
 public class DetailsNode extends DetailNodeAbstract {
     protected static final String STYLE_ID = "concept-details-node";
-    protected static final String TITLE = "Generic Details";
+    protected static final String TITLE = "Details Viewer";
     private final BorderPane detailsPane = new BorderPane();
     private final ComponentPanel componentPanel;
 

@@ -1,8 +1,10 @@
 package org.hl7.komet.list;
 
 import com.google.auto.service.AutoService;
+import javafx.scene.control.Label;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.ImmutableList;
+import org.hl7.komet.collection.CollectionNode;
 import org.hl7.komet.framework.KometNode;
 import org.hl7.komet.framework.KometNodeFactory;
 import org.hl7.komet.framework.activity.ActivityStream;
@@ -15,7 +17,7 @@ import org.hl7.tinkar.common.id.PublicIdStringKey;
 
 @AutoService(KometNodeFactory.class)
 public class ListNodeFactory implements KometNodeFactory {
-    protected static final String STYLE_ID = ListNode.STYLE_ID;
+    protected static final String STYLE_ID = CollectionNode.STYLE_ID;
     protected static final String TITLE = ListNode.TITLE;
 
     @Override
@@ -56,8 +58,14 @@ public class ListNodeFactory implements KometNodeFactory {
         return TITLE;
     }
 
+    public Label getMenuIconGraphic() {
+        Label menuIcon = new Label("(…)");
+        return menuIcon;
+    }
+
     @Override
     public String getStyleId() {
         return STYLE_ID;
     }
+
 }

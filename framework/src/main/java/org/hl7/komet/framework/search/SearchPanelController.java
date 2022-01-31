@@ -318,6 +318,6 @@ public class SearchPanelController implements ListChangeListener<TreeItem<Object
         }
     }
 
-    protected record NidTextRecord(int nid, String text, boolean active) {
+    public record NidTextRecord(int nid, String text, boolean active) {
     }
 }

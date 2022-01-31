@@ -100,7 +100,7 @@ public class TabGroup extends StackPane implements WindowComponent {
         nodeFactoryLoader.stream().forEach(nodeFactoryProvider -> {
             KometNodeFactory factory = nodeFactoryProvider.get();
             if (factory.defaultActivityStreamChoices().isEmpty()) {
-                MenuItem newTabMenuItem = new MenuItem(factory.getMenuText(), factory.getMenuGraphic());
+                MenuItem newTabMenuItem = new MenuItem(factory.getMenuText(), factory.getMenuIconGraphic());
                 newTabMenuItem.getStyleClass().add("add-tab-menu-item");
                 newTabMenuItem.setOnAction(event -> {
                     KometNode kometNode = factory.create(windowView,
@@ -112,7 +112,7 @@ public class TabGroup extends StackPane implements WindowComponent {
                 });
                 menuButton.getItems().add(newTabMenuItem);
             } else {
-                Menu newTabGroupMenu = new Menu(factory.getMenuText(), factory.getMenuGraphic());
+                Menu newTabGroupMenu = new Menu(factory.getMenuText(), factory.getMenuIconGraphic());
                 newTabGroupMenu.getStyleClass().add("add-tab-menu-item");
                 menuButton.getItems().add(newTabGroupMenu);
                 for (PublicIdStringKey<ActivityStream> activityStreamKey : factory.defaultActivityStreamChoices()) {
@@ -131,7 +131,7 @@ public class TabGroup extends StackPane implements WindowComponent {
                         if (activityStreamOptionKey.equals(ActivityStreamOption.PUBLISH.keyForOption())) {
                             newTabMenuItem.setText("with " + activityStreamKey.getString() + " stream publication");
                             newTabMenuItem.setGraphic(Icon.makeIconGroup(ActivityStreamOption.PUBLISH.iconForOption(),
-                                    factory.getMenuGraphic()));
+                                    factory.getMenuIconGraphic()));
                         } else if (activityStreamOptionKey.equals(ActivityStreamOption.SUBSCRIBE.keyForOption())) {
                             if (activityStreamKey.equals(ActivityStreams.UNLINKED)) {
 
@@ -145,7 +145,7 @@ public class TabGroup extends StackPane implements WindowComponent {
                             }
                         } else if (activityStreamOptionKey.equals(ActivityStreamOption.SYNCHRONIZE.keyForOption())) {
                             newTabMenuItem.setText("with " + activityStreamKey.getString() + " stream synchronization");
-                            newTabMenuItem.setGraphic(Icon.makeIconGroup(factory.getMenuGraphic(),
+                            newTabMenuItem.setGraphic(Icon.makeIconGroup(factory.getMenuIconGraphic(),
                                     ActivityStreamOption.SYNCHRONIZE.iconForOption()));
                         }
                     }

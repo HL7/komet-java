@@ -60,9 +60,13 @@ public interface KometNode extends WindowComponent {
 
     ActivityStream getActivityStream();
 
-    SimpleObjectProperty<PublicIdStringKey<ActivityStream>> activityStreamKeyProperty();
+    default PublicIdStringKey<ActivityStreamOption> getActivityStreamOption() {
+        return optionForActivityStreamKeyProperty().get();
+    }
 
     SimpleObjectProperty<PublicIdStringKey<ActivityStreamOption>> optionForActivityStreamKeyProperty();
+
+    SimpleObjectProperty<PublicIdStringKey<ActivityStream>> activityStreamKeyProperty();
 
     default Scene getScene() {
         return getNode().getScene();

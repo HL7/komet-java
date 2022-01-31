@@ -1,6 +1,5 @@
 package org.hl7.komet.details.concept;
 
-import com.google.auto.service.AutoService;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.hl7.komet.framework.KometNode;
@@ -13,7 +12,10 @@ import org.hl7.komet.framework.view.ObservableViewNoOverride;
 import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
 
-@AutoService(KometNodeFactory.class)
+/**
+ * TODO consider removing and replace with only details node...
+ */
+//@AutoService(KometNodeFactory.class)
 public class ConceptDetaisNodeFactory implements KometNodeFactory {
     protected static final String STYLE_ID = ConceptDetailsNode.STYLE_ID;
     protected static final String TITLE = ConceptDetailsNode.TITLE;

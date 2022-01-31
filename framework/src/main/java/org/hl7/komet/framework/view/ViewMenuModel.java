@@ -40,7 +40,7 @@ public class ViewMenuModel {
         this.coordinateMenu = coordinateMenu;
         this.viewProperties.nodeView().addListener(this.viewChangedListener);
         ViewCalculatorWithCache viewCalculator = ViewCalculatorWithCache.getCalculator(this.viewProperties.nodeView().getValue());
-        FxGet.pathCoordinates(viewCalculator).addListener((MapChangeListener<PublicIdStringKey, StampPathImmutable>) change -> updateManifoldMenu());
+        FxGet.pathCoordinates(viewCalculator).addListener((MapChangeListener<PublicIdStringKey, StampPathImmutable>) change -> updateCoordinateMenu());
 
         this.baseControlToShowOverride = baseControlToShowOverride;
         if (baseControlToShowOverride instanceof Labeled) {
@@ -54,11 +54,11 @@ public class ViewMenuModel {
         } else {
             this.baseControlGraphic = null;
         }
-        updateManifoldMenu();
+        updateCoordinateMenu();
 
     }
 
-    public void updateManifoldMenu() {
+    public void updateCoordinateMenu() {
         if (this.viewProperties.nodeView().hasOverrides()) {
             if (this.baseControlGraphic != null) {
                 if (this.oldFill == null) {
@@ -83,8 +83,9 @@ public class ViewMenuModel {
             ViewCalculatorWithCache viewCalculator = ViewCalculatorWithCache.getCalculator(this.viewProperties.nodeView().getValue());
             this.coordinateMenu.getItems().clear();
             Executor.threadPool().execute(TaskWrapper.make(new ViewMenuTask(viewCalculator, this.viewProperties.nodeView()),
-                    (List<MenuItem> result) ->
-                            this.coordinateMenu.getItems().addAll(result)));
+                    (List<MenuItem> result) -> {
+                        this.coordinateMenu.getItems().addAll(result);
+                    }));
         });
     }
 
@@ -95,7 +96,7 @@ public class ViewMenuModel {
     private void viewCoordinateChanged(ObservableValue<? extends ViewCoordinateRecord> observable,
                                        ViewCoordinateRecord oldValue,
                                        ViewCoordinateRecord newValue) {
-        updateManifoldMenu();
+        updateCoordinateMenu();
 
     }
 

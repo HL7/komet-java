@@ -18,7 +18,7 @@ open module org.hl7.komet.framework {
     exports org.hl7.komet.framework.performance.impl;
     exports org.hl7.komet.framework.performance;
     exports org.hl7.komet.framework.preferences;
-    exports org.hl7.komet.framework.propsheet.editor to org.controlsfx.controls;
+    exports org.hl7.komet.framework.propsheet.editor to org.controlsfx.controls, org.hl7.komet.list;
     exports org.hl7.komet.framework.propsheet;
     exports org.hl7.komet.framework.rulebase;
     exports org.hl7.komet.framework.search;

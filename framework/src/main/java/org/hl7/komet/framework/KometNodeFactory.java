@@ -51,7 +51,7 @@ public interface KometNodeFactory {
 
     String getMenuText();
 
-    default Label getMenuGraphic() {
+    default Label getMenuIconGraphic() {
         return Icon.makeIcon(getStyleId());
     }
 
