@@ -24,7 +24,7 @@ import org.hl7.komet.framework.view.ViewMenuTask;
 import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.tinkar.common.alert.AlertObject;
 import org.hl7.tinkar.common.alert.AlertStreams;
-import org.hl7.tinkar.common.service.Executor;
+import org.hl7.tinkar.common.service.TinkExecutor;
 import org.hl7.tinkar.common.service.PrimitiveData;
 import org.hl7.tinkar.common.service.SaveState;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculatorWithCache;
@@ -279,14 +279,14 @@ public class KometStageController implements SaveState {
 
         this.windowSplitPane.setDividerPositions(this.windowSettings.dividerPositionsProperty().getValue());
 
-        Executor.threadPool().execute(TaskWrapper.make(new ViewMenuTask(viewCalculator, windowSettings.getView()),
+        TinkExecutor.threadPool().execute(TaskWrapper.make(new ViewMenuTask(viewCalculator, windowSettings.getView()),
                 (List<MenuItem> result) -> {
                     windowCoordinates.getItems().addAll(result);
                 }));
 
         windowSettings.getView().addListener((observable, oldValue, newValue) -> {
             windowCoordinates.getItems().clear();
-            Executor.threadPool().execute(TaskWrapper.make(new ViewMenuTask(viewCalculator, windowSettings.getView()),
+            TinkExecutor.threadPool().execute(TaskWrapper.make(new ViewMenuTask(viewCalculator, windowSettings.getView()),
                     (List<MenuItem> result) -> windowCoordinates.getItems().addAll(result)));
         });
 

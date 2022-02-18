@@ -14,14 +14,16 @@ import javafx.util.Callback;
 import org.controlsfx.control.TaskProgressView;
 import org.hl7.komet.framework.concurrent.CompletedTask;
 import org.kordamp.ikonli.javafx.FontIcon;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CompletionViewSkin<T extends Task<?>> extends
         SkinBase<TaskProgressView<T>> {
-
+    private static final Logger LOG = LoggerFactory.getLogger(CompletionViewSkin.class);
     final ListView<T> listView;
-    final ObservableList<Task<?>> tasks;
+    final ObservableList<T> tasks;
 
-    public CompletionViewSkin(TaskProgressView<T> monitor, ObservableList<Task<?>> tasks) {
+    public CompletionViewSkin(TaskProgressView<T> monitor, ObservableList<T> tasks) {
         super(monitor);
         this.tasks = tasks;
         BorderPane borderPane = new BorderPane();
@@ -33,8 +35,14 @@ public class CompletionViewSkin<T extends Task<?>> extends
         listView.setPlaceholder(new Label("No completed tasks available"));
         listView.setCellFactory(param -> new CompletionViewSkin.TaskCell());
         listView.setFocusTraversable(false);
+//        listView.getItems().addListener((ListChangeListener<? super T>)
+//                c -> {
+//                    while (c.next()) {
+//                        LOG.info("Adding: " + c.getAddedSubList());
+//                    }
+//                });
 
-        Bindings.bindContent(listView.getItems(), monitor.getTasks());
+        Bindings.bindContent(listView.getItems(), tasks);
         borderPane.setCenter(listView);
 
         getChildren().add(listView);

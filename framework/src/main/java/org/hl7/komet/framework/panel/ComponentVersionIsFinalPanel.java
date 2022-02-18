@@ -24,7 +24,7 @@ import org.hl7.komet.framework.rulebase.RuleBase;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.tinkar.common.alert.AlertObject;
 import org.hl7.tinkar.common.alert.AlertStreams;
-import org.hl7.tinkar.common.service.Executor;
+import org.hl7.tinkar.common.service.TinkExecutor;
 import org.hl7.tinkar.common.util.time.DateTimeUtil;
 import org.hl7.tinkar.coordinate.Coordinates;
 import org.hl7.tinkar.coordinate.stamp.calculator.Latest;
@@ -128,8 +128,8 @@ public abstract class ComponentVersionIsFinalPanel<OV extends ObservableVersion>
                     case ObservableStampVersion observableStampVersion -> new CancelVersionTask(observableStampVersion.getVersionRecord());
                     default -> throw new IllegalStateException("Unexpected value: " + version);
                 };
-                Future<Void> future = Executor.threadPool().submit(cancelVersionTask);
-                Executor.threadPool().execute(() -> {
+                Future<Void> future = TinkExecutor.threadPool().submit(cancelVersionTask);
+                TinkExecutor.threadPool().execute(() -> {
                     try {
                         future.get();
                     } catch (Exception e) {
@@ -158,8 +158,8 @@ public abstract class ComponentVersionIsFinalPanel<OV extends ObservableVersion>
                     case ObservableStampVersion observableStampVersion -> new CommitVersionTask(observableStampVersion.getVersionRecord());
                     default -> throw new IllegalStateException("Unexpected value: " + version);
                 };
-                Future<Void> future = Executor.threadPool().submit(commitVersionTask);
-                Executor.threadPool().execute(() -> {
+                Future<Void> future = TinkExecutor.threadPool().submit(commitVersionTask);
+                TinkExecutor.threadPool().execute(() -> {
                     try {
                         future.get();
                     } catch (Exception e) {
@@ -182,8 +182,8 @@ public abstract class ComponentVersionIsFinalPanel<OV extends ObservableVersion>
         button.setOnAction(event -> {
             Transaction.forVersion(version).ifPresentOrElse(transaction -> {
                 CancelTransactionTask cancelTransactionTask = new CancelTransactionTask(transaction);
-                Future<Void> future = Executor.threadPool().submit(cancelTransactionTask);
-                Executor.threadPool().execute(() -> {
+                Future<Void> future = TinkExecutor.threadPool().submit(cancelTransactionTask);
+                TinkExecutor.threadPool().execute(() -> {
                     try {
                         future.get();
                     } catch (Exception e) {
@@ -206,8 +206,8 @@ public abstract class ComponentVersionIsFinalPanel<OV extends ObservableVersion>
         button.setOnAction(event -> {
             Transaction.forVersion(version).ifPresentOrElse(transaction -> {
                 CommitTransactionTask commitTransactionTask = new CommitTransactionTask(transaction);
-                Future<Void> future = Executor.threadPool().submit(commitTransactionTask);
-                Executor.threadPool().execute(() -> {
+                Future<Void> future = TinkExecutor.threadPool().submit(commitTransactionTask);
+                TinkExecutor.threadPool().execute(() -> {
                     try {
                         future.get();
                     } catch (Exception e) {

@@ -20,7 +20,7 @@ package org.hl7.komet.navigator.graph;
 import javafx.application.Platform;
 import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.hl7.komet.framework.view.ObservableView;
-import org.hl7.tinkar.common.service.Executor;
+import org.hl7.tinkar.common.service.TinkExecutor;
 import org.hl7.tinkar.common.service.TrackingCallable;
 import org.hl7.tinkar.common.util.thread.TaskCountManager;
 import org.hl7.tinkar.coordinate.navigation.calculator.Edge;
@@ -90,7 +90,7 @@ public class FetchChildren extends TrackingCallable<Void> {
                 TaskCountManager taskCountManager = TaskCountManager.get();
                 for (Edge childLink : children) {
                     taskCountManager.acquire();
-                    Executor.threadPool().execute(() -> {
+                    TinkExecutor.threadPool().execute(() -> {
                         try {
                             ConceptEntity childChronology = Entity.getFast(childLink.destinationNid());
                             MultiParentVertexImpl childItem = new MultiParentVertexImpl(childChronology, parentGraphItem.getGraphController(), childLink.typeNids(), null);

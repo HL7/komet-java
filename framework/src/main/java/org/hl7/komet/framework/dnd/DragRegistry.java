@@ -25,7 +25,7 @@ import javafx.scene.input.TransferMode;
 import org.hl7.komet.framework.Dialogs;
 import org.hl7.komet.framework.FxUtils;
 import org.hl7.tinkar.common.service.CachingService;
-import org.hl7.tinkar.common.service.Executor;
+import org.hl7.tinkar.common.service.TinkExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +60,7 @@ public class DragRegistry {
     private final AtomicLong dragStartedAt = new AtomicLong();
     private ScheduledFuture<?> timedDragCancel;
     /**
-     To enable garbage collection,
+     * To enable garbage collection,
      */
     private static final Set<Node> codeDropTargets = Collections.newSetFromMap(new WeakHashMap<>());
     private static final WeakHashMap<Node, Effect> existingEffect = new WeakHashMap<>();
@@ -89,6 +89,7 @@ public class DragRegistry {
      * it essentially allowed the entire GUI to show where the valid drop targets were, for whatever thing happened to be
      * being dragged - which lets people discover features they didn't know existed.  It would be good to fix this up /
      * reintegrate it into the GUI.  IIRC, this feature worked fairly well, all the 'hard' bits are already here.
+     *
      * @deprecated
      */
     @Deprecated
@@ -129,6 +130,7 @@ public class DragRegistry {
 
     /**
      * TODO: update and ensure no memory leaks.
+     *
      * @deprecated
      */
     @Deprecated
@@ -167,6 +169,7 @@ public class DragRegistry {
 
     /**
      * TODO: update and ensure no memory leaks.
+     *
      * @deprecated
      */
     @Deprecated
@@ -176,6 +179,7 @@ public class DragRegistry {
 
     /**
      * TODO: update and ensure no memory leaks.
+     *
      * @deprecated
      */
     @Deprecated
@@ -243,7 +247,7 @@ public class DragRegistry {
                             });
                         }
                     };
-                    Executor.threadPool().execute(task);
+                    TinkExecutor.threadPool().execute(task);
                 }
             });
         }
@@ -301,7 +305,7 @@ public class DragRegistry {
         }).forEachOrdered((n) -> {
             n.setEffect(FxUtils.LIGHT_GREEN_DROP_SHADOW);
         });
-        timedDragCancel = Executor.scheduled().schedule(()
+        timedDragCancel = TinkExecutor.scheduled().schedule(()
                 -> {
             if (dragStartedAt.get() > 0) {
                 LOG.warn("Unclosed drag event is still active 10 seconds after starting!  Cleaning up...");
@@ -328,6 +332,7 @@ public class DragRegistry {
     public static void dragComplete() {
         DragRegistry.get().conceptDragCompleted();
     }
+
     public static void dragStart() {
         DragRegistry.get().conceptDragStarted();
     }

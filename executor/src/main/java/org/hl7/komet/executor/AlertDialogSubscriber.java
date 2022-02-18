@@ -5,6 +5,7 @@ import javafx.application.Platform;
 import org.hl7.komet.framework.Dialogs;
 import org.hl7.tinkar.common.alert.*;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
+import org.hl7.tinkar.common.service.TinkExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +32,7 @@ public class AlertDialogSubscriber implements AlertReportingService {
     @Override
     public void onSubscribe(Flow.Subscription subscription) {
         this.subscription = subscription;
-        this.subscription.request(1);
+        this.subscription.request(TinkExecutor.defaultParallelBatchSize());
     }
 
     @Override
@@ -59,6 +60,6 @@ public class AlertDialogSubscriber implements AlertReportingService {
 
     @Override
     public void onComplete() {
-
+        LOG.info("Completed AlertDialogSubscriber");
     }
 }

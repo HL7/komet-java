@@ -52,7 +52,11 @@ public class KometThreadPoolExecutor extends PausableThreadPoolExecutor {
     protected void afterExecute(Runnable r, Throwable t) {
         super.afterExecute(r, t);
         if (t != null) {
-            AlertStreams.getRoot().dispatch(AlertObject.makeError(t));
+            try {
+                AlertStreams.getRoot().dispatch(AlertObject.makeError(t));
+            } catch (Throwable e) {
+                LOG.error("Error propagating exception", e);
+            }
         }
     }
 }

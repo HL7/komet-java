@@ -46,7 +46,7 @@ import org.hl7.komet.framework.view.ObservableView;
 import org.hl7.tinkar.common.id.IntIdSet;
 import org.hl7.tinkar.common.id.IntIds;
 import org.hl7.tinkar.common.id.PublicId;
-import org.hl7.tinkar.common.service.Executor;
+import org.hl7.tinkar.common.service.TinkExecutor;
 import org.hl7.tinkar.common.util.text.NaturalOrder;
 import org.hl7.tinkar.coordinate.navigation.calculator.Edge;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculator;
@@ -270,7 +270,7 @@ public class MultiParentVertexImpl
         if (getChildren().isEmpty()) {
             if (shouldDisplay()) {
                 FetchChildren fetchTask = new FetchChildren(childrenLoadedLatch, this);
-                Executor.threadPool().submit(fetchTask);
+                TinkExecutor.threadPool().submit(fetchTask);
             }
         }
     }

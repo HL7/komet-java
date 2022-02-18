@@ -11,10 +11,17 @@ module org.hl7.komet.application {
     exports org.hl7.komet.app to javafx.graphics;
     opens org.hl7.komet.app to javafx.fxml;
 
+    // Not happy that I have to specify these here... Can't dynamically add modules?
+    requires org.hl7.tinkar.provider.spinedarray;
+    requires org.hl7.tinkar.provider.mvstore;
+    requires org.hl7.tinkar.provider.ephemeral;
+    // End not happy...
+
     requires javafx.controls;
     requires javafx.fxml;
     requires nsmenufx;
     requires org.controlsfx.controls;
+    requires org.hl7.komet.classification;
     requires org.hl7.komet.details;
     requires org.hl7.komet.executor;
     requires org.hl7.komet.framework;

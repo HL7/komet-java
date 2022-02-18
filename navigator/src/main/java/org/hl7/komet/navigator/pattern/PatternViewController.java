@@ -22,7 +22,7 @@ import org.hl7.komet.framework.view.ViewMenuModel;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
-import org.hl7.tinkar.common.service.Executor;
+import org.hl7.tinkar.common.service.TinkExecutor;
 import org.hl7.tinkar.common.service.PrimitiveData;
 import org.hl7.tinkar.common.util.text.NaturalOrder;
 import org.hl7.tinkar.coordinate.stamp.StampPathImmutable;
@@ -132,7 +132,7 @@ public class PatternViewController {
 
     private void refreshTaxonomy() {
         this.rootTreeItem.getChildren().clear();
-        Executor.threadPool().execute(() -> {
+        TinkExecutor.threadPool().execute(() -> {
             ArrayList<TreeItem<Object>> patternItems = new ArrayList<>();
             PrimitiveData.get().forEachPatternNid(patternNid -> {
                 Latest<PatternEntityVersion> latestPattern = viewProperties.calculator().latest(patternNid);

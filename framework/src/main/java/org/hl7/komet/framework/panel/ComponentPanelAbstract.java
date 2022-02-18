@@ -13,7 +13,7 @@ import org.hl7.komet.framework.panel.concept.ConceptPanel;
 import org.hl7.komet.framework.panel.pattern.PatternPanel;
 import org.hl7.komet.framework.panel.semantic.SemanticPanel;
 import org.hl7.komet.framework.view.ViewProperties;
-import org.hl7.tinkar.common.service.Executor;
+import org.hl7.tinkar.common.service.TinkExecutor;
 import org.hl7.tinkar.common.service.PrimitiveData;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculator;
 import org.hl7.tinkar.entity.Entity;
@@ -63,7 +63,7 @@ public abstract class ComponentPanelAbstract {
 
     protected void addSemanticReferences(ObservableEntitySnapshot entity, SimpleObjectProperty<EntityFacade> topEnclosingComponentProperty) {
         if (entity != null) {
-            Executor.threadPool().execute(() -> {
+            TinkExecutor.threadPool().execute(() -> {
                 PrimitiveData.get().forEachSemanticNidForComponent(entity.nid(), semanticNid -> {
                     Platform.runLater(() -> referencedNids.add(semanticNid));
                     SemanticEntity semanticEntity = Entity.getFast(semanticNid);

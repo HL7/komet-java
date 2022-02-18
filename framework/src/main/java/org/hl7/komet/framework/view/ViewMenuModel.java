@@ -15,7 +15,7 @@ import org.hl7.komet.framework.concurrent.TaskWrapper;
 import org.hl7.komet.framework.graphics.Icon;
 import org.hl7.komet.framework.temp.FxGet;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
-import org.hl7.tinkar.common.service.Executor;
+import org.hl7.tinkar.common.service.TinkExecutor;
 import org.hl7.tinkar.coordinate.stamp.StampPathImmutable;
 import org.hl7.tinkar.coordinate.view.ViewCoordinateRecord;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculatorWithCache;
@@ -82,7 +82,7 @@ public class ViewMenuModel {
         Platform.runLater(() -> {
             ViewCalculatorWithCache viewCalculator = ViewCalculatorWithCache.getCalculator(this.viewProperties.nodeView().getValue());
             this.coordinateMenu.getItems().clear();
-            Executor.threadPool().execute(TaskWrapper.make(new ViewMenuTask(viewCalculator, this.viewProperties.nodeView()),
+            TinkExecutor.threadPool().execute(TaskWrapper.make(new ViewMenuTask(viewCalculator, this.viewProperties.nodeView()),
                     (List<MenuItem> result) -> {
                         this.coordinateMenu.getItems().addAll(result);
                     }));

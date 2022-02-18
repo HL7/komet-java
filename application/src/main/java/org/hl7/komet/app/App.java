@@ -50,8 +50,8 @@ import org.hl7.komet.table.TableNodeFactory;
 import org.hl7.tinkar.common.alert.AlertObject;
 import org.hl7.tinkar.common.alert.AlertStreams;
 import org.hl7.tinkar.common.binary.Encodable;
-import org.hl7.tinkar.common.service.Executor;
 import org.hl7.tinkar.common.service.PrimitiveData;
+import org.hl7.tinkar.common.service.TinkExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -326,7 +326,7 @@ public class App extends Application {
                 case SELECTED_DATA_SOURCE -> {
 
                     Platform.runLater(() -> state.set(LOADING_DATA_SOURCE));
-                    Executor.threadPool().submit(new LoadDataSourceTask(state));
+                    TinkExecutor.threadPool().submit(new LoadDataSourceTask(state));
                 }
 
                 case RUNNING -> {

@@ -19,7 +19,7 @@ import org.hl7.komet.framework.temp.FxGet;
 import org.hl7.komet.framework.uncertain.ObservableEditCoordinate;
 import org.hl7.tinkar.common.id.IntIdSet;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
-import org.hl7.tinkar.common.service.Executor;
+import org.hl7.tinkar.common.service.TinkExecutor;
 import org.hl7.tinkar.common.service.TrackingCallable;
 import org.hl7.tinkar.common.util.text.NaturalOrder;
 import org.hl7.tinkar.common.util.time.DateTimeUtil;
@@ -555,7 +555,7 @@ public class ViewMenuTask extends TrackingCallable<List<MenuItem>> {
                 MenuItem sourceMenu = (MenuItem) event.getSource();
                 Menu parentMenu = sourceMenu.getParentMenu();
                 parentMenu.getItems().clear();
-                Executor.threadPool().execute(TaskWrapper.make(new ViewMenuTask(viewCalculator, observableView),
+                TinkExecutor.threadPool().execute(TaskWrapper.make(new ViewMenuTask(viewCalculator, observableView),
                         (List<MenuItem> result) -> parentMenu.getItems().addAll(result)));
             });
         });

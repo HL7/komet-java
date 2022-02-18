@@ -31,6 +31,7 @@ open module org.hl7.komet.framework {
     provides CachingService with DragRegistry.CacheProvider;
     requires io.github.classgraph;
     requires org.hl7.tinkar.collection;
+    requires org.hl7.tinkar.mutiny;
     requires org.kordamp.ikonli.fontawesome5;
     requires org.kordamp.ikonli.fontawesome;
     requires org.kordamp.ikonli.foundation;
@@ -43,7 +44,6 @@ open module org.hl7.komet.framework {
     requires org.kordamp.ikonli.octicons;
     requires org.kordamp.ikonli.runestroicons;
     requires org.kordamp.ikonli.unicons;
-    requires org.reactivestreams;
     requires static java.compiler;
     requires static org.hl7.tinkar.record.builder;
     requires transitive javafx.base;

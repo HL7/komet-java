@@ -10,7 +10,7 @@ import org.eclipse.collections.impl.factory.primitive.IntSets;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.tinkar.common.id.IntIdSet;
 import org.hl7.tinkar.common.id.IntIds;
-import org.hl7.tinkar.common.service.Executor;
+import org.hl7.tinkar.common.service.TinkExecutor;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculator;
 
 public class IntIdSetEditor extends IntIdCollectionEditor<IntIdSet> {
@@ -21,7 +21,7 @@ public class IntIdSetEditor extends IntIdCollectionEditor<IntIdSet> {
     }
 
     void updateListView(IntIdSet newValue) {
-        Executor.threadPool().execute(() -> {
+        TinkExecutor.threadPool().execute(() -> {
             MutableIntList nidList;
             if (newValue == null) {
                 nidList = IntLists.mutable.empty();

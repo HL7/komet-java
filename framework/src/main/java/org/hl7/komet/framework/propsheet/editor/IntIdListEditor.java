@@ -8,7 +8,7 @@ import org.eclipse.collections.impl.factory.primitive.IntLists;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.tinkar.common.id.IntIdList;
 import org.hl7.tinkar.common.id.IntIds;
-import org.hl7.tinkar.common.service.Executor;
+import org.hl7.tinkar.common.service.TinkExecutor;
 
 public class IntIdListEditor extends IntIdCollectionEditor<IntIdList> {
 
@@ -18,7 +18,7 @@ public class IntIdListEditor extends IntIdCollectionEditor<IntIdList> {
     }
 
     void updateListView(IntIdList newValue) {
-        Executor.threadPool().execute(() -> {
+        TinkExecutor.threadPool().execute(() -> {
             Platform.runLater(() -> {
                 listView.getItems().clear();
                 if (newValue != null) {

@@ -53,7 +53,7 @@ public class CompletionNode extends ExplorationNodeAbstract {
         List<Task<?>> completedTasks = new ArrayList<>();
         List<String> completedTaskStrings = nodePreferences.getList(CompletionKeys.COMPLETED_TASKS);
         Iterator<String> completedTaskStringItr = completedTaskStrings.listIterator();
-        while (completedTaskStringItr.hasNext()) {
+        while (completedTaskStringItr.hasNext() && completedTasks.size() < 12) {
             CompletedTask completedTask = new CompletedTask(completedTaskStringItr.next(),
                     completedTaskStringItr.next(),
                     completedTaskStringItr.next());

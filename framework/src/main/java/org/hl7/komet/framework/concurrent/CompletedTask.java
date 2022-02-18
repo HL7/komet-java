@@ -29,6 +29,15 @@ public class CompletedTask extends Task {
     }
 
     @Override
+    public String toString() {
+        return "CompletedTask{" +
+                "title='" + title + '\'' +
+                ", message='" + message + '\'' +
+                ", completionTime='" + completionTime + '\'' +
+                '}';
+    }
+
+    @Override
     protected final Object call() throws Exception {
         return null;
     }

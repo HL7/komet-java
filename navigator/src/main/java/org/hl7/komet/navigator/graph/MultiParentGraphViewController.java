@@ -48,7 +48,7 @@ import org.hl7.tinkar.common.alert.AlertObject;
 import org.hl7.tinkar.common.alert.AlertType;
 import org.hl7.tinkar.common.id.IntIds;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
-import org.hl7.tinkar.common.service.Executor;
+import org.hl7.tinkar.common.service.TinkExecutor;
 import org.hl7.tinkar.common.service.TrackingCallable;
 import org.hl7.tinkar.coordinate.navigation.calculator.Edge;
 import org.hl7.tinkar.coordinate.stamp.StampPathImmutable;
@@ -180,7 +180,7 @@ public class MultiParentGraphViewController implements RefreshListener {
                 (TreeItem.TreeModificationEvent<ConceptFacade> t) -> {
                     MultiParentVertexImpl sourceTreeItem = (MultiParentVertexImpl) t.getSource();
                     if (sourceTreeItem.getChildren().isEmpty()) {
-                        Executor.threadPool()
+                        TinkExecutor.threadPool()
                                 .execute(() -> sourceTreeItem.addChildren());
                     }
                 });
@@ -331,7 +331,7 @@ public class MultiParentGraphViewController implements RefreshListener {
         ShowConceptInGraphTask task
                 = new ShowConceptInGraphTask(this, conceptNid);
 
-        Executor.threadPool()
+        TinkExecutor.threadPool()
                 .submit(task);
     }
 
@@ -401,7 +401,7 @@ public class MultiParentGraphViewController implements RefreshListener {
     private void restoreExpanded() {
         treeView.getSelectionModel()
                 .clearSelection();
-        Executor.threadPool()
+        TinkExecutor.threadPool()
                 .execute(
                         () -> {
                             try {
@@ -630,7 +630,7 @@ public class MultiParentGraphViewController implements RefreshListener {
         }
         for (TreeItem<ConceptFacade> rootChild : this.rootTreeItem.getChildren()) {
             ((MultiParentVertexImpl) rootChild).clearChildren();
-            Executor.threadPool().execute(() -> ((MultiParentVertexImpl) rootChild).addChildren());
+            TinkExecutor.threadPool().execute(() -> ((MultiParentVertexImpl) rootChild).addChildren());
         }
 
         this.rootTreeItem.invalidate();

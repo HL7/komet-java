@@ -7,7 +7,7 @@ import org.hl7.komet.framework.builder.AxiomBuilderRecord;
 import org.hl7.komet.framework.builder.ConceptEntityBuilder;
 import org.hl7.komet.framework.performance.impl.RequestRecord;
 import org.hl7.komet.framework.rulebase.GeneratedActionImmediate;
-import org.hl7.tinkar.common.service.Executor;
+import org.hl7.tinkar.common.service.TinkExecutor;
 import org.hl7.tinkar.coordinate.edit.EditCoordinate;
 import org.hl7.tinkar.coordinate.edit.EditCoordinateImmutable;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculator;
@@ -38,7 +38,7 @@ public class NewConceptFromTextActionGenerated extends AbstractActionImmediate i
     }
 
     public final void doAction(ActionEvent actionEvent, EditCoordinateImmutable editCoordinate) {
-        Executor.threadPool().execute(() -> {
+        TinkExecutor.threadPool().execute(() -> {
             Transaction transaction = Transaction.make("New concept for: " + newConceptText);
             StampEntity stampEntity = transaction.getStamp(State.ACTIVE, editCoordinate.getAuthorNidForChanges(), editCoordinate.getDefaultModuleNid(), editCoordinate.getDefaultPathNid());
             Entity.provider().putStamp(stampEntity);

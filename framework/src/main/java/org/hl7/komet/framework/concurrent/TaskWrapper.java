@@ -64,9 +64,9 @@ public class TaskWrapper<V> extends Task<V> implements TrackingListener<V> {
     private void handleRetention() {
         if (this.trackingCallable.retainWhenComplete()) {
             CompletedTask completedTask = new CompletedTask(this.getTitle(), this.getMessage(), DateTimeUtil.nowWithZone());
-            TaskListsService.get().completedTasks().add(completedTask);
+            TaskListsService.get().completedTasks().add(0, completedTask);
             if (TaskListsService.get().completedTasks().size() > maxCompletedTaskListSize) {
-                TaskListsService.get().completedTasks().remove(0, 25);
+                TaskListsService.get().completedTasks().remove(maxCompletedTaskListSize, TaskListsService.get().completedTasks().size());
             }
         }
     }

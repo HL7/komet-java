@@ -1,6 +1,6 @@
 package org.hl7.komet.preferences;
 
-import org.hl7.tinkar.common.service.Executor;
+import org.hl7.tinkar.common.service.TinkExecutor;
 import org.hl7.tinkar.common.service.SimpleIndeterminateTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +28,7 @@ public class PreferencesProvider
      */
     public void start() {
         SimpleIndeterminateTracker progressTask = new SimpleIndeterminateTracker("Preference provider startup");
-        Executor.threadPool().submit(progressTask);
+        TinkExecutor.threadPool().submit(progressTask);
         try {
             //Just doing this to make sure it starts without errors
             KometPreferencesImpl.getConfigurationRootPreferences();
@@ -44,7 +44,7 @@ public class PreferencesProvider
      */
     public void stop() {
         SimpleIndeterminateTracker progressTask = new SimpleIndeterminateTracker("Preference provider save");
-        Executor.threadPool().submit(progressTask);
+        TinkExecutor.threadPool().submit(progressTask);
         try {
             KometPreferencesImpl.getConfigurationRootPreferences().sync();
         } catch (Throwable ex) {

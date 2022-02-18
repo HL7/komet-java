@@ -22,7 +22,7 @@ import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
 import org.hl7.tinkar.common.id.PublicIds;
-import org.hl7.tinkar.common.service.Executor;
+import org.hl7.tinkar.common.service.TinkExecutor;
 import org.hl7.tinkar.common.service.PrimitiveData;
 import org.hl7.tinkar.common.util.text.NaturalOrder;
 import org.hl7.tinkar.common.util.uuid.UuidUtil;
@@ -111,7 +111,7 @@ public class SearchPanelController implements ListChangeListener<TreeItem<Object
                 addComponentFromNid(PrimitiveData.nid(PublicIds.of(uuid)));
             });
         } else {
-            Executor.threadPool().execute(() -> {
+            TinkExecutor.threadPool().execute(() -> {
                 try {
                     TreeItem<Object> tempRoot = new TreeItem<>("Temp root");
                     ImmutableList<LatestVersionSearchResult> results = viewProperties.calculator().search(queryString.getText(), 1000);

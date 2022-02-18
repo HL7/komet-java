@@ -4,7 +4,7 @@ import javafx.event.ActionEvent;
 import org.eclipse.collections.api.factory.Lists;
 import org.hl7.tinkar.common.id.PublicId;
 import org.hl7.tinkar.common.id.PublicIds;
-import org.hl7.tinkar.common.service.Executor;
+import org.hl7.tinkar.common.service.TinkExecutor;
 import org.hl7.tinkar.common.service.PrimitiveData;
 import org.hl7.tinkar.coordinate.edit.EditCoordinate;
 import org.hl7.tinkar.coordinate.edit.EditCoordinateImmutable;
@@ -60,7 +60,7 @@ public class AddToTinkarBaseModelActionGenerated extends AbstractActionSuggested
             throw new IllegalStateException("No latest pattern version for: " + Entity.getFast(TINKAR_BASE_MODEL_COMPONENT_PATTERN));
         });
         CommitTransactionTask commitTransactionTask = new CommitTransactionTask(transaction);
-        Executor.threadPool().submit(commitTransactionTask);
+        TinkExecutor.threadPool().submit(commitTransactionTask);
         return newSemantic;
     }
 
@@ -81,6 +81,6 @@ public class AddToTinkarBaseModelActionGenerated extends AbstractActionSuggested
             throw new IllegalStateException("No latest pattern version for: " + Entity.getFast(TINKAR_BASE_MODEL_COMPONENT_PATTERN));
         });
         CommitTransactionTask commitTransactionTask = new CommitTransactionTask(transaction);
-        Executor.threadPool().submit(commitTransactionTask);
+        TinkExecutor.threadPool().submit(commitTransactionTask);
     }
 }

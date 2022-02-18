@@ -157,14 +157,20 @@
                     <execution>
                         <!-- Default configuration for running -->
                         <id>default-cli</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jlink</goal>
+                        </goals>
                         <configuration>
                             <mainClass>org.hl7.komet.application/org.hl7.komet.app.App</mainClass>
                             <stripDebug>false</stripDebug>
                             <compress>2</compress>
+                            <bindServices>true</bindServices>
                             <noHeaderFiles>true</noHeaderFiles>
                             <noManPages>true</noManPages>
                             <launcher>launchKomet</launcher>
                             <jlinkImageName>kometImage</jlinkImageName>
+                            <jlinkVerbose>true</jlinkVerbose>
                             <jlinkZipName>kometJlink</jlinkZipName>
                             <ignoreSigningInformation>true</ignoreSigningInformation>
                             <options>
@@ -180,14 +186,20 @@
                     <execution>
                         <!-- Configuration for debugging -->
                         <id>debug</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jlink</goal>
+                        </goals>
                         <configuration>
                             <mainClass>org.hl7.komet.application/org.hl7.komet.app.App</mainClass>
                             <stripDebug>false</stripDebug>
                             <compress>2</compress>
+                            <bindServices>true</bindServices>
                             <noHeaderFiles>true</noHeaderFiles>
                             <noManPages>true</noManPages>
-                            <launcher>launchKomet</launcher>
-                            <jlinkImageName>kometImage</jlinkImageName>
+                            <launcher>debugKomet</launcher>
+                            <jlinkImageName>kometDebugImage</jlinkImageName>
+                            <jlinkVerbose>true</jlinkVerbose>
                             <jlinkZipName>kometJlink</jlinkZipName>
                             <ignoreSigningInformation>true</ignoreSigningInformation>
                             <options>
@@ -204,17 +216,24 @@
                     <execution>
                         <!-- Configuration for profiling -->
                         <id>profile</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jlink</goal>
+                        </goals>
                         <configuration>
                             <mainClass>org.hl7.komet.application/org.hl7.komet.app.App</mainClass>
                             <stripDebug>false</stripDebug>
                             <compress>2</compress>
+                            <bindServices>true</bindServices>
                             <noHeaderFiles>true</noHeaderFiles>
                             <noManPages>true</noManPages>
-                            <launcher>launchKomet</launcher>
-                            <jlinkImageName>kometImage</jlinkImageName>
+                            <launcher>profileKomet</launcher>
+                            <jlinkImageName>kometProfileImage</jlinkImageName>
+                            <jlinkVerbose>true</jlinkVerbose>
                             <jlinkZipName>kometJlink</jlinkZipName>
                             <ignoreSigningInformation>true</ignoreSigningInformation>
                             <options>
+                                <option>--enable-preview</option>
                                 <option>--add-opens</option>
                                 <option>javafx.graphics/javafx.scene=org.controlsfx.controls</option>
                                 <option>--add-exports</option>
@@ -227,23 +246,6 @@
                         </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <mainClass>komet/org.hl7.komet.app.App</mainClass>
-                    <stripDebug>false</stripDebug>
-                    <compress>2</compress>
-                    <noHeaderFiles>true</noHeaderFiles>
-                    <noManPages>true</noManPages>
-                    <launcher>launchKomet</launcher>
-                    <jlinkImageName>kometImage</jlinkImageName>
-                    <jlinkZipName>kometJlink</jlinkZipName>
-                    <ignoreSigningInformation>true</ignoreSigningInformation>
-                    <options>
-                        <option>--add-opens</option>
-                        <option>javafx.graphics/javafx.scene=org.controlsfx.controls</option>
-                        <option>--add-exports</option>
-                        <option>javafx.controls/com.sun.javafx.scene.control.behavior=org.hl7.komet.navigator</option>
-                    </options>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.panteleyev</groupId>
@@ -254,7 +256,7 @@
                     <appVersion>1.0.0</appVersion>
                     <vendor>HL7</vendor>
                     <destination>target/dist</destination>
-                    <module>komet/org.hl7.komet.app.App</module>
+                    <module>org.hl7.komet.application/org.hl7.komet.app.App</module>
                     <runtimeImage>target/kometImage</runtimeImage>
                     <linuxShortcut>true</linuxShortcut>
                     <linuxPackageName>komet</linuxPackageName>

@@ -13,7 +13,7 @@ import org.hl7.komet.framework.panel.concept.ConceptVersionPanel;
 import org.hl7.komet.framework.panel.pattern.PatternVersionPanel;
 import org.hl7.komet.framework.panel.semantic.SemanticVersionPanel;
 import org.hl7.komet.framework.view.ViewProperties;
-import org.hl7.tinkar.common.service.Executor;
+import org.hl7.tinkar.common.service.TinkExecutor;
 import org.hl7.tinkar.coordinate.stamp.calculator.Latest;
 import org.hl7.tinkar.entity.EntityVersion;
 import org.hl7.tinkar.terms.EntityFacade;
@@ -51,7 +51,7 @@ public class ComponentIsFinalPanel<ES extends ObservableEntitySnapshot<OE, OV, E
         Platform.runLater(() -> referencedNids.add(component.nid()));
         // TODO finish good identicon graphic.
         // this.collapsiblePane.setGraphic(Identicon.generateIdenticon(component.publicId(), 24, 24));
-        Executor.threadPool().execute(() -> {
+        TinkExecutor.threadPool().execute(() -> {
             Latest<OV> latestComponent = component.getLatestVersion();
             latestComponent.ifPresent(latestVersion -> {
                 addVersionPanel(latestVersion, true);

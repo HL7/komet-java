@@ -12,7 +12,7 @@ import org.hl7.komet.framework.ExplorationNodeAbstract;
 import org.hl7.komet.framework.TopPanelFactory;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.komet.preferences.KometPreferences;
-import org.hl7.tinkar.common.service.Executor;
+import org.hl7.tinkar.common.service.TinkExecutor;
 import org.hl7.tinkar.common.service.PrimitiveData;
 import org.hl7.tinkar.common.util.time.DateTimeUtil;
 import org.hl7.tinkar.component.Component;
@@ -115,7 +115,7 @@ public class TableNode extends ExplorationNodeAbstract {
             this.treeTableView.getColumns().add(makeColumn("Module", "Represents the module this version is part of", StampFields.MODULE));
             this.treeTableView.getColumns().add(makeColumn("Path", "Define path that this version is created on", StampFields.PATH));
             if (populate) {
-                Executor.threadPool().execute(() -> {
+                TinkExecutor.threadPool().execute(() -> {
                     AtomicInteger count = new AtomicInteger();
                     PrimitiveData.get().forEachSemanticNidOfPattern(patternEntity.nid(), semanticNid -> {
                         if (count.getAndIncrement() < 5000) {
