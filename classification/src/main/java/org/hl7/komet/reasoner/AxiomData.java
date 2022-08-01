@@ -1,4 +1,4 @@
-package org.hl7.komet.classification;
+package org.hl7.komet.reasoner;
 
 import au.csiro.ontology.model.Axiom;
 import au.csiro.ontology.model.Concept;

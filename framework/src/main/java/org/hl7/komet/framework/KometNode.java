@@ -12,9 +12,9 @@ import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.komet.framework.window.WindowComponent;
 import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.tinkar.common.alert.AlertObject;
-import org.hl7.tinkar.common.alert.AlertStream;
 import org.hl7.tinkar.common.alert.AlertStreams;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
+import org.hl7.tinkar.common.util.broadcast.Broadcaster;
 
 /**
  * ExplorationNode: A node that enables traversal (a taxonomy view) of content
@@ -107,7 +107,7 @@ public interface KometNode extends WindowComponent {
     Node getMenuIconGraphic();
 
     default void dispatchAlert(AlertObject alertObject) {
-        PublicIdStringKey<AlertStream> streamKey = getNodePreferences().getObject(PreferenceKey.PARENT_ALERT_STREAM_KEY, AlertStreams.ROOT_ALERT_STREAM_KEY);
+        PublicIdStringKey<Broadcaster<AlertObject>> streamKey = getNodePreferences().getObject(PreferenceKey.PARENT_ALERT_STREAM_KEY, AlertStreams.ROOT_ALERT_STREAM_KEY);
         AlertStreams.get(streamKey).dispatch(alertObject);
     }
 

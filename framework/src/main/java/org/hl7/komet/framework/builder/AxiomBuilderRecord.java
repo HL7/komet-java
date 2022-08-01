@@ -111,13 +111,13 @@ public record AxiomBuilderRecord(ConceptFacade axiomMeaning, MutableList<AxiomPr
     }
 
     public void withSet(ConceptFacade setType, AxiomBuilderRecord... setElements) {
-        AxiomBuilderRecord necessarySet = make(setType);
-        children.add(necessarySet);
+        AxiomBuilderRecord logicalSet = make(setType);
+        children.add(logicalSet);
 
         MutableList<AxiomBuilderRecord> andChildrenList = Lists.mutable.of(setElements);
         AxiomBuilderRecord and = new AxiomBuilderRecord(TinkarTerm.AND, Lists.mutable.empty(), andChildrenList,
                 UUID.randomUUID(), nextAxiomIndex.getAndIncrement(), nextAxiomIndex);
-        necessarySet.children.add(and);
+        logicalSet.children.add(and);
     }
 
     public AxiomBuilderRecord make(ConceptFacade axiomMeaning) {

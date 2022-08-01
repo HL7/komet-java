@@ -1,4 +1,4 @@
-/* 
+/*
  * Licensed under the Apache License, Version 2.0 (the "License");
  *
  * You may not use this file except in compliance with the License.
@@ -14,20 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Contributions from 2013-2017 where performed either by US government 
- * employees, or under US Veterans Health Administration contracts. 
+ * Contributions from 2013-2017 where performed either by US government
+ * employees, or under US Veterans Health Administration contracts.
  *
  * US Veterans Health Administration contributions by government employees
  * are work of the U.S. Government and are not subject to copyright
- * protection in the United States. Portions contributed by government 
- * employees are USGovWork (17USC §105). Not subject to copyright. 
- * 
+ * protection in the United States. Portions contributed by government
+ * employees are USGovWork (17USC §105). Not subject to copyright.
+ *
  * Contribution by contractors to the US Veterans Health Administration
  * during this period are contractually contributed under the
  * Apache License, Version 2.0.
  *
  * See: https://www.usa.gov/government-works
- * 
+ *
  * Contributions prior to 2013:
  *
  * Copyright (C) International Health Terminology Standards Development Organisation.
@@ -36,12 +36,11 @@
  */
 
 
-
 package org.hl7.komet.framework.view;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import javafx.beans.property.*;
+import javafx.beans.property.ListProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -68,11 +67,12 @@ public class ObservableViewNoOverride extends ObservableViewBase {
     }
 
     public ViewProperties makeOverridableViewProperties() {
-       return new ViewProperties(new ObservableViewWithOverride(this), this);
+        return new ViewProperties(new ObservableViewWithOverride(this), this);
     }
+
     @Override
-    public void setExceptOverrides(ViewCoordinateRecord viewRecord) {
-        setValue(viewRecord.toViewCoordinateRecord());
+    protected ObservableStampCoordinateBase makeStampCoordinateObservable(ViewCoordinate viewRecord) {
+        return new ObservableStampCoordinateNoOverride(viewRecord.stampCoordinate());
     }
 
     @Override
@@ -98,12 +98,17 @@ public class ObservableViewNoOverride extends ObservableViewBase {
     }
 
     @Override
-    protected ObservableStampCoordinateBase makeStampCoordinateObservable(ViewCoordinate viewRecord) {
-        return new ObservableStampCoordinateNoOverride(viewRecord.stampCoordinate());
+    protected ObservableEditCoordinateBase makeEditCoordinateObservable(ViewCoordinate viewRecord) {
+        return new ObservableEditCoordinateNoOverride(viewRecord);
     }
 
     public void removeOverrides() {
         // nothing to do, this coordinate cannot be overridden.
+    }
+
+    @Override
+    public void setExceptOverrides(ViewCoordinateRecord viewRecord) {
+        setValue(viewRecord.toViewCoordinateRecord());
     }
 
     @Override

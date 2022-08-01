@@ -1,4 +1,4 @@
-package org.hl7.komet.classification;
+package org.hl7.komet.reasoner;
 
 import com.google.auto.service.AutoService;
 import org.eclipse.collections.api.factory.Lists;
@@ -14,9 +14,9 @@ import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
 
 @AutoService(KometNodeFactory.class)
-public class ClassificationResultsNodeFactory implements KometNodeFactory {
-    protected static final String STYLE_ID = ClassificationResultsNode.STYLE_ID;
-    protected static final String TITLE = ClassificationResultsNode.TITLE;
+public class ReasonerResultsNodeFactory implements KometNodeFactory {
+    protected static final String STYLE_ID = ReasonerResultsNode.STYLE_ID;
+    protected static final String TITLE = ReasonerResultsNode.TITLE;
 
     @Override
     public void addDefaultNodePreferences(KometPreferences nodePreferences) {
@@ -24,28 +24,28 @@ public class ClassificationResultsNodeFactory implements KometNodeFactory {
     }
 
     @Override
-    public ClassificationResultsNode create(ObservableViewNoOverride windowView, KometPreferences nodePreferences) {
+    public ReasonerResultsNode create(ObservableViewNoOverride windowView, KometPreferences nodePreferences) {
         return reconstructor(windowView, nodePreferences);
     }
 
     @Reconstructor
-    public static ClassificationResultsNode reconstructor(ObservableViewNoOverride windowView, KometPreferences nodePreferences) {
-        return new ClassificationResultsNode(windowView.makeOverridableViewProperties(), nodePreferences);
+    public static ReasonerResultsNode reconstructor(ObservableViewNoOverride windowView, KometPreferences nodePreferences) {
+        return new ReasonerResultsNode(windowView.makeOverridableViewProperties(), nodePreferences);
     }
 
     @Override
     public Class<? extends KometNode> kometNodeClass() {
-        return ClassificationResultsNode.class;
+        return ReasonerResultsNode.class;
     }
 
     @Override
     public ImmutableList<PublicIdStringKey<ActivityStream>> defaultActivityStreamChoices() {
-        return Lists.immutable.of(ActivityStreams.CLASSIFICATION);
+        return Lists.immutable.of(ActivityStreams.REASONER);
     }
 
     @Override
     public ImmutableList<PublicIdStringKey<ActivityStreamOption>> defaultOptionsForActivityStream(PublicIdStringKey<ActivityStream> streamKey) {
-        if (streamKey.equals(ActivityStreams.CLASSIFICATION)) {
+        if (streamKey.equals(ActivityStreams.REASONER)) {
             return Lists.immutable.of(ActivityStreamOption.PUBLISH.keyForOption());
         }
         return Lists.immutable.empty();

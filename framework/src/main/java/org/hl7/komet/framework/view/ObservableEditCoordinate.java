@@ -36,15 +36,14 @@
  */
 
 
-package org.hl7.komet.framework.uncertain;
+package org.hl7.komet.framework.view;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
-import org.hl7.komet.framework.view.ObservableCoordinate;
 import org.hl7.tinkar.coordinate.edit.EditCoordinateDelegate;
-import org.hl7.tinkar.coordinate.edit.EditCoordinateImmutable;
+import org.hl7.tinkar.coordinate.edit.EditCoordinateRecord;
 import org.hl7.tinkar.terms.ConceptFacade;
 
 //~--- interfaces -------------------------------------------------------------
@@ -55,9 +54,9 @@ import org.hl7.tinkar.terms.ConceptFacade;
  * @author kec
  */
 public interface ObservableEditCoordinate
-        extends EditCoordinateDelegate, ObservableCoordinate<EditCoordinateImmutable> {
+        extends EditCoordinateDelegate, ObservableCoordinate<EditCoordinateRecord> {
     @Override
-    default EditCoordinateImmutable toEditCoordinateImmutable() {
+    default EditCoordinateRecord toEditCoordinateRecord() {
         return this.getValue();
     }
 

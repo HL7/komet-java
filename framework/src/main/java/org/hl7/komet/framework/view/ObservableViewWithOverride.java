@@ -59,7 +59,8 @@ public class ObservableViewWithOverride extends ObservableViewBase {
                 this.stampCoordinate().getOriginalValue(),
                 this.languageCoordinates().getOriginalValue(),
                 this.logicCoordinate().getOriginalValue(),
-                this.navigationCoordinate().getOriginalValue());
+                this.navigationCoordinate().getOriginalValue(),
+                this.editCoordinate().getOriginalValue());
     }
 
     public void setOverrides(ViewCoordinateRecord coordinateWithOverrides) {
@@ -88,6 +89,12 @@ public class ObservableViewWithOverride extends ObservableViewBase {
     protected ObservableLogicCoordinateBase makeLogicCoordinateObservable(ViewCoordinate viewRecord) {
         ObservableView observableView = (ObservableView) viewRecord;
         return new ObservableLogicCoordinateWithOverride(observableView.logicCoordinate());
+    }
+
+    @Override
+    protected ObservableEditCoordinateBase makeEditCoordinateObservable(ViewCoordinate viewRecord) {
+        ObservableView observableView = (ObservableView) viewRecord;
+        return new ObservableEditCoordinateWithOverride(observableView.editCoordinate());
     }
 
     @Override
@@ -120,7 +127,8 @@ public class ObservableViewWithOverride extends ObservableViewBase {
         return ViewCoordinateRecord.make(this.stampCoordinateObservable.getValue(),
                 this.languageCoordinates.getValue(),
                 this.logicCoordinateObservable.getValue(),
-                this.navigationCoordinateObservable.getValue());
+                this.navigationCoordinateObservable.getValue(),
+                this.editCoordinateObservable.getValue());
     }
 
 }

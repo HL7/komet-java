@@ -36,14 +36,13 @@
  */
 
 
-package org.hl7.komet.framework.uncertain;
+package org.hl7.komet.framework.view;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.value.ObservableValue;
-import org.hl7.komet.framework.view.SimpleEqualityBasedObjectProperty;
 import org.hl7.tinkar.coordinate.edit.EditCoordinate;
-import org.hl7.tinkar.coordinate.edit.EditCoordinateImmutable;
+import org.hl7.tinkar.coordinate.edit.EditCoordinateRecord;
 import org.hl7.tinkar.terms.ConceptFacade;
 import org.hl7.tinkar.terms.TinkarTerm;
 
@@ -65,15 +64,15 @@ public class ObservableEditCoordinateNoOverride
      * @param editCoordinate the edit coordinate
      */
     public ObservableEditCoordinateNoOverride(EditCoordinate editCoordinate, String coordinateName) {
-        super(editCoordinate.toEditCoordinateImmutable(), coordinateName);
+        super(editCoordinate.toEditCoordinateRecord(), coordinateName);
     }
 
     public ObservableEditCoordinateNoOverride(EditCoordinate editCoordinate) {
-        super(editCoordinate.toEditCoordinateImmutable(), "Edit coordinate");
+        super(editCoordinate.toEditCoordinateRecord(), "Edit coordinate");
     }
 
     @Override
-    protected EditCoordinateImmutable baseCoordinateChangedListenersRemoved(ObservableValue<? extends EditCoordinateImmutable> observable, EditCoordinateImmutable oldValue, EditCoordinateImmutable newValue) {
+    protected EditCoordinateRecord baseCoordinateChangedListenersRemoved(ObservableValue<? extends EditCoordinateRecord> observable, EditCoordinateRecord oldValue, EditCoordinateRecord newValue) {
         this.authorForChangesProperty().setValue(newValue.getAuthorForChanges());
         this.defaultModuleProperty().setValue(newValue.getDefaultModule());
         this.destinationModuleProperty().setValue(newValue.getDestinationModule());
@@ -82,12 +81,12 @@ public class ObservableEditCoordinateNoOverride
     }
 
     @Override
-    public void setExceptOverrides(EditCoordinateImmutable updatedCoordinate) {
+    public void setExceptOverrides(EditCoordinateRecord updatedCoordinate) {
         setValue(updatedCoordinate);
     }
 
     @Override
-    public EditCoordinateImmutable getOriginalValue() {
+    public EditCoordinateRecord getOriginalValue() {
         return getValue();
     }
 

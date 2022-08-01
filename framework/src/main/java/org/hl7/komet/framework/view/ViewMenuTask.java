@@ -16,7 +16,6 @@ import org.eclipse.collections.api.map.primitive.MutableIntObjectMap;
 import org.eclipse.collections.impl.factory.primitive.IntObjectMaps;
 import org.hl7.komet.framework.concurrent.TaskWrapper;
 import org.hl7.komet.framework.temp.FxGet;
-import org.hl7.komet.framework.uncertain.ObservableEditCoordinate;
 import org.hl7.tinkar.common.id.IntIdSet;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
 import org.hl7.tinkar.common.service.TinkExecutor;

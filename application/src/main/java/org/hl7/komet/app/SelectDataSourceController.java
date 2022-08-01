@@ -106,7 +106,7 @@ public class SelectDataSourceController {
         dataServicePropertyStringMap.clear();
         fileListView.getItems().clear();
         fileListView.getItems().addAll(dataSourceChoiceBox.getValue().providerOptions());
-        fileListView.getItems().sort(new NaturalOrder());
+        fileListView.getItems().sort(NaturalOrder.getObjectComparator());
         fileListView.getSelectionModel().selectFirst();
         fileListView.getSelectionModel().selectFirst();
         fileListView.requestFocus();

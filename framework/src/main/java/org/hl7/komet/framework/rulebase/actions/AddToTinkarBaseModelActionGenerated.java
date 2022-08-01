@@ -4,10 +4,10 @@ import javafx.event.ActionEvent;
 import org.eclipse.collections.api.factory.Lists;
 import org.hl7.tinkar.common.id.PublicId;
 import org.hl7.tinkar.common.id.PublicIds;
-import org.hl7.tinkar.common.service.TinkExecutor;
 import org.hl7.tinkar.common.service.PrimitiveData;
+import org.hl7.tinkar.common.service.TinkExecutor;
 import org.hl7.tinkar.coordinate.edit.EditCoordinate;
-import org.hl7.tinkar.coordinate.edit.EditCoordinateImmutable;
+import org.hl7.tinkar.coordinate.edit.EditCoordinateRecord;
 import org.hl7.tinkar.coordinate.stamp.calculator.Latest;
 import org.hl7.tinkar.coordinate.view.ViewCoordinateRecord;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculator;
@@ -27,19 +27,19 @@ public class AddToTinkarBaseModelActionGenerated extends AbstractActionSuggested
     }
 
     @Override
-    public void doAction(ActionEvent actionEvent, EditCoordinateImmutable editCoordinate) {
+    public void doAction(ActionEvent actionEvent, EditCoordinateRecord editCoordinate) {
         // See if semantic already exists, and needs a new version...
         int[] semanticNidsForComponent = PrimitiveData.get().semanticNidsForComponentOfPattern(conceptVersion.nid(), TINKAR_BASE_MODEL_COMPONENT_PATTERN.nid());
         if (semanticNidsForComponent.length == 0) {
             // case 1: never a member
-            createSemantic(editCoordinate.toEditCoordinateImmutable());
+            createSemantic(editCoordinate.toEditCoordinateRecord());
         } else {
             // a member, need to change to inactive.
-            updateSemantic(semanticNidsForComponent[0], editCoordinate.toEditCoordinateImmutable());
+            updateSemantic(semanticNidsForComponent[0], editCoordinate.toEditCoordinateRecord());
         }
     }
 
-    private SemanticRecord createSemantic(EditCoordinateImmutable editCoordinateImmutable) {
+    private SemanticRecord createSemantic(EditCoordinateRecord editCoordinateRecord) {
         PublicId newSemanticId = PublicIds.singleSemanticId(TINKAR_BASE_MODEL_COMPONENT_PATTERN, conceptVersion.publicId());
         RecordListBuilder versionListBuilder = new RecordListBuilder();
         SemanticRecord newSemantic = SemanticRecord.makeNew(newSemanticId, TINKAR_BASE_MODEL_COMPONENT_PATTERN, conceptVersion.nid(), versionListBuilder);
@@ -48,7 +48,7 @@ public class AddToTinkarBaseModelActionGenerated extends AbstractActionSuggested
 
         Latest<PatternEntityVersion> latestPatternVersion = viewCalculator.latestPatternEntityVersion(TINKAR_BASE_MODEL_COMPONENT_PATTERN);
         latestPatternVersion.ifPresentOrElse(patternEntityVersion -> {
-            StampEntity stampEntity = transaction.getStamp(State.ACTIVE, Long.MAX_VALUE, editCoordinateImmutable.getAuthorNidForChanges(),
+            StampEntity stampEntity = transaction.getStamp(State.ACTIVE, Long.MAX_VALUE, editCoordinateRecord.getAuthorNidForChanges(),
                     patternEntityVersion.moduleNid(), viewRecord.stampCoordinate().pathNidForFilter());
             SemanticVersionRecord newSemanticVersion = new SemanticVersionRecord(newSemantic, stampEntity.nid(), Lists.immutable.empty());
 
@@ -64,14 +64,14 @@ public class AddToTinkarBaseModelActionGenerated extends AbstractActionSuggested
         return newSemantic;
     }
 
-    private void updateSemantic(int semanticNid, EditCoordinateImmutable editCoordinateImmutable) {
+    private void updateSemantic(int semanticNid, EditCoordinateRecord editCoordinateRecord) {
         SemanticRecord semanticEntity = Entity.getFast(semanticNid);
         Transaction transaction = Transaction.make();
         ViewCoordinateRecord viewRecord = viewCalculator.viewCoordinateRecord();
 
         Latest<PatternEntityVersion> latestPatternVersion = viewCalculator.latestPatternEntityVersion(TINKAR_BASE_MODEL_COMPONENT_PATTERN);
         latestPatternVersion.ifPresentOrElse(patternEntityVersion -> {
-            StampEntity stampEntity = transaction.getStamp(State.ACTIVE, Long.MAX_VALUE, editCoordinateImmutable.getAuthorNidForChanges(),
+            StampEntity stampEntity = transaction.getStamp(State.ACTIVE, Long.MAX_VALUE, editCoordinateRecord.getAuthorNidForChanges(),
                     patternEntityVersion.moduleNid(), viewRecord.stampCoordinate().pathNidForFilter());
             SemanticVersionRecord newSemanticVersion = new SemanticVersionRecord(semanticEntity, stampEntity.nid(), Lists.immutable.empty());
             SemanticRecord analogue = semanticEntity.with(newSemanticVersion).build();

@@ -2,10 +2,10 @@ package org.hl7.komet.framework.rulebase.actions;
 
 import javafx.event.ActionEvent;
 import org.eclipse.collections.api.factory.Lists;
-import org.hl7.tinkar.common.service.TinkExecutor;
 import org.hl7.tinkar.common.service.PrimitiveData;
+import org.hl7.tinkar.common.service.TinkExecutor;
 import org.hl7.tinkar.coordinate.edit.EditCoordinate;
-import org.hl7.tinkar.coordinate.edit.EditCoordinateImmutable;
+import org.hl7.tinkar.coordinate.edit.EditCoordinateRecord;
 import org.hl7.tinkar.coordinate.stamp.calculator.Latest;
 import org.hl7.tinkar.coordinate.view.ViewCoordinateRecord;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculator;
@@ -25,25 +25,25 @@ public class RemoveFromTinkarBaseModelActionGenerated extends AbstractActionSugg
     }
 
     @Override
-    public void doAction(ActionEvent actionEvent, EditCoordinateImmutable editCoordinate) {
+    public void doAction(ActionEvent actionEvent, EditCoordinateRecord editCoordinate) {
         int[] semanticNidsForComponent = PrimitiveData.get().semanticNidsForComponentOfPattern(conceptVersion.nid(), TINKAR_BASE_MODEL_COMPONENT_PATTERN.nid());
         if (semanticNidsForComponent.length == 0) {
             // case 1: never a member
             throw new IllegalStateException("Asking to retire element that was never a member...");
         } else {
-            updateSemantic(semanticNidsForComponent[0], editCoordinate.toEditCoordinateImmutable());
+            updateSemantic(semanticNidsForComponent[0], editCoordinate.toEditCoordinateRecord());
         }
     }
 
 
-    private void updateSemantic(int semanticNid, EditCoordinateImmutable editCoordinateImmutable) {
+    private void updateSemantic(int semanticNid, EditCoordinateRecord editCoordinateRecord) {
         SemanticRecord semanticEntity = Entity.getFast(semanticNid);
         Transaction transaction = Transaction.make();
         ViewCoordinateRecord viewRecord = viewCalculator.viewCoordinateRecord();
 
         Latest<PatternEntityVersion> latestPatternVersion = viewCalculator.latestPatternEntityVersion(TINKAR_BASE_MODEL_COMPONENT_PATTERN);
         latestPatternVersion.ifPresentOrElse(patternEntityVersion -> {
-            StampEntity stampEntity = transaction.getStamp(State.INACTIVE, Long.MAX_VALUE, editCoordinateImmutable.getAuthorNidForChanges(),
+            StampEntity stampEntity = transaction.getStamp(State.INACTIVE, Long.MAX_VALUE, editCoordinateRecord.getAuthorNidForChanges(),
                     patternEntityVersion.moduleNid(), viewRecord.stampCoordinate().pathNidForFilter());
             SemanticVersionRecord newSemanticVersion = new SemanticVersionRecord(semanticEntity, stampEntity.nid(), Lists.immutable.empty());
             SemanticRecord analogue = semanticEntity.with(newSemanticVersion).build();

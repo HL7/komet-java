@@ -1,7 +1,5 @@
 package org.hl7.komet.framework.activity;
 
-import io.smallrye.mutiny.Multi;
-import io.smallrye.mutiny.operators.multi.processors.BroadcastProcessor;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -16,20 +14,21 @@ import org.hl7.tinkar.common.alert.AlertStreams;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
 import org.hl7.tinkar.common.service.PrimitiveData;
 import org.hl7.tinkar.common.service.SaveState;
+import org.hl7.tinkar.common.util.broadcast.Broadcaster;
+import org.hl7.tinkar.common.util.broadcast.SimpleBroadcaster;
+import org.hl7.tinkar.common.util.broadcast.Subscriber;
 import org.hl7.tinkar.terms.EntityFacade;
-import org.reactivestreams.FlowAdapters;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.prefs.BackingStoreException;
 
-public class ActivityStream implements Flow.Publisher<ImmutableList<EntityFacade>>, SaveState {
+public class ActivityStream implements Broadcaster<ImmutableList<EntityFacade>>, SaveState {
     public static final int MAX_HISTORY_SIZE = 15;
     final String streamIconCssId;
-    final Multi<ImmutableList<EntityFacade>> entityListStream;
-    final BroadcastProcessor<ImmutableList<EntityFacade>> processor;
+
+    final Broadcaster<ImmutableList<EntityFacade>> processor;
     final PublicIdStringKey<ActivityStream> activityStreamKey;
     /**
      * Note that last dispatch is different from history. Last dispatch may contain a multi-select, while history is
@@ -43,8 +42,9 @@ public class ActivityStream implements Flow.Publisher<ImmutableList<EntityFacade
     public ActivityStream(String streamIconCssId, PublicIdStringKey<ActivityStream> activityStreamKey) {
         this.streamIconCssId = streamIconCssId;
         this.activityStreamKey = activityStreamKey;
-        this.processor = BroadcastProcessor.create();
-        this.entityListStream = processor.toHotStream();
+
+        this.processor = new SimpleBroadcaster<>();
+        ;
         this.preferences = Preferences.get().getConfigurationPreferences().node("/activity-streams/" + activityStreamKey.getString());
         if (preferences.hasKey(PreferenceKey.HISTORY)) {
             List<EntityFacade> savedHistory = preferences.getEntityList(PreferenceKey.HISTORY);
@@ -71,8 +71,13 @@ public class ActivityStream implements Flow.Publisher<ImmutableList<EntityFacade
     }
 
     @Override
-    public void subscribe(Flow.Subscriber<? super ImmutableList<EntityFacade>> subscriber) {
-        entityListStream.subscribe().withSubscriber(FlowAdapters.toSubscriber(subscriber));
+    public void addSubscriberWithWeakReference(Subscriber<ImmutableList<EntityFacade>> subscriber) {
+        processor.addSubscriberWithWeakReference(subscriber);
+    }
+
+    @Override
+    public void removeSubscriber(Subscriber<ImmutableList<EntityFacade>> subscriber) {
+        processor.removeSubscriber(subscriber);
     }
 
     public void dispatch(EntityFacade... entities) {
@@ -81,7 +86,7 @@ public class ActivityStream implements Flow.Publisher<ImmutableList<EntityFacade
 
     public void dispatch(ImmutableList<EntityFacade> entities) {
         lastDispatch.set(entities);
-        processor.onNext(entities);
+        processor.dispatch(entities);
         if (Platform.isFxApplicationThread()) {
             updateHistory(entities);
         } else {

@@ -1,10 +1,11 @@
-package org.hl7.komet.classification;
+package org.hl7.komet.reasoner;
 
 import au.csiro.ontology.Factory;
 import au.csiro.ontology.model.*;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
+import org.hl7.komet.reasoner.expression.LogicalAxiomSemantic;
 import org.hl7.tinkar.common.alert.AlertStreams;
 import org.hl7.tinkar.common.service.PrimitiveData;
 import org.hl7.tinkar.common.service.TrackingCallable;
@@ -25,15 +26,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ExtractAxiomsTask extends TrackingCallable<AxiomData> {
     private static final Logger LOG = LoggerFactory.getLogger(ExtractAxiomsTask.class);
     final ViewCalculator viewCalculator;
-    final PatternFacade axiomPattern;
+    final PatternFacade statedAxiomPattern;
     AxiomData axiomData = new AxiomData();
 
 
-    public ExtractAxiomsTask(ViewCalculator viewCalculator, PatternFacade axiomPattern) {
+    public ExtractAxiomsTask(ViewCalculator viewCalculator, PatternFacade statedAxiomPattern) {
         super(false, true);
         this.viewCalculator = viewCalculator;
-        this.axiomPattern = axiomPattern;
-        updateTitle("Fetching axioms from: " + viewCalculator.getPreferredDescriptionTextWithFallbackOrNid(axiomPattern));
+        this.statedAxiomPattern = statedAxiomPattern;
+        updateTitle("Fetching axioms from: " + viewCalculator.getPreferredDescriptionTextWithFallbackOrNid(statedAxiomPattern));
     }
 
     @Override
@@ -41,7 +42,7 @@ public class ExtractAxiomsTask extends TrackingCallable<AxiomData> {
 
 
         AtomicInteger axiomCounter = axiomData.processedSemantics;
-        PrimitiveData.get().forEachSemanticNidOfPattern(axiomPattern.nid(), i -> axiomCounter.incrementAndGet());
+        PrimitiveData.get().forEachSemanticNidOfPattern(statedAxiomPattern.nid(), i -> axiomCounter.incrementAndGet());
         final int totalAxiomCount = axiomCounter.get();
         updateProgress(0, totalAxiomCount);
         LogicCoordinateRecord logicCoordinate = viewCalculator.logicCalculator().logicCoordinateRecord();
@@ -52,14 +53,16 @@ public class ExtractAxiomsTask extends TrackingCallable<AxiomData> {
                 (semanticEntityVersion, patternEntityVersion) -> {
                     updateProgress(axiomCounter.incrementAndGet(), totalAxiomCount);
                     int conceptNid = semanticEntityVersion.referencedComponentNid();
-                    Concept concept = getConcept(conceptNid);
-                    DiTreeEntity<EntityVertex> definition = (DiTreeEntity) semanticEntityVersion.fieldValues().get(0);
-                    ImmutableList<Axiom> axiomsForDefinition = processDefinition(definition, conceptNid);
-                    if (axiomData.nidAxiomsMap.compareAndSet(semanticEntityVersion.nid(), null, axiomsForDefinition)) {
-                        axiomData.axiomsSet.addAll(axiomsForDefinition.castToList());
-                    } else {
-                        AlertStreams.dispatchToRoot(new IllegalStateException("Definition for " + conceptNid + " already exists. "));
-
+                    // TODO: In some cases, may wish to classify axioms from inactive concepts. Put in logic coordinate?
+                    if (viewCalculator.latestIsActive(conceptNid)) {
+                        Concept concept = getConcept(conceptNid);
+                        DiTreeEntity definition = (DiTreeEntity) semanticEntityVersion.fieldValues().get(0);
+                        ImmutableList<Axiom> axiomsForDefinition = processDefinition(definition, conceptNid);
+                        if (axiomData.nidAxiomsMap.compareAndSet(semanticEntityVersion.nid(), null, axiomsForDefinition)) {
+                            axiomData.axiomsSet.addAll(axiomsForDefinition.castToList());
+                        } else {
+                            AlertStreams.dispatchToRoot(new IllegalStateException("Definition for " + conceptNid + " already exists. "));
+                        }
                     }
                     int axiomCount = axiomCounter.incrementAndGet();
                     if (axiomCount % 100 == 0) {
@@ -75,42 +78,42 @@ public class ExtractAxiomsTask extends TrackingCallable<AxiomData> {
         return axiomData;
     }
 
-    private ImmutableList<Axiom> processDefinition(DiTreeEntity<EntityVertex> definition, int conceptNid) {
+    private ImmutableList<Axiom> processDefinition(DiTreeEntity definition, int conceptNid) {
         return processRoot(definition.root(), conceptNid, definition, Lists.mutable.empty());
     }
 
     private ImmutableList<Axiom> processRoot(EntityVertex rootVertex,
                                              int conceptNid,
-                                             DiTreeEntity<EntityVertex> definition, MutableList<Axiom> axioms)
+                                             DiTreeEntity definition, MutableList<Axiom> snorocketAxioms)
             throws IllegalStateException {
 
         for (final EntityVertex childVertex : definition.successors(rootVertex)) {
-            switch (LogicalMeaning.get(childVertex.getMeaningNid())) {
+            switch (LogicalAxiomSemantic.get(childVertex.getMeaningNid())) {
                 case SUFFICIENT_SET -> {
-                    processSufficientSet(childVertex, conceptNid, definition, axioms);
+                    processSufficientSet(childVertex, conceptNid, definition, snorocketAxioms);
                 }
                 case NECESSARY_SET -> {
-                    processNecessarySet(childVertex, conceptNid, definition, axioms);
+                    processNecessarySet(childVertex, conceptNid, definition, snorocketAxioms);
                 }
                 case PROPERTY_SET -> {
-                    processPropertySet(childVertex, conceptNid, definition, axioms);
+                    processPropertySet(childVertex, conceptNid, definition, snorocketAxioms);
                 }
 
                 default -> throw new IllegalStateException("Unexpected value: " + PrimitiveData.text(childVertex.getMeaningNid()));
             }
         }
-        return axioms.toImmutable();
+        return snorocketAxioms.toImmutable();
     }
 
     private void processNecessarySet(EntityVertex sufficientSetVertex,
                                      int conceptNid,
-                                     DiTreeEntity<EntityVertex> definition, MutableList<Axiom> axioms) {
+                                     DiTreeEntity definition, MutableList<Axiom> snorocketAxioms) {
         final ImmutableList<EntityVertex> childVertexList = definition.successors(sufficientSetVertex);
         if (childVertexList.size() == 1) {
-            final Optional<Concept> conjunctionConcept = generateAxioms(childVertexList.get(0), conceptNid, definition, axioms);
+            final Optional<Concept> conjunctionConcept = generateAxioms(childVertexList.get(0), conceptNid, definition, snorocketAxioms);
 
             if (conjunctionConcept.isPresent()) {
-                axioms.add(new ConceptInclusion(getConcept(conceptNid), conjunctionConcept.get()));
+                snorocketAxioms.add(new ConceptInclusion(getConcept(conceptNid), conjunctionConcept.get()));
             } else {
                 throw new IllegalStateException("Child node must return a conjunction concept. Concept: " + conceptNid +
                         " definition: " + definition);
@@ -122,17 +125,17 @@ public class ExtractAxiomsTask extends TrackingCallable<AxiomData> {
 
     private void processSufficientSet(EntityVertex necessarySetVertex,
                                       int conceptNid,
-                                      DiTreeEntity<EntityVertex> definition, MutableList<Axiom> axioms) {
+                                      DiTreeEntity definition, MutableList<Axiom> snorocketAxioms) {
         final ImmutableList<EntityVertex> childVertexList = definition.successors(necessarySetVertex);
         if (childVertexList.size() == 1) {
-            final Optional<Concept> conjunctionConcept = generateAxioms(childVertexList.get(0), conceptNid, definition, axioms);
+            final Optional<Concept> conjunctionConcept = generateAxioms(childVertexList.get(0), conceptNid, definition, snorocketAxioms);
 
             if (conjunctionConcept.isPresent()) {
-                axioms.add(
+                snorocketAxioms.add(
                         new ConceptInclusion(
                                 getConcept(conceptNid),
                                 conjunctionConcept.get()));
-                axioms.add(
+                snorocketAxioms.add(
                         new ConceptInclusion(
                                 conjunctionConcept.get(),
                                 getConcept(conceptNid)));
@@ -152,33 +155,18 @@ public class ExtractAxiomsTask extends TrackingCallable<AxiomData> {
      * @return the role
      */
     private Role getRole(int roleNid) {
-        return Factory.createNamedRole(Integer.toString(roleNid));
-        //return axiomData.nidRoleMap.computeIfAbsent(roleNid, nid -> Factory.createNamedRole(Integer.toString(roleNid)));
+        //return Factory.createNamedRole(Integer.toString(roleNid));
+        return axiomData.nidRoleMap.computeIfAbsent(roleNid, nid -> Factory.createNamedRole(Integer.toString(roleNid)));
     }
 
     private Concept getConcept(int conceptNid) {
-        return Factory.createNamedConcept(Integer.toString(conceptNid));
-        //return axiomData.nidConceptMap.computeIfAbsent(conceptNid, nid -> Factory.createNamedConcept(Integer.toString(conceptNid)));
-
-        /*
-        //The function is applied with the current value of the element at index i as its first argument,
-        // and the given update as the second argument.
-        return (Concept) nidConceptMap.accumulateAndGet(conceptNid, null, (currentValue, nullValue) -> {
-            if (currentValue == null) {
-                return Factory.createNamedConcept(Integer.toString(conceptNid));
-            }
-            return currentValue;
-        });
-        */
-
+        //return Factory.createNamedConcept(Integer.toString(conceptNid));
+        return axiomData.nidConceptMap.computeIfAbsent(conceptNid, nid -> Factory.createNamedConcept(Integer.toString(conceptNid)));
     }
 
-
     private Feature getFeature(int featureNid) {
-        return Factory.createNamedFeature(Integer.toString(featureNid));
-        // The function is applied with the current value of the element at index i as its first argument,
-        // and the given update as the second argument.
-        //return axiomData.nidFeatureMap.computeIfAbsent(featureNid, nid -> Factory.createNamedFeature(Integer.toString(featureNid)));
+        //return Factory.createNamedFeature(Integer.toString(featureNid));
+        return axiomData.nidFeatureMap.computeIfAbsent(featureNid, nid -> Factory.createNamedFeature(Integer.toString(featureNid)));
     }
 
     /**
@@ -191,63 +179,39 @@ public class ExtractAxiomsTask extends TrackingCallable<AxiomData> {
      */
     private Optional<Concept> generateAxioms(EntityVertex logicVertex,
                                              int conceptNid,
-                                             DiTreeEntity<EntityVertex> definition, MutableList<Axiom> axioms) {
-        switch (LogicalMeaning.get(logicVertex.getMeaningNid())) {
+                                             DiTreeEntity definition, MutableList<Axiom> snorocketAxioms) {
+        switch (LogicalAxiomSemantic.get(logicVertex.getMeaningNid())) {
             case AND:
-                return processAnd(logicVertex, conceptNid, definition, axioms);
+                return processAnd(logicVertex, conceptNid, definition, snorocketAxioms);
 
             case CONCEPT:
                 final ConceptFacade concept = logicVertex.propertyFast(TinkarTerm.CONCEPT_REFERENCE);
                 return Optional.of(getConcept(concept.nid()));
 
             case DEFINITION_ROOT:
-                processRoot(logicVertex, conceptNid, definition, axioms);
+                processRoot(logicVertex, conceptNid, definition, snorocketAxioms);
                 break;
 
             case DISJOINT_WITH:
                 throw new UnsupportedOperationException("Not supported by SnoRocket/EL++.");
 
             case FEATURE:
-                return processFeatureNode(logicVertex, conceptNid, definition, axioms);
+                return processFeatureNode(logicVertex, conceptNid, definition, snorocketAxioms);
 
             case PROPERTY_SET:
-                processPropertySet(logicVertex, conceptNid, definition, axioms);
+                processPropertySet(logicVertex, conceptNid, definition, snorocketAxioms);
                 break;
 
             case OR:
                 throw new UnsupportedOperationException("Not supported by SnoRocket/EL++.");
 
-            case ROLE_ALL:
-                throw new UnsupportedOperationException("Not supported by SnoRocket/EL++.");
-
             case ROLE:
                 ConceptFacade roleOperator = logicVertex.propertyFast(TinkarTerm.ROLE_OPERATOR);
                 if (roleOperator.nid() == TinkarTerm.EXISTENTIAL_RESTRICTION.nid()) {
-                    return processRoleNodeSome(logicVertex, conceptNid, definition, axioms);
+                    return processRoleNodeSome(logicVertex, conceptNid, definition, snorocketAxioms);
                 } else {
                     throw new UnsupportedOperationException("Role: " + PrimitiveData.text(roleOperator.nid()) + " not supported. ");
                 }
-
-            case SUBSTITUTION_BOOLEAN:
-                throw new UnsupportedOperationException("Supported, but not yet implemented.");
-
-            case SUBSTITUTION_CONCEPT:
-                throw new UnsupportedOperationException("Supported, but not yet implemented.");
-
-            case SUBSTITUTION_FLOAT:
-                throw new UnsupportedOperationException("Supported, but not yet implemented.");
-
-            case SUBSTITUTION_INSTANT:
-                throw new UnsupportedOperationException("Supported, but not yet implemented.");
-
-            case SUBSTITUTION_INTEGER:
-                throw new UnsupportedOperationException("Supported, but not yet implemented.");
-
-            case SUBSTITUTION_STRING:
-                throw new UnsupportedOperationException("Supported, but not yet implemented.");
-
-            case TEMPLATE:
-                throw new UnsupportedOperationException("Supported, but not yet implemented.");
 
             case LITERAL_BOOLEAN:
             case LITERAL_FLOAT:
@@ -260,8 +224,8 @@ public class ExtractAxiomsTask extends TrackingCallable<AxiomData> {
             case SUFFICIENT_SET:
             case NECESSARY_SET:
                 throw new UnsupportedOperationException("Not expected here: " + logicVertex);
-            default:
-                throw new UnsupportedOperationException("ar Can't handle: " + logicVertex);
+            case PROPERTY_PATTERN_IMPLICATION:
+                throw new UnsupportedOperationException();
         }
 
         return Optional.empty();
@@ -269,7 +233,7 @@ public class ExtractAxiomsTask extends TrackingCallable<AxiomData> {
 
     private void processPropertySet(EntityVertex propertySetNode,
                                     int conceptNid,
-                                    DiTreeEntity<EntityVertex> definition, MutableList<Axiom> axioms) {
+                                    DiTreeEntity definition, MutableList<Axiom> snorocketAxioms) {
         final ImmutableList<EntityVertex> children = definition.successors(propertySetNode);
 
         if (children.size() != 1) {
@@ -284,11 +248,11 @@ public class ExtractAxiomsTask extends TrackingCallable<AxiomData> {
 
 
         for (EntityVertex node : definition.successors(children.get(0))) {
-            switch (LogicalMeaning.get(node.getMeaningNid())) {
+            switch (LogicalAxiomSemantic.get(node.getMeaningNid())) {
                 case CONCEPT:
                     final ConceptFacade successorConcept = node.propertyFast(TinkarTerm.CONCEPT_REFERENCE);
                     // TODO is this right? Getting roles for a property set?
-                    axioms.add(new RoleInclusion(
+                    snorocketAxioms.add(new RoleInclusion(
                             getRole(conceptNid),
                             getRole(successorConcept.nid())));
                     break;
@@ -311,13 +275,13 @@ public class ExtractAxiomsTask extends TrackingCallable<AxiomData> {
      * @param definition the logical definition
      * @return the optional
      */
-    private Optional<Concept> processAnd(EntityVertex andNode, int conceptNid, DiTreeEntity<EntityVertex> definition,
-                                         MutableList<Axiom> axioms) {
+    private Optional<Concept> processAnd(EntityVertex andNode, int conceptNid, DiTreeEntity definition,
+                                         MutableList<Axiom> snorocketAxioms) {
         final ImmutableList<EntityVertex> childrenLogicNodes = definition.successors(andNode);
         final Concept[] conjunctionConcepts = new Concept[childrenLogicNodes.size()];
 
         for (int i = 0; i < childrenLogicNodes.size(); i++) {
-            conjunctionConcepts[i] = generateAxioms(childrenLogicNodes.get(i), conceptNid, definition, axioms).get();
+            conjunctionConcepts[i] = generateAxioms(childrenLogicNodes.get(i), conceptNid, definition, snorocketAxioms).get();
         }
 
         return Optional.of(Factory.createConjunction(conjunctionConcepts));
@@ -333,7 +297,7 @@ public class ExtractAxiomsTask extends TrackingCallable<AxiomData> {
      */
     private Optional<Concept> processRoleNodeSome(EntityVertex roleNodeSome,
                                                   int conceptNid,
-                                                  DiTreeEntity<EntityVertex> definition, MutableList<Axiom> axioms) {
+                                                  DiTreeEntity definition, MutableList<Axiom> snorocketAxioms) {
         ConceptFacade roleType = roleNodeSome.propertyFast(TinkarTerm.ROLE_TYPE);
         final Role theRole = getRole(roleType.nid());
         final ImmutableList<EntityVertex> children = definition.successors(roleNodeSome);
@@ -343,7 +307,7 @@ public class ExtractAxiomsTask extends TrackingCallable<AxiomData> {
                     definition);
         }
 
-        final Optional<Concept> restrictionConcept = generateAxioms(children.get(0), conceptNid, definition, axioms);
+        final Optional<Concept> restrictionConcept = generateAxioms(children.get(0), conceptNid, definition, snorocketAxioms);
 
         if (restrictionConcept.isPresent()) {
             return Optional.of(Factory.createExistential(theRole, restrictionConcept.get()));
@@ -363,7 +327,7 @@ public class ExtractAxiomsTask extends TrackingCallable<AxiomData> {
      */
     private Optional<Concept> processFeatureNode(EntityVertex featureNode,
                                                  int conceptNid,
-                                                 DiTreeEntity<EntityVertex> definition, MutableList<Axiom> axioms) {
+                                                 DiTreeEntity definition, MutableList<Axiom> snorocketAxioms) {
         EntityFacade featureFacade = featureNode.propertyFast(TinkarTerm.FEATURE);
         final Feature theFeature = getFeature(featureFacade.nid());
         throw new UnsupportedOperationException();

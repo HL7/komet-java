@@ -93,7 +93,7 @@ Field 1: ‹US English: Preferred›
 
         if (axiomBuilder != null) {
             // Construct tree entity...
-            DiTreeEntity.Builder<EntityVertex> axiomTreeEntityBuilder = DiTreeEntity.builder();
+            DiTreeEntity.Builder axiomTreeEntityBuilder = DiTreeEntity.builder();
             EntityVertex rootVertex = EntityVertex.make(axiomBuilder);
             axiomTreeEntityBuilder.setRoot(rootVertex);
             recursiveAddChildren(axiomTreeEntityBuilder, rootVertex, axiomBuilder);
@@ -111,7 +111,7 @@ Field 1: ‹US English: Preferred›
         return entities.toImmutable();
     }
 
-    private void recursiveAddChildren(DiTreeEntity.Builder<EntityVertex> axiomTreeBuilder, EntityVertex parentVertex, AxiomBuilderRecord parentAxiom) {
+    private void recursiveAddChildren(DiTreeEntity.Builder axiomTreeBuilder, EntityVertex parentVertex, AxiomBuilderRecord parentAxiom) {
         for (AxiomBuilderRecord child : parentAxiom.children()) {
             EntityVertex childVertex = EntityVertex.make(child);
             axiomTreeBuilder.addVertex(childVertex);

@@ -9,7 +9,7 @@ import org.hl7.komet.framework.performance.impl.RequestRecord;
 import org.hl7.komet.framework.rulebase.GeneratedActionImmediate;
 import org.hl7.tinkar.common.service.TinkExecutor;
 import org.hl7.tinkar.coordinate.edit.EditCoordinate;
-import org.hl7.tinkar.coordinate.edit.EditCoordinateImmutable;
+import org.hl7.tinkar.coordinate.edit.EditCoordinateRecord;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculator;
 import org.hl7.tinkar.entity.Entity;
 import org.hl7.tinkar.entity.StampEntity;
@@ -37,7 +37,7 @@ public class NewConceptFromTextActionGenerated extends AbstractActionImmediate i
         }
     }
 
-    public final void doAction(ActionEvent actionEvent, EditCoordinateImmutable editCoordinate) {
+    public final void doAction(ActionEvent actionEvent, EditCoordinateRecord editCoordinate) {
         TinkExecutor.threadPool().execute(() -> {
             Transaction transaction = Transaction.make("New concept for: " + newConceptText);
             StampEntity stampEntity = transaction.getStamp(State.ACTIVE, editCoordinate.getAuthorNidForChanges(), editCoordinate.getDefaultModuleNid(), editCoordinate.getDefaultPathNid());

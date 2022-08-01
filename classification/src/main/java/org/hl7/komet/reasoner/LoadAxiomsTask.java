@@ -1,4 +1,4 @@
-package org.hl7.komet.classification;
+package org.hl7.komet.reasoner;
 
 import au.csiro.ontology.classification.IReasoner;
 import au.csiro.snorocket.core.SnorocketReasoner;

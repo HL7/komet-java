@@ -5,7 +5,7 @@ import org.controlsfx.control.action.Action;
 import org.hl7.komet.framework.Dialogs;
 import org.hl7.komet.framework.rulebase.GeneratedAction;
 import org.hl7.tinkar.coordinate.edit.EditCoordinate;
-import org.hl7.tinkar.coordinate.edit.EditCoordinateImmutable;
+import org.hl7.tinkar.coordinate.edit.EditCoordinateRecord;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculator;
 
 public sealed abstract class AbstractActionGenerated
@@ -25,13 +25,13 @@ public sealed abstract class AbstractActionGenerated
 
     public final void doAction(ActionEvent actionEvent) {
         try {
-            doAction(actionEvent, editCoordinate.toEditCoordinateImmutable());
+            doAction(actionEvent, editCoordinate.toEditCoordinateRecord());
         } catch (Throwable ex) {
             Dialogs.showErrorDialog("Error executing " + getText(), ex.getMessage(), ex);
         }
     }
 
-    public abstract void doAction(ActionEvent t, EditCoordinateImmutable editCoordinate);
+    public abstract void doAction(ActionEvent t, EditCoordinateRecord editCoordinate);
 
     public ViewCalculator viewCalculator() {
         return viewCalculator;

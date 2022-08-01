@@ -1,11 +1,9 @@
-package org.hl7.komet.framework.uncertain;
+package org.hl7.komet.framework.view;
 
 
 import javafx.beans.value.ObservableValue;
-import org.hl7.komet.framework.view.ObjectPropertyWithOverride;
-import org.hl7.komet.framework.view.SimpleEqualityBasedObjectProperty;
 import org.hl7.tinkar.coordinate.edit.EditCoordinate;
-import org.hl7.tinkar.coordinate.edit.EditCoordinateImmutable;
+import org.hl7.tinkar.coordinate.edit.EditCoordinateRecord;
 import org.hl7.tinkar.terms.ConceptFacade;
 
 public class ObservableEditCoordinateWithOverride
@@ -31,7 +29,7 @@ public class ObservableEditCoordinateWithOverride
     }
 
     @Override
-    protected EditCoordinateImmutable baseCoordinateChangedListenersRemoved(ObservableValue<? extends EditCoordinateImmutable> observable, EditCoordinateImmutable oldValue, EditCoordinateImmutable newValue) {
+    protected EditCoordinateRecord baseCoordinateChangedListenersRemoved(ObservableValue<? extends EditCoordinateRecord> observable, EditCoordinateRecord oldValue, EditCoordinateRecord newValue) {
         if (!this.authorForChangesProperty().isOverridden()) {
             this.authorForChangesProperty().setValue(newValue.getAuthorForChanges());
         }
@@ -50,7 +48,7 @@ public class ObservableEditCoordinateWithOverride
         /*
 int authorNid, int defaultModuleNid, int promotionPathNid, int destinationModuleNid
          */
-        return EditCoordinateImmutable.make(this.authorForChangesProperty().get().nid(),
+        return EditCoordinateRecord.make(this.authorForChangesProperty().get().nid(),
                 this.defaultModuleProperty().get().nid(),
                 this.destinationModuleProperty().get().nid(),
                 this.defaultPathProperty().get().nid(),
@@ -59,12 +57,7 @@ int authorNid, int defaultModuleNid, int promotionPathNid, int destinationModule
     }
 
     @Override
-    public ObjectPropertyWithOverride<ConceptFacade> defaultPathProperty() {
-        return (ObjectPropertyWithOverride<ConceptFacade>) super.promotionPathProperty();
-    }
-
-    @Override
-    public void setExceptOverrides(EditCoordinateImmutable updatedCoordinate) {
+    public void setExceptOverrides(EditCoordinateRecord updatedCoordinate) {
         if (hasOverrides()) {
             ConceptFacade author = updatedCoordinate.getAuthorForChanges();
             if (authorForChangesProperty().isOverridden()) {
@@ -91,15 +84,15 @@ int authorNid, int defaultModuleNid, int promotionPathNid, int destinationModule
                 destinationModule = destinationModuleProperty().get();
             }
             ;
-            setValue(EditCoordinateImmutable.make(author, defaultModule, promotionPath, defaultPath, destinationModule));
+            setValue(EditCoordinateRecord.make(author, defaultModule, promotionPath, defaultPath, destinationModule));
         } else {
             setValue(updatedCoordinate);
         }
     }
 
     @Override
-    public EditCoordinateImmutable getOriginalValue() {
-        return EditCoordinateImmutable.make(authorForChangesProperty().getOriginalValue(),
+    public EditCoordinateRecord getOriginalValue() {
+        return EditCoordinateRecord.make(authorForChangesProperty().getOriginalValue(),
                 defaultModuleProperty().getOriginalValue(),
                 destinationModuleProperty().getOriginalValue(),
                 defaultPathProperty().getOriginalValue(),
@@ -150,6 +143,11 @@ int authorNid, int defaultModuleNid, int promotionPathNid, int destinationModule
     @Override
     public ObjectPropertyWithOverride<ConceptFacade> destinationModuleProperty() {
         return (ObjectPropertyWithOverride<ConceptFacade>) super.destinationModuleProperty();
+    }
+
+    @Override
+    public ObjectPropertyWithOverride<ConceptFacade> defaultPathProperty() {
+        return (ObjectPropertyWithOverride<ConceptFacade>) super.promotionPathProperty();
     }
 
     @Override

@@ -22,12 +22,7 @@ public class DetailsNode extends DetailNodeAbstract {
     public DetailsNode(ViewProperties viewProperties, KometPreferences nodePreferences) {
         super(viewProperties, nodePreferences);
         this.componentPanel = new ComponentPanel(entityFocusProperty, viewProperties);
-        this.detailsPane.sceneProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue == null) {
-                invalidationSubscriber.cancel();
-            }
-        });
-        Entity.provider().subscribe(this.invalidationSubscriber);
+        Entity.provider().addSubscriberWithWeakReference(this.invalidationSubscriber);
 
         this.viewProperties.nodeView().addListener((observable, oldValue, newValue) -> {
             setupTopPanel(viewProperties);

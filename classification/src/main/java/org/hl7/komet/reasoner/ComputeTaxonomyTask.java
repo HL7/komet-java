@@ -1,21 +1,21 @@
-package org.hl7.komet.classification;
+package org.hl7.komet.reasoner;
 
 import au.csiro.ontology.classification.IReasoner;
 import org.hl7.tinkar.common.service.TrackingCallable;
 
-public class ClassifyTask extends TrackingCallable<Void> {
+public class ComputeTaxonomyTask extends TrackingCallable<Void> {
     final IReasoner reasoner;
 
-    public ClassifyTask(IReasoner reasoner) {
+    public ComputeTaxonomyTask(IReasoner reasoner) {
         super(false, true);
         this.reasoner = reasoner;
-        updateTitle("Classifying axioms. ");
+        updateTitle("Computing taxonomy. ");
     }
 
     @Override
     protected Void compute() throws Exception {
         this.reasoner.classify(this);
-        updateMessage("Classify in " + durationString());
+        updateMessage("Computed taxonomy in " + durationString());
         return null;
     }
 }

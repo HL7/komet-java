@@ -212,9 +212,9 @@ public class DocBook {
     }
 
     private static void addInferredDefinition(StringBuilder builder, EntityFacade entityFacade, ViewProperties viewProperties) {
-        Latest<DiTreeEntity<EntityVertex>> definition = viewProperties.calculator().getAxiomTreeForEntity(entityFacade, PremiseType.INFERRED);
+        Latest<DiTreeEntity> definition = viewProperties.calculator().getAxiomTreeForEntity(entityFacade, PremiseType.INFERRED);
         if (definition.isPresent()) {
-            DiTreeEntity<EntityVertex> logicGraphSemantic = definition.get();
+            DiTreeEntity logicGraphSemantic = definition.get();
             builder.append("          ").append("<row><entry/><entry><literallayout><emphasis>");
             builder.append(logicGraphSemantic.toString());
             builder.append("</emphasis></literallayout></entry></row>");
@@ -222,9 +222,9 @@ public class DocBook {
     }
 
     private static void addStatedDefinition(StringBuilder builder, EntityFacade entityFacade, ViewProperties viewProperties) {
-        Latest<DiTreeEntity<EntityVertex>> definition = viewProperties.calculator().getAxiomTreeForEntity(entityFacade, PremiseType.STATED);
+        Latest<DiTreeEntity> definition = viewProperties.calculator().getAxiomTreeForEntity(entityFacade, PremiseType.STATED);
         if (definition.isPresent()) {
-            DiTreeEntity<EntityVertex> logicGraphSemantic = definition.get();
+            DiTreeEntity logicGraphSemantic = definition.get();
             builder.append("          ").append("<row><entry/><entry><literallayout><emphasis>");
             builder.append(logicGraphSemantic.toString());
             builder.append("</emphasis></literallayout></entry></row>");

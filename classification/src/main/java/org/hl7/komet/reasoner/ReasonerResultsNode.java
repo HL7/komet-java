@@ -1,4 +1,4 @@
-package org.hl7.komet.classification;
+package org.hl7.komet.reasoner;
 
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
@@ -24,18 +24,19 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import static org.hl7.tinkar.terms.TinkarTerm.EL_PLUS_PLUS_INFERRED_AXIOMS_PATTERN;
 import static org.hl7.tinkar.terms.TinkarTerm.EL_PLUS_PLUS_STATED_AXIOMS_PATTERN;
 
-public class ClassificationResultsNode extends ExplorationNodeAbstract {
-    private static final Logger LOG = LoggerFactory.getLogger(ClassificationResultsNode.class);
+public class ReasonerResultsNode extends ExplorationNodeAbstract {
+    private static final Logger LOG = LoggerFactory.getLogger(ReasonerResultsNode.class);
     protected static final String STYLE_ID = "classification-results-node";
-    protected static final String TITLE = "Classification Results";
+    protected static final String TITLE = "Reasoner Results";
     private final BorderPane contentPane = new BorderPane();
     private final HBox centerBox;
 
-    public ClassificationResultsNode(ViewProperties viewProperties, KometPreferences nodePreferences) {
+    public ReasonerResultsNode(ViewProperties viewProperties, KometPreferences nodePreferences) {
         super(viewProperties, nodePreferences);
-        this.centerBox = new HBox(5, new Label("   classifier "));
+        this.centerBox = new HBox(5, new Label("   reasoner "));
 
         Platform.runLater(() -> {
             TopPanelFactory.TopPanelParts topPanelParts = TopPanelFactory.make(viewProperties,
@@ -44,7 +45,7 @@ public class ClassificationResultsNode extends ExplorationNodeAbstract {
             Platform.runLater(() -> {
                 ArrayList<MenuItem> collectionMenuItems = new ArrayList<>();
                 collectionMenuItems.add(new SeparatorMenuItem());
-                MenuItem copySelectedItemsMenuItem = new MenuItem("Classify");
+                MenuItem copySelectedItemsMenuItem = new MenuItem("Run reasoner");
                 copySelectedItemsMenuItem.setOnAction(this::classify);
                 collectionMenuItems.add(copySelectedItemsMenuItem);
 
@@ -57,7 +58,7 @@ public class ClassificationResultsNode extends ExplorationNodeAbstract {
     private void classify(ActionEvent actionEvent) {
         TinkExecutor.threadPool().execute(() -> {
             RunReasonerTask runReasonerTask =
-                    new RunReasonerTask(getViewProperties().calculator(), EL_PLUS_PLUS_STATED_AXIOMS_PATTERN);
+                    new RunReasonerTask(getViewProperties().calculator(), EL_PLUS_PLUS_STATED_AXIOMS_PATTERN, EL_PLUS_PLUS_INFERRED_AXIOMS_PATTERN);
             Future<AxiomData> reasonerFuture = TinkExecutor.threadPool().submit(runReasonerTask);
             AxiomData axiomData = null;
             int statedCount = 0;
@@ -114,6 +115,6 @@ public class ClassificationResultsNode extends ExplorationNodeAbstract {
 
     @Override
     public Class factoryClass() {
-        return ClassificationResultsNodeFactory.class;
+        return ReasonerResultsNodeFactory.class;
     }
 }

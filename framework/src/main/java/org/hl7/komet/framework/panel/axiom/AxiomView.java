@@ -73,7 +73,7 @@ public class AxiomView implements PropertyEditor<DiTree<EntityVertex>> {
         } catch (RuntimeException ex) {
             LOG.error("Error retrieving parents", ex);
         }
-        Latest<DiTreeEntity<EntityVertex>> conceptExpression = viewProperties.calculator().getAxiomTreeForEntity(conceptNid, premiseType);
+        Latest<DiTreeEntity> conceptExpression = viewProperties.calculator().getAxiomTreeForEntity(conceptNid, premiseType);
         if (!conceptExpression.isPresent()) {
             conceptExpression = viewProperties.calculator().getAxiomTreeForEntity(conceptNid, PremiseType.STATED);
             if (!conceptExpression.isPresent()) {

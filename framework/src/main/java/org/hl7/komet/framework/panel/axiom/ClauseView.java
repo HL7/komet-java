@@ -341,7 +341,7 @@ public class ClauseView {
                             "] ");
                 }
             }
-            descendentConceptDescriptions.sort(new NaturalOrder());
+            descendentConceptDescriptions.sort(NaturalOrder.getStringComparator());
             StringBuilder builder = new StringBuilder();
             for (String conceptDescription : descendentConceptDescriptions) {
                 builder.append(conceptDescription);
@@ -946,7 +946,7 @@ public class ClauseView {
     }
 
     boolean isDefined(int conceptNid) {
-        Latest<DiTreeEntity<EntityVertex>> conceptExpression = calculator().getAxiomTreeForEntity(conceptNid, premiseType());
+        Latest<DiTreeEntity> conceptExpression = calculator().getAxiomTreeForEntity(conceptNid, premiseType());
         if (!conceptExpression.isPresent()) {
             return false;
         }

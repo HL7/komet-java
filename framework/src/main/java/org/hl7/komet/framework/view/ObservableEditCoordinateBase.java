@@ -1,16 +1,14 @@
-package org.hl7.komet.framework.uncertain;
+package org.hl7.komet.framework.view;
 
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import org.hl7.komet.framework.view.ObservableCoordinateAbstract;
-import org.hl7.komet.framework.view.SimpleEqualityBasedObjectProperty;
 import org.hl7.tinkar.coordinate.edit.EditCoordinate;
-import org.hl7.tinkar.coordinate.edit.EditCoordinateImmutable;
+import org.hl7.tinkar.coordinate.edit.EditCoordinateRecord;
 import org.hl7.tinkar.terms.ConceptFacade;
 
-public abstract class ObservableEditCoordinateBase extends ObservableCoordinateAbstract<EditCoordinateImmutable>
+public abstract class ObservableEditCoordinateBase extends ObservableCoordinateAbstract<EditCoordinateRecord>
         implements ObservableEditCoordinate {
     /**
      * The author property.
@@ -57,7 +55,7 @@ public abstract class ObservableEditCoordinateBase extends ObservableCoordinateA
      * @param editCoordinate the edit coordinate
      */
     public ObservableEditCoordinateBase(EditCoordinate editCoordinate, String coordinateName) {
-        super(editCoordinate.toEditCoordinateImmutable(), "Edit coordinate");
+        super(editCoordinate.toEditCoordinateRecord(), "Edit coordinate");
         this.authorForChangesProperty = makeAuthorForChangesProperty(editCoordinate);
         this.defaultModuleProperty = makeDefaultModuleProperty(editCoordinate);
         this.destinationModuleProperty = makeDestinationModuleProperty(editCoordinate);
@@ -105,7 +103,7 @@ public abstract class ObservableEditCoordinateBase extends ObservableCoordinateA
     private void promotionPathConceptChanged(ObservableValue<? extends ConceptFacade> observable,
                                              ConceptFacade old,
                                              ConceptFacade newPathConcept) {
-        this.setValue(EditCoordinateImmutable.make(getAuthorNidForChanges(),
+        this.setValue(EditCoordinateRecord.make(getAuthorNidForChanges(),
                 getDefaultModuleNid(),
                 getDestinationModuleNid(),
                 getDefaultPathNid(),
@@ -117,7 +115,7 @@ public abstract class ObservableEditCoordinateBase extends ObservableCoordinateA
     private void defaultPathConceptChanged(ObservableValue<? extends ConceptFacade> observable,
                                            ConceptFacade old,
                                            ConceptFacade newPathConcept) {
-        this.setValue(EditCoordinateImmutable.make(getAuthorNidForChanges(),
+        this.setValue(EditCoordinateRecord.make(getAuthorNidForChanges(),
                 getDefaultModuleNid(),
                 getDestinationModuleNid(),
                 newPathConcept.nid(),
@@ -128,7 +126,7 @@ public abstract class ObservableEditCoordinateBase extends ObservableCoordinateA
     private void authorForChangesConceptChanged(ObservableValue<? extends ConceptFacade> observable,
                                                 ConceptFacade oldAuthorConcept,
                                                 ConceptFacade newAuthorConcept) {
-        this.setValue(EditCoordinateImmutable.make(newAuthorConcept.nid(),
+        this.setValue(EditCoordinateRecord.make(newAuthorConcept.nid(),
                 getDefaultModuleNid(),
                 getDestinationModuleNid(),
                 getDefaultModuleNid(),
@@ -139,7 +137,7 @@ public abstract class ObservableEditCoordinateBase extends ObservableCoordinateA
     private void defaultModuleConceptChanged(ObservableValue<? extends ConceptFacade> observable,
                                              ConceptFacade old,
                                              ConceptFacade newModuleConcept) {
-        this.setValue(EditCoordinateImmutable.make(getAuthorNidForChanges(),
+        this.setValue(EditCoordinateRecord.make(getAuthorNidForChanges(),
                 newModuleConcept.nid(),
                 getDestinationModuleNid(),
                 getDefaultModuleNid(),
@@ -150,7 +148,7 @@ public abstract class ObservableEditCoordinateBase extends ObservableCoordinateA
     private void destinationModuleConceptChanged(ObservableValue<? extends ConceptFacade> observable,
                                                  ConceptFacade old,
                                                  ConceptFacade newModuleConcept) {
-        this.setValue(EditCoordinateImmutable.make(getAuthorNidForChanges(),
+        this.setValue(EditCoordinateRecord.make(getAuthorNidForChanges(),
                 getDefaultModuleNid(),
                 newModuleConcept.nid(),
                 getDefaultModuleNid(),
@@ -184,7 +182,7 @@ public abstract class ObservableEditCoordinateBase extends ObservableCoordinateA
     }
 
     @Override
-    public EditCoordinate getEditCoordinate() {
+    public EditCoordinate editCoordinate() {
         return this.getValue();
     }
 

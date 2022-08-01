@@ -8,8 +8,9 @@ import org.hl7.komet.framework.graphics.Icon;
 import org.hl7.komet.framework.view.ObservableViewNoOverride;
 import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.komet.preferences.KometPreferencesImpl;
-import org.hl7.tinkar.common.alert.AlertStream;
+import org.hl7.tinkar.common.alert.AlertObject;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
+import org.hl7.tinkar.common.util.broadcast.Broadcaster;
 
 import java.util.UUID;
 
@@ -20,7 +21,7 @@ public interface KometNodeFactory {
     default KometNode create(ObservableViewNoOverride windowView,
                              PublicIdStringKey<ActivityStream> activityStreamKey,
                              PublicIdStringKey<ActivityStreamOption> activityStreamOption,
-                             PublicIdStringKey<AlertStream> parentAlertStreamKey) {
+                             PublicIdStringKey<Broadcaster<AlertObject>> parentAlertStreamKey) {
         KometPreferences nodePreferences = KometPreferencesImpl.getConfigurationRootPreferences().node(newPreferenceNodeName());
         // Add activity stream key
         if (activityStreamKey != null) {

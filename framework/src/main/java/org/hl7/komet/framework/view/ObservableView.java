@@ -1,4 +1,4 @@
-/* 
+/*
  * Licensed under the Apache License, Version 2.0 (the "License");
  *
  * You may not use this file except in compliance with the License.
@@ -14,27 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Contributions from 2013-2017 where performed either by US government 
- * employees, or under US Veterans Health Administration contracts. 
+ * Contributions from 2013-2017 where performed either by US government
+ * employees, or under US Veterans Health Administration contracts.
  *
  * US Veterans Health Administration contributions by government employees
  * are work of the U.S. Government and are not subject to copyright
- * protection in the United States. Portions contributed by government 
- * employees are USGovWork (17USC §105). Not subject to copyright. 
- * 
+ * protection in the United States. Portions contributed by government
+ * employees are USGovWork (17USC §105). Not subject to copyright.
+ *
  * Contribution by contractors to the US Veterans Health Administration
  * during this period are contractually contributed under the
  * Apache License, Version 2.0.
  *
  * See: https://www.usa.gov/government-works
- * 
+ *
  * Contributions prior to 2013:
  *
  * Copyright (C) International Health Terminology Standards Development Organisation.
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
 
 
 package org.hl7.komet.framework.view;
@@ -45,7 +44,6 @@ package org.hl7.komet.framework.view;
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.property.ListProperty;
-
 import javafx.beans.property.Property;
 import org.hl7.tinkar.coordinate.logic.PremiseType;
 import org.hl7.tinkar.coordinate.stamp.StateSet;
@@ -67,48 +65,52 @@ import java.util.ArrayList;
 public interface ObservableView
         extends ViewCoordinateDelegate, ObservableCoordinate<ViewCoordinateRecord> {
 
-   default Property<?>[] getBaseProperties() {
-      return new Property<?>[] {
-              stampCoordinate().allowedStatesProperty(),
-      };
-   }
+    default Property<?>[] getBaseProperties() {
+        return new Property<?>[]{
+                stampCoordinate().allowedStatesProperty(),
+        };
+    }
 
-   default ObservableCoordinate<?>[] getCompositeCoordinates() {
-      ArrayList<ObservableCoordinate<?>> compositeCoordinates = new ArrayList<>(3 + languageCoordinates().size());
-      compositeCoordinates.add(stampCoordinate());
-      compositeCoordinates.add(logicCoordinate());
-      compositeCoordinates.add(navigationCoordinate());
-      for (ObservableLanguageCoordinate languageCoordinate: languageCoordinates()) {
-         compositeCoordinates.add(languageCoordinate);
-      }
-      return compositeCoordinates.toArray(new ObservableCoordinate[compositeCoordinates.size()]);
-   }
+    default ObservableCoordinate<?>[] getCompositeCoordinates() {
+        ArrayList<ObservableCoordinate<?>> compositeCoordinates = new ArrayList<>(3 + languageCoordinates().size());
+        compositeCoordinates.add(stampCoordinate());
+        compositeCoordinates.add(logicCoordinate());
+        compositeCoordinates.add(navigationCoordinate());
+        for (ObservableLanguageCoordinate languageCoordinate : languageCoordinates()) {
+            compositeCoordinates.add(languageCoordinate);
+        }
+        return compositeCoordinates.toArray(new ObservableCoordinate[compositeCoordinates.size()]);
+    }
 
-   @Override
-   ObservableNavigationCoordinate navigationCoordinate();
+    @Override
+    ObservableStampCoordinate stampCoordinate();
 
-   @Override
-   ObservableStampCoordinate stampCoordinate();
+    ListProperty<ObservableLanguageCoordinateBase> languageCoordinates();
 
-   ListProperty<ObservableLanguageCoordinateBase> languageCoordinates();
+    @Override
+    ObservableNavigationCoordinate navigationCoordinate();
 
-   @Override
-   ObservableLogicCoordinate logicCoordinate();
-   /**
-    * Will change all contained paths (vertex, edge, and language), to the provided path.
-    */
-   default void setViewPath(int pathConceptNid) {
-      setViewPath(EntityProxy.Concept.make(pathConceptNid));
-   }
+    @Override
+    ObservableLogicCoordinate logicCoordinate();
 
-   void setViewPath(ConceptFacade pathConcept);
+    @Override
+    ObservableEditCoordinate editCoordinate();
 
-   default void setPremiseType(PremiseType premiseType) {
-      navigationCoordinate().setPremiseType(premiseType);
-   }
+    /**
+     * Will change all contained paths (vertex, edge, and language), to the provided path.
+     */
+    default void setViewPath(int pathConceptNid) {
+        setViewPath(EntityProxy.Concept.make(pathConceptNid));
+    }
 
-   void setAllowedStates(StateSet StateSet);
+    void setViewPath(ConceptFacade pathConcept);
 
-   ViewCalculator calculator();
+    default void setPremiseType(PremiseType premiseType) {
+        navigationCoordinate().setPremiseType(premiseType);
+    }
+
+    void setAllowedStates(StateSet StateSet);
+
+    ViewCalculator calculator();
 }
 

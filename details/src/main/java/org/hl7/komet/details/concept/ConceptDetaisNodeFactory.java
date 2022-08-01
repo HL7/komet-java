@@ -42,7 +42,7 @@ public class ConceptDetaisNodeFactory implements KometNodeFactory {
 
     @Override
     public ImmutableList<PublicIdStringKey<ActivityStream>> defaultActivityStreamChoices() {
-        return Lists.immutable.of(ActivityStreams.SEARCH, ActivityStreams.NAVIGATION, ActivityStreams.CLASSIFICATION,
+        return Lists.immutable.of(ActivityStreams.SEARCH, ActivityStreams.NAVIGATION, ActivityStreams.REASONER,
                 ActivityStreams.UNLINKED, ActivityStreams.BUILDER, ActivityStreams.CORRELATION, ActivityStreams.LIST);
     }
 

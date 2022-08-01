@@ -40,6 +40,21 @@
  * <p>
  * Copyright CSIRO Australian e-Health Research Centre (http://aehrc.com).
  * All rights reserved. Use is subject to license terms and conditions.
+ * <p>
+ * Copyright CSIRO Australian e-Health Research Centre (http://aehrc.com).
+ * All rights reserved. Use is subject to license terms and conditions.
+ * <p>
+ * Copyright CSIRO Australian e-Health Research Centre (http://aehrc.com).
+ * All rights reserved. Use is subject to license terms and conditions.
+ * <p>
+ * Copyright CSIRO Australian e-Health Research Centre (http://aehrc.com).
+ * All rights reserved. Use is subject to license terms and conditions.
+ * <p>
+ * Copyright CSIRO Australian e-Health Research Centre (http://aehrc.com).
+ * All rights reserved. Use is subject to license terms and conditions.
+ * <p>
+ * Copyright CSIRO Australian e-Health Research Centre (http://aehrc.com).
+ * All rights reserved. Use is subject to license terms and conditions.
  */
 /**
  * Copyright CSIRO Australian e-Health Research Centre (http://aehrc.com).
@@ -73,7 +88,9 @@ import org.hl7.tinkar.common.service.TrackingCallable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -105,34 +122,6 @@ final public class SnorocketReasoner implements IReasoner, Serializable {
         no = new NormalisedOntology(factory);
     }
 
-    /**
-     * Loads a saved instance of a {@link SnorocketReasoner} from an input
-     * stream.
-     *
-     * @param in
-     * @return
-     */
-    public static SnorocketReasoner load(InputStream in) {
-        SnorocketReasoner res;
-        ObjectInputStream ois = null;
-        try {
-            ois = new ObjectInputStream(in);
-            res = (SnorocketReasoner) ois.readObject();
-        } catch (Exception e) {
-            log.error("Problem loading reasoner." + e);
-            throw new RuntimeException(e);
-        } finally {
-            if (ois != null) {
-                try {
-                    ois.close();
-                } catch (Exception e) {
-                }
-            }
-        }
-
-        res.no.buildTaxonomy();
-        return res;
-    }
 
     private static IConceptSet getAncestors(NormalisedOntology no, int conceptInt) {
         return no.getContextIndex().get(conceptInt).getS();
@@ -237,7 +226,7 @@ final public class SnorocketReasoner implements IReasoner, Serializable {
 
         if (!no.isTaxonomyComputed()) {
             log.info("Building taxonomy");
-            no.buildTaxonomy();
+            no.buildTaxonomy(trackingCallable);
         }
 
         final Map<String, Node> taxonomy = no.getTaxonomy();
@@ -735,7 +724,7 @@ final public class SnorocketReasoner implements IReasoner, Serializable {
         if (!isClassified) classify(trackingCallable);
 
         log.info("Building taxonomy");
-        no.buildTaxonomy();
+        no.buildTaxonomy(trackingCallable);
         Map<String, Node> taxonomy = no.getTaxonomy();
         Set<Node> affectedNodes = no.getAffectedNodes();
 
@@ -746,9 +735,9 @@ final public class SnorocketReasoner implements IReasoner, Serializable {
     public Ontology getClassifiedOntology(Ontology ont, TrackingCallable trackingCallable) {
         // Check ontology is classified
         if (!isClassified) classify(trackingCallable);
-
+        trackingCallable.updateMessage("Building taxonomy");
         log.info("Building taxonomy");
-        no.buildTaxonomy();
+        no.buildTaxonomy(trackingCallable);
         Map<String, Node> nodeMap = no.getTaxonomy();
         Set<Node> affectedNodes = no.getAffectedNodes();
 

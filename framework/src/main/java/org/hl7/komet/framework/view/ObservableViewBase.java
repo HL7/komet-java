@@ -8,6 +8,7 @@ import javafx.collections.ListChangeListener;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
+import org.hl7.tinkar.coordinate.edit.EditCoordinateRecord;
 import org.hl7.tinkar.coordinate.language.LanguageCoordinateRecord;
 import org.hl7.tinkar.coordinate.logic.LogicCoordinateRecord;
 import org.hl7.tinkar.coordinate.navigation.NavigationCoordinateRecord;
@@ -32,6 +33,8 @@ public abstract class ObservableViewBase
     protected final ObservableNavigationCoordinateBase navigationCoordinateObservable;
 
     protected final ObservableLogicCoordinateBase logicCoordinateObservable;
+
+    protected final ObservableEditCoordinateBase editCoordinateObservable;
     /**
      * Note that if you don't declare a listener as final in this way, and just use method references, or
      * a direct lambda expression, you will not be able to remove the listener, since each method reference will create
@@ -42,22 +45,9 @@ public abstract class ObservableViewBase
     private final ChangeListener<NavigationCoordinateRecord> navigationChangedListener = this::navigationChanged;
     private final ListChangeListener<ObservableLanguageCoordinateBase> languageCoordinateListener = this::languageChanged;
     private final ChangeListener<LogicCoordinateRecord> logicCoordinateListener = this::logicChanged;
+    private final ChangeListener<EditCoordinateRecord> editCoordinateListener = this::editChanged;
 
     private ViewCalculator viewCalculator;
-
-    //~--- constructors --------------------------------------------------------
-    public ObservableViewBase(ViewCoordinate viewRecord, String name) {
-        super(viewRecord.toViewCoordinateRecord(), name);
-        this.stampCoordinateObservable = makeStampCoordinateObservable(viewRecord);
-        this.navigationCoordinateObservable = makeNavigationCoordinateObservable(viewRecord);
-        this.languageCoordinates = makeLanguageCoordinateListProperty(viewRecord);
-        this.logicCoordinateObservable = makeLogicCoordinateObservable(viewRecord);
-        addListeners();
-        this.viewCalculator = ViewCalculatorWithCache.getCalculator(viewRecord.toViewCoordinateRecord());
-        addListener((observable, oldValue, newValue) -> {
-            this.viewCalculator = ViewCalculatorWithCache.getCalculator(newValue);
-        });
-    }
 
     /**
      * Instantiates a new observable taxonomy coordinate impl.
@@ -68,12 +58,30 @@ public abstract class ObservableViewBase
         this(viewRecord, "View");
     }
 
-    @Override
-    public ViewCalculator calculator() {
-        return ViewCalculatorWithCache.getCalculator(getValue());
+    //~--- constructors --------------------------------------------------------
+    public ObservableViewBase(ViewCoordinate viewRecord, String name) {
+        super(viewRecord.toViewCoordinateRecord(), name);
+        this.stampCoordinateObservable = makeStampCoordinateObservable(viewRecord);
+        this.navigationCoordinateObservable = makeNavigationCoordinateObservable(viewRecord);
+        this.languageCoordinates = makeLanguageCoordinateListProperty(viewRecord);
+        this.logicCoordinateObservable = makeLogicCoordinateObservable(viewRecord);
+        this.editCoordinateObservable = makeEditCoordinateObservable(viewRecord);
+        addListeners();
+        this.viewCalculator = ViewCalculatorWithCache.getCalculator(viewRecord.toViewCoordinateRecord());
+        addListener((observable, oldValue, newValue) -> {
+            this.viewCalculator = ViewCalculatorWithCache.getCalculator(newValue);
+        });
     }
 
     protected abstract ObservableStampCoordinateBase makeStampCoordinateObservable(ViewCoordinate viewRecord);
+
+    protected abstract ObservableNavigationCoordinateBase makeNavigationCoordinateObservable(ViewCoordinate viewRecord);
+
+    protected abstract ListProperty<ObservableLanguageCoordinateBase> makeLanguageCoordinateListProperty(ViewCoordinate viewRecord);
+
+    protected abstract ObservableLogicCoordinateBase makeLogicCoordinateObservable(ViewCoordinate viewRecord);
+
+    protected abstract ObservableEditCoordinateBase makeEditCoordinateObservable(ViewCoordinate viewRecord);
 
     @Override
     public ImmutableList<LanguageCoordinateRecord> languageCoordinateList() {
@@ -86,56 +94,12 @@ public abstract class ObservableViewBase
     }
 
     @Override
-    public void setViewPath(ConceptFacade pathConcept) {
-        this.removeListeners();
-        StampCoordinateRecord newStampCoordinate = stampCoordinate().getValue().withPath(pathConcept);
-
-        this.stampCoordinate().pathConceptProperty().set(pathConcept);
-        MutableList<LanguageCoordinateRecord> languageCoordinateRecords = Lists.mutable.empty();
-        languageCoordinates.forEach(observableLanguageCoordinateBase -> languageCoordinateRecords.add(observableLanguageCoordinateBase.getValue()));
-        ViewCoordinateRecord viewRecord = new ViewCoordinateRecord(
-                this.stampCoordinate().toStampCoordinateRecord(),
-                languageCoordinateRecords.toImmutable(),
-                this.logicCoordinate().toLogicCoordinateRecord(),
-                this.navigationCoordinate().toNavigationCoordinateRecord());
-        this.addListeners();
-        this.setValue(viewRecord);
+    public Iterable<ObservableLanguageCoordinateBase> languageCoordinateIterable() {
+        return this.languageCoordinates;
+    }    @Override
+    public ViewCalculator calculator() {
+        return ViewCalculatorWithCache.getCalculator(getValue());
     }
-
-    @Override
-    public void setAllowedStates(StateSet stateSet) {
-        ViewCoordinateRecord newView = getValue().withStampCoordinate(stampCoordinate().getValue().withAllowedStates(stateSet));
-        newView = newView.withNavigationCoordinate(navigationCoordinate().getValue().withVertexStates(stateSet));
-
-        this.setValue(newView);
-    }
-
-    @Override
-    protected void addListeners() {
-        this.stampCoordinateObservable.addListener(this.stampChangeListener);
-        this.navigationCoordinateObservable.addListener(this.navigationChangedListener);
-        this.languageCoordinates.addListener(this.languageCoordinateListener);
-        this.logicCoordinateObservable.addListener(this.logicCoordinateListener);
-        listening.set(true);
-    }
-
-    @Override
-    protected void removeListeners() {
-        this.stampCoordinateObservable.removeListener(this.stampChangeListener);
-        this.navigationCoordinateObservable.removeListener(this.navigationChangedListener);
-        this.languageCoordinates.removeListener(this.languageCoordinateListener);
-        this.logicCoordinateObservable.removeListener(this.logicCoordinateListener);
-        listening.set(false);
-    }
-
-    protected abstract ObservableNavigationCoordinateBase makeNavigationCoordinateObservable(ViewCoordinate viewRecord);
-
-    protected abstract ListProperty<ObservableLanguageCoordinateBase> makeLanguageCoordinateListProperty(ViewCoordinate viewRecord);
-
-    protected abstract ObservableLogicCoordinateBase makeLogicCoordinateObservable(ViewCoordinate viewRecord);
-
-    //~--- methods -------------------------------------------------------------
-
 
     private void languageChanged(ListChangeListener.Change<? extends ObservableLanguageCoordinateBase> c) {
         MutableList<LanguageCoordinateRecord> languageRecordList = Lists.mutable.empty();
@@ -161,6 +125,75 @@ public abstract class ObservableViewBase
         this.setValue(getValue().withLogicCoordinate(newValue.toLogicCoordinateRecord()));
     }
 
+    private void editChanged(ObservableValue<? extends EditCoordinateRecord> observable,
+                             EditCoordinateRecord oldValue,
+                             EditCoordinateRecord newValue) {
+        this.setValue(getValue().withEditCoordinate(newValue.toEditCoordinateRecord()));
+    }
+
+    public ViewCoordinateRecord toViewRecord() {
+        return this.getValue();
+    }
+
+    @Override
+    public ViewCoordinate getViewCoordinate() {
+        return this;
+    }
+
+
+
+
+    @Override
+    public void setViewPath(ConceptFacade pathConcept) {
+        this.removeListeners();
+        StampCoordinateRecord newStampCoordinate = stampCoordinate().getValue().withPath(pathConcept);
+
+        this.stampCoordinate().pathConceptProperty().set(pathConcept);
+        MutableList<LanguageCoordinateRecord> languageCoordinateRecords = Lists.mutable.empty();
+        languageCoordinates.forEach(observableLanguageCoordinateBase -> languageCoordinateRecords.add(observableLanguageCoordinateBase.getValue()));
+        ViewCoordinateRecord viewRecord = new ViewCoordinateRecord(
+                this.stampCoordinate().toStampCoordinateRecord(),
+                languageCoordinateRecords.toImmutable(),
+                this.logicCoordinate().toLogicCoordinateRecord(),
+                this.navigationCoordinate().toNavigationCoordinateRecord(),
+                this.editCoordinate().toEditCoordinateRecord());
+        this.addListeners();
+        this.setValue(viewRecord);
+    }
+
+
+    @Override
+    public void setAllowedStates(StateSet stateSet) {
+        ViewCoordinateRecord newView = getValue().withStampCoordinate(stampCoordinate().getValue().withAllowedStates(stateSet));
+        newView = newView.withNavigationCoordinate(navigationCoordinate().getValue().withVertexStates(stateSet));
+
+        this.setValue(newView);
+    }
+
+
+    @Override
+    protected void addListeners() {
+        this.stampCoordinateObservable.addListener(this.stampChangeListener);
+        this.navigationCoordinateObservable.addListener(this.navigationChangedListener);
+        this.languageCoordinates.addListener(this.languageCoordinateListener);
+        this.logicCoordinateObservable.addListener(this.logicCoordinateListener);
+        listening.set(true);
+    }
+
+
+    @Override
+    protected void removeListeners() {
+        this.stampCoordinateObservable.removeListener(this.stampChangeListener);
+        this.navigationCoordinateObservable.removeListener(this.navigationChangedListener);
+        this.languageCoordinates.removeListener(this.languageCoordinateListener);
+        this.logicCoordinateObservable.removeListener(this.logicCoordinateListener);
+        listening.set(false);
+    }
+
+
+    //~--- methods -------------------------------------------------------------
+
+
     @Override
     public ObservableLogicCoordinate logicCoordinate() {
         return this.logicCoordinateObservable;
@@ -176,8 +209,9 @@ public abstract class ObservableViewBase
         return this.languageCoordinates;
     }
 
-    public ViewCoordinateRecord toViewRecord() {
-        return this.getValue();
+    @Override
+    public ObservableEditCoordinate editCoordinate() {
+        return this.editCoordinateObservable;
     }
 
     @Override
@@ -185,15 +219,6 @@ public abstract class ObservableViewBase
         return this.stampCoordinateObservable;
     }
 
-    @Override
-    public ViewCoordinate getViewCoordinate() {
-        return this;
-    }
-
-    @Override
-    public Iterable<ObservableLanguageCoordinateBase> languageCoordinateIterable() {
-        return this.languageCoordinates;
-    }
 
     @Override
     public String toString() {

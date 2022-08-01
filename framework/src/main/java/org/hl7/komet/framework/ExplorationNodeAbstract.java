@@ -24,6 +24,7 @@ import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.tinkar.common.alert.AlertObject;
 import org.hl7.tinkar.common.alert.AlertStreams;
 import org.hl7.tinkar.common.id.PublicIdStringKey;
+import org.hl7.tinkar.common.util.broadcast.Subscriber;
 import org.hl7.tinkar.coordinate.logic.calculator.LogicCalculator;
 import org.hl7.tinkar.coordinate.navigation.calculator.NavigationCalculator;
 import org.hl7.tinkar.coordinate.view.ViewCoordinateRecord;
@@ -38,7 +39,7 @@ import java.util.prefs.BackingStoreException;
 
 import static org.hl7.komet.framework.KometNode.PreferenceKey.ACTIVITY_STREAM_OPTION_KEY;
 
-public abstract class ExplorationNodeAbstract implements KometNode, Flow.Subscriber<ImmutableList<EntityFacade>>, ViewCalculatorDelegate {
+public abstract class ExplorationNodeAbstract implements KometNode, Subscriber<ImmutableList<EntityFacade>>, ViewCalculatorDelegate {
 
     protected final SimpleObjectProperty<PublicIdStringKey<ActivityStream>> activityStreamKeyProperty = new SimpleObjectProperty<>();
     protected final SimpleObjectProperty<PublicIdStringKey<ActivityStreamOption>> optionForActivityStreamKeyProperty = new SimpleObjectProperty<>();
@@ -48,7 +49,6 @@ public abstract class ExplorationNodeAbstract implements KometNode, Flow.Subscri
     protected final ViewProperties viewProperties;
     protected final KometPreferences nodePreferences;
     protected HBox titleNode = new HBox(2);
-    private AtomicReference<Flow.Subscription> flowSubscriptionReference = new AtomicReference<>();
     private Runnable nodeSelectionMethod = () -> {
     }; // default to an empty operation.
 
@@ -96,8 +96,7 @@ public abstract class ExplorationNodeAbstract implements KometNode, Flow.Subscri
     protected void updateActivityStream() {
         if (this.optionForActivityStreamKeyProperty.get().equals(ActivityStreamOption.SUBSCRIBE.keyForOption()) ||
                 this.optionForActivityStreamKeyProperty.get().equals(ActivityStreamOption.SYNCHRONIZE.keyForOption())) {
-            this.getActivityStream().subscribe(this);
-            this.flowSubscriptionReference.get().request(1);
+            this.getActivityStream().addSubscriberWithWeakReference(this);
         }
 
         if (this.optionForActivityStreamKeyProperty.get().equals(ActivityStreamOption.PUBLISH.keyForOption()) ||
@@ -142,30 +141,10 @@ public abstract class ExplorationNodeAbstract implements KometNode, Flow.Subscri
 
     public abstract String getDefaultTitle();
 
-    @Override
-    public void onSubscribe(Flow.Subscription subscription) {
-        flowSubscriptionReference.getAndUpdate(existingSubscription -> {
-            if (existingSubscription != null) {
-                existingSubscription.cancel();
-            }
-            return subscription;
-        });
-    }
 
     @Override
     public void onNext(ImmutableList<EntityFacade> items) {
-        flowSubscriptionReference.get().request(1);
         Platform.runLater(() -> handleActivity(items));
-    }
-
-    @Override
-    public void onError(Throwable throwable) {
-        AlertStreams.getRoot().dispatch(AlertObject.makeError(throwable));
-    }
-
-    @Override
-    public void onComplete() {
-        // nothing to do.
     }
 
     public abstract void handleActivity(ImmutableList<EntityFacade> entities);

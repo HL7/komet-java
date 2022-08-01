@@ -11,6 +11,7 @@ import org.hl7.tinkar.common.alert.AlertObject;
 import org.hl7.tinkar.common.alert.AlertStreams;
 import org.hl7.tinkar.common.id.PublicId;
 import org.hl7.tinkar.common.service.PrimitiveData;
+import org.hl7.tinkar.common.util.broadcast.Subscriber;
 import org.hl7.tinkar.component.FieldDataType;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculator;
 import org.hl7.tinkar.entity.*;
@@ -32,7 +33,7 @@ public abstract class ObservableEntity<O extends ObservableVersion<V>, V extends
     private static final EntityChangeSubscriber ENTITY_CHANGE_SUBSCRIBER = new EntityChangeSubscriber();
 
     static {
-        Entity.provider().subscribe(ENTITY_CHANGE_SUBSCRIBER);
+        Entity.provider().addSubscriberWithWeakReference(ENTITY_CHANGE_SUBSCRIBER);
     }
 
     final SimpleListProperty<O> versionProperty = new SimpleListProperty<>(FXCollections.observableArrayList());
@@ -155,24 +156,13 @@ public abstract class ObservableEntity<O extends ObservableVersion<V>, V extends
         throw new UnsupportedOperationException();
     }
 
-    public static class EntityChangeSubscriber implements Flow.Subscriber<Integer> {
-        Flow.Subscription subscription;
-
-        public Flow.Subscription subscription() {
-            return subscription;
-        }
+    public static class EntityChangeSubscriber implements Subscriber<Integer> {
 
 
-        @Override
-        public void onSubscribe(Flow.Subscription subscription) {
-            this.subscription = subscription;
-            this.subscription.request(1);
-        }
 
         @Override
         public void onNext(Integer nid) {
             // Do nothing with item, but request another...
-            this.subscription.request(1);
 
             if (SINGLETONS.containsKey(PrimitiveData.publicId(nid))) {
                 Platform.runLater(() -> {
@@ -180,16 +170,6 @@ public abstract class ObservableEntity<O extends ObservableVersion<V>, V extends
                 });
 
             }
-        }
-
-        @Override
-        public void onError(Throwable throwable) {
-            AlertStreams.getRoot().dispatch(AlertObject.makeError(throwable));
-        }
-
-        @Override
-        public void onComplete() {
-            // Do nothing
         }
     }
 }

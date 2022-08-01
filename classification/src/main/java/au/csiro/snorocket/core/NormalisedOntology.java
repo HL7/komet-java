@@ -58,6 +58,9 @@
  * <p>
  * Copyright CSIRO Australian e-Health Research Centre (http://aehrc.com).
  * All rights reserved. Use is subject to license terms and conditions.
+ * <p>
+ * Copyright CSIRO Australian e-Health Research Centre (http://aehrc.com).
+ * All rights reserved. Use is subject to license terms and conditions.
  */
 /**
  * Copyright CSIRO Australian e-Health Research Centre (http://aehrc.com).
@@ -1785,7 +1788,7 @@ public class NormalisedOntology implements Serializable {
      *
      * @return
      */
-    public void buildTaxonomy() {
+    public void buildTaxonomy(TrackingCallable trackingCallable) {
 
         // Determine if a full or incremental calculation is required
         if (!hasBeenIncrementallyClassified) {

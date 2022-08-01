@@ -178,8 +178,8 @@
                                 <option>--add-opens</option>
                                 <option>javafx.graphics/javafx.scene=org.controlsfx.controls</option>
                                 <option>--add-exports</option>
-                                <option>javafx.controls/com.sun.javafx.scene.control.behavior=org.hl7.komet.navigator
-                                </option>
+                                <option>javafx.controls/com.sun.javafx.scene.control.behavior=org.hl7.komet.navigator</option>
+                                <option>-Djava.util.concurrent.ForkJoinPool.common.exceptionHandler=org.hl7.tinkar.common.alert.UncaughtExceptionAlertStreamer</option>
                             </options>
                         </configuration>
                     </execution>
@@ -207,8 +207,8 @@
                                 <option>--add-opens</option>
                                 <option>javafx.graphics/javafx.scene=org.controlsfx.controls</option>
                                 <option>--add-exports</option>
-                                <option>javafx.controls/com.sun.javafx.scene.control.behavior=org.hl7.komet.navigator
-                                </option>
+                                <option>javafx.controls/com.sun.javafx.scene.control.behavior=org.hl7.komet.navigator</option>
+                                <option>-Djava.util.concurrent.ForkJoinPool.common.exceptionHandler=org.hl7.tinkar.common.alert.UncaughtExceptionAlertStreamer</option>
                                 <option>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:8000</option>
                             </options>
                         </configuration>
@@ -237,8 +237,8 @@
                                 <option>--add-opens</option>
                                 <option>javafx.graphics/javafx.scene=org.controlsfx.controls</option>
                                 <option>--add-exports</option>
-                                <option>javafx.controls/com.sun.javafx.scene.control.behavior=org.hl7.komet.navigator
-                                </option>
+                                <option>javafx.controls/com.sun.javafx.scene.control.behavior=org.hl7.komet.navigator</option>
+                                <option>-Djava.util.concurrent.ForkJoinPool.common.exceptionHandler=org.hl7.tinkar.common.alert.UncaughtExceptionAlertStreamer</option>
                                 <option>
                                     -agentpath:/Applications/JProfiler.app/Contents/Resources/app/bin/macos/libjprofilerti.jnilib=port=8849
                                 </option>
