@@ -14,6 +14,7 @@ import org.hl7.tinkar.common.alert.AlertStreams;
 import org.hl7.tinkar.common.service.PrimitiveData;
 import org.hl7.tinkar.common.service.TrackingCallable;
 import org.hl7.tinkar.common.sets.ConcurrentHashSet;
+import org.hl7.tinkar.common.util.time.MultipleEndpointTimer;
 import org.hl7.tinkar.common.util.uuid.UuidT5Generator;
 import org.hl7.tinkar.coordinate.stamp.calculator.Latest;
 import org.hl7.tinkar.coordinate.view.ViewCoordinateRecord;
@@ -22,6 +23,7 @@ import org.hl7.tinkar.entity.*;
 import org.hl7.tinkar.entity.graph.DiTreeEntity;
 import org.hl7.tinkar.entity.graph.EntityVertex;
 import org.hl7.tinkar.entity.graph.JGraphUtil;
+import org.hl7.tinkar.entity.graph.isomorphic.IsomorphicResults;
 import org.hl7.tinkar.entity.transaction.Transaction;
 import org.hl7.tinkar.terms.PatternFacade;
 import org.hl7.tinkar.terms.State;
@@ -174,6 +176,8 @@ public class ProcessResultsTask extends TrackingCallable<Void> {
 
         LogicalExpressionAdaptorFactory logicalExpressionAdaptor = new LogicalExpressionAdaptorFactory();
         // TODO put parallel back in. Removed to debug.
+
+        MultipleEndpointTimer multipleEndpointTimer = new MultipleEndpointTimer(IsomorphicResults.EndPoints.class);
         affectedConceptNids.primitiveParallelStream().forEach(conceptNid -> {
             if (conceptNid == -2142978054) {
                 LOG.info("Found: " + PrimitiveData.text(-2142978054));
@@ -266,7 +270,7 @@ public class ProcessResultsTask extends TrackingCallable<Void> {
                                     ImmutableList<Object> latestInferredFields = latestInferredSemantic.get().fieldValues();
                                     DiTreeEntity latestInferredTree = (DiTreeEntity) latestInferredFields.get(0);
                                     DiTreeEntity correlatedTree = latestInferredTree.makeCorrelatedTree((DiTreeEntity) newInferredExpression.sourceGraph(),
-                                            conceptNid);
+                                            conceptNid, multipleEndpointTimer.startNew());
 
                                     changed = correlatedTree != latestInferredTree;
                                     //TODO performance comparisons of JGraph and internal implementation. Maybe in integration tests with challenging test data.
@@ -297,8 +301,13 @@ public class ProcessResultsTask extends TrackingCallable<Void> {
                     }
                 });
             }
+            if (updateIntervalElapsed()) {
+                updateMessage(multipleEndpointTimer.summary());
+            }
             completedUnitOfWork();
         });
+        LOG.info("Timing info: " + multipleEndpointTimer.summary());
+        updateMessage("Commiting " + updateTransaction.componentsInTransactionCount() + " components. ");
 
         LOG.debug("Comitting {} semantics", updateTransaction.componentsInTransactionCount());
         updateMessage("Commiting " + updateTransaction.componentsInTransactionCount() + " components. ");
