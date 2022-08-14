@@ -7,6 +7,7 @@ import org.hl7.tinkar.coordinate.view.calculator.ViewCalculator;
 import org.hl7.tinkar.terms.PatternFacade;
 
 import java.util.concurrent.Future;
+import java.util.function.Consumer;
 
 /**
  * Reasoning Tasks
@@ -24,12 +25,16 @@ public class RunReasonerTask extends TrackingCallable<AxiomData> {
     final PatternFacade statedAxiomPattern;
     final PatternFacade inferredAxiomPattern;
 
+    final Consumer<ClassifierResults> classifierResultsConsumer;
+
     public RunReasonerTask(ViewCalculator viewCalculator, PatternFacade statedAxiomPattern,
-                           PatternFacade inferredAxiomPattern) {
+                           PatternFacade inferredAxiomPattern,
+                           Consumer<ClassifierResults> classifierResultsConsumer) {
         super(true, true);
         this.viewCalculator = viewCalculator;
         this.statedAxiomPattern = statedAxiomPattern;
         this.inferredAxiomPattern = inferredAxiomPattern;
+        this.classifierResultsConsumer = classifierResultsConsumer;
         updateTitle("Running reasoner: " + viewCalculator.getPreferredDescriptionTextWithFallbackOrNid(statedAxiomPattern));
         updateProgress(0, 4);
     }
@@ -60,9 +65,11 @@ public class RunReasonerTask extends TrackingCallable<AxiomData> {
                 ": Processing results");
         ProcessResultsTask processResultsTask = new ProcessResultsTask(reasoner, this.viewCalculator, this.inferredAxiomPattern,
                 axiomData);
-        Future<Void> processResultsFuture = TinkExecutor.threadPool().submit(processResultsTask);
-        processResultsFuture.get();
+        Future<ClassifierResults> processResultsFuture = TinkExecutor.threadPool().submit(processResultsTask);
+        ClassifierResults classifierResults = processResultsFuture.get();
+
         updateProgress(workDone++, maxWork);
+        classifierResultsConsumer.accept(classifierResults);
 
         updateMessage("Reasoner run complete in " + durationString());
         return axiomData;

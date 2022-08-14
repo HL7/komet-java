@@ -1,18 +1,21 @@
 package org.hl7.komet.reasoner;
 
 import org.eclipse.collections.api.block.procedure.primitive.IntObjectProcedure;
+import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.list.primitive.ImmutableIntList;
+import org.eclipse.collections.api.map.primitive.ImmutableIntObjectMap;
 import org.eclipse.collections.api.map.primitive.MutableIntObjectMap;
+import org.eclipse.collections.api.set.ImmutableSet;
+import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
-import org.eclipse.collections.api.set.primitive.IntSet;
-import org.eclipse.collections.api.set.primitive.MutableIntSet;
+import org.eclipse.collections.impl.factory.primitive.IntLists;
 import org.eclipse.collections.impl.factory.primitive.IntObjectMaps;
 import org.eclipse.collections.impl.factory.primitive.IntSets;
 import org.hl7.tinkar.common.binary.*;
 import org.hl7.tinkar.coordinate.view.ViewCoordinateRecord;
+import org.roaringbitmap.buffer.ImmutableRoaringBitmap;
 
 import java.time.Instant;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -23,35 +26,35 @@ public class ClassifierResults implements Encodable {
     /**
      * Set of concepts potentially affected by the last classification.
      */
-    private final MutableIntSet classificationConceptSet = IntSets.mutable.empty();
+    private final ImmutableIntList classificationConceptSet;
 
-    private final MutableIntSet conceptsWithInferredChanges = IntSets.mutable.empty();
+    private final ImmutableIntList conceptsWithInferredChanges;
 
     /**
      * The equivalent sets.
      */
-    private final Set<int[]> equivalentSets;
+    private final ImmutableSet<ImmutableIntList> equivalentSets;
 
     /**
      * The commit record.
      */
     private final ViewCoordinateRecord viewCoordinate;
     //A map of a concept nid, to a HashSet of int arrays, where each int[] is a cycle present on the concept.
-    private MutableIntObjectMap<Set<int[]>> conceptsWithCycles = IntObjectMaps.mutable.empty();
-    private MutableIntSet orphanedConcepts = IntSets.mutable.empty();
+    private final ImmutableIntObjectMap<Set<int[]>> conceptsWithCycles;
+    private final ImmutableIntSet orphanedConcepts;
 
     private ClassifierResults(DecoderInput data) {
-        for (int nid : data.readNidArray()) {
-            classificationConceptSet.add(nid);
-        }
+        this.classificationConceptSet = IntLists.immutable.of(data.readNidArray());
+        this.conceptsWithInferredChanges = IntLists.immutable.of(data.readNidArray());
         int equivalentSetSize = data.readInt();
-        equivalentSets = new HashSet<>(equivalentSetSize);
+        MutableSet<ImmutableIntList> equivalentMutibleSets = Sets.mutable.ofInitialCapacity(equivalentSetSize);
         for (int i = 0; i < equivalentSetSize; i++) {
-            equivalentSets.add(data.readNidArray());
+            equivalentMutibleSets.add(IntLists.immutable.of(data.readNidArray()));
         }
-        cleanUpEquivalentSets();
+        this.equivalentSets = equivalentMutibleSets.toImmutable();
         if (data.readBoolean()) {
             int cycleMapSize = data.readInt();
+            MutableIntObjectMap<Set<int[]>> conceptsWithCyclesMutable = IntObjectMaps.mutable.ofInitialCapacity(cycleMapSize);
             for (int i = 0; i < cycleMapSize; i++) {
                 int key = data.readInt();
                 int setCount = data.readInt();
@@ -59,25 +62,14 @@ public class ClassifierResults implements Encodable {
                 for (int j = 0; j < setCount; j++) {
                     cycleSets.add(data.readNidArray());
                 }
-                this.conceptsWithCycles.put(key, cycleSets);
+                conceptsWithCyclesMutable.put(key, cycleSets);
             }
+            this.conceptsWithCycles = conceptsWithCyclesMutable.toImmutable();
+        } else {
+            this.conceptsWithCycles = IntObjectMaps.immutable.empty();
         }
-        for (int orphanNid : data.readNidArray()) {
-            orphanedConcepts.add(orphanNid);
-        }
+        this.orphanedConcepts = IntSets.immutable.of(data.readNidArray());
         this.viewCoordinate = ViewCoordinateRecord.decode(data);
-    }
-
-    private final void cleanUpEquivalentSets() {
-        // remove any duplicate sets...
-        HashSet<IntSet> cleanEquivalentSets = new HashSet<>();
-        for (int[] set : equivalentSets) {
-            cleanEquivalentSets.add(IntSets.immutable.of(set));
-        }
-        equivalentSets.clear();
-        for (IntSet intSet : cleanEquivalentSets) {
-            equivalentSets.add(intSet.toSortedArray());
-        }
     }
 
     /**
@@ -87,20 +79,25 @@ public class ClassifierResults implements Encodable {
      * @param equivalentSets           the equivalent sets
      * @param viewCoordinateRecord
      */
-    public ClassifierResults(Set<Integer> classificationConceptSet,
+    public ClassifierResults(ImmutableIntList classificationConceptSet,
+                             ImmutableIntList conceptsWithInferredChanges,
                              Set<ImmutableIntList> equivalentSets,
                              ViewCoordinateRecord viewCoordinateRecord) {
-        this.classificationConceptSet.addAll(classificationConceptSet.stream().mapToInt(nid -> nid).toArray());
-        this.equivalentSets = new HashSet<>();
+        this.classificationConceptSet = classificationConceptSet;
+        this.conceptsWithInferredChanges = conceptsWithInferredChanges;
+        MutableSet<ImmutableIntList> equivalentMutableSets = Sets.mutable.ofInitialCapacity(equivalentSets.size());
         for (ImmutableIntList set : equivalentSets) {
-            this.equivalentSets.add(set.toArray());
+            equivalentMutableSets.add(IntLists.immutable.of(set.toSortedArray()));
         }
-        cleanUpEquivalentSets();
+
+        this.equivalentSets = equivalentMutableSets.toImmutable();
+        this.orphanedConcepts = IntSets.immutable.empty();
+        this.conceptsWithCycles = IntObjectMaps.immutable.empty();
         this.viewCoordinate = viewCoordinateRecord;
         verifyCoordinates();
     }
 
-    private final void verifyCoordinates() {
+    private void verifyCoordinates() {
         if (viewCoordinate.stampCoordinate().stampPosition().time() == Long.MAX_VALUE) {
             throw new IllegalStateException("Filter position time must reflect the actual commit time, not 'latest' (Long.MAX_VALUE) ");
         }
@@ -113,13 +110,15 @@ public class ClassifierResults implements Encodable {
      * @param orphans
      * @param viewCoordinateRecord
      */
-    public ClassifierResults(Map<Integer, Set<int[]>> conceptsWithCycles, Set<Integer> orphans,
+    public ClassifierResults(ImmutableIntList classificationConceptSet,
+                             ImmutableIntObjectMap<Set<int[]>> conceptsWithCycles,
+                             ImmutableIntSet orphans,
                              ViewCoordinateRecord viewCoordinateRecord) {
-        this.equivalentSets = new HashSet<>();
-        conceptsWithCycles.forEach((key, value) -> {
-            this.conceptsWithCycles.put(key, value);
-        });
-        this.orphanedConcepts.addAll(orphans.stream().mapToInt(nid -> nid).toArray());
+        this.classificationConceptSet = classificationConceptSet;
+        this.conceptsWithInferredChanges = IntLists.immutable.empty();
+        this.equivalentSets = Sets.immutable.empty();
+        this.conceptsWithCycles = conceptsWithCycles;
+        this.orphanedConcepts = orphans;
         this.viewCoordinate = viewCoordinateRecord;
         verifyCoordinates();
     }
@@ -132,9 +131,10 @@ public class ClassifierResults implements Encodable {
     @Encoder
     public final void encode(EncoderOutput out) {
         out.writeNidArray(this.classificationConceptSet.toArray());
+        out.writeNidArray(this.conceptsWithInferredChanges.toArray());
         out.writeInt(equivalentSets.size());
-        for (int[] equivalentSet : equivalentSets) {
-            out.writeNidArray(equivalentSet);
+        for (ImmutableIntList equivalentSet : equivalentSets) {
+            out.writeNidArray(equivalentSet.toArray());
         }
         if (!conceptsWithCycles.isEmpty()) {
             out.writeBoolean(true);
@@ -164,20 +164,16 @@ public class ClassifierResults implements Encodable {
                 + " Concepts with cycles=" + conceptsWithCycles.size() + '}';
     }
 
-    public IntSet getClassificationConceptSet() {
+    public ImmutableIntList getClassificationConceptSet() {
         return this.classificationConceptSet;
     }
 
-    public Set<int[]> getEquivalentSets() {
+    public ImmutableSet<ImmutableIntList> getEquivalentSets() {
         return this.equivalentSets;
     }
 
-    public MutableIntObjectMap<Set<int[]>> getCycles() {
+    public ImmutableIntObjectMap<Set<int[]>> getCycles() {
         return conceptsWithCycles;
-    }
-
-    public void addOrphans(Set<Integer> orphans) {
-        orphanedConcepts.addAll(orphans.stream().mapToInt(nid -> nid).toArray());
     }
 
     public ImmutableIntSet getOrphans() {
@@ -192,7 +188,7 @@ public class ClassifierResults implements Encodable {
         return this.viewCoordinate.stampCoordinate().stampPosition().instant();
     }
 
-    public ImmutableIntSet getConceptsWithInferredChanges() {
-        return conceptsWithInferredChanges.toImmutable();
+    public ImmutableIntList getConceptsWithInferredChanges() {
+        return conceptsWithInferredChanges;
     }
 }

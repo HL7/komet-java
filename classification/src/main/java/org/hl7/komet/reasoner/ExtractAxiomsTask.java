@@ -5,10 +5,12 @@ import au.csiro.ontology.model.*;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
+import org.eclipse.collections.impl.factory.primitive.IntLists;
 import org.hl7.komet.reasoner.expression.LogicalAxiomSemantic;
 import org.hl7.tinkar.common.alert.AlertStreams;
 import org.hl7.tinkar.common.service.PrimitiveData;
 import org.hl7.tinkar.common.service.TrackingCallable;
+import org.hl7.tinkar.common.sets.ConcurrentHashSet;
 import org.hl7.tinkar.coordinate.logic.LogicCoordinateRecord;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculator;
 import org.hl7.tinkar.entity.graph.DiTreeEntity;
@@ -17,9 +19,11 @@ import org.hl7.tinkar.terms.ConceptFacade;
 import org.hl7.tinkar.terms.EntityFacade;
 import org.hl7.tinkar.terms.PatternFacade;
 import org.hl7.tinkar.terms.TinkarTerm;
+import org.roaringbitmap.buffer.ImmutableRoaringBitmap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -47,12 +51,15 @@ public class ExtractAxiomsTask extends TrackingCallable<AxiomData> {
         updateProgress(0, totalAxiomCount);
         LogicCoordinateRecord logicCoordinate = viewCalculator.logicCalculator().logicCoordinateRecord();
         axiomCounter.set(0);
+        // TODO get a native concurrent collector for roaring https://stackoverflow.com/questions/29916881/how-to-implement-a-thread-safe-collector
 
+        ConcurrentHashSet<Integer> includedConceptNids = new ConcurrentHashSet<>(totalAxiomCount);
         viewCalculator.forEachSemanticVersionOfPatternParallel(
                 logicCoordinate.statedAxiomsPatternNid(),
                 (semanticEntityVersion, patternEntityVersion) -> {
                     updateProgress(axiomCounter.incrementAndGet(), totalAxiomCount);
                     int conceptNid = semanticEntityVersion.referencedComponentNid();
+                    includedConceptNids.add(conceptNid);
                     // TODO: In some cases, may wish to classify axioms from inactive concepts. Put in logic coordinate?
                     if (viewCalculator.latestIsActive(conceptNid)) {
                         Concept concept = getConcept(conceptNid);
@@ -73,6 +80,9 @@ public class ExtractAxiomsTask extends TrackingCallable<AxiomData> {
                     }
                 }
         );
+        int[] includedConceptNidArray = includedConceptNids.stream().mapToInt(boxedInt -> (int) boxedInt).toArray();
+        Arrays.sort(includedConceptNidArray);
+        axiomData.classificationConceptSet = IntLists.immutable.of(includedConceptNidArray);
         updateProgress(totalAxiomCount, totalAxiomCount);
         updateMessage("In " + durationString());
         return axiomData;

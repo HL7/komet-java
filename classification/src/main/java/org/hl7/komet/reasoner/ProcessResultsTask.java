@@ -32,6 +32,7 @@ import org.jgrapht.Graph;
 import org.jgrapht.alg.isomorphism.AHURootedTreeIsomorphismInspector;
 import org.jgrapht.alg.isomorphism.IsomorphicGraphMapping;
 import org.jgrapht.graph.DefaultEdge;
+import org.roaringbitmap.buffer.ImmutableRoaringBitmap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,13 +40,14 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
-public class ProcessResultsTask extends TrackingCallable<Void> {
+public class ProcessResultsTask extends TrackingCallable<ClassifierResults> {
     private static final Logger LOG = LoggerFactory.getLogger(ProcessResultsTask.class);
     static final int classificationCountDuplicatesToLog = 10;
     final IReasoner reasoner;
     final ViewCalculator viewCalculator;
     final PatternFacade inferredAxiomPattern;
     final AxiomData axiomData;
+
     ViewCoordinateRecord commitView;
     AtomicInteger classificationDuplicateCount = new AtomicInteger(-1);
 
@@ -61,32 +63,31 @@ public class ProcessResultsTask extends TrackingCallable<Void> {
     }
 
     @Override
-    protected Void compute() throws Exception {
+    protected ClassifierResults compute() throws Exception {
         updateMessage("Getting classified results");
         LOG.info("Getting classified results...");
         final Ontology inferredAxioms = this.reasoner.getClassifiedOntology(this);
-        ConcurrentHashSet<Integer> nidSet = new ConcurrentHashSet(this.axiomData.nidConceptMap.keys());
         Transaction updateTransaction = Transaction.make("Committing classification");
-        collectResults(inferredAxioms, nidSet, updateTransaction);
+        ClassifierResults classifierResults = collectResults(inferredAxioms, this.axiomData.classificationConceptSet, updateTransaction);
 
         updateMessage("Processed results in " + durationString());
-        return null;
+        return classifierResults;
     }
 
     /**
      * Collect results.
      *
      * @param classifiedResult the classified result
-     * @param affectedConcepts the affected concepts
+     * @param classificationConceptSet the concepts processed by the classifier
      * @return the classifier results
      */
-    private ClassifierResults collectResults(Ontology classifiedResult, Set<Integer> affectedConcepts, Transaction updateTransaction) {
+    private ClassifierResults collectResults(Ontology classifiedResult, ImmutableIntList classificationConceptSet, Transaction updateTransaction) {
         updateMessage("Collecting reasoner results. ");
-        LOG.info("Collecting reasoner results...", affectedConcepts.size());
-        addToTotalWork(affectedConcepts.size() * 2); // get each node, then write back inferred.
+        LOG.info("Collecting reasoner results...", classificationConceptSet.size());
+        addToTotalWork(classificationConceptSet.size() * 2); // get each node, then write back inferred.
         final HashSet<ImmutableIntList> equivalentSets = new HashSet<>();
-        LOG.debug("collect results begins for {} concepts", affectedConcepts.size());
-        affectedConcepts.parallelStream().forEach((conceptNid) -> {
+        LOG.debug("collect results begins for {} concepts", classificationConceptSet.size());
+        classificationConceptSet.primitiveParallelStream().forEach((conceptNid) -> {
             completedUnitOfWork();
             final Node node = classifiedResult.getNode(Integer.toString(conceptNid));
 
@@ -102,24 +103,9 @@ public class ProcessResultsTask extends TrackingCallable<Void> {
                     for (String equivalentConcept : equivalentConcepts) {
                         int equivalentNid = Integer.parseInt(equivalentConcept);
                         equivalentNids.add(equivalentNid);
-                        affectedConcepts.add(equivalentNid);
                     }
                     equivalentNids.sortThis();
                     equivalentSets.add(equivalentNids.toImmutable());
-                } else {
-                    for (String equivalentConceptCsiroId : equivalentConcepts) {
-                        try {
-                            int equivalentNid = Integer.parseInt(equivalentConceptCsiroId);
-                            affectedConcepts.add(equivalentNid);
-                        } catch (final NumberFormatException numberFormatException) {
-                            if (equivalentConceptCsiroId.equals("_BOTTOM_")
-                                    || equivalentConceptCsiroId.equals("_TOP_")) {
-                                // do nothing.
-                            } else {
-                                throw numberFormatException;
-                            }
-                        }
-                    }
                 }
             }
         });
@@ -136,9 +122,18 @@ public class ProcessResultsTask extends TrackingCallable<Void> {
 //        }
 
         updateMessage("Writing back inferred. ");
-        LOG.info("Writing back inferred...", affectedConcepts.size());
-        ViewCoordinateRecord commitView = writeBackInferred(classifiedResult, affectedConcepts, updateTransaction);
-        return new ClassifierResults(affectedConcepts,
+        LOG.info("Writing back inferred...");
+
+        ConcurrentHashSet<Integer> affectedConcepts = new ConcurrentHashSet<>();
+
+        ViewCoordinateRecord commitView = writeBackInferred(classifiedResult, axiomData.classificationConceptSet,
+                affectedConcepts, updateTransaction);
+        int[] affectedConceptNidArray = affectedConcepts.stream().mapToInt(boxedInt -> (int) boxedInt).toArray();
+        Arrays.sort(affectedConceptNidArray);
+        ImmutableIntList affectedConceptsAsList = IntLists.immutable.of(affectedConceptNidArray);
+
+        return new ClassifierResults(classificationConceptSet,
+                affectedConceptsAsList,
                 equivalentSets, commitView);
     }
 
@@ -146,13 +141,16 @@ public class ProcessResultsTask extends TrackingCallable<Void> {
      * Write back inferred.
      *
      * @param inferredAxioms   the inferred axioms
-     * @param affectedConcepts the affected concepts
+     * @param classificationConceptSet the set of concepts fed to the reasoner
+     * @param conceptNidsWithInferredChanges the concepts with changes identified by comparing inferred form with previous form
      * @return the commit view
      */
-    private ViewCoordinateRecord writeBackInferred(Ontology inferredAxioms, Set<Integer> affectedConcepts, Transaction updateTransaction) {
+    private ViewCoordinateRecord writeBackInferred(Ontology inferredAxioms,
+                                                   ImmutableIntList classificationConceptSet,
+                                                   ConcurrentHashSet<Integer> conceptNidsWithInferredChanges,
+                                                   Transaction updateTransaction) {
         //TODO change type of affectedConcepts to a parallel friendly primitive class.
         final AtomicInteger sufficientSets = new AtomicInteger();
-        final ImmutableIntList affectedConceptNids = IntLists.immutable.ofAll(affectedConcepts.stream().mapToInt(nid -> nid).sorted());
         StampEntity updateStamp = updateTransaction.getStamp(State.ACTIVE,
                 getViewCoordinateRecord().getAuthorNidForChanges(),
                 getViewCoordinateRecord().getDefaultModuleNid(),
@@ -175,13 +173,9 @@ public class ProcessResultsTask extends TrackingCallable<Void> {
         int axiomsIndex = optionalAxiomsIndex.getAsInt();
 
         LogicalExpressionAdaptorFactory logicalExpressionAdaptor = new LogicalExpressionAdaptorFactory();
-        // TODO put parallel back in. Removed to debug.
 
         MultipleEndpointTimer multipleEndpointTimer = new MultipleEndpointTimer(IsomorphicResults.EndPoints.class);
-        affectedConceptNids.primitiveParallelStream().forEach(conceptNid -> {
-            if (conceptNid == -2142978054) {
-                LOG.info("Found: " + PrimitiveData.text(-2142978054));
-            }
+        classificationConceptSet.primitiveParallelStream().forEach(conceptNid -> {
             final LogicalExpressionBuilder inferredBuilder = new LogicalExpressionBuilder();
             int[] statedSemanticNids = PrimitiveData.get().semanticNidsForComponentOfPattern(conceptNid, statedPatternNid);
             if (statedSemanticNids.length == 0) { // Solor concept length == 0...
@@ -258,6 +252,7 @@ public class ProcessResultsTask extends TrackingCallable<Void> {
                                         .build();
                                 versionRecords.add(new SemanticVersionRecord(semanticRecord, updateStampNid, fields));
                                 processSemantic(semanticRecord, updateTransaction);
+                                conceptNidsWithInferredChanges.add(conceptNid);
                             }
                             case 1 -> {
                                 // TODO: ensure that equals is implemented for DiTree<EntityVertex> and possibly DiGraph and similar...
@@ -290,7 +285,8 @@ public class ProcessResultsTask extends TrackingCallable<Void> {
                                     }
                                 }
                                 if (changed) {
-                                        processSemantic(viewCalculator.updateFields(inferredSemanticNids[0], fields, updateStampNid), updateTransaction);
+                                    conceptNidsWithInferredChanges.add(conceptNid);
+                                    processSemantic(viewCalculator.updateFields(inferredSemanticNids[0], fields, updateStampNid), updateTransaction);
                                 }
                             }
                             default -> {

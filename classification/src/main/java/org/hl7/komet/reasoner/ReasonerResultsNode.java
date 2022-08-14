@@ -3,6 +3,7 @@ package org.hl7.komet.reasoner;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
@@ -12,6 +13,7 @@ import javafx.scene.layout.HBox;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.hl7.komet.framework.ExplorationNodeAbstract;
 import org.hl7.komet.framework.TopPanelFactory;
+import org.hl7.komet.framework.activity.ActivityStreams;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.komet.preferences.KometPreferences;
 import org.hl7.tinkar.common.alert.AlertStreams;
@@ -20,6 +22,7 @@ import org.hl7.tinkar.terms.EntityFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -33,6 +36,8 @@ public class ReasonerResultsNode extends ExplorationNodeAbstract {
     protected static final String TITLE = "Reasoner Results";
     private final BorderPane contentPane = new BorderPane();
     private final HBox centerBox;
+
+    private ReasonerResultsController resultsController;
 
     public ReasonerResultsNode(ViewProperties viewProperties, KometPreferences nodePreferences) {
         super(viewProperties, nodePreferences);
@@ -53,12 +58,26 @@ public class ReasonerResultsNode extends ExplorationNodeAbstract {
                 topMenuItems.addAll(collectionMenuItems);
             });
         });
+
+        Platform.runLater(() -> {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/hl7/komet/reasoner/ReasonerResultsInterface.fxml"));
+                loader.load();
+                this.resultsController = loader.getController();
+
+                resultsController.setViewProperties(this.viewProperties, ActivityStreams.get(ActivityStreams.REASONER));
+                contentPane.setCenter(loader.getRoot());
+            } catch (IOException e) {
+                AlertStreams.dispatchToRoot(e);
+            }
+        });
     }
 
     private void classify(ActionEvent actionEvent) {
         TinkExecutor.threadPool().execute(() -> {
             RunReasonerTask runReasonerTask =
-                    new RunReasonerTask(getViewProperties().calculator(), EL_PLUS_PLUS_STATED_AXIOMS_PATTERN, EL_PLUS_PLUS_INFERRED_AXIOMS_PATTERN);
+                    new RunReasonerTask(getViewProperties().calculator(), EL_PLUS_PLUS_STATED_AXIOMS_PATTERN,
+                            EL_PLUS_PLUS_INFERRED_AXIOMS_PATTERN, resultsController::setResults);
             Future<AxiomData> reasonerFuture = TinkExecutor.threadPool().submit(runReasonerTask);
             AxiomData axiomData = null;
             int statedCount = 0;
