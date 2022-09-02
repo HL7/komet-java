@@ -13,13 +13,13 @@ import org.roaringbitmap.buffer.ImmutableRoaringBitmap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class AxiomData {
-    final SpinedIntObjectMap<ImmutableList<Axiom>> nidAxiomsMap = new SpinedIntObjectMap<>();
-    final ConcurrentHashSet<Axiom> axiomsSet = new ConcurrentHashSet<>();
-    final ConcurrentHashMap<Integer, Concept> nidConceptMap = new ConcurrentHashMap<>();
-    final ConcurrentHashMap<Integer, Feature> nidFeatureMap = new ConcurrentHashMap<>();
-    final ConcurrentHashMap<Integer, Role> nidRoleMap = new ConcurrentHashMap<>();
-    final AtomicInteger processedSemantics = new AtomicInteger();
+public class AxiomData<A> {
+    public final SpinedIntObjectMap<ImmutableList<A>> nidAxiomsMap = new SpinedIntObjectMap<>();
+    public final ConcurrentHashSet<A> axiomsSet = new ConcurrentHashSet<>();
+    public final ConcurrentHashMap<Integer, Concept> nidConceptMap = new ConcurrentHashMap<>();
+    public final ConcurrentHashMap<Integer, Feature> nidFeatureMap = new ConcurrentHashMap<>();
+    public final ConcurrentHashMap<Integer, Role> nidRoleMap = new ConcurrentHashMap<>();
+    public final AtomicInteger processedSemantics = new AtomicInteger();
 
-    ImmutableIntList classificationConceptSet = null;
+    public ImmutableIntList classificationConceptSet = null;
 }

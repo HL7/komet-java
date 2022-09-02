@@ -1,4 +1,4 @@
-package org.hl7.komet.reasoner;
+package org.hl7.komet.reasoner.sorocket;
 
 import au.csiro.ontology.Factory;
 import au.csiro.ontology.model.*;
@@ -6,6 +6,7 @@ import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.factory.primitive.IntLists;
+import org.hl7.komet.reasoner.AxiomData;
 import org.hl7.komet.reasoner.expression.LogicalAxiomSemantic;
 import org.hl7.tinkar.common.alert.AlertStreams;
 import org.hl7.tinkar.common.service.PrimitiveData;
@@ -19,7 +20,6 @@ import org.hl7.tinkar.terms.ConceptFacade;
 import org.hl7.tinkar.terms.EntityFacade;
 import org.hl7.tinkar.terms.PatternFacade;
 import org.hl7.tinkar.terms.TinkarTerm;
-import org.roaringbitmap.buffer.ImmutableRoaringBitmap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,18 +27,18 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ExtractAxiomsTask extends TrackingCallable<AxiomData> {
-    private static final Logger LOG = LoggerFactory.getLogger(ExtractAxiomsTask.class);
+public class ExtractSnoRocketAxiomsTask extends TrackingCallable<AxiomData> {
+    private static final Logger LOG = LoggerFactory.getLogger(ExtractSnoRocketAxiomsTask.class);
     final ViewCalculator viewCalculator;
     final PatternFacade statedAxiomPattern;
-    AxiomData axiomData = new AxiomData();
+    AxiomData<Axiom> axiomData = new AxiomData();
 
 
-    public ExtractAxiomsTask(ViewCalculator viewCalculator, PatternFacade statedAxiomPattern) {
+    public ExtractSnoRocketAxiomsTask(ViewCalculator viewCalculator, PatternFacade statedAxiomPattern) {
         super(false, true);
         this.viewCalculator = viewCalculator;
         this.statedAxiomPattern = statedAxiomPattern;
-        updateTitle("Fetching axioms from: " + viewCalculator.getPreferredDescriptionTextWithFallbackOrNid(statedAxiomPattern));
+        updateTitle("Fetching SnoRocket axioms from: " + viewCalculator.getPreferredDescriptionTextWithFallbackOrNid(statedAxiomPattern));
     }
 
     @Override

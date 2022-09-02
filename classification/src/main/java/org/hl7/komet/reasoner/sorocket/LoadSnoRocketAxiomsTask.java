@@ -1,14 +1,15 @@
-package org.hl7.komet.reasoner;
+package org.hl7.komet.reasoner.sorocket;
 
 import au.csiro.ontology.classification.IReasoner;
 import au.csiro.snorocket.core.SnorocketReasoner;
+import org.hl7.komet.reasoner.AxiomData;
 import org.hl7.tinkar.common.service.TrackingCallable;
 
-public class LoadAxiomsTask extends TrackingCallable<IReasoner> {
+public class LoadSnoRocketAxiomsTask extends TrackingCallable<IReasoner> {
     final AxiomData axiomData;
     final IReasoner reasoner = new SnorocketReasoner();
 
-    public LoadAxiomsTask(AxiomData axiomData) {
+    public LoadSnoRocketAxiomsTask(AxiomData axiomData) {
         super(true, true);
         this.axiomData = axiomData;
         updateTitle("Loading axioms into reasoner. ");

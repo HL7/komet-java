@@ -1,4 +1,4 @@
-package org.hl7.komet.reasoner;
+package org.hl7.komet.reasoner.sorocket;
 
 import au.csiro.ontology.Node;
 import au.csiro.ontology.Ontology;
@@ -9,6 +9,8 @@ import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.list.primitive.ImmutableIntList;
 import org.eclipse.collections.api.list.primitive.MutableIntList;
 import org.eclipse.collections.impl.factory.primitive.IntLists;
+import org.hl7.komet.reasoner.AxiomData;
+import org.hl7.komet.reasoner.ClassifierResults;
 import org.hl7.komet.reasoner.expression.*;
 import org.hl7.tinkar.common.alert.AlertStreams;
 import org.hl7.tinkar.common.service.PrimitiveData;
@@ -32,16 +34,14 @@ import org.jgrapht.Graph;
 import org.jgrapht.alg.isomorphism.AHURootedTreeIsomorphismInspector;
 import org.jgrapht.alg.isomorphism.IsomorphicGraphMapping;
 import org.jgrapht.graph.DefaultEdge;
-import org.roaringbitmap.buffer.ImmutableRoaringBitmap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Supplier;
 
-public class ProcessResultsTask extends TrackingCallable<ClassifierResults> {
-    private static final Logger LOG = LoggerFactory.getLogger(ProcessResultsTask.class);
+public class ProcessSnoRocketResultsTask extends TrackingCallable<ClassifierResults> {
+    private static final Logger LOG = LoggerFactory.getLogger(ProcessSnoRocketResultsTask.class);
     static final int classificationCountDuplicatesToLog = 10;
     final IReasoner reasoner;
     final ViewCalculator viewCalculator;
@@ -52,8 +52,8 @@ public class ProcessResultsTask extends TrackingCallable<ClassifierResults> {
     AtomicInteger classificationDuplicateCount = new AtomicInteger(-1);
 
 
-    public ProcessResultsTask(IReasoner reasoner, ViewCalculator viewCalculator, PatternFacade inferredAxiomPattern,
-                              AxiomData axiomData) {
+    public ProcessSnoRocketResultsTask(IReasoner reasoner, ViewCalculator viewCalculator, PatternFacade inferredAxiomPattern,
+                                       AxiomData axiomData) {
         super(false, true);
         this.reasoner = reasoner;
         this.viewCalculator = viewCalculator;

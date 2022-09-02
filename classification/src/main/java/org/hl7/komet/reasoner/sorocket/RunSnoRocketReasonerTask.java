@@ -1,6 +1,12 @@
-package org.hl7.komet.reasoner;
+package org.hl7.komet.reasoner.sorocket;
 
 import au.csiro.ontology.classification.IReasoner;
+import org.hl7.komet.reasoner.AxiomData;
+import org.hl7.komet.reasoner.ClassifierResults;
+import org.hl7.komet.reasoner.sorocket.ComputeSnorocketInterencesTask;
+import org.hl7.komet.reasoner.sorocket.ExtractSnoRocketAxiomsTask;
+import org.hl7.komet.reasoner.sorocket.LoadSnoRocketAxiomsTask;
+import org.hl7.komet.reasoner.sorocket.ProcessSnoRocketResultsTask;
 import org.hl7.tinkar.common.service.TinkExecutor;
 import org.hl7.tinkar.common.service.TrackingCallable;
 import org.hl7.tinkar.coordinate.view.calculator.ViewCalculator;
@@ -20,16 +26,16 @@ import java.util.function.Consumer;
  * <p>
  * Compute taxonomy (aka Classification): this is the task of determining the subclass relationships between classes in order to complete the class hierarchy. For example, .. (left for the reader :P)
  */
-public class RunReasonerTask extends TrackingCallable<AxiomData> {
+public class RunSnoRocketReasonerTask extends TrackingCallable<AxiomData> {
     final ViewCalculator viewCalculator;
     final PatternFacade statedAxiomPattern;
     final PatternFacade inferredAxiomPattern;
 
     final Consumer<ClassifierResults> classifierResultsConsumer;
 
-    public RunReasonerTask(ViewCalculator viewCalculator, PatternFacade statedAxiomPattern,
-                           PatternFacade inferredAxiomPattern,
-                           Consumer<ClassifierResults> classifierResultsConsumer) {
+    public RunSnoRocketReasonerTask(ViewCalculator viewCalculator, PatternFacade statedAxiomPattern,
+                                    PatternFacade inferredAxiomPattern,
+                                    Consumer<ClassifierResults> classifierResultsConsumer) {
         super(true, true);
         this.viewCalculator = viewCalculator;
         this.statedAxiomPattern = statedAxiomPattern;
@@ -43,27 +49,27 @@ public class RunReasonerTask extends TrackingCallable<AxiomData> {
     protected AxiomData compute() throws Exception {
         final int maxWork = 4;
         int workDone = 1;
-        ExtractAxiomsTask extractAxiomsTask = new ExtractAxiomsTask(this.viewCalculator, this.statedAxiomPattern);
+        ExtractSnoRocketAxiomsTask extractSnoRocketAxiomsTask = new ExtractSnoRocketAxiomsTask(this.viewCalculator, this.statedAxiomPattern);
         updateMessage("Step " + workDone +
                 ": " + viewCalculator.getPreferredDescriptionTextWithFallbackOrNid(statedAxiomPattern));
-        Future<AxiomData> axiomDataFuture = TinkExecutor.threadPool().submit(extractAxiomsTask);
+        Future<AxiomData> axiomDataFuture = TinkExecutor.threadPool().submit(extractSnoRocketAxiomsTask);
         AxiomData axiomData = axiomDataFuture.get();
         updateProgress(workDone++, maxWork);
         updateMessage("Step " + workDone +
                 ": Loading axioms into reasoner");
-        LoadAxiomsTask loadAxiomsTask = new LoadAxiomsTask(axiomData);
-        Future<IReasoner> reasonerFuture = TinkExecutor.threadPool().submit(loadAxiomsTask);
+        LoadSnoRocketAxiomsTask loadSnoRocketAxiomsTask = new LoadSnoRocketAxiomsTask(axiomData);
+        Future<IReasoner> reasonerFuture = TinkExecutor.threadPool().submit(loadSnoRocketAxiomsTask);
         IReasoner reasoner = reasonerFuture.get();
         updateProgress(workDone++, maxWork);
         updateMessage("Step " + workDone +
                 ": Computing taxonomy");
-        ComputeTaxonomyTask classifyTask = new ComputeTaxonomyTask(reasoner);
+        ComputeSnorocketInterencesTask classifyTask = new ComputeSnorocketInterencesTask(reasoner);
         Future<Void> classifyFuture = TinkExecutor.threadPool().submit(classifyTask);
         classifyFuture.get();
         updateProgress(workDone++, maxWork);
         updateMessage("Step " + workDone +
                 ": Processing results");
-        ProcessResultsTask processResultsTask = new ProcessResultsTask(reasoner, this.viewCalculator, this.inferredAxiomPattern,
+        ProcessSnoRocketResultsTask processResultsTask = new ProcessSnoRocketResultsTask(reasoner, this.viewCalculator, this.inferredAxiomPattern,
                 axiomData);
         Future<ClassifierResults> processResultsFuture = TinkExecutor.threadPool().submit(processResultsTask);
         ClassifierResults classifierResults = processResultsFuture.get();

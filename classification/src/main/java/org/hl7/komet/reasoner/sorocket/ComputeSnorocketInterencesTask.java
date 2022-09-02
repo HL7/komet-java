@@ -1,12 +1,12 @@
-package org.hl7.komet.reasoner;
+package org.hl7.komet.reasoner.sorocket;
 
 import au.csiro.ontology.classification.IReasoner;
 import org.hl7.tinkar.common.service.TrackingCallable;
 
-public class ComputeTaxonomyTask extends TrackingCallable<Void> {
+public class ComputeSnorocketInterencesTask extends TrackingCallable<Void> {
     final IReasoner reasoner;
 
-    public ComputeTaxonomyTask(IReasoner reasoner) {
+    public ComputeSnorocketInterencesTask(IReasoner reasoner) {
         super(false, true);
         this.reasoner = reasoner;
         updateTitle("Computing taxonomy. ");

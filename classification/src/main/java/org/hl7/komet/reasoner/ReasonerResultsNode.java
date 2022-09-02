@@ -16,6 +16,8 @@ import org.hl7.komet.framework.TopPanelFactory;
 import org.hl7.komet.framework.activity.ActivityStreams;
 import org.hl7.komet.framework.view.ViewProperties;
 import org.hl7.komet.preferences.KometPreferences;
+import org.hl7.komet.reasoner.elk.RunElkReasonerTask;
+import org.hl7.komet.reasoner.sorocket.RunSnoRocketReasonerTask;
 import org.hl7.tinkar.common.alert.AlertStreams;
 import org.hl7.tinkar.common.service.TinkExecutor;
 import org.hl7.tinkar.terms.EntityFacade;
@@ -50,9 +52,14 @@ public class ReasonerResultsNode extends ExplorationNodeAbstract {
             Platform.runLater(() -> {
                 ArrayList<MenuItem> collectionMenuItems = new ArrayList<>();
                 collectionMenuItems.add(new SeparatorMenuItem());
-                MenuItem copySelectedItemsMenuItem = new MenuItem("Run reasoner");
-                copySelectedItemsMenuItem.setOnAction(this::classify);
-                collectionMenuItems.add(copySelectedItemsMenuItem);
+
+                MenuItem snorocketReasonerMenuItem = new MenuItem("Run SnoRocket reasoner");
+                snorocketReasonerMenuItem.setOnAction(this::snorocketReasoner);
+                collectionMenuItems.add(snorocketReasonerMenuItem);
+
+                MenuItem elkReasonerMenuItem = new MenuItem("Run ELK reasoner");
+                elkReasonerMenuItem.setOnAction(this::elkReasoner);
+                collectionMenuItems.add(elkReasonerMenuItem);
 
                 ObservableList<MenuItem> topMenuItems = topPanelParts.viewPropertiesMenuButton().getItems();
                 topMenuItems.addAll(collectionMenuItems);
@@ -73,12 +80,12 @@ public class ReasonerResultsNode extends ExplorationNodeAbstract {
         });
     }
 
-    private void classify(ActionEvent actionEvent) {
+    private void snorocketReasoner(ActionEvent actionEvent) {
         TinkExecutor.threadPool().execute(() -> {
-            RunReasonerTask runReasonerTask =
-                    new RunReasonerTask(getViewProperties().calculator(), EL_PLUS_PLUS_STATED_AXIOMS_PATTERN,
+            RunSnoRocketReasonerTask runSnoRocketReasonerTask =
+                    new RunSnoRocketReasonerTask(getViewProperties().calculator(), EL_PLUS_PLUS_STATED_AXIOMS_PATTERN,
                             EL_PLUS_PLUS_INFERRED_AXIOMS_PATTERN, resultsController::setResults);
-            Future<AxiomData> reasonerFuture = TinkExecutor.threadPool().submit(runReasonerTask);
+            Future<AxiomData> reasonerFuture = TinkExecutor.threadPool().submit(runSnoRocketReasonerTask);
             AxiomData axiomData = null;
             int statedCount = 0;
             try {
@@ -88,7 +95,26 @@ public class ReasonerResultsNode extends ExplorationNodeAbstract {
                 AlertStreams.dispatchToRoot(e);
             }
 
-            LOG.info("Stated axiom count: " + statedCount + " " + runReasonerTask.durationString());
+            LOG.info("Stated axiom count: " + statedCount + " " + runSnoRocketReasonerTask.durationString());
+        });
+    }
+
+    private void elkReasoner(ActionEvent actionEvent) {
+        TinkExecutor.threadPool().execute(() -> {
+            RunElkReasonerTask runElkReasonerTask =
+                    new RunElkReasonerTask(getViewProperties().calculator(), EL_PLUS_PLUS_STATED_AXIOMS_PATTERN,
+                            EL_PLUS_PLUS_INFERRED_AXIOMS_PATTERN, resultsController::setResults);
+            Future<AxiomData> reasonerFuture = TinkExecutor.threadPool().submit(runElkReasonerTask);
+            AxiomData axiomData = null;
+            int statedCount = 0;
+            try {
+                axiomData = reasonerFuture.get();
+                statedCount = axiomData.processedSemantics.get();
+            } catch (InterruptedException | ExecutionException e) {
+                AlertStreams.dispatchToRoot(e);
+            }
+
+            LOG.info("Stated axiom count: " + statedCount + " " + runElkReasonerTask.durationString());
         });
     }
 

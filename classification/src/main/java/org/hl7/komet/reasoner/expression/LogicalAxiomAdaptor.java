@@ -6,10 +6,13 @@ import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.list.primitive.ImmutableIntList;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.api.set.MutableSet;
+import org.hl7.tinkar.common.id.IntIdList;
 import org.hl7.tinkar.terms.ConceptFacade;
+import org.hl7.tinkar.terms.EntityProxy;
 import org.hl7.tinkar.terms.TinkarTerm;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 public abstract sealed class LogicalAxiomAdaptor implements LogicalAxiom {
@@ -280,7 +283,12 @@ public abstract sealed class LogicalAxiomAdaptor implements LogicalAxiom {
 
         @Override
         public ImmutableList<ConceptFacade> propertyPattern() {
-            throw new UnsupportedOperationException();
+            Optional<IntIdList> optionalPattern = this.adaptedExpression.sourceGraph.vertex(this.vertexIndex).property(TinkarTerm.PROPERTY_SET);
+            if (optionalPattern.isPresent()) {
+                IntIdList pattern = optionalPattern.get();
+                return pattern.map(nid -> EntityProxy.Concept.make(nid));
+            }
+            throw new IllegalStateException("No property pattern found... ");
         }
 
         @Override
