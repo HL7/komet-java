@@ -8,6 +8,7 @@
     </parent>
     <groupId>org.hl7.komet</groupId>
     <artifactId>application</artifactId>
+
     <dependencies>
         <dependency>
             <groupId>de.jangassen</groupId>
@@ -258,15 +259,19 @@
                     <destination>target/dist</destination>
                     <module>org.hl7.komet.application/org.hl7.komet.app.App</module>
                     <runtimeImage>target/kometImage</runtimeImage>
-                    <linuxShortcut>true</linuxShortcut>
-                    <linuxPackageName>komet</linuxPackageName>
-                    <linuxAppCategory>Utilities</linuxAppCategory>
-                    <linuxMenuGroup>Utilities</linuxMenuGroup>
-                    <type>APP_IMAGE</type>
+<!--                    <linuxShortcut>true</linuxShortcut>-->
+<!--                    <linuxPackageName>komet</linuxPackageName>-->
+<!--                    <linuxAppCategory>Utilities</linuxAppCategory>-->
+<!--                    <linuxMenuGroup>Utilities</linuxMenuGroup>-->
+                    <type>${jpackage.type}</type>
                     <icon>src/main/resources/icons/KOMET.icns</icon>
                     <javaOptions>
-                        <option>-Dfile.encoding=UTF-8 --add-opens=javafx.graphics/javafx.scene=org.controlsfx.controls
-                        </option>
+                        <option>--enable-preview</option>
+                        <option>--add-opens</option>
+                        <option>javafx.graphics/javafx.scene=org.controlsfx.controls</option>
+                        <option>--add-exports</option>
+                        <option>javafx.controls/com.sun.javafx.scene.control.behavior=org.hl7.komet.navigator</option>
+<!--                        <option>-Dfile.encoding=UTF-8 &#45;&#45;add-opens=javafx.graphics/javafx.scene=org.controlsfx.controls</option>-->
                     </javaOptions>
                 </configuration>
             </plugin>
@@ -298,5 +303,43 @@
                 </dependency>
             </dependencies>
         </profile>
+        <!-- Profiles to configure JPackage flags for Mac, Linux, & Windows Installers -->
+	    <profile>
+	        <id>mac</id>
+	        <activation>
+	            <os>
+	                <family>mac</family>
+	            </os>
+	        </activation>
+	        <properties>
+	            <jpackage.type>DMG</jpackage.type>
+<!--                <jpackage.resourceDir>resources/resourceDir_mac</jpackage.resourceDir>-->
+	        </properties>
+	    </profile>
+	    <profile>
+	        <id>unix</id>
+	        <activation>
+	            <os>
+	                <family>unix</family>
+	                <name>Linux</name>
+	            </os>
+	        </activation>
+	        <properties>
+	            <jpackage.type>TAR</jpackage.type>
+<!--                <jpackage.resourceDir>resources/resourceDir_linux</jpackage.resourceDir>-->
+	        </properties>
+	    </profile>
+	    <profile>
+	        <id>windows</id>
+	        <activation>
+	            <os>
+	                <family>windows</family>
+	            </os>
+	        </activation>
+	        <properties>
+	            <jpackage.type>MSI</jpackage.type>
+<!--                <jpackage.resourceDir>resources/resourceDir_win</jpackage.resourceDir>-->
+	        </properties>
+	    </profile>
     </profiles>
 </project>
