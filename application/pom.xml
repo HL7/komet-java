@@ -251,29 +251,105 @@
             <plugin>
                 <groupId>org.panteleyev</groupId>
                 <artifactId>jpackage-maven-plugin</artifactId>
-                <version>1.4.0</version>
-                <configuration>
-                    <name>Komet</name>
-                    <appVersion>1.0.0</appVersion>
-                    <vendor>HL7</vendor>
-                    <destination>target/dist</destination>
-                    <module>org.hl7.komet.application/org.hl7.komet.app.App</module>
-                    <runtimeImage>target/kometImage</runtimeImage>
-<!--                    <linuxShortcut>true</linuxShortcut>-->
-<!--                    <linuxPackageName>komet</linuxPackageName>-->
-<!--                    <linuxAppCategory>Utilities</linuxAppCategory>-->
-<!--                    <linuxMenuGroup>Utilities</linuxMenuGroup>-->
-                    <type>${jpackage.type}</type>
-                    <icon>src/main/resources/icons/KOMET.icns</icon>
-                    <javaOptions>
-                        <option>--enable-preview</option>
-                        <option>--add-opens</option>
-                        <option>javafx.graphics/javafx.scene=org.controlsfx.controls</option>
-                        <option>--add-exports</option>
-                        <option>javafx.controls/com.sun.javafx.scene.control.behavior=org.hl7.komet.navigator</option>
-<!--                        <option>-Dfile.encoding=UTF-8 &#45;&#45;add-opens=javafx.graphics/javafx.scene=org.controlsfx.controls</option>-->
-                    </javaOptions>
-                </configuration>
+                <version>1.6.0</version>
+                <executions>
+                    <execution>
+                        <id>appimage</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <type>APP_IMAGE</type>
+                            <runtimeImage>target/kometImage</runtimeImage>
+                            <name>Komet</name>
+                            <appVersion>1.0.0</appVersion>
+                            <icon>src/main/resources/icons/KOMET.icns</icon>
+                            <vendor>HL7</vendor>
+                            <destination>target/dist</destination>
+                            <module>org.hl7.komet.application/org.hl7.komet.app.App</module>
+                            <javaOptions>
+                                <option>--enable-preview</option>
+                                <option>--add-opens</option>
+                                <option>javafx.graphics/javafx.scene=org.controlsfx.controls</option>
+                                <option>--add-exports</option>
+                                <option>javafx.controls/com.sun.javafx.scene.control.behavior=org.hl7.komet.navigator</option>
+                            </javaOptions>
+                        </configuration>
+                        <goals>
+                            <goal>jpackage</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>appimage+data</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <type>APP_IMAGE</type>
+                            <runtimeImage>target/kometImage</runtimeImage>
+                            <name>Komet+data</name>
+                            <appVersion>1.0.0</appVersion>
+                            <icon>src/main/resources/icons/KOMET.icns</icon>
+                            <vendor>HL7</vendor>
+                            <destination>target/dist</destination>
+                            <module>org.hl7.komet.application/org.hl7.komet.app.App</module>
+                            <javaOptions>
+                                <option>--enable-preview</option>
+                                <option>--add-opens</option>
+                                <option>javafx.graphics/javafx.scene=org.controlsfx.controls</option>
+                                <option>--add-exports</option>
+                                <option>javafx.controls/com.sun.javafx.scene.control.behavior=org.hl7.komet.navigator</option>
+                            </javaOptions>
+                        </configuration>
+                        <goals>
+                            <goal>jpackage</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>pkg</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <type>PKG</type>
+                            <appImage>target/dist/Komet.app</appImage>
+                            <resourceDir>resources</resourceDir>
+                            <destination>target/dist</destination>
+                            <name>KometInstaller</name>
+                        </configuration>
+                        <goals>
+                            <goal>jpackage</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>pkg-data</id>
+                        <phase>install</phase>
+                        <configuration>
+                            <type>PKG</type>
+                            <appImage>target/dist/Komet+data.app</appImage>
+                            <resourceDir>resources+data</resourceDir>
+                            <destination>target/dist</destination>
+                            <name>Komet+dataInstaller</name>
+                        </configuration>
+                        <goals>
+                            <goal>jpackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <id>insert-data</id>
+                        <phase>verify</phase>
+                        <configuration>
+                            <target>
+                                <copy todir="target/dist/Komet+data.app/Contents/Resources">
+                                    <fileset dir="resources+data" includes="test_data/**/*" />
+                                </copy>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -312,7 +388,7 @@
 	            </os>
 	        </activation>
 	        <properties>
-	            <jpackage.type>DMG</jpackage.type>
+	            <jpackage.type>PKG</jpackage.type>
 <!--                <jpackage.resourceDir>resources/resourceDir_mac</jpackage.resourceDir>-->
 	        </properties>
 	    </profile>

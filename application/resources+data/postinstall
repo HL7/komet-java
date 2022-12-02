@@ -1,0 +1,9 @@
+#!/bin/sh
+if [ -d ~/Solor/sandbox_data ]
+then
+  osascript -e 'display notification "Initialized data found, skipping data initialization." with title "Komet Installer"'
+else
+  osascript -e 'display notification "Initializing data..." with title "Komet Installer"'
+  mkdir -p ~/Solor/
+  cp -r /Applications/Komet+data.app/Contents/Resources/test_data ~/Solor/sandbox_data
+fi
