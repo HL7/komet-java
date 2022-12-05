@@ -289,6 +289,7 @@
                             <vendor>HL7</vendor>
                             <destination>target/dist</destination>
                             <module>org.hl7.komet.application/org.hl7.komet.app.App</module>
+                            <input>resources+data/test_data</input>
                             <javaOptions>
                                 <option>--enable-preview</option>
                                 <option>--add-opens</option>
@@ -327,26 +328,6 @@
                         </configuration>
                         <goals>
                             <goal>jpackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>3.0.0</version>
-                <executions>
-                    <execution>
-                        <id>insert-data</id>
-                        <phase>verify</phase>
-                        <configuration>
-                            <target>
-                                <copy todir="target/dist/Komet+data.app/Contents/Resources">
-                                    <fileset dir="resources+data" includes="test_data/**/*" />
-                                </copy>
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
                         </goals>
                     </execution>
                 </executions>
