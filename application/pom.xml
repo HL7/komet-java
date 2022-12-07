@@ -131,10 +131,11 @@
                         <name>Komet</name>
                         <appVersion>1.0.0</appVersion>
                         <vendor>HL7</vendor>
-                        <icon>src/main/resources/icons/KOMET.icns</icon>
+                        <icon>${jpackage.icon}</icon>
                         <type>${jpackage.type}</type>
                         <runtimeImage>target/kometImage</runtimeImage>
                         <module>org.hl7.komet.application/org.hl7.komet.app.App</module>
+                        <input>installer_resources/sample_data</input>
                         <javaOptions>
                             <option>--enable-preview</option>
                             <option>--add-opens</option>
@@ -142,6 +143,8 @@
                             <option>--add-exports</option>
                             <option>javafx.controls/com.sun.javafx.scene.control.behavior=org.hl7.komet.navigator</option>
                         </javaOptions>
+                        <!-- Windows Options - ignored by other Operating Systems -->
+                        <winMenu>true</winMenu>
                     </configuration>
                 </plugin>
             </plugins>
@@ -296,7 +299,6 @@
                         <configuration>
                             <destination>target/dist/installer_with_data</destination>
                             <resourceDir>${jpackage.resourceDir}</resourceDir>
-                            <input>${jpackage.input}</input>
                         </configuration>
                         <goals>
                             <goal>jpackage</goal>
@@ -342,8 +344,8 @@
 	        </activation>
 	        <properties>
 	            <jpackage.type>PKG</jpackage.type>
+                <jpackage.icon>src/main/resources/icons/KOMET.icns</jpackage.icon>
                 <jpackage.resourceDir>installer_resources/resourceDir_unix</jpackage.resourceDir>
-                <jpackage.input>installer_resources/sample_data</jpackage.input>
 	        </properties>
 	    </profile>
 	    <profile>
@@ -357,7 +359,6 @@
 	        <properties>
 	            <jpackage.type>TAR</jpackage.type>
 <!--                <jpackage.resourceDir>installer_resources/resourceDir_unix</jpackage.resourceDir>-->
-<!--                <jpackage.input>installer_resources/sample_data</jpackage.input>-->
 	        </properties>
 	    </profile>
 	    <profile>
@@ -369,8 +370,8 @@
 	        </activation>
 	        <properties>
 	            <jpackage.type>MSI</jpackage.type>
-<!--                <jpackage.resourceDir>installer_resources/resourceDir_win</jpackage.resourceDir>-->
-<!--                <jpackage.input>installer_resources/sample_data</jpackage.input>-->
+                <jpackage.icon>src/main/resources/icons/KOMET.ico</jpackage.icon>
+                <jpackage.resourceDir>installer_resources/resourceDir_win</jpackage.resourceDir>
 	        </properties>
 	    </profile>
     </profiles>
