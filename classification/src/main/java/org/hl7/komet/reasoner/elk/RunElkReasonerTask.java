@@ -44,8 +44,8 @@ public class RunElkReasonerTask extends TrackingCallable<AxiomData> {
         updateProgress(workDone++, maxWork);
         updateMessage("Step " + workDone +
                 ": Loading axioms into reasoner");
-        LoadAndClassifyElkAxiomsTask loadSnoRocketAxiomsTask = new LoadAndClassifyElkAxiomsTask(axiomData);
-        Future<Taxonomy<ElkClass>> taxonomyFuture = TinkExecutor.threadPool().submit(loadSnoRocketAxiomsTask);
+        LoadAndClassifyElkAxiomsTask loadElkAxiomsTask = new LoadAndClassifyElkAxiomsTask(axiomData);
+        Future<Taxonomy<ElkClass>> taxonomyFuture = TinkExecutor.threadPool().submit(loadElkAxiomsTask);
         Taxonomy<ElkClass> taxonomy = taxonomyFuture.get();
         updateProgress(workDone++, maxWork);
         updateMessage("Step " + workDone +

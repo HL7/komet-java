@@ -46,13 +46,8 @@ public class LoadAndClassifyElkAxiomsTask extends TrackingCallable<Taxonomy<ElkC
 
             reasoner.ensureLoading();
 
-            // Classify the ontology.
-
-            IncompleteResult<? extends Taxonomy<ElkClass>> taxonomyResult = reasoner.getTaxonomy();
-            IncompletenessMonitor incompletenessMonitor = taxonomyResult.getIncompletenessMonitor();
-            incompletenessMonitor.isIncompletenessDetected();
-            incompletenessMonitor.logStatus(LOG);
-            Taxonomy<ElkClass> taxonomy = Incompleteness.getValue(taxonomyResult);
+            boolean inconsistent = Incompleteness.getValue(reasoner.isInconsistent());
+            Taxonomy<ElkClass> taxonomy = Incompleteness.getValue(reasoner.getTaxonomyQuietly());
 
             LOG.info("getTaxonomyQuietly complete: " + taxonomy.getTopNode());
             updateMessage("Load in " + durationString());

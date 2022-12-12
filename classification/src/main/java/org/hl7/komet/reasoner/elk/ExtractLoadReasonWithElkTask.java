@@ -32,6 +32,12 @@ import org.semanticweb.elk.reasoner.completeness.IncompleteResult;
 import org.semanticweb.elk.reasoner.completeness.Incompleteness;
 import org.semanticweb.elk.reasoner.completeness.IncompletenessMonitor;
 import org.semanticweb.elk.reasoner.config.ReasonerConfiguration;
+import org.semanticweb.elk.reasoner.indexing.classes.ChangeIndexingProcessor;
+import org.semanticweb.elk.reasoner.indexing.classes.DirectIndex;
+import org.semanticweb.elk.reasoner.indexing.conversion.ElkAxiomConverterImpl;
+import org.semanticweb.elk.reasoner.indexing.conversion.ElkPolarityExpressionConverter;
+import org.semanticweb.elk.reasoner.indexing.conversion.ElkPolarityExpressionConverterImpl;
+import org.semanticweb.elk.reasoner.indexing.model.ModifiableOntologyIndex;
 import org.semanticweb.elk.reasoner.taxonomy.model.Taxonomy;
 import org.semanticweb.elk.util.concurrent.computation.InterruptMonitor;
 import org.slf4j.Logger;
@@ -46,6 +52,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ExtractLoadReasonWithElkTask extends TrackingCallable<AxiomData<ElkAxiom>> implements AxiomLoader.Factory {
     private static final Logger LOG = LoggerFactory.getLogger(ExtractSnoRocketAxiomsTask.class);
     private final ElkObjectEntityRecyclingFactory elkObjectFactory = new ElkObjectEntityRecyclingFactory();
+
+    final ModifiableOntologyIndex index = new DirectIndex(elkObjectFactory);
+    final ElkAxiomProcessor inserter = new ChangeIndexingProcessor(new ElkAxiomConverterImpl(elkObjectFactory, index, 1), 1, index);
+    ElkPolarityExpressionConverter converter = new ElkPolarityExpressionConverterImpl(elkObjectFactory, index);
+
     final ViewCalculator viewCalculator;
     final PatternFacade statedAxiomPattern;
     AxiomData<ElkAxiom> axiomData = new AxiomData();
@@ -71,6 +82,8 @@ public class ExtractLoadReasonWithElkTask extends TrackingCallable<AxiomData<Elk
 
         LogicalExpressionAdaptorFactory logicalExpressionAdaptor = new LogicalExpressionAdaptorFactory();
         ConcurrentHashSet<Integer> includedConceptNids = new ConcurrentHashSet<>(totalAxiomCount);
+
+
         // TODO back to parallel when ELK is ready... Consider replacing ElkObjectEntityRecyclingFactory with atomic spined array
         // viewCalculator.forEachSemanticVersionOfPatternParallel
         viewCalculator.forEachSemanticVersionOfPattern(
@@ -85,6 +98,7 @@ public class ExtractLoadReasonWithElkTask extends TrackingCallable<AxiomData<Elk
                         LogicalExpression logicalExpression = logicalExpressionAdaptor.adapt(definitionAsTree);
 
                         ImmutableList<ElkAxiom> axiomList = processLogicalExpression(logicalExpression, conceptNid);
+                        axiomList.forEach(elkAxiom -> inserter.visit(elkAxiom));
 
                         if (axiomData.nidAxiomsMap.compareAndSet(semanticEntityVersion.nid(), null, axiomList)) {
                             axiomData.axiomsSet.addAll(axiomList.castToList());

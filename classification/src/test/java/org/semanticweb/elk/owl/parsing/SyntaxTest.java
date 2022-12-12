@@ -42,7 +42,7 @@ public class SyntaxTest extends TestCase {
 		ElkClassExpression heart2 = objectFactory.getClass(new ElkFullIri("Heart"));
 
 		assertSame("heart == heart2", heart, heart2);
-		assertNotSame("heart != organ", organ);
+		assertNotSame("heart != organ", heart, organ);
 
 	}
 }

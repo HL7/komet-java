@@ -65,6 +65,13 @@ class UpdatingCachedIndexedObjectFactory extends
 		return result;
 	}
 
+	/**
+	 * TODO: May be able to eliminate resolve if we go with atomic array, sequential identifiers, and compare and swap operations
+	 * to prevent duplicates. Use an updateAndGet operation and if exists, return existing. If null, then create.
+	 * @param input
+	 * @return
+	 * @param <T>
+	 */
 	<T extends CachedIndexedObject<T>> T resolve(T input) {
 		T result = index_.resolve(input);
 		if (result == null) {

@@ -32,7 +32,7 @@ class ExampleTest {
             OWLClass subClass = factory.getOWLClass(IRI.create("http://www.co-ode.org/ontologies/galen#AbsoluteShapeState"));
             //OWLAxiom removed = factory.getOWLSubClassOfAxiom(subClass, factory.getOWLClass(IRI.create("http://www.co-ode.org/ontologies/galen#ShapeState")));
 
-            OWLAxiom added = factory.getOWLSubClassOfAxiom(subClass, factory.getOWLClass(IRI.create("http://www.co-ode.org/ontologies/galen#GeneralisedStructure")));
+            OWLAxiom added = factory.getOWLSubClassOfAxiom(subClass, factor y.getOWLClass(IRI.create("http://www.co-ode.org/ontologies/galen#GeneralisedStructure")));
 // Remove an existing axiom, add a new axiom
             manager.addAxiom(ont, added);
             //manager.removeAxiom(ont, removed);

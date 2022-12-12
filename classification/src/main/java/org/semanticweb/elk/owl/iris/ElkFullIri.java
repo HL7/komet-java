@@ -51,7 +51,7 @@ public class ElkFullIri extends ElkIri {
 
 	@Override
 	public String toString() {
-		return "<" + getFullIriAsString() + ">";
+		return "<" + super.toString() + ">";
 	}
 
 	/**
