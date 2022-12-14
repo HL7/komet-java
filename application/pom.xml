@@ -133,7 +133,7 @@
                         <vendor>HL7</vendor>
                         <icon>${jpackage.icon}</icon>
                         <type>${jpackage.type}</type>
-                        <runtimeImage>target/kometImage</runtimeImage>
+                        <runtimeImage>target/kometRuntimeImage</runtimeImage>
                         <module>org.hl7.komet.application/org.hl7.komet.app.App</module>
                         <input>installer_resources/sample_data</input>
                         <javaOptions>
@@ -145,6 +145,32 @@
                         </javaOptions>
                         <!-- Windows Options - ignored by other Operating Systems -->
                         <winMenu>true</winMenu>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.openjfx</groupId>
+                    <artifactId>javafx-maven-plugin</artifactId>
+                    <version>0.0.8</version>
+                    <configuration>
+                        <mainClass>org.hl7.komet.application/org.hl7.komet.app.App</mainClass>
+                        <stripDebug>false</stripDebug>
+                        <compress>2</compress>
+                        <bindServices>true</bindServices>
+                        <noHeaderFiles>true</noHeaderFiles>
+                        <noManPages>true</noManPages>
+                        <launcher>launchKomet</launcher>
+                        <jlinkImageName>kometRuntimeImage</jlinkImageName>
+                        <jlinkVerbose>true</jlinkVerbose>
+                        <jlinkZipName>kometJlink</jlinkZipName>
+                        <ignoreSigningInformation>true</ignoreSigningInformation>
+                        <options>
+                            <option>--enable-preview</option>
+                            <option>--add-opens</option>
+                            <option>javafx.graphics/javafx.scene=org.controlsfx.controls</option>
+                            <option>--add-exports</option>
+                            <option>javafx.controls/com.sun.javafx.scene.control.behavior=org.hl7.komet.navigator</option>
+                            <option>-Djava.util.concurrent.ForkJoinPool.common.exceptionHandler=org.hl7.tinkar.common.alert.UncaughtExceptionAlertStreamer</option>
+                        </options>
                     </configuration>
                 </plugin>
             </plugins>
@@ -192,89 +218,6 @@
                         <goals>
                             <goal>jlink</goal>
                         </goals>
-                        <configuration>
-                            <mainClass>org.hl7.komet.application/org.hl7.komet.app.App</mainClass>
-                            <stripDebug>false</stripDebug>
-                            <compress>2</compress>
-                            <bindServices>true</bindServices>
-                            <noHeaderFiles>true</noHeaderFiles>
-                            <noManPages>true</noManPages>
-                            <launcher>launchKomet</launcher>
-                            <jlinkImageName>kometImage</jlinkImageName>
-                            <jlinkVerbose>true</jlinkVerbose>
-                            <jlinkZipName>kometJlink</jlinkZipName>
-                            <ignoreSigningInformation>true</ignoreSigningInformation>
-                            <options>
-                                <option>--enable-preview</option>
-                                <option>--add-opens</option>
-                                <option>javafx.graphics/javafx.scene=org.controlsfx.controls</option>
-                                <option>--add-exports</option>
-                                <option>javafx.controls/com.sun.javafx.scene.control.behavior=org.hl7.komet.navigator</option>
-                                <option>-Djava.util.concurrent.ForkJoinPool.common.exceptionHandler=org.hl7.tinkar.common.alert.UncaughtExceptionAlertStreamer</option>
-                            </options>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <!-- Configuration for debugging -->
-                        <id>debug</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>jlink</goal>
-                        </goals>
-                        <configuration>
-                            <mainClass>org.hl7.komet.application/org.hl7.komet.app.App</mainClass>
-                            <stripDebug>false</stripDebug>
-                            <compress>2</compress>
-                            <bindServices>true</bindServices>
-                            <noHeaderFiles>true</noHeaderFiles>
-                            <noManPages>true</noManPages>
-                            <launcher>debugKomet</launcher>
-                            <jlinkImageName>kometDebugImage</jlinkImageName>
-                            <jlinkVerbose>true</jlinkVerbose>
-                            <jlinkZipName>kometJlink</jlinkZipName>
-                            <ignoreSigningInformation>true</ignoreSigningInformation>
-                            <options>
-                                <option>--enable-preview</option>
-                                <option>--add-opens</option>
-                                <option>javafx.graphics/javafx.scene=org.controlsfx.controls</option>
-                                <option>--add-exports</option>
-                                <option>javafx.controls/com.sun.javafx.scene.control.behavior=org.hl7.komet.navigator</option>
-                                <option>-Djava.util.concurrent.ForkJoinPool.common.exceptionHandler=org.hl7.tinkar.common.alert.UncaughtExceptionAlertStreamer</option>
-                                <option>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:8000</option>
-                            </options>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <!-- Configuration for profiling -->
-                        <id>profile</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>jlink</goal>
-                        </goals>
-                        <configuration>
-                            <mainClass>org.hl7.komet.application/org.hl7.komet.app.App</mainClass>
-                            <stripDebug>false</stripDebug>
-                            <compress>2</compress>
-                            <bindServices>true</bindServices>
-                            <noHeaderFiles>true</noHeaderFiles>
-                            <noManPages>true</noManPages>
-                            <launcher>profileKomet</launcher>
-                            <jlinkImageName>kometProfileImage</jlinkImageName>
-                            <jlinkVerbose>true</jlinkVerbose>
-                            <jlinkZipName>kometJlink</jlinkZipName>
-                            <ignoreSigningInformation>true</ignoreSigningInformation>
-                            <options>
-                                <option>--enable-preview</option>
-                                <option>--add-opens</option>
-                                <option>javafx.graphics/javafx.scene=org.controlsfx.controls</option>
-                                <option>--add-exports</option>
-                                <option>javafx.controls/com.sun.javafx.scene.control.behavior=org.hl7.komet.navigator</option>
-                                <option>-Djava.util.concurrent.ForkJoinPool.common.exceptionHandler=org.hl7.tinkar.common.alert.UncaughtExceptionAlertStreamer</option>
-                                <option>
-                                    -agentpath:/Applications/JProfiler.app/Contents/Resources/app/bin/macos/libjprofilerti.jnilib=port=8849
-                                </option>
-                            </options>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -298,7 +241,7 @@
                         <phase>install</phase>
                         <configuration>
                             <destination>target/dist/installer_with_data</destination>
-                            <resourceDir>${jpackage.resourceDir}</resourceDir>
+                            <resourceDir>${jpackage.resourceDir}+data</resourceDir>
                         </configuration>
                         <goals>
                             <goal>jpackage</goal>
@@ -370,7 +313,7 @@
 	        </activation>
 	        <properties>
 	            <jpackage.type>MSI</jpackage.type>
-                <jpackage.icon>src/main/resources/icons/KOMET.ico</jpackage.icon>
+                <jpackage.icon>src/main/resources/icons/Komet.ico</jpackage.icon>
                 <jpackage.resourceDir>installer_resources/resourceDir_win</jpackage.resourceDir>
 	        </properties>
 	    </profile>
