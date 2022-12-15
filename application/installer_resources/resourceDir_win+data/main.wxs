@@ -122,7 +122,7 @@
       <Custom Action="JpDisallowDowngrade" After="FindRelatedProducts">JP_DOWNGRADABLE_FOUND</Custom>
       <?endif?>
       <RemoveExistingProducts Before="CostInitialize"/>
-      <Custom Action="PostInstallPrep" Before="InstallFinalize">NOT Installed</Custom>
+      <Custom Action="PostInstallPrep" After="PublishFeatures">NOT Installed</Custom>
       <Custom Action="PostInstall" Before="InstallFinalize">NOT Installed</Custom>
     </InstallExecuteSequence>
 
