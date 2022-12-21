@@ -34,11 +34,7 @@
         <maven-source-plugin.version>3.2.0</maven-source-plugin.version>
         <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
         <nsmenufx.version>3.1.0</nsmenufx.version>
-<<<<<<< HEAD
-        <openjfx.version>17.0.2</openjfx.version>
-=======
         <openjfx.version>19</openjfx.version>
->>>>>>> main
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <record-builder-core.version>33</record-builder-core.version>
         <slf4j.version>2.0.0-alpha6</slf4j.version>
