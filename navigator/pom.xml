@@ -21,5 +21,41 @@
             <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <source>19</source>
+                    <target>19</target>
+                    <compilerArgs>
+                        <arg>--add-exports</arg>
+                        <arg>javafx.controls/com.sun.javafx.scene.control.behavior=org.hl7.komet.navigator</arg>
+                    </compilerArgs>
+                    <fork>true</fork>
+                    <annotationProcessorPaths>
+                        <annotationProcessorPath>
+                            <groupId>io.soabase.record-builder</groupId>
+                            <artifactId>record-builder-processor</artifactId>
+                            <version>${record-builder-core.version}</version>
+                        </annotationProcessorPath>
+                        <annotationProcessorPath>
+                            <groupId>com.google.auto.service</groupId>
+                            <artifactId>auto-service</artifactId>
+                            <version>${auto-service.version}</version>
+                        </annotationProcessorPath>
+                    </annotationProcessorPaths>
+                    <annotationProcessors>
+                        <annotationProcessor>io.soabase.recordbuilder.processor.RecordBuilderProcessor
+                        </annotationProcessor>
+                        <annotationProcessor>com.google.auto.service.processor.AutoServiceProcessor
+                        </annotationProcessor>
+                    </annotationProcessors>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
 

@@ -20,9 +20,26 @@ import org.hl7.tinkar.entity.graph.DiTreeEntity;
 import org.hl7.tinkar.terms.ConceptFacade;
 import org.hl7.tinkar.terms.PatternFacade;
 import org.hl7.tinkar.terms.TinkarTerm;
+import org.semanticweb.elk.loading.AxiomLoader;
+import org.semanticweb.elk.loading.ElkLoadingException;
 import org.semanticweb.elk.owl.interfaces.*;
 import org.semanticweb.elk.owl.iris.ElkFullIri;
 import org.semanticweb.elk.owl.managers.ElkObjectEntityRecyclingFactory;
+import org.semanticweb.elk.owl.visitors.ElkAxiomProcessor;
+import org.semanticweb.elk.reasoner.Reasoner;
+import org.semanticweb.elk.reasoner.ReasonerFactory;
+import org.semanticweb.elk.reasoner.completeness.IncompleteResult;
+import org.semanticweb.elk.reasoner.completeness.Incompleteness;
+import org.semanticweb.elk.reasoner.completeness.IncompletenessMonitor;
+import org.semanticweb.elk.reasoner.config.ReasonerConfiguration;
+import org.semanticweb.elk.reasoner.indexing.classes.ChangeIndexingProcessor;
+import org.semanticweb.elk.reasoner.indexing.classes.DirectIndex;
+import org.semanticweb.elk.reasoner.indexing.conversion.ElkAxiomConverterImpl;
+import org.semanticweb.elk.reasoner.indexing.conversion.ElkPolarityExpressionConverter;
+import org.semanticweb.elk.reasoner.indexing.conversion.ElkPolarityExpressionConverterImpl;
+import org.semanticweb.elk.reasoner.indexing.model.ModifiableOntologyIndex;
+import org.semanticweb.elk.reasoner.taxonomy.model.Taxonomy;
+import org.semanticweb.elk.util.concurrent.computation.InterruptMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,15 +49,20 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ExtractElkAxiomsTask extends TrackingCallable<AxiomData<ElkAxiom>> {
+public class ExtractLoadReasonWithElkTask extends TrackingCallable<AxiomData<ElkAxiom>> implements AxiomLoader.Factory {
     private static final Logger LOG = LoggerFactory.getLogger(ExtractSnoRocketAxiomsTask.class);
     private final ElkObjectEntityRecyclingFactory elkObjectFactory = new ElkObjectEntityRecyclingFactory();
+
+    final ModifiableOntologyIndex index = new DirectIndex(elkObjectFactory);
+    final ElkAxiomProcessor inserter = new ChangeIndexingProcessor(new ElkAxiomConverterImpl(elkObjectFactory, index, 1), 1, index);
+    ElkPolarityExpressionConverter converter = new ElkPolarityExpressionConverterImpl(elkObjectFactory, index);
+
     final ViewCalculator viewCalculator;
     final PatternFacade statedAxiomPattern;
     AxiomData<ElkAxiom> axiomData = new AxiomData();
 
 
-    public ExtractElkAxiomsTask(ViewCalculator viewCalculator, PatternFacade statedAxiomPattern) {
+    public ExtractLoadReasonWithElkTask(ViewCalculator viewCalculator, PatternFacade statedAxiomPattern) {
         super(false, true);
         this.viewCalculator = viewCalculator;
         this.statedAxiomPattern = statedAxiomPattern;
@@ -60,7 +82,11 @@ public class ExtractElkAxiomsTask extends TrackingCallable<AxiomData<ElkAxiom>> 
 
         LogicalExpressionAdaptorFactory logicalExpressionAdaptor = new LogicalExpressionAdaptorFactory();
         ConcurrentHashSet<Integer> includedConceptNids = new ConcurrentHashSet<>(totalAxiomCount);
-        viewCalculator.forEachSemanticVersionOfPatternParallel(
+
+
+        // TODO back to parallel when ELK is ready... Consider replacing ElkObjectEntityRecyclingFactory with atomic spined array
+        // viewCalculator.forEachSemanticVersionOfPatternParallel
+        viewCalculator.forEachSemanticVersionOfPattern(
                 logicCoordinate.statedAxiomsPatternNid(),
                 (semanticEntityVersion, patternEntityVersion) -> {
                     updateProgress(axiomCounter.incrementAndGet(), totalAxiomCount);
@@ -72,6 +98,7 @@ public class ExtractElkAxiomsTask extends TrackingCallable<AxiomData<ElkAxiom>> 
                         LogicalExpression logicalExpression = logicalExpressionAdaptor.adapt(definitionAsTree);
 
                         ImmutableList<ElkAxiom> axiomList = processLogicalExpression(logicalExpression, conceptNid);
+                        axiomList.forEach(elkAxiom -> inserter.visit(elkAxiom));
 
                         if (axiomData.nidAxiomsMap.compareAndSet(semanticEntityVersion.nid(), null, axiomList)) {
                             axiomData.axiomsSet.addAll(axiomList.castToList());
@@ -93,6 +120,28 @@ public class ExtractElkAxiomsTask extends TrackingCallable<AxiomData<ElkAxiom>> 
         axiomData.classificationConceptSet = IntLists.immutable.of(includedConceptNidArray);
         updateProgress(totalAxiomCount, totalAxiomCount);
         updateMessage("In " + durationString());
+
+
+        ReasonerFactory reasoningFactory = new ReasonerFactory();
+        ReasonerConfiguration configuration = ReasonerConfiguration.getConfiguration();
+        Reasoner reasoner = reasoningFactory.createReasoner(reasoningFactory.createReasoner(configuration),
+                elkObjectFactory,
+                configuration);
+
+        reasoner.registerAxiomLoader(this);
+        reasoner.ensureLoading();
+
+        // Classify the ontology.
+
+        IncompleteResult<? extends Taxonomy<ElkClass>> taxonomyResult = reasoner.getTaxonomy();
+        IncompletenessMonitor incompletenessMonitor = taxonomyResult.getIncompletenessMonitor();
+        incompletenessMonitor.isIncompletenessDetected();
+        incompletenessMonitor.logStatus(LOG);
+        Taxonomy<ElkClass> taxonomy = Incompleteness.getValue(taxonomyResult);
+
+        LOG.info("getTaxonomyQuietly complete: " + taxonomy.getTopNode());
+        updateMessage("Load in " + durationString());
+
         return axiomData;
     }
 
@@ -367,5 +416,62 @@ public class ExtractElkAxiomsTask extends TrackingCallable<AxiomData<ElkAxiom>> 
                 conceptNid + " graph: " + logicGraph);
 
          */
+    }
+
+
+    @Override
+    public AxiomLoader getAxiomLoader(InterruptMonitor interrupter) {
+        return new ElkLoader(interrupter);
+    }
+
+    private class ElkLoader implements AxiomLoader {
+        private boolean started = false;
+        private volatile boolean finished = false;
+        /**
+         * the exception created if something goes wrong
+         */
+        protected volatile Exception exception;
+
+        private final InterruptMonitor interrupter;
+
+        public ElkLoader(InterruptMonitor interrupter) {
+            this.interrupter = interrupter;
+        }
+
+        @Override
+        public void load(ElkAxiomProcessor axiomInserter, ElkAxiomProcessor axiomDeleter) throws ElkLoadingException {
+            if (finished)
+                return;
+
+            if (!started) {
+                started = true;
+            }
+            for (ElkAxiom elkAxiom : axiomData.axiomsSet) {
+                if (isInterrupted()) {
+                    break;
+                }
+                axiomInserter.visit(elkAxiom);
+            }
+
+            if (exception != null) {
+                throw new ElkLoadingException(exception);
+            }
+            this.finished = true;
+        }
+
+        @Override
+        public boolean isLoadingFinished() {
+            return finished;
+        }
+
+        @Override
+        public void dispose() {
+
+        }
+
+        @Override
+        public boolean isInterrupted() {
+            return interrupter.isInterrupted();
+        }
     }
 }

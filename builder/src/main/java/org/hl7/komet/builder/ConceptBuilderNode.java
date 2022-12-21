@@ -45,11 +45,13 @@ public class ConceptBuilderNode extends ExplorationNodeAbstract {
         ImmutableList<Consequence<?>> consequences = RuleBase.execute(statementStore, viewProperties.calculator(), Coordinates.Edit.Default());
         for (Consequence consequence : consequences) {
             switch (consequence.get()) {
-                case GeneratedActionImmediate actionImmediate && actionImmediate instanceof Action action -> {
+                case Action action
+                    when    action instanceof GeneratedActionImmediate  -> {
                     Button actionButton = ActionUtils.createButton(action);
                     toolBar.getItems().add(actionButton);
                 }
-                case GeneratedActionSuggested actionSuggested && actionSuggested instanceof Action action -> {
+                case Action action
+                    when    action instanceof GeneratedActionSuggested  -> {
                     Button actionButton = ActionUtils.createButton(action);
                     toolBar.getItems().add(actionButton);
                 }

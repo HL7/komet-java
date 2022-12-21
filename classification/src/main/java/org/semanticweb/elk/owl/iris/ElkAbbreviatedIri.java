@@ -22,6 +22,7 @@
  */
 package org.semanticweb.elk.owl.iris;
 
+import org.hl7.tinkar.common.service.PrimitiveData;
 import org.semanticweb.elk.owl.visitors.ElkAbbreviatedIriVisitor;
 import org.semanticweb.elk.owl.visitors.ElkIriVisitor;
 
@@ -78,6 +79,14 @@ public class ElkAbbreviatedIri extends ElkIri {
 
 	@Override
 	public String toString() {
+		try {
+			int nid = Integer.parseInt(localName);
+			if (nid < 0) {
+				return prefix.getName() + PrimitiveData.text(nid);
+			}
+		} catch (NumberFormatException e) {
+			// Nothing to do.
+		}
 		return prefix.getName() + localName;
 	}
 

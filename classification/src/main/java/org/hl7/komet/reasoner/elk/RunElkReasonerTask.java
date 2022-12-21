@@ -36,7 +36,7 @@ public class RunElkReasonerTask extends TrackingCallable<AxiomData> {
     protected AxiomData compute() throws Exception {
         final int maxWork = 4;
         int workDone = 1;
-        ExtractElkAxiomsTask extractSnoRocketAxiomsTask = new ExtractElkAxiomsTask(this.viewCalculator, this.statedAxiomPattern);
+        ExtractLoadReasonWithElkTask extractSnoRocketAxiomsTask = new ExtractLoadReasonWithElkTask(this.viewCalculator, this.statedAxiomPattern);
         updateMessage("Step " + workDone +
                 ": " + viewCalculator.getPreferredDescriptionTextWithFallbackOrNid(statedAxiomPattern));
         Future<AxiomData<ElkAxiom>> axiomDataFuture = TinkExecutor.threadPool().submit(extractSnoRocketAxiomsTask);
@@ -44,8 +44,8 @@ public class RunElkReasonerTask extends TrackingCallable<AxiomData> {
         updateProgress(workDone++, maxWork);
         updateMessage("Step " + workDone +
                 ": Loading axioms into reasoner");
-        LoadAndClassifyElkAxiomsTask loadSnoRocketAxiomsTask = new LoadAndClassifyElkAxiomsTask(axiomData);
-        Future<Taxonomy<ElkClass>> taxonomyFuture = TinkExecutor.threadPool().submit(loadSnoRocketAxiomsTask);
+        LoadAndClassifyElkAxiomsTask loadElkAxiomsTask = new LoadAndClassifyElkAxiomsTask(axiomData);
+        Future<Taxonomy<ElkClass>> taxonomyFuture = TinkExecutor.threadPool().submit(loadElkAxiomsTask);
         Taxonomy<ElkClass> taxonomy = taxonomyFuture.get();
         updateProgress(workDone++, maxWork);
         updateMessage("Step " + workDone +

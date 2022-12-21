@@ -22,6 +22,7 @@
  */
 package org.semanticweb.elk.owl.iris;
 
+import org.hl7.tinkar.common.service.PrimitiveData;
 import org.semanticweb.elk.owl.interfaces.ElkAnnotationSubject;
 import org.semanticweb.elk.owl.interfaces.ElkAnnotationValue;
 import org.semanticweb.elk.owl.visitors.ElkAnnotationSubjectVisitor;
@@ -45,6 +46,29 @@ public abstract class ElkIri implements Comparable<ElkIri>,
 	 * @return the full IRI as a string
 	 */
 	public abstract String getFullIriAsString();
+
+	@Override
+	public String toString() {
+		String fullIriAsString = getFullIriAsString();
+		try {
+			if (fullIriAsString.contains("#")) {
+				String[] fullIriStringParts = fullIriAsString.split("#");
+				if (fullIriStringParts.length > 1) {
+					int nid = Integer.parseInt(fullIriStringParts[1]);
+					if (nid < 0) {
+						return "#" + PrimitiveData.textWithNid(nid);
+					}
+				}
+			}
+			int nid = Integer.parseInt(fullIriAsString);
+			if (nid < 0) {
+				return PrimitiveData.textWithNid(nid);
+			}
+		} catch (NumberFormatException ex) {
+			// Nothing to do for exception, and return full IRI.
+		}
+		return fullIriAsString;
+	}
 
 	protected ElkIri(int hashCode) {
 		this.hashCode = hashCode;

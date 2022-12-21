@@ -22,11 +22,23 @@
         <auto-service.version>1.0-rc7</auto-service.version>
         <controlsfx.version>11.1.0</controlsfx.version>
         <ikonli.version>12.2.0</ikonli.version>
-        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
+        <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
+        <maven.compiler.source>19</maven.compiler.source>
+        <maven.compiler.target>19</maven.compiler.target>
+        <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
+        <maven-failsafe-plugin.version>3.0.0-M5</maven-failsafe-plugin.version>
+        <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
+        <maven-project-info-reports-plugin.version>3.1.2</maven-project-info-reports-plugin.version>
+        <maven-site-plugin.version>3.9.1</maven-site-plugin.version>
+        <maven-source-plugin.version>3.2.0</maven-source-plugin.version>
+        <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
         <nsmenufx.version>3.1.0</nsmenufx.version>
+<<<<<<< HEAD
         <openjfx.version>17.0.2</openjfx.version>
+=======
+        <openjfx.version>19</openjfx.version>
+>>>>>>> main
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <record-builder-core.version>33</record-builder-core.version>
         <slf4j.version>2.0.0-alpha6</slf4j.version>
@@ -34,6 +46,88 @@
         <tinkar-jpms-deps.version>1.0.15</tinkar-jpms-deps.version>
     </properties>
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>${maven-assembly-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>com.mycila</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                    <configuration>
+                        <header>${basedir}/../../etc/license.txt</header>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven-surefire-plugin.version}</version>
+                    <configuration>
+                        <argLine>--enable-preview</argLine>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>${maven-failsafe-plugin.version}</version>
+<!--                    <configuration>-->
+<!--                        <argLine>&#45;&#45;enable-preview</argLine>-->
+<!--                    </configuration>-->
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven-compiler-plugin.version}</version>
+                    <configuration>
+                        <source>${maven.compiler.source}</source>
+                        <target>${maven.compiler.target}</target>
+                        <fork>true</fork>
+<!--                        <compilerArgs>-->
+<!--                            &#45;&#45;enable-preview-->
+<!--                        </compilerArgs>-->
+                        <annotationProcessorPaths>
+                            <annotationProcessorPath>
+                                <groupId>io.soabase.record-builder</groupId>
+                                <artifactId>record-builder-processor</artifactId>
+                                <version>${record-builder-core.version}</version>
+                            </annotationProcessorPath>
+                            <annotationProcessorPath>
+                                <groupId>com.google.auto.service</groupId>
+                                <artifactId>auto-service</artifactId>
+                                <version>${auto-service.version}</version>
+                            </annotationProcessorPath>
+                        </annotationProcessorPaths>
+                        <annotationProcessors>
+                            <annotationProcessor>io.soabase.recordbuilder.processor.RecordBuilderProcessor
+                            </annotationProcessor>
+                            <annotationProcessor>com.google.auto.service.processor.AutoServiceProcessor
+                            </annotationProcessor>
+                        </annotationProcessors>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>${maven-source-plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <id>attach-sources</id>
+                            <goals>
+                                <goal>jar</goal>
+                                <goal>test-jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>${maven-site-plugin.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -70,6 +164,35 @@
             </plugin>
         </plugins>
     </build>
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>${maven-project-info-reports-plugin.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-report-plugin</artifactId>
+                <version>${maven-failsafe-plugin.version}</version>
+                <configuration>
+                    <reportsDirectories>
+                        <trimStackTrace>false</trimStackTrace>
+                        <reportsDirectory>${basedir}/target/failsafe-reports</reportsDirectory>
+                    </reportsDirectories>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
+    <distributionManagement>
+        <site>
+            <id>tinkar.hl7.org</id>
+            <url>file:////opt/dev-websites/komet</url>
+            <!-- chflags nohidden /System/Volumes/Data/opt should unhide the /opt folder on macOS
+                The use of /opt for add-on software is a well-established practice in the UNIX community.
+            -->
+        </site>
+    </distributionManagement>
     <modules>
         <module>application</module>
         <module>artifact</module>
