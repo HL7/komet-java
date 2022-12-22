@@ -4,7 +4,7 @@
 
 ### Installation Steps
 
-1. Download "Komet-1.0.0.pkg" *reminder: put link to release page.
+1. Use the Maven Profile *create-installer* to generate the installer in application/target/dist/installer_with_data.
 2. Right-click “Komet-1.0.0.pkg” and select "Open", then click the "Open" button on the security popup.
 3. Run through the installation steps. You can say yes to putting the installer in the trash.
 4. After the installation is complete, verify “Komet.app” is in your Applications folder.
@@ -30,7 +30,7 @@
 
 ### Installation Steps
 
-1. Download "Komet-1.0.0.msi" *reminder: put link to release page
+1. Use the Maven Profile *create-installer* to generate the installer in application/target/dist/installer_with_data.
 2. Double click and install “Komet-1.0.0.msi”
 3. Select “Run” when prompted for installation
 4. Run through the installation steps
