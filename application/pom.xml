@@ -207,7 +207,7 @@
                             <launcher>debugKomet</launcher>
                             <jlinkImageName>kometDebugRuntimeImage</jlinkImageName>
                             <jlinkVerbose>true</jlinkVerbose>
-                            <jlinkZipName>kometJlink</jlinkZipName>
+                            <jlinkZipName>kometDebugJlink</jlinkZipName>
                             <options>
                                 <option>--enable-preview</option>
                                 <option>--add-opens</option>
