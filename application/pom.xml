@@ -123,56 +123,20 @@
     <build>
         <pluginManagement>
             <plugins>
-                <plugin>
-                    <groupId>org.panteleyev</groupId>
-                    <artifactId>jpackage-maven-plugin</artifactId>
-                    <version>1.6.0</version>
-                    <configuration>
-                        <name>Komet</name>
-                        <appVersion>1.0.0</appVersion>
-                        <vendor>HL7</vendor>
-                        <icon>${jpackage.icon}</icon>
-                        <type>${jpackage.type}</type>
-                        <runtimeImage>target/kometRuntimeImage</runtimeImage>
-                        <module>org.hl7.komet.application/org.hl7.komet.app.App</module>
-                        <input>installer_resources/sample_data</input>
-                        <javaOptions>
-                            <option>--enable-preview</option>
-                            <option>--add-opens</option>
-                            <option>javafx.graphics/javafx.scene=org.controlsfx.controls</option>
-                            <option>--add-exports</option>
-                            <option>javafx.controls/com.sun.javafx.scene.control.behavior=org.hl7.komet.navigator</option>
-                        </javaOptions>
-                        <!-- Windows Options - ignored by other Operating Systems -->
-                        <winMenu>true</winMenu>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.openjfx</groupId>
-                    <artifactId>javafx-maven-plugin</artifactId>
-                    <version>0.0.8</version>
-                    <configuration>
-                        <mainClass>org.hl7.komet.application/org.hl7.komet.app.App</mainClass>
-                        <stripDebug>false</stripDebug>
-                        <compress>2</compress>
-                        <bindServices>true</bindServices>
-                        <noHeaderFiles>true</noHeaderFiles>
-                        <noManPages>true</noManPages>
-                        <launcher>launchKomet</launcher>
-                        <jlinkImageName>kometRuntimeImage</jlinkImageName>
-                        <jlinkVerbose>true</jlinkVerbose>
-                        <jlinkZipName>kometJlink</jlinkZipName>
-                        <ignoreSigningInformation>true</ignoreSigningInformation>
-                        <options>
-                            <option>--enable-preview</option>
-                            <option>--add-opens</option>
-                            <option>javafx.graphics/javafx.scene=org.controlsfx.controls</option>
-                            <option>--add-exports</option>
-                            <option>javafx.controls/com.sun.javafx.scene.control.behavior=org.hl7.komet.navigator</option>
-                            <option>-Djava.util.concurrent.ForkJoinPool.common.exceptionHandler=org.hl7.tinkar.common.alert.UncaughtExceptionAlertStreamer</option>
-                        </options>
-                    </configuration>
-                </plugin>
+               <plugin>
+                   <groupId>org.openjfx</groupId>
+                   <artifactId>javafx-maven-plugin</artifactId>
+                   <version>${javafx.version}</version>
+                   <configuration>
+                       <mainClass>org.hl7.komet.application/org.hl7.komet.app.App</mainClass>
+                       <stripDebug>false</stripDebug>
+                       <compress>2</compress>
+                       <bindServices>true</bindServices>
+                       <noHeaderFiles>true</noHeaderFiles>
+                       <noManPages>true</noManPages>
+                       <ignoreSigningInformation>true</ignoreSigningInformation>
+                   </configuration>
+               </plugin>
             </plugins>
         </pluginManagement>
 
@@ -209,7 +173,6 @@
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
-                <version>0.0.8</version>
                 <executions>
                     <execution>
                         <!-- Default configuration for running -->
@@ -218,39 +181,76 @@
                         <goals>
                             <goal>jlink</goal>
                         </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.panteleyev</groupId>
-                <artifactId>jpackage-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>Installer</id>
-                        <phase>install</phase>
                         <configuration>
-                            <destination >target/dist/installer</destination>
-                            <resourceDir>${jpackage.resourceDir}</resourceDir>
+                            <launcher>launchKomet</launcher>
+                            <jlinkImageName>kometRuntimeImage</jlinkImageName>
+                            <jlinkVerbose>true</jlinkVerbose>
+                            <jlinkZipName>kometJlink</jlinkZipName>
+                            <options>
+                                <option>--enable-preview</option>
+                                <option>--add-opens</option>
+                                <option>javafx.graphics/javafx.scene=org.controlsfx.controls</option>
+                                <option>--add-exports</option>
+                                <option>javafx.controls/com.sun.javafx.scene.control.behavior=org.hl7.komet.navigator</option>
+                                <option>-Djava.util.concurrent.ForkJoinPool.common.exceptionHandler=org.hl7.tinkar.common.alert.UncaughtExceptionAlertStreamer</option>
+                            </options>
                         </configuration>
-                        <goals>
-                            <goal>jpackage</goal>
-                        </goals>
                     </execution>
                     <execution>
-                        <id>InstallerWithData</id>
-                        <phase>install</phase>
-                        <configuration>
-                            <destination>target/dist/installer_with_data</destination>
-                            <resourceDir>${jpackage.resourceDir}+data</resourceDir>
-                        </configuration>
+                        <!-- Configuration for debugging -->
+                        <id>debug</id>
+                        <phase>package</phase>
                         <goals>
-                            <goal>jpackage</goal>
+                            <goal>jlink</goal>
                         </goals>
+                        <configuration>
+                            <launcher>debugKomet</launcher>
+                            <jlinkImageName>kometDebugRuntimeImage</jlinkImageName>
+                            <jlinkVerbose>true</jlinkVerbose>
+                            <jlinkZipName>kometJlink</jlinkZipName>
+                            <options>
+                                <option>--enable-preview</option>
+                                <option>--add-opens</option>
+                                <option>javafx.graphics/javafx.scene=org.controlsfx.controls</option>
+                                <option>--add-exports</option>
+                                <option>javafx.controls/com.sun.javafx.scene.control.behavior=org.hl7.komet.navigator</option>
+                                <option>-Djava.util.concurrent.ForkJoinPool.common.exceptionHandler=org.hl7.tinkar.common.alert.UncaughtExceptionAlertStreamer</option>
+                                <option>
+                                    -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:8000
+                                </option>
+                            </options>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <!-- Configuration for profiling -->
+                        <id>profile</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jlink</goal>
+                        </goals>
+                        <configuration>
+                            <launcher>profileKomet</launcher>
+                            <jlinkImageName>kometProfileRuntimeImage</jlinkImageName>
+                            <jlinkVerbose>true</jlinkVerbose>
+                            <jlinkZipName>kometProfileJlink</jlinkZipName>
+                            <options>
+                                <option>--enable-preview</option>
+                                <option>--add-opens</option>
+                                <option>javafx.graphics/javafx.scene=org.controlsfx.controls</option>
+                                <option>--add-exports</option>
+                                <option>javafx.controls/com.sun.javafx.scene.control.behavior=org.hl7.komet.navigator</option>
+                                <option>-Djava.util.concurrent.ForkJoinPool.common.exceptionHandler=org.hl7.tinkar.common.alert.UncaughtExceptionAlertStreamer</option>
+                                <option>
+                                    -agentpath:/Applications/JProfiler.app/Contents/Resources/app/bin/macos/libjprofilerti.jnilib=port=8849
+                                </option>
+                            </options>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
         </plugins>
     </build>
+
     <profiles>
         <profile>
             <id>scenic-view</id>
@@ -277,6 +277,62 @@
                 </dependency>
             </dependencies>
         </profile>
+        <!-- Profile to run JPackage to create installer(s), this profile can only be run with release versions-->
+        <profile>
+            <id>create-installer</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.panteleyev</groupId>
+                        <artifactId>jpackage-maven-plugin</artifactId>
+                        <version>${jpackage.version}</version>
+                        <configuration>
+                            <name>Komet</name>
+                             <appVersion>${project.version}</appVersion> <!-- Requires Semantic Versioning with major version > zero -->
+                            <vendor>HL7</vendor>
+                            <icon>${jpackage.icon}</icon>
+                            <type>${jpackage.type}</type>
+                            <runtimeImage>target/kometRuntimeImage</runtimeImage>
+                            <module>org.hl7.komet.application/org.hl7.komet.app.App</module>
+                            <input>installer_resources/sample_data</input>
+                            <javaOptions>
+                                <option>--enable-preview</option>
+                                <option>--add-opens</option>
+                                <option>javafx.graphics/javafx.scene=org.controlsfx.controls</option>
+                                <option>--add-exports</option>
+                                <option>javafx.controls/com.sun.javafx.scene.control.behavior=org.hl7.komet.navigator</option>
+                            </javaOptions>
+                            <!-- Windows Options - ignored by other Operating Systems -->
+                            <winMenu>true</winMenu>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>Installer</id>
+                                <phase>install</phase>
+                                <configuration>
+                                    <destination>target/dist/installer</destination>
+                                    <resourceDir>${jpackage.resourceDir}</resourceDir>
+                                </configuration>
+                                <goals>
+                                    <goal>jpackage</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>InstallerWithData</id>
+                                <phase>install</phase>
+                                <configuration>
+                                    <destination>target/dist/installer_with_data</destination>
+                                    <resourceDir>${jpackage.resourceDir}+data</resourceDir>
+                                </configuration>
+                                <goals>
+                                    <goal>jpackage</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <!-- Profiles to configure JPackage flags for Mac, Linux, & Windows Installers -->
 	    <profile>
 	        <id>mac</id>
@@ -292,7 +348,7 @@
 	        </properties>
 	    </profile>
 	    <profile>
-	        <id>unix</id>
+	        <id>linux</id>
 	        <activation>
 	            <os>
 	                <family>unix</family>
@@ -301,7 +357,8 @@
 	        </activation>
 	        <properties>
 	            <jpackage.type>TAR</jpackage.type>
-<!--                <jpackage.resourceDir>installer_resources/resourceDir_unix</jpackage.resourceDir>-->
+                <jpackage.icon>src/main/resources/icons/KOMET.icns</jpackage.icon>
+                <jpackage.resourceDir>installer_resources/resourceDir_unix</jpackage.resourceDir>
 	        </properties>
 	    </profile>
 	    <profile>
